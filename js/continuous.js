@@ -361,7 +361,11 @@ function drawThreshold(d, type) {
                 thresholdValue = newThreshold;
 
                 // Update the marker position on the ROC curve
-                plotROC(d);
+                if (type === "true") {
+                    plotROC(trueMetrics.d);
+                } else {
+                    plotROC(observedMetrics.d);
+                }
                 // Redraw the threshold group and update visuals
                 drawThreshold(d, type);
             })
@@ -440,6 +444,12 @@ function drawThreshold(d, type) {
 function plotROC(d) {
     const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
 
+    // Calculate AUC once - it only depends on d
+    const auc = cumulativeDistributionFunction(d / Math.sqrt(2), 0, 1);
+    
+    // Store current d value to prevent recalculation
+    const currentD = d;
+    
     const tMin = -5;
     const tMax = 5;
     const step = 0.01;
@@ -479,29 +489,24 @@ function plotROC(d) {
     const thresholdFPR = 1 - cumulativeDistributionFunction(thresholdValue, 0, 1);
     const thresholdTPR = 1 - cumulativeDistributionFunction(thresholdValue, d, 1);
 
-    // Calculate specificity, sensitivity, and PPV
-    const specificity = 1 - thresholdFPR; // Specificity = TN / (TN + FP)
-    const sensitivity = thresholdTPR;    // Sensitivity = TP / (TP + FN)
+    // Calculate specificity, sensitivity, and PPV for threshold point only
+    const specificity = 1 - thresholdFPR;
+    const sensitivity = thresholdTPR;
     const ppv = (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
-
-    // Balanced Accuracy formula
     const balancedAccuracy = (sensitivity + specificity) / 2;
-
-    // Calculate AUC
-    const auc = cumulativeDistributionFunction(d / Math.sqrt(2), 0, 1); // AUC = Φ(d / √2)
-    
-    // Update dashboard values
-    document.getElementById("auc-value-cont").textContent = (auc * 100).toFixed(1) + "%";
-    document.getElementById("sensitivity-value-cont").textContent = (sensitivity * 100).toFixed(1) + "%";
-    document.getElementById("specificity-value-cont").textContent = (specificity * 100).toFixed(1) + "%";
-    document.getElementById("accuracy-value-cont").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
-    document.getElementById("ppv-value-cont").textContent = (ppv * 100).toFixed(1) + "%";
 
     // Calculate PR AUC (Average Precision)
     let prauc = 0;
     for (let i = 1; i < recall.length; i++) {
         prauc += (recall[i-1] - recall[i]) * precision[i-1];
     }
+
+    // Update dashboard values
+    document.getElementById("auc-value-cont").textContent = (auc * 100).toFixed(1) + "%";
+    document.getElementById("sensitivity-value-cont").textContent = (sensitivity * 100).toFixed(1) + "%";
+    document.getElementById("specificity-value-cont").textContent = (specificity * 100).toFixed(1) + "%";
+    document.getElementById("accuracy-value-cont").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
+    document.getElementById("ppv-value-cont").textContent = (ppv * 100).toFixed(1) + "%";
 
     // ROC Plot configuration...
     const rocTrace = {

@@ -28,32 +28,57 @@
             <!-- Sliders and inputs -->
             <div class="section sliders">
                 <div class="slider-container">
-                    <!-- Cohen's d -->
+                    <!-- Cohen's d and other metrics -->
                     <div style="margin-bottom: 20px;">
                         <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="0.50" style="width: 100%;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        
+                        <!-- All metrics in two columns -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-bottom: 5px;">
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;"> </span>
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">True</span>
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">Obs.</span>
+                        </div>
+
+                        <!-- Cohen's d -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">Cohen's d</span>
-                            <input type="number" id="difference-number" min="0" max="5" step="0.01" value="0.50" style="width: 60px;">
+                            <input type="number" id="true-difference-number-bin" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-difference-number-bin" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+
+                        <!-- Odds Ratio -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">Odds Ratio</span>
-                            <input type="number" id="odds-ratio" min="1" step="1" value="1" style="width: 60px;">
+                            <input type="number" id="true-odds-ratio-bin" min="1" step="0.01" value="1" style="width: 50px; text-align: right;">
+                            <input type="number" id="observed-odds-ratio-bin" min="1" step="0.01" value="1" style="width: 50px; text-align: right;" readonly>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+
+                        <!-- Log Odds Ratio -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">Log Odds Ratio</span>
-                            <input type="number" id="log-odds-ratio" step="0.05" value="0" style="width: 60px;">
+                            <input type="number" id="true-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;">
+                            <input type="number" id="observed-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+
+                        <!-- AUC -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">AUC</span>
-                            <input type="number" id="auc" min="0.5" max="1" step="0.005" value="0.1" style="width: 60px;">
+                            <input type="number" id="true-auc-bin" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;">
+                            <input type="number" id="observed-auc-bin" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+
+                        <!-- Point-biserial r -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">r<sub>pb</sub></span>
-                            <input type="number" id="pb-r" min="0" max="1" step="0.01" value="0" style="width: 60px;">
+                            <input type="number" id="true-pb-r-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;">
+                            <input type="number" id="observed-pb-r-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+
+                        <!-- Eta squared -->
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">&eta;²</span>
-                            <input type="number" id="eta-squared" min="0" max="1" step="0.01" value="0" style="width: 60px;">
+                            <input type="number" id="true-eta-squared-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;">
+                            <input type="number" id="observed-eta-squared-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
                     </div>
                     
@@ -65,11 +90,40 @@
                             <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
+
+                    <!-- Reliability Controls -->
+                    <div style="margin-top: 30px;">
+                        <!-- Group 1 Reliability -->
+                        <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="1" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Controls reliability</span>
+                            <input type="number" id="icc1-number" min="0" max="1" step="0.01" value="1" style="width: 60px;">
+                        </div>
+                        
+                        <!-- Group 2 Reliability -->
+                        <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="1" style="width: 100%; margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Patients reliability</span>
+                            <input type="number" id="icc2-number" min="0" max="1" step="0.01" value="1" style="width: 60px;">
+                        </div>
+                        
+                        <!-- Classification Reliability -->
+                        <input type="range" id="iccc-slider" min="0" max="1" step="0.01" value="1" style="width: 100%; margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Grouping reliability</span>
+                            <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="1" style="width: 60px;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Plot 1: Overlapping distributions -->
             <div class="section">
+                <!-- Toggle buttons -->
+                <div style="text-align: left; margin-bottom: 10px;">
+                    <button id="true-button-bin" class="toggle-button">True</button>
+                    <button id="observed-button-bin" class="toggle-button active">Observed</button>
+                </div>
                 <div id="overlap-plot" class="plot"></div>
             </div>
 

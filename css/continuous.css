@@ -112,7 +112,7 @@ h1 {
 #continuous-container .results-container .plot-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 20px;
     height: 500px;
     margin-bottom: 20px;
     width: 100%;
@@ -121,7 +121,7 @@ h1 {
 #continuous-container .results-container .half-plot {
     flex: 1;
     min-width: 0;
-    height: calc(50% - 2.5px);
+    height: calc(50% - 10px);
     width: 100%;
 }
 
@@ -146,7 +146,7 @@ h1 {
 /* =============================================================================
    8. Toggle Buttons
 ============================================================================= */
-#continuous-container .toggle-button {
+.toggle-button {
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     color: #333;
@@ -159,13 +159,13 @@ h1 {
     transition: all 0.3s ease;
 }
 
-#continuous-container .toggle-button.active {
+.toggle-button.active {
     background-color: #000000;
     color: white;
     border: 1px solid #000000;
 }
 
-#continuous-container .toggle-button:hover {
+.toggle-button:hover {
     background-color: #e0e0e0;
 }
 

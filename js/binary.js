@@ -37,11 +37,15 @@ function initializeBinary() {
             .call(d3.axisLeft(yScale).tickFormat(() => "")); // Remove y-axis tick labels
 
 
+    // Add state variable for current view
+    let currentView = "observed";
+
     let thresholdValue = 0;
     let rocInitialized = false; // Track if the ROC plot is initialized
 
     function normalPDF(x, mean, stdDev) {
-        return Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
+        // Remove normalization factor to maintain constant height
+        return Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
     }
 
     function erf(z) {
@@ -61,31 +65,57 @@ function initializeBinary() {
 
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
-        const greenScale = baseRate;
-        const blueScale = 1 - baseRate;
+        // New scaling logic
+        let greenScale = 1;  // Teal (patients) distribution
+        let blueScale = 1;   // Black (controls) distribution
+        
+        // Scale based on base rate, but only one distribution at a time
+        if (baseRate < 0.5) {
+            // Below 50%, scale down the teal distribution
+            greenScale = baseRate * 2;  // Multiply by 2 to maintain full height at 50%
+        } else {
+            // Above 50%, scale down the black distribution
+            blueScale = (1 - baseRate) * 2;  // Multiply by 2 to maintain full height at 50%
+        }
 
+        // Get ICC values
+        const icc1 = parseFloat(document.getElementById("icc1-slider").value);
+        const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+
+        // Calculate adjusted standard deviations based on ICC
+        const sigma1 = 1 / Math.sqrt(icc1); // Controls
+        const sigma2 = 1 / Math.sqrt(icc2); // Patients
+
+        // Keep the raw mean difference constant
+        const meanDiff = d;  // This is our raw mean difference that shouldn't change with reliability
+        
         const x = d3.range(-10, 10, 0.1);
 
         // Ensure xScale is consistent across the entire code
-        xScale.domain([-5, 5]) // Adjust the initial range
+        xScale.domain([-5, 5])
             .range([margin.left, width - margin.right]);
 
-        const normalizationFactor = 1 / (Math.sqrt(2 * Math.PI)); // Normal PDF constant
-
+        // Set a fixed scale to make distributions occupy half height by default
+        const baseHeight = 0.5;  // This will make distributions occupy half height at 50% base rate
+        
         const data1 = x.map(val => ({
             x: val,
-            y: (normalPDF(val, 0, 1) * blueScale) / normalizationFactor,
+            y: normalPDF(val, 0, sigma1) * blueScale * baseHeight,
         }));
         const data2 = x.map(val => ({
             x: val,
-            y: (normalPDF(val, d, 1) * greenScale) / normalizationFactor,
+            y: normalPDF(val, meanDiff, sigma2) * greenScale * baseHeight,
         }));
 
         // Calculate maximum y-value for adjusting the yScale
         const maxYBlue = d3.max(data1, d => d.y);
         const maxYGreen = d3.max(data2, d => d.y);
         const maxY = Math.max(maxYBlue, maxYGreen);
-        yScale.domain([0, maxY * 1.1]); // Add a 10% buffer
+        
+        // Ensure y-axis starts at 0 and extends slightly above max
+        const minY = 0;
+        const buffer = maxY * 0.1;  // 10% buffer for top of plot
+        yScale.domain([minY, maxY + buffer]);
 
         // Update y-axis
         svgDistributions.select(".y-axis")
@@ -97,27 +127,29 @@ function initializeBinary() {
             .x(d => xScale(d.x))
             .y(d => yScale(d.y));
 
+        // Create an area generator that will close the path to the bottom
+        const area = d3.area()
+            .x(d => xScale(d.x))
+            .y0(yScale(0))  // Bottom of the plot
+            .y1(d => yScale(d.y));  // Top of the distribution
+
         svgDistributions.selectAll(".distribution").remove();
 
-        // Draw the first (control group) distribution
+        // Draw control distribution (black)
         svgDistributions.append("path")
-            .datum(data1)
             .attr("class", "distribution")
+            .datum(data1)
             .attr("fill", "black")
             .attr("opacity", 0.3)
-            .attr("stroke", "black")
-            .attr("stroke-width", 1.5)
-            .attr("d", line);
+            .attr("d", area);
 
-        // Draw the second (group of interest) distribution
+        // Draw patient distribution (teal)
         svgDistributions.append("path")
-            .datum(data2)
             .attr("class", "distribution")
+            .datum(data2)
             .attr("fill", "teal")
             .attr("opacity", 0.3)
-            .attr("stroke", "teal")
-            .attr("stroke-width", 1.5)
-            .attr("d", line);
+            .attr("d", area);
 
         const legendData = ["Controls", "Patients"];
         const legend = svgDistributions.selectAll(".legend-group").data(legendData);
@@ -404,133 +436,87 @@ function initializeBinary() {
         }
     }
 
-    const sliderD = document.getElementById("difference-slider");
-    const inputD = document.getElementById("difference-number");
-    const sliderBaseRate = document.getElementById("base-rate-slider");
-    const inputBaseRate = document.getElementById("base-rate-number");
-    const oddsRatioInput = document.getElementById("odds-ratio");
-    const logOddsRatioInput = document.getElementById("log-odds-ratio");
-    const aucInput = document.getElementById("auc");
-    const pbrInput = document.getElementById("pb-r");
-    const etaSquaredInput = document.getElementById("eta-squared");
+    function updateMetricsFromD(d) {
+        // Get reliability values
+        const icc1 = parseFloat(document.getElementById("icc1-slider").value);
+        const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+        const iccG = parseFloat(document.getElementById("iccc-slider").value);
+        
+        // Calculate attenuated d
+        const dObs = d * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
+
+        // Calculate values for true d
+        const trueOddsRatio = Math.exp(d * Math.PI / Math.sqrt(3));
+        const trueLogOddsRatio = d * Math.PI / Math.sqrt(3);
+        const trueAuc = cdfNormal(d / Math.sqrt(2), 0, 1);
+        const trueR = d / Math.sqrt(d ** 2 + 4);
+        const trueEtaSquared = trueR ** 2;
+
+        // Calculate values for observed d
+        const obsOddsRatio = Math.exp(dObs * Math.PI / Math.sqrt(3));
+        const obsLogOddsRatio = dObs * Math.PI / Math.sqrt(3);
+        const obsAuc = cdfNormal(dObs / Math.sqrt(2), 0, 1);
+        const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
+        const obsEtaSquared = obsR ** 2;
+
+        // Update all inputs
+        document.getElementById("true-difference-number-bin").value = d.toFixed(2);
+        document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
+        document.getElementById("difference-slider").value = d.toFixed(2);
+
+        // Update true metrics
+        document.getElementById("true-odds-ratio-bin").value = trueOddsRatio.toFixed(2);
+        document.getElementById("true-log-odds-ratio-bin").value = trueLogOddsRatio.toFixed(2);
+        document.getElementById("true-auc-bin").value = trueAuc.toFixed(3);
+        document.getElementById("true-pb-r-bin").value = trueR.toFixed(2);
+        document.getElementById("true-eta-squared-bin").value = trueEtaSquared.toFixed(2);
+
+        // Update observed metrics
+        document.getElementById("observed-odds-ratio-bin").value = obsOddsRatio.toFixed(2);
+        document.getElementById("observed-log-odds-ratio-bin").value = obsLogOddsRatio.toFixed(2);
+        document.getElementById("observed-auc-bin").value = obsAuc.toFixed(3);
+        document.getElementById("observed-pb-r-bin").value = obsR.toFixed(2);
+        document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
+
+        // Update plots using updatePlots to respect current view
+        updatePlots();
+    }
 
     function updatePlots() {
-        const d = parseFloat(sliderD.value);
-        inputD.value = d.toFixed(2);
-
-        const baseRate = parseFloat(sliderBaseRate.value);
-        inputBaseRate.value = baseRate.toFixed(1);
-
-        drawDistributions(d);
-        drawThreshold(d);
-        plotROC(d);
+        const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+        const icc1 = parseFloat(document.getElementById("icc1-slider").value);
+        const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+        const iccG = parseFloat(document.getElementById("iccc-slider").value);
+        
+        // Calculate observed d based on reliabilities
+        const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
+        
+        // Update observed metrics
+        document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
+        document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.PI / Math.sqrt(3)).toFixed(2);
+        document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.PI / Math.sqrt(3)).toFixed(2);
+        document.getElementById("observed-auc-bin").value = cdfNormal(dObs / Math.sqrt(2), 0, 1).toFixed(3);
+        document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
+        const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
+        document.getElementById("observed-eta-squared-bin").value = (obsR ** 2).toFixed(2);
+        
+        // Use appropriate d value based on current view
+        const dToUse = currentView === "true" ? trueD : dObs;
+        
+        // Update plots with the appropriate d value
+        drawDistributions(dToUse);
+        drawThreshold(dToUse);
+        plotROC(dToUse);
     }
 
-    if (sliderD && inputD) {
-        sliderD.addEventListener("input", (e) => {
-            const d = parseFloat(e.target.value);
-            updateMetricsFromD(d);
-        });
-
-        inputD.addEventListener("input", (e) => {
-            const d = parseFloat(e.target.value);
-            updateMetricsFromD(d);
-        });
-    }
-
-    if (sliderBaseRate && inputBaseRate) {
-        sliderBaseRate.addEventListener("input", updatePlots);
-        inputBaseRate.addEventListener("input", () => {
-            sliderBaseRate.value = inputBaseRate.value;
-            updatePlots();
-        });
-    }
-
-    if (oddsRatioInput) {
-        oddsRatioInput.addEventListener("input", (e) => {
-            const oddsRatio = parseFloat(e.target.value);
-            updateMetricsFromOddsRatio(oddsRatio);
-        });
-    }
-
-    if (logOddsRatioInput) {
-        logOddsRatioInput.addEventListener("input", (e) => {
-            const logOddsRatio = parseFloat(e.target.value);
-            updateMetricsFromLogOddsRatio(logOddsRatio);
-        });
-    }
-
-    if (aucInput) {
-        aucInput.addEventListener("input", (e) => {
-            const auc = parseFloat(e.target.value);
-            updateMetricsFromAUC(auc);
-        });
-    }
-
-    if (pbrInput) {
-        pbrInput.addEventListener("input", (e) => {
-            const r = parseFloat(e.target.value);
-            updateMetricsFromR(r);
-        });
-    }
-
-    if (etaSquaredInput) {
-        etaSquaredInput.addEventListener("input", (e) => {
-            const etaSquared = parseFloat(e.target.value);
-            const r = Math.sqrt(etaSquared);
-            updateMetricsFromR(r);
-        });
-    }
-
-    function updateMetricsFromD(d) {
-        // Get all elements first
-        const elements = {
-            oddsRatio: document.getElementById("odds-ratio"),
-            logOddsRatio: document.getElementById("log-odds-ratio"),
-            auc: document.getElementById("auc"),
-            pbr: document.getElementById("pb-r"),
-            etaSquared: document.getElementById("eta-squared"),
-            slider: document.getElementById("difference-slider"),
-            number: document.getElementById("difference-number")
-        };
-
-        // Check if all elements exist
-        for (const [key, element] of Object.entries(elements)) {
-            if (!element) {
-                console.error(`Missing element: ${key}`);
-                return; // Exit if any element is missing
-            }
-        }
-
-        // Calculate values
-        const oddsRatio = Math.exp(d * Math.PI / Math.sqrt(3));
-        const logOddsRatio = d * Math.PI / Math.sqrt(3);
-        const auc = cdfNormal(d / Math.sqrt(2), 0, 1);
-        const r = d / Math.sqrt(d ** 2 + 4);
-        const etaSquared = r ** 2;
-
-        // Update values
-        elements.oddsRatio.value = oddsRatio.toFixed(2);
-        elements.logOddsRatio.value = logOddsRatio.toFixed(2);
-        elements.auc.value = auc.toFixed(3);
-        elements.pbr.value = r.toFixed(2);
-        elements.etaSquared.value = etaSquared.toFixed(2);
-        elements.slider.value = d.toFixed(2);
-        elements.number.value = d.toFixed(2);
-
-        // Update plots
-        drawDistributions(d);
-        drawThreshold(d);
-        plotROC(d);
-    }
-
+    // Conversion functions
     function updateMetricsFromOddsRatio(oddsRatio) {
         const d = Math.log(oddsRatio) * Math.sqrt(3) / Math.PI;
         updateMetricsFromD(d);
     }
 
     function updateMetricsFromLogOddsRatio(logOddsRatio) {
-        const d = logOddsRatio * Math.sqrt(3) / Math.PI; // Convert Log Odds Ratio back to Cohen's d
+        const d = logOddsRatio * Math.sqrt(3) / Math.PI;
         updateMetricsFromD(d);
     }
 
@@ -587,8 +573,137 @@ function initializeBinary() {
         return ppnd;
     }
 
-    // Initialize everything at the end
-    updateMetricsFromD(0.5); // Default Cohen's d
+    // Move event listener setup to the top level
+    function setupEventListeners() {
+        // Toggle buttons
+        const trueButton = document.getElementById("true-button-bin");
+        const observedButton = document.getElementById("observed-button-bin");
+
+        trueButton.addEventListener("click", () => {
+            currentView = "true";
+            trueButton.classList.add("active");
+            observedButton.classList.remove("active");
+            updatePlots();
+        });
+
+        observedButton.addEventListener("click", () => {
+            currentView = "observed";
+            observedButton.classList.add("active");
+            trueButton.classList.remove("active");
+            updatePlots();
+        });
+
+        // Main slider for Cohen's d
+        const differenceSlider = document.getElementById("difference-slider");
+        differenceSlider.addEventListener("input", (e) => {
+            const d = parseFloat(e.target.value);
+            document.getElementById("true-difference-number-bin").value = d.toFixed(2);
+            updateMetricsFromD(d);
+        });
+
+        // True metric inputs
+        const trueMetricInputs = {
+            d: document.getElementById("true-difference-number-bin"),
+            oddsRatio: document.getElementById("true-odds-ratio-bin"),
+            logOddsRatio: document.getElementById("true-log-odds-ratio-bin"),
+            auc: document.getElementById("true-auc-bin"),
+            pbr: document.getElementById("true-pb-r-bin"),
+            etaSquared: document.getElementById("true-eta-squared-bin")
+        };
+
+        // Reliability controls
+        const reliabilityControls = {
+            icc1Slider: document.getElementById("icc1-slider"),
+            icc1Input: document.getElementById("icc1-number"),
+            icc2Slider: document.getElementById("icc2-slider"),
+            icc2Input: document.getElementById("icc2-number"),
+            iccGSlider: document.getElementById("iccc-slider"),
+            iccGInput: document.getElementById("iccc-number")
+        };
+
+        // ICC1 listeners
+        reliabilityControls.icc1Slider.addEventListener("input", () => {
+            reliabilityControls.icc1Input.value = parseFloat(reliabilityControls.icc1Slider.value).toFixed(2);
+            updatePlots();
+        });
+        reliabilityControls.icc1Input.addEventListener("input", () => {
+            reliabilityControls.icc1Slider.value = reliabilityControls.icc1Input.value;
+            updatePlots();
+        });
+
+        // ICC2 listeners
+        reliabilityControls.icc2Slider.addEventListener("input", () => {
+            reliabilityControls.icc2Input.value = parseFloat(reliabilityControls.icc2Slider.value).toFixed(2);
+            updatePlots();
+        });
+        reliabilityControls.icc2Input.addEventListener("input", () => {
+            reliabilityControls.icc2Slider.value = reliabilityControls.icc2Input.value;
+            updatePlots();
+        });
+
+        // ICC_G listeners
+        reliabilityControls.iccGSlider.addEventListener("input", () => {
+            reliabilityControls.iccGInput.value = parseFloat(reliabilityControls.iccGSlider.value).toFixed(2);
+            updatePlots();
+        });
+        reliabilityControls.iccGInput.addEventListener("input", () => {
+            reliabilityControls.iccGSlider.value = reliabilityControls.iccGInput.value;
+            updatePlots();
+        });
+
+        // Add event listeners to all true metric inputs
+        trueMetricInputs.d.addEventListener("input", (e) => {
+            const d = parseFloat(e.target.value);
+            differenceSlider.value = d;
+            updateMetricsFromD(d);
+        });
+
+        trueMetricInputs.oddsRatio.addEventListener("input", (e) => {
+            const oddsRatio = parseFloat(e.target.value);
+            updateMetricsFromOddsRatio(oddsRatio);
+        });
+
+        trueMetricInputs.logOddsRatio.addEventListener("input", (e) => {
+            const logOddsRatio = parseFloat(e.target.value);
+            updateMetricsFromLogOddsRatio(logOddsRatio);
+        });
+
+        trueMetricInputs.auc.addEventListener("input", (e) => {
+            const auc = parseFloat(e.target.value);
+            updateMetricsFromAUC(auc);
+        });
+
+        trueMetricInputs.pbr.addEventListener("input", (e) => {
+            const r = parseFloat(e.target.value);
+            updateMetricsFromR(r);
+        });
+
+        trueMetricInputs.etaSquared.addEventListener("input", (e) => {
+            const etaSquared = parseFloat(e.target.value);
+            const r = Math.sqrt(etaSquared);
+            updateMetricsFromR(r);
+        });
+
+        // Base rate slider and input
+        const baseRateSlider = document.getElementById("base-rate-slider");
+        const baseRateInput = document.getElementById("base-rate-number");
+
+        baseRateSlider.addEventListener("input", () => {
+            baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(1);
+            updatePlots();
+        });
+
+        baseRateInput.addEventListener("input", () => {
+            baseRateSlider.value = baseRateInput.value;
+            updatePlots();
+        });
+    }
+
+    // Call setupEventListeners after elements are available
+    setupEventListeners();
+
+    // Initialize with default values
+    updateMetricsFromD(0.5);
     updatePlots();
 }
 
