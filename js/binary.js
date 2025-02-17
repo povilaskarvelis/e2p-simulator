@@ -44,8 +44,8 @@ function initializeBinary() {
     let rocInitialized = false; // Track if the ROC plot is initialized
 
     function normalPDF(x, mean, stdDev) {
-        // Remove normalization factor to maintain constant height
-        return Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+        // Add back normalization factor (1/(σ√(2π)))
+        return Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
     }
 
     function erf(z) {
@@ -82,12 +82,17 @@ function initializeBinary() {
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
 
-        // Calculate adjusted standard deviations based on ICC
-        const sigma1 = 1 / Math.sqrt(icc1); // Controls
-        const sigma2 = 1 / Math.sqrt(icc2); // Patients
-
-        // Keep the raw mean difference constant
-        const meanDiff = d;  // This is our raw mean difference that shouldn't change with reliability
+        // Use true or observed standard deviations based on current view
+        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
+        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
+        // Get the true d value from the input
+        const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+        
+        // Get ICC_G value that was missing
+        const iccG = parseFloat(document.getElementById("iccc-slider").value);
+        
+        // Calculate the mean difference based on true d and ICC_G
+        const meanDiff = currentView === "true" ? trueD : trueD * Math.sqrt(iccG);
         
         const x = d3.range(-10, 10, 0.1);
 
@@ -96,15 +101,16 @@ function initializeBinary() {
             .range([margin.left, width - margin.right]);
 
         // Set a fixed scale to make distributions occupy half height by default
-        const baseHeight = 0.5;  // This will make distributions occupy half height at 50% base rate
+        const baseHeight = 1.0;  // Increased to compensate for normalization
+        const normalizationFactor = Math.sqrt(2 * Math.PI);  // To counter the normalization in PDF
         
         const data1 = x.map(val => ({
             x: val,
-            y: normalPDF(val, 0, sigma1) * blueScale * baseHeight,
+            y: normalPDF(val, 0, sigma1) * blueScale * baseHeight * normalizationFactor,
         }));
         const data2 = x.map(val => ({
             x: val,
-            y: normalPDF(val, meanDiff, sigma2) * greenScale * baseHeight,
+            y: normalPDF(val, meanDiff, sigma2) * greenScale * baseHeight * normalizationFactor,
         }));
 
         // Calculate maximum y-value for adjusting the yScale
@@ -181,9 +187,6 @@ function initializeBinary() {
     function drawThreshold(d) {
         const xDomain = xScale.domain(); // Get the min and max of the xScale domain
 
-        // Select the correct distribution container based on the type
-        const threshold = svgDistributions.selectAll(".threshold-line").data([thresholdValue]);
-
         // Select or create the threshold group
         const thresholdGroup = svgDistributions.selectAll(".threshold-group")
             .data([null]); // Use a single group for the threshold
@@ -193,21 +196,33 @@ function initializeBinary() {
             .attr("class", "threshold-group")
             .style("cursor", "pointer")
             .call(d3.drag()
-                .on("start", function (event) {
-                    // Capture the initial threshold position during drag
-                    offsetX = xScale(thresholdValue) - event.x;
-                })
-                .on("drag", function (event) {
-                    // Update threshold value based on drag
-                    let newThreshold = xScale.invert(event.x + offsetX);
+                .on("drag", function(event) {
+                    // Get new threshold value from drag position
+                    let newThreshold = xScale.invert(event.x);
                     // Constrain to the x-axis domain
                     newThreshold = Math.max(xDomain[0], Math.min(xDomain[1], newThreshold));
                     thresholdValue = newThreshold;
 
-                    const d = parseFloat(sliderD.value)
+                    // Update threshold line and arrows position
+                    thresholdGroup.select(".threshold-line")
+                        .attr("x1", xScale(newThreshold))
+                        .attr("x2", xScale(newThreshold));
 
-                    // Update the marker position on the ROC curve
+                    // Update arrows
+                    thresholdGroup.selectAll(".threshold-arrow")
+                        .attr("d", d => {
+                            const x = xScale(newThreshold + (d.direction === "left" ? -0.33 : 0.33));
+                            const y = d.y;
+                            if (d.direction === "left") {
+                                return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+                            } else {
+                                return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+                            }
+                        });
+
+                    // Update ROC and PR plots in real time
                     plotROC(d);
+
                     // Redraw the threshold group and update visuals
                     drawThreshold(d);
                 })
@@ -467,14 +482,14 @@ function initializeBinary() {
         // Update true metrics
         document.getElementById("true-odds-ratio-bin").value = trueOddsRatio.toFixed(2);
         document.getElementById("true-log-odds-ratio-bin").value = trueLogOddsRatio.toFixed(2);
-        document.getElementById("true-auc-bin").value = trueAuc.toFixed(3);
+        document.getElementById("true-auc-bin").value = trueAuc.toFixed(2);
         document.getElementById("true-pb-r-bin").value = trueR.toFixed(2);
         document.getElementById("true-eta-squared-bin").value = trueEtaSquared.toFixed(2);
 
         // Update observed metrics
         document.getElementById("observed-odds-ratio-bin").value = obsOddsRatio.toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = obsLogOddsRatio.toFixed(2);
-        document.getElementById("observed-auc-bin").value = obsAuc.toFixed(3);
+        document.getElementById("observed-auc-bin").value = obsAuc.toFixed(2);
         document.getElementById("observed-pb-r-bin").value = obsR.toFixed(2);
         document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
 
