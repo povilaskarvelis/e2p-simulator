@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translating effect size into predictive value</title>
+    <!-- Load libraries first -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Load styles -->
+    <link rel="stylesheet" href="css/binary.css">
+    <link rel="stylesheet" href="css/continuous.css">
+</head>
+<body>
+    <h1>Translating effect size into predictive value</h1>
+
+    <!-- Version Selection -->
+    <div style="width: 250px; margin-bottom: 20px;">
+        <select id="version-select" class="version-select">
+            <option value="binary" selected>Binary</option>
+            <option value="continuous">Continuous</option>
+        </select>
+    </div>
+
+    <!-- Binary Version (initially visible) -->
+    <div id="binary-container">
+        <div class="container">
+            <!-- Sliders and inputs -->
+            <div class="section sliders">
+                <div class="slider-container">
+                    <!-- Cohen's d -->
+                    <div style="margin-bottom: 20px;">
+                        <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="0.50" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Cohen's d</span>
+                            <input type="number" id="difference-number" min="0" max="5" step="0.01" value="0.50" style="width: 60px;">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Odds Ratio</span>
+                            <input type="number" id="odds-ratio" min="1" step="1" value="1" style="width: 60px;">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Log Odds Ratio</span>
+                            <input type="number" id="log-odds-ratio" step="0.05" value="0" style="width: 60px;">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">AUC</span>
+                            <input type="number" id="auc" min="0.5" max="1" step="0.005" value="0.1" style="width: 60px;">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">r<sub>pb</sub></span>
+                            <input type="number" id="pb-r" min="0" max="1" step="0.01" value="0" style="width: 60px;">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">&eta;²</span>
+                            <input type="number" id="eta-squared" min="0" max="1" step="0.01" value="0" style="width: 60px;">
+                        </div>
+                    </div>
+                    
+                    <!-- Base rate -->
+                    <div>
+                        <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
+                            <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plot 1: Overlapping distributions -->
+            <div class="section">
+                <div id="overlap-plot" class="plot"></div>
+            </div>
+
+            <!-- Plot 2: ROC curve -->
+            <div class="section">
+                <div class="plot-container">
+                    <div id="roc-plot" class="half-plot"></div>
+                    <div id="pr-plot" class="half-plot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results dashboard -->
+        <div id="dashboard" class="dashboard">
+            <p>AUC: <span id="auc-value">0.00%</span></p>
+            <p>Sensitivity: <span id="sensitivity-value">0.00%</span></p>
+            <p>Specificity: <span id="specificity-value">0.00%</span></p>
+            <p>Balanced accuracy: <span id="accuracy-value">0.00%</span></p>
+            <p>PPV: <span id="ppv-value">0.00%</span></p>
+        </div>
+    </div>
+
+    <!-- Continuous Version (initially hidden) -->
+    <div id="continuous-container" style="display: none;">
+        <div class="container">
+            <!-- Column 1: Sliders -->
+            <div class="section sliders">
+                <div class="slider-container">
+                    <!-- True and Observed Effects -->
+                    <input type="range" id="effect-slider-cont" min="0" max="1" step="0.01" value="0.50" style="width: 100%; margin-bottom: 10px;">
+
+                    <!-- Continuous Metrics -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-bottom: 5px;">
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;"> </span>
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">True</span>
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">Obs.</span>
+                        </div>
+
+                        <!-- Pearson's r -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Pearson's r</span>
+                            <input type="number" id="true-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" style="width: 50px; text-align: right;">
+                            <input type="number" id="observed-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
+                        </div>
+
+                        <!-- R² -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">R²</span>
+                            <input type="number" id="true-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
+                        </div>
+
+                        <!-- c-index -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">c-index</span>
+                            <input type="number" id="true-c-index-cont" min="0.5" max="1" step="0.001" value="0.5" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-c-index-cont" min="0.5" max="1" step="0.001" value="0.5" style="width: 50px; text-align: right;" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Reliability X -->
+                    <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <span style="font-size: 1.1em; color: #555;">Reliability predictor</span>
+                        <input type="number" id="reliability-x-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
+                    </div>
+
+                    <!-- Reliability Y -->
+                    <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <span style="font-size: 1.1em; color: #555;">Reliability outcome</span>
+                        <input type="number" id="reliability-y-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
+                    </div>
+
+                    <!-- Base rate -->
+                    <div style="margin-top: 30px; margin-bottom: 30px;">
+                        <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
+                            <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 60px;">
+                        </div>
+                    </div>
+
+                    <!-- Binary Metrics -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
+                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-bottom: 5px;">
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;"> </span>
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">True</span>
+                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">Obs.</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Cohen's d</span>
+                            <input type="number" id="true-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Cohen's d*</span>
+                            <input type="number" id="true-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Rank-biserial r</span>
+                            <input type="number" id="true-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Glass's &Delta;</span>
+                            <input type="number" id="true-glass-d-cont" min="0" max="5" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-glass-d-cont" min="0" max="5" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Odds Ratio</span>
+                            <input type="number" id="true-odds-ratio-cont" min="1" step="1" value="1" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-odds-ratio-cont" min="1" step="1" value="1" style="width: 50px; text-align: right;" readonly>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Log Odds Ratio</span>
+                            <input type="number" id="true-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">AUC</span>
+                            <input type="number" id="true-auc-cont" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="observed-auc-cont" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Plots -->
+            <div class="section plot-container">
+                <!-- Toggle buttons -->
+                <div style="text-align: left; margin-bottom: 10px;">
+                    <button id="true-button-cont" class="toggle-button active">True</button>
+                    <button id="observed-button-cont" class="toggle-button">Observed</button>
+                </div>
+                <div class="container secondary">
+                    <!-- Container for both plots -->
+                    <div class="plots-stack">
+                        <div class="scatter-plots">
+                            <div id="scatter-plot-true-cont" class="plot" style="display: none;"></div>
+                            <div id="scatter-plot-observed-cont" class="plot"></div>
+                        </div>
+                        <div class="distribution-plots">
+                            <div id="distribution-plot-true-cont" class="plot" style="display: none;"></div>
+                            <div id="distribution-plot-observed-cont" class="plot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3: ROC and Dashboard -->
+            <div class="section results-container">
+                <div class="plot-container">
+                    <div id="roc-plot-cont" class="half-plot"></div>
+                    <div id="pr-plot-cont" class="half-plot"></div>
+                </div>
+                <div id="dashboard-cont" class="dashboard">
+                    <p>AUC: <span id="auc-value-cont">0.00%</span></p>
+                    <p>Sensitivity: <span id="sensitivity-value-cont">0.00%</span></p>
+                    <p>Specificity: <span id="specificity-value-cont">0.00%</span></p>
+                    <p>Balanced accuracy: <span id="accuracy-value-cont">0.00%</span></p>
+                    <p>PPV: <span id="ppv-value-cont">0.00%</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load scripts at the end of body -->
+    <!-- Load libraries first -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Load our module scripts -->
+    <script src="js/binary.js"></script>
+    <script src="js/continuous.js"></script>
+    <!-- Load main.js last since it depends on the other scripts -->
+    <script src="js/main.js"></script>
+</body>
+</html> 
