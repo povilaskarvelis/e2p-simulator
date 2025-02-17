@@ -1,0 +1,116 @@
+/* Basic page layout */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0 auto;
+    max-width: 1400px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Version select dropdown */
+.version-select {
+    padding: 8px 16px;
+    font-size: 1.1em;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.version-select:hover {
+    border-color: #999;
+}
+
+.version-select:focus {
+    border-color: #333;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+/* Binary-specific styles */
+#binary-container .container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+#binary-container .section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+}
+
+#binary-container .sliders {
+    max-width: 250px;
+}
+
+#binary-container .slider-container label {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+#binary-container .slider-container input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+#binary-container .plot {
+    height: 400px;
+}
+
+#binary-container .plot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 400px;
+}
+
+#binary-container .half-plot {
+    flex: 1;
+    min-width: 0;
+    height: 50%;
+}
+
+#binary-container .dashboard {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#binary-container .dashboard p {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #444;
+    margin: 10px 0;
+}
+
+@media (max-width: 900px) {
+    #binary-container .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #binary-container .sliders {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+
+    #binary-container .plot {
+        width: 100%;
+    }
+} 

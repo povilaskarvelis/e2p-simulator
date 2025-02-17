@@ -1,0 +1,194 @@
+/* =============================================================================
+   1. Base Styles
+============================================================================= */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0 auto;
+    max-width: 1400px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* =============================================================================
+   2. Version Selector
+============================================================================= */
+.version-select {
+    padding: 8px 16px;
+    font-size: 1.1em;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.version-select:hover { border-color: #999; }
+.version-select:focus {
+    border-color: #333;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+/* =============================================================================
+   3. Main Layout
+============================================================================= */
+#continuous-container .container {
+    display: flex;
+    gap: 20px;
+}
+
+/* Common section styles */
+#continuous-container .section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* =============================================================================
+   4. Left Column - Controls
+============================================================================= */
+#continuous-container .sliders {
+    width: 300px;
+    flex: none;
+}
+
+#continuous-container .slider-container label {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+#continuous-container .slider-container input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* =============================================================================
+   5. Middle Column - Main Plots
+============================================================================= */
+#continuous-container .plot-container {
+    width: 600px;
+    flex: none;
+}
+
+#continuous-container .plot {
+    height: 350px;
+    width: 100%;
+}
+
+/* Plot stack layout */
+#continuous-container .plots-stack {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+#continuous-container .scatter-plots,
+#continuous-container .distribution-plots {
+    width: 100%;
+    height: 100%;
+}
+
+/* =============================================================================
+   6. Right Column - Results
+============================================================================= */
+#continuous-container .results-container {
+    width: 350px;
+    flex: none;
+    overflow: hidden;
+}
+
+#continuous-container .results-container .plot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 500px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+#continuous-container .results-container .half-plot {
+    flex: 1;
+    min-width: 0;
+    height: calc(50% - 2.5px);
+    width: 100%;
+}
+
+/* =============================================================================
+   7. Dashboard
+============================================================================= */
+#continuous-container .dashboard {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+#continuous-container .dashboard p {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #444;
+    margin: 10px 0;
+}
+
+/* =============================================================================
+   8. Toggle Buttons
+============================================================================= */
+#continuous-container .toggle-button {
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    outline: none;
+    border-radius: 20px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+#continuous-container .toggle-button.active {
+    background-color: #000000;
+    color: white;
+    border: 1px solid #000000;
+}
+
+#continuous-container .toggle-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* =============================================================================
+   9. Responsive Layout
+============================================================================= */
+@media (max-width: 800px) {
+    #continuous-container .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #continuous-container .sliders {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+
+    #continuous-container .plot {
+        width: 100%;
+    }
+
+    #continuous-container .container.secondary {
+        flex-direction: column;
+        align-items: center;
+    }
+} 
