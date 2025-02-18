@@ -529,11 +529,11 @@ function plotROC(d) {
     };
 
     const rocLayout = {
-        title: "ROC Curve",
-        xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false },
-        yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false },
+        xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
+        yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
         showlegend: false,
         margin: { t: 40, l: 60, r: 20, b: 40 },
+        font: { size: 12 },
         annotations: [{
             x: 0.95,
             y: 0.05,
@@ -567,9 +567,8 @@ function plotROC(d) {
     };
 
     const prLayout = {
-        title: "PR Curve",
-        xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false },
-        yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false },
+        xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
+        yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
         showlegend: false,
         margin: { t: 40, l: 60, r: 20, b: 40 },
         font: { size: 12 },

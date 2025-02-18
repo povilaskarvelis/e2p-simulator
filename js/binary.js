@@ -26,7 +26,8 @@ function initializeBinary() {
     const svgDistributions = d3.select("#overlap-plot")
         .append("svg")
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
+        .style("margin-top", "40px");
 
         svgDistributions.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
@@ -34,8 +35,40 @@ function initializeBinary() {
 
         svgDistributions.append("g")
             .attr("transform", `translate(${margin.left},0)`)
+            .attr("class", "y-axis")
             .call(d3.axisLeft(yScale).tickFormat(() => "")); // Remove y-axis tick labels
 
+    // Editable axis labels
+    svgDistributions.selectAll(".x-label")
+        .data([null])
+        .join("foreignObject")
+        .attr("class", "x-label")
+        .attr("x", width / 2 - 50)
+        .attr("y", height - margin.bottom + 20)
+        .attr("width", 100)
+        .attr("height", 20)
+        .append("xhtml:div")
+        .attr("contenteditable", true)
+        .style("text-align", "center")
+        .style("font-size", "18px")
+        .style("color", "black")
+        .text("Predictor");
+
+    svgDistributions.selectAll(".y-label")
+        .data([null])
+        .join("foreignObject")
+        .attr("class", "y-label")
+        .attr("x", -height / 1.5)
+        .attr("y", margin.left - 40)
+        .attr("transform", `rotate(-90)`)
+        .attr("width", 200)
+        .attr("height", 20)
+        .append("xhtml:div")
+        .attr("contenteditable", true)
+        .style("text-align", "center")
+        .style("font-size", "18px")
+        .style("color", "black")
+        .text("Probability Density");
 
     // Add state variable for current view
     let currentView = "observed";
@@ -65,18 +98,6 @@ function initializeBinary() {
 
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
-        // New scaling logic
-        let greenScale = 1;  // Teal (patients) distribution
-        let blueScale = 1;   // Black (controls) distribution
-        
-        // Scale based on base rate, but only one distribution at a time
-        if (baseRate < 0.5) {
-            // Below 50%, scale down the teal distribution
-            greenScale = baseRate * 2;  // Multiply by 2 to maintain full height at 50%
-        } else {
-            // Above 50%, scale down the black distribution
-            blueScale = (1 - baseRate) * 2;  // Multiply by 2 to maintain full height at 50%
-        }
 
         // Get ICC values
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
@@ -100,17 +121,13 @@ function initializeBinary() {
         xScale.domain([-5, 5])
             .range([margin.left, width - margin.right]);
 
-        // Set a fixed scale to make distributions occupy half height by default
-        const baseHeight = 1.0;  // Increased to compensate for normalization
-        const normalizationFactor = Math.sqrt(2 * Math.PI);  // To counter the normalization in PDF
-        
         const data1 = x.map(val => ({
             x: val,
-            y: normalPDF(val, 0, sigma1) * blueScale * baseHeight * normalizationFactor,
+            y: normalPDF(val, 0, sigma1) * baseRate,
         }));
         const data2 = x.map(val => ({
             x: val,
-            y: normalPDF(val, meanDiff, sigma2) * greenScale * baseHeight * normalizationFactor,
+            y: normalPDF(val, meanDiff, sigma2) * (1-baseRate),
         }));
 
         // Calculate maximum y-value for adjusting the yScale
@@ -123,11 +140,14 @@ function initializeBinary() {
         const buffer = maxY * 0.1;  // 10% buffer for top of plot
         yScale.domain([minY, maxY + buffer]);
 
-        // Update y-axis
+        // Update y-axis 
         svgDistributions.select(".y-axis")
             .transition()
             .duration(300)
-            .call(d3.axisLeft(yScale).tickFormat(() => ""));
+            .call(d3.axisLeft(yScale) // makes the ticks scale together with the yScale
+                .ticks(5)
+                .tickFormat(() => "")
+            ); 
 
         const line = d3.line()
             .x(d => xScale(d.x))
@@ -382,11 +402,11 @@ function initializeBinary() {
         };
 
         const rocLayout = {
-            title: "ROC Curve",
-            xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false },
-            yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false },
+            xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
+            yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
             showlegend: false,
             margin: { t: 40, l: 60, r: 20, b: 40 },
+            font: { size: 12 },
             annotations: [{
                 x: 0.95,
                 y: 0.05,
@@ -397,7 +417,6 @@ function initializeBinary() {
                 font: { size: 16, color: "black", weight: "bold" },
                 align: "right",
             }],
-            font: { size: 12 },
         };
 
         // Precision-Recall Plot
@@ -421,9 +440,8 @@ function initializeBinary() {
         };
 
         const prLayout = {
-            title: "PR Curve",
-            xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false },
-            yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false },
+            xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
+            yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
             showlegend: false,
             margin: { t: 40, l: 60, r: 20, b: 40 },
             font: { size: 12 },

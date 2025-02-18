@@ -47,7 +47,15 @@ h1 {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    flex: 1;
+    flex: 2;
+}
+
+#binary-container .section:nth-child(2) {
+    flex: 2;
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
 }
 
 #binary-container .sliders {
@@ -68,19 +76,23 @@ h1 {
 
 #binary-container .plot {
     height: 400px;
+    min-width: 0;
+    width: 800px;
+    margin-bottom: 20px;
 }
 
 #binary-container .plot-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    height: 400px;
+    gap: 10px;
+    height: 500px;
 }
 
 #binary-container .half-plot {
     flex: 1;
     min-width: 0;
     height: 50%;
+    
 }
 
 #binary-container .dashboard {
@@ -113,4 +125,35 @@ h1 {
     #binary-container .plot {
         width: 100%;
     }
+}
+
+/* Axis labels */
+.axis-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+}
+
+.axis-label div {
+    outline: none;
+    padding: 2px;
+    border-radius: 3px;
+    cursor: text;
+}
+
+.axis-label div:hover {
+    background-color: rgba(240, 240, 240, 0.8);
+}
+
+.axis-label div:focus {
+    background-color: rgba(240, 240, 240, 0.9);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+/* Individual containers for ROC and PR plots */
+#binary-container .plot-wrapper {
+    background: white;
+    border-radius: 8px;
+    padding: 5px;
+    flex: 1;
 } 
