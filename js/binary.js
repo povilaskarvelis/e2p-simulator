@@ -35,7 +35,6 @@ function initializeBinary() {
 
         svgDistributions.append("g")
             .attr("transform", `translate(${margin.left},0)`)
-            .attr("class", "y-axis")
             .call(d3.axisLeft(yScale).tickFormat(() => "")); // Remove y-axis tick labels
 
     // Editable axis labels
@@ -99,6 +98,7 @@ function initializeBinary() {
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
 
+
         // Get ICC values
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
@@ -123,11 +123,11 @@ function initializeBinary() {
 
         const data1 = x.map(val => ({
             x: val,
-            y: normalPDF(val, 0, sigma1) * baseRate,
+            y: normalPDF(val, 0, sigma1) * (1-baseRate),
         }));
         const data2 = x.map(val => ({
             x: val,
-            y: normalPDF(val, meanDiff, sigma2) * (1-baseRate),
+            y: normalPDF(val, meanDiff, sigma2) * baseRate,
         }));
 
         // Calculate maximum y-value for adjusting the yScale
@@ -140,14 +140,11 @@ function initializeBinary() {
         const buffer = maxY * 0.1;  // 10% buffer for top of plot
         yScale.domain([minY, maxY + buffer]);
 
-        // Update y-axis 
+        // Update y-axis
         svgDistributions.select(".y-axis")
             .transition()
             .duration(300)
-            .call(d3.axisLeft(yScale) // makes the ticks scale together with the yScale
-                .ticks(5)
-                .tickFormat(() => "")
-            ); 
+            .call(d3.axisLeft(yScale).tickFormat(() => ""));
 
         const line = d3.line()
             .x(d => xScale(d.x))
@@ -205,7 +202,7 @@ function initializeBinary() {
     }
 
     function drawThreshold(d) {
-        const xDomain = xScale.domain(); // Get the min and max of the xScale domain
+        const xDomain = xScale.domain();
 
         // Select or create the threshold group
         const thresholdGroup = svgDistributions.selectAll(".threshold-group")
@@ -240,11 +237,35 @@ function initializeBinary() {
                             }
                         });
 
-                    // Update ROC and PR plots in real time
-                    plotROC(d);
+                    // Update hitbox position
+                    thresholdGroup.select(".threshold-hitbox")
+                        .attr("x", xScale(newThreshold) - 10);
 
-                    // Redraw the threshold group and update visuals
-                    drawThreshold(d);
+                    // Update threshold line position
+                    d3.select(this).select(".threshold-line")
+                        .attr("x1", xScale(newThreshold))
+                        .attr("x2", xScale(newThreshold));
+
+                    // Update arrows position
+                    d3.select(this).selectAll(".threshold-arrow")
+                        .attr("d", d => {
+                            const x = xScale(newThreshold + (d.direction === "left" ? -0.33 : 0.33));
+                            const y = d.y;
+                            if (d.direction === "left") {
+                                return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+                            } else {
+                                return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+                            }
+                        });
+
+                    // Get current d value from the appropriate input
+                    const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+                    const icc1 = parseFloat(document.getElementById("icc1-slider").value);
+                    const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+                    const iccG = parseFloat(document.getElementById("iccc-slider").value);
+                    const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
+                    const dToUse = currentView === "true" ? trueD : dObs;
+                    plotROC(dToUse);
                 })
             );
 
@@ -321,9 +342,11 @@ function initializeBinary() {
     function plotROC(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
 
-        // Adjust threshold range based on d to ensure we capture the full curve
-        const tMin = Math.min(-5, -Math.abs(d) - 2);
-        const tMax = Math.max(5, Math.abs(d) + 2);
+        // Calculate AUC once - it only depends on d
+        const auc = cumulativeDistributionFunction(d / Math.sqrt(2), 0, 1);
+
+        const tMin = -5;
+        const tMax = 5;
         const step = 0.01;
 
         const FPR = [];
@@ -339,7 +362,7 @@ function initializeBinary() {
 
         for (let t = tMin; t <= tMax; t += step) {
             const cdfA = cumulativeDistributionFunction(t, 0, 1);
-            const cdfB = cumulativeDistributionFunction(t, d, 1);
+            const cdfB = cumulativeDistributionFunction(t, d, 1);  // d is already the correct value from updatePlots
 
             FPR.push(1 - cdfA);
             TPR.push(1 - cdfB);
@@ -366,7 +389,6 @@ function initializeBinary() {
         const sensitivity = thresholdTPR;
         const ppv = (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
         const balancedAccuracy = (sensitivity + specificity) / 2;
-        const auc = cumulativeDistributionFunction(d / Math.sqrt(2), 0, 1);
 
         // Calculate PR AUC (Average Precision)
         let prauc = 0;
