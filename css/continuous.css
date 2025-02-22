@@ -70,6 +70,7 @@ h1 {
 #continuous-container .slider-container input[type="range"] {
     width: 100%;
     margin-top: 10px;
+    accent-color: #222222;
 }
 
 /* =============================================================================
@@ -160,9 +161,9 @@ h1 {
 }
 
 .toggle-button.active {
-    background-color: #000000;
+    background-color: #222222;
     color: white;
-    border: 1px solid #000000;
+    border: 1px solid #222222;
 }
 
 .toggle-button:hover {

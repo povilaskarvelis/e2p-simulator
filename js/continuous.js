@@ -64,11 +64,13 @@ function computeObservedR(trueR, reliabilityX, reliabilityY) {
 
 // Drawing functions (depend on DOM elements)
 function drawScatterPlot(r, type) {
-    // const numPoints = 1000000; // For extra precise calculation of the metrics
     const numPoints = 50000; // Full dataset for metrics
     const numPlotPoints = 10000; // Reduced dataset for visualization
     const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
     const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
+
+    // Define consistent x-axis range
+    const xRange = [-4, 4];
 
     // Generate the full dataset
     const fullData = d3.range(numPoints).map(() => {
@@ -89,8 +91,7 @@ function drawScatterPlot(r, type) {
     // Use full dataset for metric calculations
     drawDistributions(tealData.map(d => d.x), grayData.map(d => d.x), type);
 
-    // Plot using reduced dataset
-    const scatterXScale = d3.scaleLinear().domain([-5, 5]).range([margin.left, width - margin.right]);
+    const scatterXScale = d3.scaleLinear().domain(xRange).range([margin.left, width - margin.right]);
     const scatterYScale = d3.scaleLinear().domain([-5, 5]).range([height - margin.bottom, margin.top]);
 
     const svgScatter = d3.select(`#scatter-plot-${type}-cont`)
@@ -158,14 +159,24 @@ function drawScatterPlot(r, type) {
     const legendEnter = legend.enter()
         .append("foreignObject")
         .attr("class", "legend-group")
-        .attr("width", 100)
+        .attr("width", 150)
         .attr("height", 20);
 
+    // Add non-editable "Group" prefix
+    legendEnter.append("xhtml:div")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .style("color", (d, i) => (i === 0 ? "teal" : "gray"))
+        .style("display", "inline")
+        .text((d, i) => `Group ${i + 1}: `);
+
+    // Add editable part
     legendEnter.append("xhtml:div")
         .attr("contenteditable", true)
         .style("font-size", "16px")
         .style("font-weight", "bold")
         .style("color", (d, i) => (i === 0 ? "teal" : "gray"))
+        .style("display", "inline")
         .text(d => d);
 
     legendEnter.merge(legend)
@@ -195,12 +206,16 @@ function drawScatterPlot(r, type) {
 }
 
 function drawDistributions(tealX, grayX, type) {
+    // Use same x-axis range as scatter plot
+    const xRange = [-4, 4];
+    xScale.domain(xRange);
+
     const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
     const greenScale = baseRate;
     const blueScale = 1 - baseRate;
 
     // Kernel density estimation
-    const kde = kernelDensityEstimator(kernelEpanechnikov(1), xScale.ticks(100));
+    const kde = kernelDensityEstimator(kernelEpanechnikov(0.5), d3.range(xRange[0], xRange[1], 0.05));
     const tealDensity = kde(tealX).map(d => ({ x: d[0], y: d[1] * greenScale }));
     const grayDensity = kde(grayX).map(d => ({ x: d[0], y: d[1] * blueScale }));
 
@@ -318,33 +333,41 @@ function drawDistributions(tealX, grayX, type) {
         .text("Probability Density");
 
     // Add variance text annotations
-    svgDistributions.selectAll(".variance-annotation")
-        .data([null])
-        .join("text")
-        .attr("class", "variance-annotation")
-        .attr("x", width - margin.right - 10)
+    svgDistributions.selectAll(".variance-annotation").remove(); // Remove existing annotations first
+    
+    svgDistributions.append("foreignObject")
+        .attr("class", "variance-annotation") 
+        .attr("x", width - margin.right - 150)
         .attr("y", margin.top + 20)
-        .attr("text-anchor", "end")
-        .attr("font-size", "16px")
-        .attr("fill", "black")
-        .text(`Gray Var: ${varianceGray.toFixed(2)}`)
-        .append("tspan")
-        .attr("x", width - margin.right - 10)
-        .attr("dy", "1.2em")
-        .text(`Teal Var: ${varianceTeal.toFixed(2)}`);
+        .attr("width", 150)
+        .attr("height", 50)
+        .append("xhtml:div")
+        .selectAll("div")
+        .data([
+            {text: `Group 1 var: ${varianceTeal.toFixed(2)}`, color: "teal"},
+            {text: `Group 2 var: ${varianceGray.toFixed(2)}`, color: "gray"}
+        ])
+        .join("div")
+        .style("font-size", "15px")
+        .style("font-weight", "bold")
+        .style("color", d => d.color)
+        .style("margin-top", (d,i) => i === 0 ? "0px" : "3px")
+        .text(d => d.text);
+
+    // Remove any existing threshold before redrawing
+    svgDistributions.selectAll(".threshold-group").remove();
+
+    // Draw threshold after distributions
+    drawThreshold(d, type);
 }
 
 function drawThreshold(d, type) {
-    const xDomain = xScale.domain(); // Get the min and max of the xScale domain
+    // Remove any existing threshold before creating new one
+    d3.select(`#distribution-plot-${type}-cont`).select("svg")
+        .selectAll(".threshold-group").remove();
 
-    // Select the correct distribution container based on the type
-    const svgDistributions = d3.select(`#distribution-plot-${type}-cont`).select("svg");
-
-    // Select or create the threshold group
-    const thresholdGroup = svgDistributions.selectAll(".threshold-group")
-        .data([null]); // Use a single group for the threshold
-
-    const groupEnter = thresholdGroup.enter()
+    // Create new threshold group
+    const thresholdGroup = d3.select(`#distribution-plot-${type}-cont`).select("svg")
         .append("g")
         .attr("class", "threshold-group")
         .style("cursor", "pointer")
@@ -357,7 +380,7 @@ function drawThreshold(d, type) {
                 // Update threshold value based on drag
                 let newThreshold = xScale.invert(event.x + offsetX);
                 // Constrain to the x-axis domain
-                newThreshold = Math.max(xDomain[0], Math.min(xDomain[1], newThreshold));
+                newThreshold = Math.max(xScale.domain()[0], Math.min(xScale.domain()[1], newThreshold));
                 thresholdValue = newThreshold;
 
                 // Update the marker position on the ROC curve
@@ -372,7 +395,7 @@ function drawThreshold(d, type) {
         );
 
     // Merge enter/update for the group
-    const groupMerge = groupEnter.merge(thresholdGroup);
+    const groupMerge = thresholdGroup.merge(thresholdGroup);
 
     // Add or update the threshold line
     const line = groupMerge.selectAll(".threshold-line")
@@ -436,9 +459,6 @@ function drawThreshold(d, type) {
 
     // Ensure the threshold group is always on top
     groupMerge.raise();
-
-    // Remove excess groups
-    thresholdGroup.exit().remove();
 }
 
 function plotROC(d) {

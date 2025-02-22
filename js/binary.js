@@ -184,21 +184,32 @@ function initializeBinary() {
         const legendEnter = legend.enter()
             .append("foreignObject")
             .attr("class", "legend-group")
-            .attr("width", 100)
+            .attr("width", 150)
             .attr("height", 20);
 
+        // Add non-editable "Group" prefix
+        legendEnter.append("xhtml:div")
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .style("color", (d, i) => (i === 0 ? "black" : "teal"))
+            .style("display", "inline")
+            .text((d, i) => `Group ${i + 1}: `);
+
+        // Add editable part
         legendEnter.append("xhtml:div")
             .attr("contenteditable", true)
             .style("font-size", "14px")
             .style("font-weight", "bold")
             .style("color", (d, i) => (i === 0 ? "black" : "teal"))
+            .style("display", "inline")
+            .style("white-space", "nowrap")
+            .style("overflow", "visible")
             .text(d => d);
 
         // Update the position and properties of all legend elements
         legendEnter.merge(legend)
-            .attr("x", width - 520) // Adjust position
-            .attr("y", (d, i) => margin.top + i * 20); // Spacing for items
-
+            .attr("x", width - 520)
+            .attr("y", (d, i) => margin.top + i * 20);
     }
 
     function drawThreshold(d) {
@@ -550,7 +561,7 @@ function initializeBinary() {
         document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
         document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.PI / Math.sqrt(3)).toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.PI / Math.sqrt(3)).toFixed(2);
-        document.getElementById("observed-auc-bin").value = cdfNormal(dObs / Math.sqrt(2), 0, 1).toFixed(3);
+        document.getElementById("observed-auc-bin").value = cdfNormal(dObs / Math.sqrt(2), 0, 1).toFixed(2);
         document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
         const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
         document.getElementById("observed-eta-squared-bin").value = (obsR ** 2).toFixed(2);
@@ -758,8 +769,11 @@ function initializeBinary() {
     setupEventListeners();
 
     // Initialize with default values
-    updateMetricsFromD(0.5);
+    updateMetricsFromD(1);
     updatePlots();
+    
+    // Initialize Mahalanobis calculator
+    initializeMahalanobis();
 }
 
 // Export for main.js to use

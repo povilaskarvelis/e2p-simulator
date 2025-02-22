@@ -72,6 +72,7 @@ h1 {
 #binary-container .slider-container input[type="range"] {
     width: 100%;
     margin-top: 10px;
+    accent-color: #222222;
 }
 
 #binary-container .plot {
@@ -156,4 +157,118 @@ h1 {
     border-radius: 8px;
     padding: 5px;
     flex: 1;
+}
+
+/* Add these styles */
+#mahalanobis-plot {
+    width: 100%;
+    height: 400px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.mahalanobis-line {
+    transition: d 0.3s ease;
+}
+
+.feature-point {
+    transition: cx 0.3s ease, cy 0.3s ease;
+}
+
+.threshold-line {
+    stroke-width: 4px !important;
+    opacity: 0.7;
+}
+
+.threshold-label {
+    font-size: 12px;
+}
+
+.metrics {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* Add these styles */
+#binary-container .mahalanobis-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+#binary-container .mahalanobis-container .section:first-child {
+    flex: 3;
+}
+
+#binary-container .mahalanobis-container .section:last-child {
+    flex: 7;
+}
+
+#binary-container .form-container {
+    max-width: 320px;
+}
+
+#binary-container .form-container label {
+    display: block;
+    margin-top: 15px;
+    color: #555;
+    font-size: 1.1em;
+}
+
+#binary-container .form-container input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+#binary-container .form-container button {
+    width: 100%;
+    padding: 10px;
+    margin: 20px 0;
+    background-color: #222222;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+#binary-container .form-container button:hover {
+    background-color: #333;
+}
+
+#binary-container .form-container #reset-mahalanobis {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+#binary-container .form-container #reset-mahalanobis:hover {
+    background-color: #f0f0f0;
+}
+
+#binary-container #chartContainer {
+    width: 100%;
+    height: 500px;
+}
+
+#binary-container #dPlot {
+    max-height: 1000px;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+}
+
+/* Style for active toggle buttons */
+#binary-container .toggle-button.active {
+    background-color: #222222;
+    color: white;
 } 
