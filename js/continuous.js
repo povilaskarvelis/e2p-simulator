@@ -215,7 +215,7 @@ function drawDistributions(tealX, grayX, type) {
     const blueScale = 1 - baseRate;
 
     // Kernel density estimation
-    const kde = kernelDensityEstimator(kernelEpanechnikov(0.5), d3.range(xRange[0], xRange[1], 0.05));
+    const kde = kernelDensityEstimator(kernelEpanechnikov(0.4), d3.range(xRange[0], xRange[1], 0.01));
     const tealDensity = kde(tealX).map(d => ({ x: d[0], y: d[1] * greenScale }));
     const grayDensity = kde(grayX).map(d => ({ x: d[0], y: d[1] * blueScale }));
 
@@ -549,8 +549,8 @@ function plotROC(d) {
     };
 
     const rocLayout = {
-        xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
-        yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
+        xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
+        yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
         showlegend: false,
         margin: { t: 40, l: 60, r: 20, b: 40 },
         font: { size: 12 },
@@ -587,8 +587,8 @@ function plotROC(d) {
     };
 
     const prLayout = {
-        xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
-        yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 14 } },
+        xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
+        yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
         showlegend: false,
         margin: { t: 40, l: 60, r: 20, b: 40 },
         font: { size: 12 },

@@ -1,49 +1,33 @@
 // Initialize version switching
-document.addEventListener('DOMContentLoaded', () => {
-    const binaryContainer = document.getElementById('binary-container');
-    const continuousContainer = document.getElementById('continuous-container');
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the version select dropdown
     const versionSelect = document.getElementById('version-select');
     
-    function cleanupBinaryPlots() {
-        // Clean up D3 plots
-        d3.select("#overlap-plot").selectAll("svg").remove();
-        // Clean up Plotly plots
-        Plotly.purge("roc-plot");
-        Plotly.purge("pr-plot");
-    }
+    // Get the container elements
+    const binaryContainer = document.getElementById('binary-container');
+    const continuousContainer = document.getElementById('continuous-container');
     
-    function cleanupContinuousPlots() {
-        // Clean up D3 plots
-        d3.select("#scatter-plot-true-cont").selectAll("svg").remove();
-        d3.select("#scatter-plot-observed-cont").selectAll("svg").remove();
-        d3.select("#distribution-plot-true-cont").selectAll("svg").remove();
-        d3.select("#distribution-plot-observed-cont").selectAll("svg").remove();
-        // Clean up Plotly plots
-        Plotly.purge("roc-plot-cont");
-    }
+    // Track if continuous version has been initialized
+    let continuousInitialized = false;
     
-    // Initial load - start with binary
-    binaryContainer.style.display = 'block';
-    continuousContainer.style.display = 'none';
+    // Initialize the binary version by default
+    initializeBinary();
     
-    // Small delay to ensure DOM is fully ready
-    setTimeout(() => {
-        cleanupBinaryPlots(); // Clean up first
-        initializeBinary();
-    }, 0);
-    
-    // Handle switching
-    versionSelect.addEventListener('change', function(e) {
-        if (e.target.value === 'continuous') {
-            cleanupBinaryPlots();  // Clean up binary plots
+    // Handle version switching
+    versionSelect.addEventListener('change', function() {
+        const selectedVersion = versionSelect.value;
+        
+        if (selectedVersion === 'binary') {
+            binaryContainer.style.display = 'block';
+            continuousContainer.style.display = 'none';
+        } else if (selectedVersion === 'continuous') {
             binaryContainer.style.display = 'none';
             continuousContainer.style.display = 'block';
-            initializeContinuous();
-        } else {
-            cleanupContinuousPlots();  // Clean up continuous plots
-            continuousContainer.style.display = 'none';
-            binaryContainer.style.display = 'block';
-            initializeBinary();
+            // Initialize continuous version if not already done
+            if (!continuousInitialized) {
+                initializeContinuous();
+                continuousInitialized = true;
+            }
         }
     });
 }); 

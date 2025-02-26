@@ -19,6 +19,11 @@ const colors = [
     '#7B1FA2'  // Deep Purple
 ];
 
+// Track active curve and datasets
+let activeCurve = null;
+let dChart = null;
+let nextColorIndex = 0; // Track which color to use next
+
 function initializeMahalanobisPlot() {
     // Create SVG container
     const svg = d3.select("#mahalanobis-plot")
@@ -149,142 +154,158 @@ window.initializeMahalanobisSection = initializeMahalanobisSection;
 window.updateMahalanobisPlot = updateMahalanobisPlot;
 
 function initializeMahalanobis() {
+    // Initialize the chart
+    initializeChart();
+
+    // Set up event listeners
+    const setupInputPair = (sliderId, inputId, callback = updatePlot) => {
+        const slider = document.getElementById(sliderId);
+        const input = document.getElementById(inputId);
+        
+        slider.addEventListener('input', () => {
+            input.value = slider.value;
+            callback();
+        });
+        
+        input.addEventListener('input', () => {
+            slider.value = input.value;
+            callback();
+        });
+    };
+    
+    setupInputPair('effectSize-slider', 'effectSize');
+    setupInputPair('correlation-slider', 'correlation');
+    setupInputPair('numVariables-slider', 'numVariables');
+    
+    // Record button saves the current curve
+    document.getElementById('record-mahalanobis').addEventListener('click', recordCurrentCurve);
+    document.getElementById('reset-mahalanobis').addEventListener('click', resetChart);
+    document.getElementById('neededD').addEventListener('input', updatePlot);
+
+    // Initial plot
+    updatePlot();
+}
+
+function updatePlot() {
+    // Get inputs
+    const neededD = parseFloat(document.getElementById('neededD').value);
+    const effectSize = parseFloat(document.getElementById('effectSize').value);
+    const correlation = parseFloat(document.getElementById('correlation').value);
+    const numVariables = parseInt(document.getElementById('numVariables').value);
+    
+    // Calculate formula
+    let xValues = [];
+    let yValues = [];
+    
+    for (let i = 1; i <= numVariables; i++) {
+        xValues.push(i);
+        const d = computeMahalanobisD(i, effectSize, correlation);
+        yValues.push(d);
+    }
+    
+    // Update x-axis scale to match the number of predictors
+    dChart.options.scales.x.max = numVariables;
+    dChart.data.labels = Array.from({ length: numVariables }, (_, i) => i + 1);
+    
+    // Update active curve without recording
+    updateActiveCurve(xValues, yValues);
+    
+    // Update the label with current parameters
+    updateActiveCurveLabel();
+}
+
+function recordCurrentCurve() {
+    // Get inputs
+    const neededD = parseFloat(document.getElementById('neededD').value);
+    const effectSize = parseFloat(document.getElementById('effectSize').value);
+    const correlation = parseFloat(document.getElementById('correlation').value);
+    const numVariables = parseInt(document.getElementById('numVariables').value);
+    
+    // Calculate formula
+    let xValues = [];
+    let yValues = [];
+    
+    for (let i = 1; i <= numVariables; i++) {
+        xValues.push(i);
+        const d = computeMahalanobisD(i, effectSize, correlation);
+        yValues.push(d);
+    }
+    
+    // Record the dataset
+    addDataset(xValues, yValues, neededD, effectSize, correlation, colors[nextColorIndex]);
+    
+    // Update color index for next curve
+    nextColorIndex = (nextColorIndex + 1) % colors.length;
+    
+    // Update active curve color to match the next color it will be saved as
+    activeCurve.borderColor = `${colors[nextColorIndex]}80`; // Add 50% transparency
+    dChart.update();
+}
+
+function initializeChart() {
     // Reset datasets when initializing
     datasets = [];
+    nextColorIndex = 0;
     
-    document.getElementById('calculate-mahalanobis').addEventListener('click', calculateAndPlot);
-    document.getElementById('reset-mahalanobis').addEventListener('click', resetPlot);
-}
-
-function calculateAndPlot() {
-    // Get user inputs
-    const maxNumVariables = parseInt(document.getElementById("numVariables").value);
+    // Destroy any existing chart instance
+    if (dChart) {
+        dChart.destroy();
+        dChart = null;
+    }
+    
+    // Set up initial chart with just the threshold line
+    const neededD = parseFloat(document.getElementById("neededD").value);
+    const numVariables = parseInt(document.getElementById("numVariables").value);
+    const ctx = document.getElementById('dPlot').getContext('2d');
+    
+    // Get initial parameter values
     const effectSize = parseFloat(document.getElementById("effectSize").value);
     const correlation = parseFloat(document.getElementById("correlation").value);
-    const neededD = parseFloat(document.getElementById("neededD").value);
-
-    // Input validation
-    if (!validateInputs(maxNumVariables, effectSize, correlation, neededD)) return;
-
-    // Compute D for each number of variables
-    const numVariablesArray = Array.from({ length: maxNumVariables }, (_, i) => i + 1);
-    const dValues = numVariablesArray.map(k => computeMahalanobisD(k, effectSize, correlation));
-
-    // Add the new line to the plot
-    const newDataset = {
-        label: `d = ${effectSize}, r = ${correlation}`,
-        data: dValues,
-        borderColor: getRandomColor(),
-        borderWidth: 2,
-        fill: false
-    };
-
-    // Add the new line to the plot
-    datasets.push(newDataset);
-
-    // Display the plot
-    displayPlot(numVariablesArray, neededD);
-}
-
-function validateInputs(maxNumVariables, effectSize, correlation, neededD) {
-    if (isNaN(maxNumVariables) || maxNumVariables <= 0) {
-        alert("Please enter a valid max number of variables (positive integer).");
-        return false;
-    }
-    if (isNaN(effectSize) || effectSize <= 0) {
-        alert("Please enter a valid effect size (positive number).");
-        return false;
-    }
-    if (isNaN(correlation) || correlation < 0 || correlation > 1) {
-        alert("Please enter a valid correlation range (between 0 and 1).");
-        return false;
-    }
-    if (isNaN(neededD) || neededD <= 0) {
-        alert("Please enter a valid needed Mahalanobis D (positive number).");
-        return false;
-    }
-    return true;
-}
-
-function computeMahalanobisD(numVariables, effectSize, correlation) {
-    // Your existing computeMahalanobisD function
-    const variance = 1;
-    const covarianceMatrix = Array.from({ length: numVariables }, () =>
-        Array.from({ length: numVariables }, () => 0)
-    );
-
-    for (let i = 0; i < numVariables; i++) {
-        for (let j = 0; j < numVariables; j++) {
-            covarianceMatrix[i][j] = i === j ? variance : correlation;
-        }
-    }
-
-    const inverseCovarianceMatrix = math.inv(covarianceMatrix);
-    const effectSizeVector = Array(numVariables).fill(effectSize);
-
-    let D2 = 0;
-    for (let i = 0; i < numVariables; i++) {
-        for (let j = 0; j < numVariables; j++) {
-            D2 += effectSizeVector[i] * inverseCovarianceMatrix[i][j] * effectSizeVector[j];
-        }
-    }
-
-    return Math.sqrt(D2);
-}
-
-function displayPlot(xValues, neededD) {
-    const ctx = document.getElementById('dPlot').getContext('2d');
-
-    // Properly destroy existing chart if it exists
-    if (window.dChart && window.dChart.destroy instanceof Function) {
-        window.dChart.destroy();
-    }
-    window.dChart = null;
-
-    const neededDataset = {
+    
+    // Create a threshold dataset
+    const thresholdDataset = {
         label: `Needed D = ${neededD}`,
-        data: Array(xValues.length).fill(neededD),
+        data: Array(numVariables).fill(neededD),
         borderColor: '#000000',
-        borderWidth: 1,
-        borderDash: [5, 5],
+        borderWidth: 3,
+        borderDash: [8, 8],
         pointRadius: 0,
         fill: false
     };
-
-    const allDatasets = [...datasets, neededDataset];
-
-    // Update button color
-    document.getElementById('calculate-mahalanobis').style.backgroundColor = 'black';
-
-    window.dChart = new Chart(ctx, {
+    
+    // Create an active curve dataset with parameters in the label
+    activeCurve = {
+        label: `d = ${effectSize.toFixed(2)}, r = ${correlation.toFixed(2)}`,
+        data: [],
+        borderColor: `${colors[nextColorIndex]}80`, // Add 50% transparency with hex alpha
+        borderWidth: 3,
+        pointRadius: 5,
+        pointStyle: 'circle',
+        fill: false
+    };
+    
+    // Initialize chart with threshold first, then active curve
+    dChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xValues,
-            datasets: allDatasets
+            labels: Array.from({ length: numVariables }, (_, i) => i + 1),
+            datasets: [thresholdDataset, activeCurve]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: false,
             plugins: {
                 legend: {
-                    display: true,
-                    labels: {
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            },
-            elements: {
-                line: {
-                    tension: 0.1,
-                    borderWidth: 3
+                    display: false // Hide the default legend
                 }
             },
             scales: {
                 x: {
+                    min: 1,
+                    max: numVariables,
                     grid: {
-                        display: false,  // Remove grid
+                        display: false,
                         drawBorder: false
                     },
                     title: {
@@ -295,8 +316,9 @@ function displayPlot(xValues, neededD) {
                     ticks: { font: { size: 12 } }
                 },
                 y: {
+                    min: 0,
                     grid: {
-                        display: false,  // Remove grid
+                        display: false,
                         drawBorder: false
                     },
                     title: {
@@ -304,30 +326,142 @@ function displayPlot(xValues, neededD) {
                         text: 'Mahalanobis D',
                         font: { size: 16 }
                     },
-                    ticks: { font: { size: 12 } }
+                    ticks: { 
+                        font: { size: 12 },
+                        callback: function(value, index, values) {
+                            if (index === values.length - 1) {
+                                return '';
+                            }
+                            return value;
+                        }
+                    }
                 }
-            },
-            layout: {
-                padding: { top: 10, bottom: 10 }
             }
-        }
+        },
+        plugins: [window.customLegendPlugin]
     });
-}
-
-function getRandomColor() {
-    return colors[datasets.length % colors.length];
-}
-
-function resetPlot() {
-    // Clear all datasets except the needed D line
-    datasets = [];
     
-    // Get the current needed D value
+    // Create a container for our custom legend
+    const chartContainer = document.getElementById('chartContainer');
+    
+    // Check if legend container already exists
+    let legendContainer = chartContainer.querySelector('.chart-legend');
+    if (!legendContainer) {
+        // Only create a new legend container if one doesn't exist
+        legendContainer = document.createElement('div');
+        legendContainer.className = 'chart-legend';
+        legendContainer.style.textAlign = 'center';
+        legendContainer.style.marginTop = '10px';
+        chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
+    }
+}
+
+function updateActiveCurve(xValues, yValues) {
+    // Update the active curve data
+    activeCurve.data = yValues;
+    
+    // Update the needed D threshold
     const neededD = parseFloat(document.getElementById("neededD").value);
+    const numVariables = parseInt(document.getElementById('numVariables').value);
     
-    // Redraw the plot with just the needed D line
-    displayPlot(Array.from({ length: 50 }, (_, i) => i + 1), neededD);
+    const thresholdDataset = dChart.data.datasets.find(ds => ds.label.startsWith('Needed D'));
+    thresholdDataset.data = Array(numVariables).fill(neededD);
+    thresholdDataset.label = `Needed D = ${neededD}`;
+    
+    // Update chart
+    dChart.update();
+}
+
+function addDataset(xValues, yValues, neededD, effectSize, correlation, color) {
+    // Create a new dataset with the current parameters
+    const newDataset = {
+        label: `d = ${effectSize.toFixed(2)}, r = ${correlation.toFixed(2)}`,
+        data: yValues,
+        borderColor: color,
+        borderWidth: 2,
+        pointRadius: 5,
+        pointStyle: 'circle',
+        fill: false
+    };
+    
+    // Add the new dataset to our collection
+    datasets.push(newDataset);
+    
+    // Get the threshold dataset (first one)
+    const thresholdDataset = dChart.data.datasets[0];
+    
+    // Rebuild the datasets array with threshold first, then saved datasets, then active curve
+    dChart.data.datasets = [
+        thresholdDataset,
+        ...datasets,
+        activeCurve
+    ];
+    
+    // Update chart
+    dChart.update();
+}
+
+function resetChart() {
+    // Clear all datasets except active curve and threshold
+    datasets = [];
+    nextColorIndex = 0;
+    
+    // Update active curve color
+    activeCurve.borderColor = `${colors[nextColorIndex]}80`;
+    
+    // Reset the chart
+    const neededD = parseFloat(document.getElementById("neededD").value);
+    const numVariables = parseInt(document.getElementById("numVariables").value);
+    
+    // Keep only the threshold and active curve in that order
+    dChart.data.datasets = [
+        {
+            label: `Needed D = ${neededD}`,
+            data: Array(numVariables).fill(neededD),
+            borderColor: '#000000',
+            borderWidth: 3,
+            borderDash: [8, 8],
+            pointRadius: 0,
+            fill: false
+        },
+        activeCurve
+    ];
+    
+    // Update chart
+    dChart.update();
+}
+
+// Use simplified formula for when all predictors have same effect size and correlations
+function computeMahalanobisD(numVariables, effectSize, correlation) {
+    // For identical effect sizes and uniform correlations, we can use this formula:
+    return effectSize * Math.sqrt(numVariables / (1 + (numVariables-1) * correlation));
+}
+
+// Function to update the active curve label with current parameters
+function updateActiveCurveLabel() {
+    const effectSize = parseFloat(document.getElementById("effectSize").value);
+    const correlation = parseFloat(document.getElementById("correlation").value);
+    
+    // Update the label with current parameters
+    activeCurve.label = `d = ${effectSize.toFixed(2)}, r = ${correlation.toFixed(2)}`;
+    
+    // Update the chart to reflect the new label
+    dChart.update();
 }
 
 // Export for main.js
-window.initializeMahalanobis = initializeMahalanobis; 
+window.initializeMahalanobis = initializeMahalanobis;
+
+// Function to ensure legend container exists
+function ensureLegendContainer() {
+    const chartContainer = document.getElementById('r2PlotContainer');
+    let legendContainer = chartContainer.querySelector('.chart-legend');
+    if (!legendContainer) {
+        legendContainer = document.createElement('div');
+        legendContainer.className = 'chart-legend';
+        legendContainer.style.marginBottom = '10px';
+        legendContainer.style.textAlign = 'center';
+        chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
+    }
+    return legendContainer;
+}

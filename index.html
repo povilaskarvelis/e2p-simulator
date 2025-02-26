@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Translating effect size into predictive value</title>
+    <title>Understanding Predictive Value of Effect Sizes</title>
     <!-- Load libraries first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -12,9 +12,17 @@
     <!-- Load styles -->
     <link rel="stylesheet" href="css/binary.css">
     <link rel="stylesheet" href="css/continuous.css">
+    <!-- MathJax for professional equation rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    <h1>Translating effect size into predictive value</h1>
+    <h1>Understanding predictive value of effect sizes</h1>
+
+    <div class="description">
+        <p>This interactive tool demonstrates how statistical effect sizes translate into real-world predictive utility, 
+        allowing users to explore how measurement reliability and base rates impact predictive metrics.</p>
+    </div>
 
     <!-- Version Selection -->
     <div style="width: 250px; margin-bottom: 20px;">
@@ -99,21 +107,21 @@
                     <div style="margin-top: 30px;">
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span style="font-size: 1.1em; color: #555;">Group 1 reliability</span>
                             <input type="number" id="icc1-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Group 2 Reliability -->
                         <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%; margin-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span style="font-size: 1.1em; color: #555;">Group 2 reliability</span>
                             <input type="number" id="icc2-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Classification Reliability -->
                         <input type="range" id="iccc-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%; margin-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span style="font-size: 1.1em; color: #555;">Grouping reliability</span>
                             <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
@@ -141,38 +149,120 @@
         </div>
 
         <!-- Results dashboard -->
-        <div id="dashboard" class="dashboard">
-            <p>AUC: <span id="auc-value">0.00%</span></p>
-            <p>Sensitivity: <span id="sensitivity-value">0.00%</span></p>
-            <p>Specificity: <span id="specificity-value">0.00%</span></p>
-            <p>Balanced accuracy: <span id="accuracy-value">0.00%</span></p>
-            <p>PPV: <span id="ppv-value">0.00%</span></p>
+        <div id="dashboard" class="dashboard" style="padding-left: 100px; padding-right: 100px;">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                <p style="display: none;">AUC: <span id="auc-value">0.00%</span></p>
+                <p>Balanced accuracy: <span id="accuracy-value">0.00%</span></p>
+                <p>Sensitivity: <span id="sensitivity-value">0.00%</span></p>
+                <p>Specificity: <span id="specificity-value">0.00%</span></p>
+                <p>PPV: <span id="ppv-value">0.00%</span></p>
+            </div>
+        </div>
+        
+        <!-- Equations Section -->
+        <div class="equations-container">
+            <!-- Reliability attenuation -->
+            <div class="equation-box equation-wide">
+                <p class="equation-title">Cohen's d attenuation by reliability</p>
+                <div class="equation-content">
+                    \[d_{obs} = d_{true} \times \sqrt{\frac{2r_1r_2}{r_1+r_2} \times r_g}\]
+                </div>
+            </div>
+            
+            <!-- d to Log Odds Ratio -->
+            <div class="equation-box">
+                <p class="equation-title">Cohen's d to Log Odds Ratio</p>
+                <div class="equation-content">
+                    \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
+                </div>
+            </div>
+            
+            <!-- d to AUC -->
+            <div class="equation-box">
+                <p class="equation-title">Cohen's d to AUC</p>
+                <div class="equation-content">
+                    \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
+                </div>
+            </div>
+            
+            <!-- d to Point-biserial r -->
+            <div class="equation-box">
+                <p class="equation-title">Cohen's d to Point-biserial r</p>
+                <div class="equation-content">
+                    \[r_{pb} = \frac{d}{\sqrt{d^2 + 4}}\]
+                </div>
+            </div>
+            
+            <!-- d to Eta squared -->
+            <div class="equation-box">
+                <p class="equation-title">Cohen's d to Eta squared</p>
+                <div class="equation-content">
+                    \[\eta^2 = \frac{d^2}{d^2 + 4}\]
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px;"></div>
+        <!-- Mahalanobis D Calculator Header -->
+        <h2 style="text-align: center; font-size: 2em; margin-top: 40px;">Mahalanobis D Calculator</h2>
+        <div class="description" style="text-align: center; padding: 0 100px; margin-bottom: 20px;">
+            <p>This calculator shows how multiple correlated predictors combine to create group separation in multivariate space. 
+            Mahalanobis D extends Cohen's d to multiple dimensions while accounting for correlations between measures. This comes with some simplifying
+            assumptions, including multivariate normality, equal covariance matrices between groups, and no interaction effects among predictors.
+            Use this to estimate how many predictors you need to achieve a target level of group separation.</p>
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
-        <div class="container mahalanobis-container">
-            <div class="section">
-                <h2>Mahalanobis D Calculator</h2>
-                <div class="form-container">
-                    <label for="neededD">Needed Mahalanobis D</label>
-                    <input type="number" id="neededD" title="Enter the needed Mahalanobis D" step="0.01" value="3" required>
+        <div class="container mahalanobis-container" style="grid-template-columns: 1.5fr 1fr;">
+            <div class="section sliders">
+                <!-- Mahalanobis D equation box -->
+                <div class="equation-box equation-wide" style="margin: 0 auto 20px auto; width: 320px;">
+                    <p class="equation-title">Mahalanobis D formula</p>
+                    <div class="equation-content">
+                        \[D = d \times \sqrt{\frac{n}{1 + (n-1) \times r}}\]
+                    </div>
+                </div>
+                
+                <div class="form-container" style="padding: 0 20px; padding-top: 10px; padding-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 1.1em; color: #555;">Needed Mahalanobis D</span>
+                        <input type="number" id="neededD" title="Enter the needed Mahalanobis D" step="0.01" value="3" style="width: 60px; margin-right: 0;" required>
+                    </div>
 
-                    <label for="effectSize">Effect size of each predictor (d)</label>
-                    <input type="number" id="effectSize" title="Enter the effect size" step="0.01" value="0.5" required>
+                    <!-- Effect size slider -->
+                    <div style="display: flex; flex-direction: column; margin-top: 15px;">
+                        <input type="range" id="effectSize-slider" min="0.1" max="2" step="0.01" value="0.5" style="width: 100%; accent-color: #222222;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                            <span style="font-size: 1.1em; color: #555;">Effect size of each predictor (d)</span>
+                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.5" style="width: 60px; margin-right: 0;">
+                        </div>
+                    </div>
 
-                    <label for="correlation">Collinearity among predictors (r)</label>
-                    <input type="number" id="correlation" title="Enter the mean intercorrelation" step="0.01" value="0.1" required>
+                    <!-- Correlation slider -->
+                    <div style="display: flex; flex-direction: column; margin-top: 15px;">
+                        <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" style="width: 100%; accent-color: #222222;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                            <span style="font-size: 1.1em; color: #555;">Collinearity among predictors (r)</span>
+                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" style="width: 60px; margin-right: 0;">
+                        </div>
+                    </div>
 
-                    <label for="numVariables">Number of predictors</label>
-                    <input type="number" id="numVariables" title="Enter the max number of predictors" min="1" value="50" required>
+                    <!-- Number of variables slider -->
+                    <div style="display: flex; flex-direction: column; margin-top: 15px;">
+                        <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="50" style="width: 100%; accent-color: #222222;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                            <span style="font-size: 1.1em; color: #555;">Number of predictors</span>
+                            <input type="number" id="numVariables" min="1" max="100" step="1" value="50" style="width: 60px; margin-right: 0;">
+                        </div>
+                    </div>
 
                     <div style="display: flex; gap: 10px;">
-                        <button id="calculate-mahalanobis" style="flex: 2;">Compute and plot</button>
+                        <button id="record-mahalanobis" style="flex: 2;">Record curve</button>
                         <button id="reset-mahalanobis" style="flex: 1;">Reset</button>
                     </div>
                 </div>
             </div>
-            <div class="section">
+            <div class="section" style="padding: 20px;">
                 <div id="chartContainer">
                     <canvas id="dPlot"></canvas>
                 </div>
@@ -323,21 +413,92 @@
                     <div id="roc-plot-cont" class="half-plot"></div>
                     <div id="pr-plot-cont" class="half-plot"></div>
                 </div>
-                <div id="dashboard-cont" class="dashboard">
-                    <p>AUC: <span id="auc-value-cont">0.00%</span></p>
+                <div id="dashboard-cont" class="dashboard" style="padding-left: 10px; padding-right: 10px;">
+                    <p style="display: none;">AUC: <span id="auc-value-cont">0.00%</span></p>
+                    <p>Balanced accuracy: <span id="accuracy-value-cont">0.00%</span></p>
                     <p>Sensitivity: <span id="sensitivity-value-cont">0.00%</span></p>
                     <p>Specificity: <span id="specificity-value-cont">0.00%</span></p>
-                    <p>Balanced accuracy: <span id="accuracy-value-cont">0.00%</span></p>
                     <p>PPV: <span id="ppv-value-cont">0.00%</span></p>
                 </div>
             </div>
         </div>
+
+    <!-- Multivariate R² Calculator Section -->
+    <div style="margin-top: 50px;"></div>
+    <h2 style="text-align: center; font-size: 2em; margin-top: 40px;">Multivariate R² Calculator</h2>
+    <div class="description" style="text-align: center; padding: 0 100px; margin-bottom: 20px;">
+        <p>This calculator shows how multiple correlated predictors combine to create explained variance in multivariate regression. 
+        It accounts for intercorrelations among predictors, helping you understand the unique contribution of each variable.
+        Use this to estimate how predictive power changes as you add correlated predictors to your model.</p>
     </div>
+
+    <!-- Multivariate R² Calculator Container -->
+    <div class="container r-squared-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto;">
+        <div class="section sliders" style="background-color: white; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <!-- Multivariate R² equation box -->
+            <div class="equation-box equation-wide" style="margin: 0 auto 20px auto; width: 320px;">
+                <p class="equation-title">Multivariate R² formula</p>
+                <div class="equation-content">
+                    \[R^2 = \frac{\sum_{i=1}^{n} r_i^2 - \sum_{i \neq j} r_i r_j r_{ij}}{1 - \sum_{i \neq j} r_{ij}^2}\]
+                </div>
+            </div>
+            
+            <div class="form-container" style="padding: 0 20px; padding-top: 10px; padding-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.1em; color: #555;">Needed R²</span>
+                    <input type="number" id="needed-r2" min="0.1" max="0.9" step="0.01" value="0.6" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" required>
+                </div>
+                
+                <!-- Predictor correlation slider -->
+                <div style="display: flex; flex-direction: column; margin-top: 30px;">
+                    <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.2" style="width: 100%; accent-color: #222222;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <span style="font-size: 1.1em; color: #555;">Correlation of each predictor (r)</span>
+                        <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.2" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <!-- Collinearity slider -->
+                <div style="display: flex; flex-direction: column; margin-top: 30px;">
+                    <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.1" style="width: 100%; accent-color: #222222;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <span style="font-size: 1.1em; color: #555;">Collinearity among predictors</span>
+                        <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.1" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <!-- Number of predictors slider -->
+                <div style="display: flex; flex-direction: column; margin-top: 30px;">
+                    <input type="range" id="num-predictors-r2-slider" min="1" max="100" step="1" value="20" style="width: 100%; accent-color: #222222;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <span style="font-size: 1.1em; color: #555;">Number of predictors</span>
+                        <input type="number" id="num-predictors-r2" min="1" max="100" step="1" value="20" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button id="record-r2" style="flex: 2; width: auto;">Record curve</button>
+                    <button id="reset-r2" style="flex: 1; width: auto;">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" style="padding: 20px;">
+            <div id="r2PlotContainer" style="height: 500px;">
+                <canvas id="r2Plot"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 
     <!-- Load scripts at the end of body -->
     <!-- Load libraries first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Load shared plugins -->
+    <script src="js/shared-plugins.js"></script>
     <!-- Load our module scripts -->
     <script src="js/binary.js"></script>
     <script src="js/continuous.js"></script>
@@ -345,5 +506,7 @@
     <script src="js/main.js"></script>
     <!-- Add this with your other script tags -->
     <script src="js/mahalanobis.js"></script>
+    <!-- Add this before the closing body tag -->
+    <script src="js/r-squared.js"></script>
 </body>
 </html> 
