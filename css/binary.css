@@ -1,324 +1,42 @@
-/* Basic page layout */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0 auto;
-    max-width: 1400px;
-    padding: 20px;
-    background-color: #f9f9f9;
-}
+/* ==========================================================================
+   Binary-Specific Styles
+   ========================================================================== */
 
-h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.description {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto 30px;
-    color: #555;
-    font-size: 1.1em;
-    line-height: 1.5;
-}
-
-.mahalanobis-description {
-    max-width: 600px;
-    margin: 0 0 20px 0;
-    text-align: left;
-    font-size: 1em;
-}
-
-/* Version select dropdown */
-.version-select {
-    padding: 8px 16px;
-    font-size: 1.1em;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background-color: white;
-    cursor: pointer;
-    outline: none;
-    width: 100%;
-    transition: all 0.3s ease;
-}
-
-.version-select:hover {
-    border-color: #999;
-}
-
-.version-select:focus {
-    border-color: #333;
-    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-}
-
-/* Binary-specific styles */
-#binary-container .container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-#binary-container .section {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    flex: 2;
-}
-
-#binary-container .section:nth-child(2) {
-    flex: 2;
-    width: 600px;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
-}
-
-#binary-container .sliders {
-    max-width: 280px;
-}
-
-#binary-container .slider-container label {
-    display: block;
-    margin-bottom: 20px;
-    font-size: 1.1em;
-    color: #555;
-}
-
-#binary-container .slider-container input[type="range"] {
-    width: 100%;
-    margin-top: 10px;
-    accent-color: #222222;
-}
-
-#binary-container .plot {
-    height: 400px;
-    min-width: 0;
-    width: 800px;
-    margin-bottom: 20px;
-}
-
-#binary-container .plot-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 500px;
-}
-
-#binary-container .half-plot {
-    flex: 1;
-    min-width: 0;
-    height: 50%;
-    
-}
-
-#binary-container .dashboard {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    text-align: center;
-    margin-top: 20px;
-}
-
-#binary-container .dashboard p {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #444;
-    margin: 10px 0;
-}
-
-@media (max-width: 900px) {
-    #binary-container .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #binary-container .sliders {
-        max-width: 100%;
-        margin-bottom: 20px;
-    }
-
-    #binary-container .plot {
-        width: 100%;
-    }
-}
-
-/* Axis labels */
-.axis-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: #555;
-}
-
-.axis-label div {
-    outline: none;
-    padding: 2px;
-    border-radius: 3px;
-    cursor: text;
-}
-
-.axis-label div:hover {
-    background-color: rgba(240, 240, 240, 0.8);
-}
-
-.axis-label div:focus {
-    background-color: rgba(240, 240, 240, 0.9);
-    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-}
-
-/* Individual containers for ROC and PR plots */
-#binary-container .plot-wrapper {
-    background: white;
-    border-radius: 8px;
-    padding: 5px;
-    flex: 1;
-}
-
-/* Add these styles */
-#mahalanobis-plot {
-    width: 100%;
-    height: 400px;
-    background: white;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 20px;
-}
-
-.mahalanobis-line {
-    transition: d 0.3s ease;
-}
-
-.feature-point {
-    transition: cx 0.3s ease, cy 0.3s ease;
-}
-
-.threshold-line {
-    stroke-width: 4px !important;
-    opacity: 0.7;
-}
-
-.threshold-label {
-    font-size: 12px;
-}
-
-.metrics {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-    font-size: 1.1em;
-    color: #555;
-}
-
-/* Add these styles */
-#binary-container .mahalanobis-container {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
-}
-
-#binary-container .mahalanobis-container .section:first-child {
-    flex: 3;
-}
-
-#binary-container .mahalanobis-container .section:last-child {
-    flex: 7;
-}
-
-#binary-container .form-container {
-    max-width: 320px;
-}
-
-#binary-container .form-container label {
-    display: block;
-    margin-top: 15px;
-    color: #555;
-    font-size: 1.1em;
-}
-
-#binary-container .form-container input {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-}
-
-#binary-container .form-container button {
-    width: 100%;
-    padding: 10px;
-    margin: 20px 0;
-    background-color: #222222;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
-    cursor: pointer;
-}
-
-#binary-container .form-container button:hover {
-    background-color: #333;
-}
-
-#binary-container .form-container #reset-mahalanobis {
-    background-color: white;
-    color: black;
-    border: 1px solid black;
-}
-
-#binary-container .form-container #reset-mahalanobis:hover {
-    background-color: #f0f0f0;
-}
-
-#binary-container #chartContainer {
-    width: 100%;
-    height: 500px;
-}
-
-#binary-container #dPlot {
+/* Main container dimensions */
+#binary-container .main-container {
+    height: 630px;
+    min-height: 600px;
     max-height: 1000px;
-    height: 100%;
-    width: 100%;
-    background-color: white;
 }
 
-/* Style for active toggle buttons */
-#binary-container .toggle-button.active {
-    background-color: #222222;
-    color: white;
-}
-
-/* Look for and modify container styles */
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+/* Binary-specific plot styles */
+#binary-container .roc-pr-plots {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
+    flex: 1;
 }
 
-/* If there's a specific style for the mahalanobis container */
-.mahalanobis-container {
-    grid-template-columns: 1fr 1fr !important;
-}
-
-.mahalanobis-container .section.sliders {
-    min-width: 400px;
-}
-
-.mahalanobis-container .form-container {
+#overlap-plot {
     width: 100%;
+    height: 100%;
 }
 
-/* Styling for Mahalanobis D Calculator title */
-h2:contains("Mahalanobis D Calculator") {
-    font-size: 2em;
-    margin-top: 60px;
-    margin-bottom: 20px;
+#roc-plot, #pr-plot {
+    flex: 1;
+    min-width: 0;
+    min-height: 200px;
 }
 
-/* Add equation box styling to binary.css */
+/* Binary-specific dashboard styles */
+#binary-container .dashboard {
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* ==========================================================================
+   Equation Styles
+   ========================================================================== */
 .equation-box {
     background-color: white;
     border-radius: 15px;
@@ -355,4 +73,125 @@ h2:contains("Mahalanobis D Calculator") {
     justify-content: space-around;
     margin-top: 30px;
     margin-bottom: 30px;
+}
+
+/* ==========================================================================
+   Mahalanobis Calculator Styles
+   ========================================================================== */
+.mahalanobis-description {
+    max-width: 600px;
+    margin: 0 0 20px 0;
+    text-align: left;
+    font-size: 1em;
+}
+
+#mahalanobis-plot {
+    width: 100%;
+    height: 400px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.mahalanobis-line {
+    transition: d 0.3s ease;
+}
+
+.feature-point {
+    transition: cx 0.3s ease, cy 0.3s ease;
+}
+
+.threshold-line {
+    stroke-width: 4px !important;
+    opacity: 0.7;
+}
+
+.threshold-label {
+    font-size: 12px;
+}
+
+/* Mahalanobis container layout */
+#binary-container .mahalanobis-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+#binary-container .mahalanobis-container .section:first-child {
+    flex: 3;
+}
+
+#binary-container .mahalanobis-container .section:last-child {
+    flex: 7;
+}
+
+/* Form styles */
+#binary-container .form-container {
+    max-width: 320px;
+}
+
+#binary-container .form-container label {
+    display: block;
+    margin-top: 15px;
+    color: #555;
+    font-size: 1.1em;
+}
+
+#binary-container .form-container input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Button styles */
+#binary-container .form-container button {
+    width: 100%;
+    padding: 10px;
+    margin: 20px 0;
+    background-color: #222222;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+#binary-container .form-container button:hover {
+    background-color: #333;
+}
+
+#binary-container .form-container #reset-mahalanobis {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
+#binary-container .form-container #reset-mahalanobis:hover {
+    background-color: #f0f0f0;
+}
+
+/* Chart containers */
+#binary-container #chartContainer {
+    width: 100%;
+    height: 500px;
+}
+
+#binary-container #dPlot {
+    max-height: 1000px;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+}
+
+/* ==========================================================================
+   Binary-Specific Media Queries
+   ========================================================================== */
+@media (max-width: 1200px) {
+    #binary-container .main-container {
+        min-height: 800px;
+    }
 }

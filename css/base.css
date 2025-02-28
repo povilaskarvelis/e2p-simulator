@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0 auto;
+    max-width: 1400px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Description Text */
+.description {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 30px;
+    color: #555;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   Shared Container Layout
+   ========================================================================== */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+
+.slider-section {
+    flex: 1;
+    width: 280px;
+    min-width: 280px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.main-plot-section {
+    flex: 2;
+    width: 800px;
+    min-width: 600px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px 25px 25px 25px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.roc-pr-section {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Plot containers within sections */
+.plot {
+    height: 100%;
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.plot-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+}
+
+.half-plot {
+    flex: 1;
+    min-width: 0;
+    height: 50%;
+}
+
+/* ==========================================================================
+   Dashboard Styles
+   ========================================================================== */
+.dashboard {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.dashboard p {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #444;
+    margin: 8px 0;
+}
+
+/* ==========================================================================
+   Toggle Buttons
+   ========================================================================== */
+.toggle-button {
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    outline: none;
+    border-radius: 20px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.toggle-button.active {
+    background-color: #222222;
+    color: white;
+    border: 1px solid #222222;
+}
+
+.toggle-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* ==========================================================================
+   Slider Styles
+   ========================================================================== */
+.slider-container {
+    width: 100%;
+}
+
+.slider-container label {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.slider-container input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+    accent-color: #222222;
+}
+
+.slider-container input[type="number"] {
+    width: 60px;
+    text-align: right;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   Grid Layout
+   ========================================================================== */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+@media (max-width: 1200px) {
+    .main-container {
+        height: auto;
+        flex-direction: column;
+        min-height: 800px;
+    }
+
+    .slider-section {
+        width: 100%;
+        min-width: 0;
+        max-height: 300px;
+    }
+
+    .main-plot-section,
+    .roc-pr-section {
+        width: 100%;
+        min-width: 0;
+        flex: 0 0 400px;
+    }
+} 

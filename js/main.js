@@ -1,7 +1,8 @@
 // Initialize version switching
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the version select dropdown
-    const versionSelect = document.getElementById('version-select');
+    // Get the version buttons
+    const binaryButton = document.getElementById('binary-button');
+    const continuousButton = document.getElementById('continuous-button');
     
     // Get the container elements
     const binaryContainer = document.getElementById('binary-container');
@@ -13,21 +14,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the binary version by default
     initializeBinary();
     
-    // Handle version switching
-    versionSelect.addEventListener('change', function() {
-        const selectedVersion = versionSelect.value;
-        
-        if (selectedVersion === 'binary') {
-            binaryContainer.style.display = 'block';
-            continuousContainer.style.display = 'none';
-        } else if (selectedVersion === 'continuous') {
-            binaryContainer.style.display = 'none';
-            continuousContainer.style.display = 'block';
-            // Initialize continuous version if not already done
-            if (!continuousInitialized) {
-                initializeContinuous();
-                continuousInitialized = true;
-            }
+    // Handle binary button click
+    binaryButton.addEventListener('click', function() {
+        binaryButton.classList.add('active');
+        continuousButton.classList.remove('active');
+        binaryContainer.style.display = 'block';
+        continuousContainer.style.display = 'none';
+    });
+
+    // Handle continuous button click
+    continuousButton.addEventListener('click', function() {
+        continuousButton.classList.add('active');
+        binaryButton.classList.remove('active');
+        binaryContainer.style.display = 'none';
+        continuousContainer.style.display = 'block';
+        // Initialize continuous version if not already done
+        if (!continuousInitialized) {
+            initializeContinuous();
+            continuousInitialized = true;
         }
     });
 }); 

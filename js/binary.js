@@ -1,10 +1,93 @@
 function initializeBinary() {
-    const width = 600;
-    const height = 400;
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+    let width, height; // Declare width and height at the function scope
+    
+    // Add state variables at the top
+    let currentView = "observed";
+    let thresholdValue = 0;
+    let rocInitialized = false; // Track if the ROC plot is initialized
+    
+    // Create the SVG element
+    const svgDistributions = d3.select("#overlap-plot")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
-    const xScale = d3.scaleLinear().domain([-4, 5]).range([margin.left, width - margin.right]);
-    const yScale = d3.scaleLinear().domain([0, 0.5]).range([height - margin.bottom, margin.top]);
+    // Create a group for the plot content with margins
+    const plotGroup = svgDistributions.append("g")
+        .attr("class", "plot-content")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Create scales that will be updated on resize
+    const xScale = d3.scaleLinear().domain([-5.5, 6]);
+    const yScale = d3.scaleLinear().domain([0, 0.5]);
+
+    // Function to update dimensions and scales
+    function updateDimensions() {
+        const bbox = d3.select("#overlap-plot").node().getBoundingClientRect();
+        width = bbox.width;
+        height = bbox.height;
+
+        // Update SVG viewBox to match container size
+        svgDistributions.attr("viewBox", `0 0 ${width} ${height}`);
+
+        // Update scales with new dimensions
+        xScale.range([0, width - margin.left - margin.right]);
+        yScale.range([height - margin.bottom - margin.top, 0]);
+
+        // Update axes
+        plotGroup.selectAll(".x-axis")
+            .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
+            .call(d3.axisBottom(xScale).tickFormat(() => ""));
+
+        plotGroup.selectAll(".y-axis")
+            .call(d3.axisLeft(yScale).tickFormat(() => ""));
+
+        // Update axis labels with consistent distance from axes
+        svgDistributions.select(".x-label")
+            .attr("x", width / 2)
+            .attr("y", height - margin.bottom / 10); 
+
+        svgDistributions.select(".y-label")
+            .attr("x", -height / 2)
+            .attr("y", margin.left / 3);
+
+        // Redraw the plot if we have a valid value
+        const trueInput = document.getElementById("true-difference-number-bin");
+        if (trueInput && trueInput.value) {
+            const d = parseFloat(trueInput.value);
+            if (!isNaN(d)) {
+                drawDistributions(d);
+                drawThreshold(d);
+            }
+        }
+    }
+
+    // Create axes groups
+    plotGroup.append("g")
+        .attr("class", "x-axis");
+
+    plotGroup.append("g")
+        .attr("class", "y-axis");
+
+    // Add axis labels
+    svgDistributions.append("text")
+        .attr("class", "x-label")
+        .attr("text-anchor", "middle")
+        .text("Predictor");
+
+    svgDistributions.append("text")
+        .attr("class", "y-label")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .text("Probability Density");
+
+    // Initial update of dimensions
+    updateDimensions();
+
+    // Add resize listener
+    window.addEventListener("resize", updateDimensions);
 
     // Wait for elements to be in the DOM
     const baseRateSlider = document.getElementById("base-rate-slider");
@@ -22,58 +105,6 @@ function initializeBinary() {
             plotROC(d);
         });
     }
-
-    const svgDistributions = d3.select("#overlap-plot")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .style("margin-top", "40px");
-
-        svgDistributions.append("g")
-            .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(xScale).tickFormat(() => "")); // Remove x-axis tick labels
-
-        svgDistributions.append("g")
-            .attr("transform", `translate(${margin.left},0)`)
-            .call(d3.axisLeft(yScale).tickFormat(() => "")); // Remove y-axis tick labels
-
-    // Editable axis labels
-    svgDistributions.selectAll(".x-label")
-        .data([null])
-        .join("foreignObject")
-        .attr("class", "x-label")
-        .attr("x", width / 2 - 50)
-        .attr("y", height - margin.bottom + 20)
-        .attr("width", 100)
-        .attr("height", 20)
-        .append("xhtml:div")
-        .attr("contenteditable", true)
-        .style("text-align", "center")
-        .style("font-size", "18px")
-        .style("color", "black")
-        .text("Predictor");
-
-    svgDistributions.selectAll(".y-label")
-        .data([null])
-        .join("foreignObject")
-        .attr("class", "y-label")
-        .attr("x", -height / 1.5)
-        .attr("y", margin.left - 40)
-        .attr("transform", `rotate(-90)`)
-        .attr("width", 200)
-        .attr("height", 20)
-        .append("xhtml:div")
-        .attr("contenteditable", true)
-        .style("text-align", "center")
-        .style("font-size", "18px")
-        .style("color", "black")
-        .text("Probability Density");
-
-    // Add state variable for current view
-    let currentView = "observed";
-
-    let thresholdValue = 0;
-    let rocInitialized = false; // Track if the ROC plot is initialized
 
     function normalPDF(x, mean, stdDev) {
         // Add back normalization factor (1/(σ√(2π)))
@@ -98,7 +129,6 @@ function initializeBinary() {
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
 
-
         // Get ICC values
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
@@ -106,20 +136,17 @@ function initializeBinary() {
         // Use true or observed standard deviations based on current view
         const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
+        
         // Get the true d value from the input
         const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
         
-        // Get ICC_G value that was missing
+        // Get ICC_G value
         const iccG = parseFloat(document.getElementById("iccc-slider").value);
         
         // Calculate the mean difference based on true d and ICC_G
         const meanDiff = currentView === "true" ? trueD : trueD * Math.sqrt(iccG);
         
-        const x = d3.range(-10, 10, 0.1);
-
-        // Ensure xScale is consistent across the entire code
-        xScale.domain([-5, 5])
-            .range([margin.left, width - margin.right]);
+        const x = d3.range(-6, 6.1, 0.1);  // Changed to match domain, added .1 to include end point
 
         const data1 = x.map(val => ({
             x: val,
@@ -141,7 +168,7 @@ function initializeBinary() {
         yScale.domain([minY, maxY + buffer]);
 
         // Update y-axis
-        svgDistributions.select(".y-axis")
+        plotGroup.select(".y-axis")
             .transition()
             .duration(300)
             .call(d3.axisLeft(yScale).tickFormat(() => ""));
@@ -156,10 +183,10 @@ function initializeBinary() {
             .y0(yScale(0))  // Bottom of the plot
             .y1(d => yScale(d.y));  // Top of the distribution
 
-        svgDistributions.selectAll(".distribution").remove();
+        plotGroup.selectAll(".distribution").remove();
 
         // Draw control distribution (black)
-        svgDistributions.append("path")
+        plotGroup.append("path")
             .attr("class", "distribution")
             .datum(data1)
             .attr("fill", "black")
@@ -167,15 +194,20 @@ function initializeBinary() {
             .attr("d", area);
 
         // Draw patient distribution (teal)
-        svgDistributions.append("path")
+        plotGroup.append("path")
             .attr("class", "distribution")
             .datum(data2)
             .attr("fill", "teal")
             .attr("opacity", 0.3)
             .attr("d", area);
 
+        // Update legend
         const legendData = ["Controls", "Patients"];
-        const legend = svgDistributions.selectAll(".legend-group").data(legendData);
+        updateLegend(legendData);
+    }
+
+    function updateLegend(legendData) {
+        const legend = plotGroup.selectAll(".legend-group").data(legendData);
 
         // Remove any excess legend elements
         legend.exit().remove();
@@ -208,83 +240,27 @@ function initializeBinary() {
 
         // Update the position and properties of all legend elements
         legendEnter.merge(legend)
-            .attr("x", width - 520)
+            .attr("x", margin.left)
             .attr("y", (d, i) => margin.top + i * 20);
     }
 
     function drawThreshold(d) {
         const xDomain = xScale.domain();
 
-        // Select or create the threshold group
-        const thresholdGroup = svgDistributions.selectAll(".threshold-group")
+        // Select or create the threshold group within plotGroup
+        const thresholdGroup = plotGroup.selectAll(".threshold-group")
             .data([null]); // Use a single group for the threshold
 
         const groupEnter = thresholdGroup.enter()
             .append("g")
             .attr("class", "threshold-group")
-            .style("cursor", "pointer")
-            .call(d3.drag()
-                .on("drag", function(event) {
-                    // Get new threshold value from drag position
-                    let newThreshold = xScale.invert(event.x);
-                    // Constrain to the x-axis domain
-                    newThreshold = Math.max(xDomain[0], Math.min(xDomain[1], newThreshold));
-                    thresholdValue = newThreshold;
+            .style("cursor", "pointer");
 
-                    // Update threshold line and arrows position
-                    thresholdGroup.select(".threshold-line")
-                        .attr("x1", xScale(newThreshold))
-                        .attr("x2", xScale(newThreshold));
-
-                    // Update arrows
-                    thresholdGroup.selectAll(".threshold-arrow")
-                        .attr("d", d => {
-                            const x = xScale(newThreshold + (d.direction === "left" ? -0.33 : 0.33));
-                            const y = d.y;
-                            if (d.direction === "left") {
-                                return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                            } else {
-                                return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                            }
-                        });
-
-                    // Update hitbox position
-                    thresholdGroup.select(".threshold-hitbox")
-                        .attr("x", xScale(newThreshold) - 10);
-
-                    // Update threshold line position
-                    d3.select(this).select(".threshold-line")
-                        .attr("x1", xScale(newThreshold))
-                        .attr("x2", xScale(newThreshold));
-
-                    // Update arrows position
-                    d3.select(this).selectAll(".threshold-arrow")
-                        .attr("d", d => {
-                            const x = xScale(newThreshold + (d.direction === "left" ? -0.33 : 0.33));
-                            const y = d.y;
-                            if (d.direction === "left") {
-                                return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                            } else {
-                                return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                            }
-                        });
-
-                    // Get current d value from the appropriate input
-                    const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-                    const icc1 = parseFloat(document.getElementById("icc1-slider").value);
-                    const icc2 = parseFloat(document.getElementById("icc2-slider").value);
-                    const iccG = parseFloat(document.getElementById("iccc-slider").value);
-                    const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
-                    const dToUse = currentView === "true" ? trueD : dObs;
-                    plotROC(dToUse);
-                })
-            );
-
-        // Merge enter/update for the group
-        const groupMerge = groupEnter.merge(thresholdGroup);
+        // Merge enter and update selections
+        const thresholdMerge = groupEnter.merge(thresholdGroup);
 
         // Add or update the threshold line
-        const line = groupMerge.selectAll(".threshold-line")
+        const line = thresholdMerge.selectAll(".threshold-line")
             .data([null]);
 
         line.enter()
@@ -293,14 +269,14 @@ function initializeBinary() {
             .merge(line)
             .attr("x1", xScale(thresholdValue))
             .attr("x2", xScale(thresholdValue))
-            .attr("y1", yScale.range()[0])
-            .attr("y2", yScale.range()[1])
+            .attr("y1", 0)
+            .attr("y2", height - margin.top - margin.bottom)
             .attr("stroke", "red")
             .attr("stroke-width", 4)
             .attr("opacity", 0.9);
 
-        // Add or update the hitbox for interaction
-        const hitbox = groupMerge.selectAll(".threshold-hitbox")
+        // Add or update the hitbox
+        const hitbox = thresholdMerge.selectAll(".threshold-hitbox")
             .data([null]);
 
         hitbox.enter()
@@ -309,19 +285,19 @@ function initializeBinary() {
             .merge(hitbox)
             .attr("x", xScale(thresholdValue) - 10)
             .attr("width", 20)
-            .attr("y", yScale.range()[1])
-            .attr("height", yScale.range()[0] - yScale.range()[1])
+            .attr("y", 0)
+            .attr("height", height - margin.top - margin.bottom)
             .attr("fill", "transparent");
 
         // Add or update the arrows
-        const arrowSize = 10; // Size of the arrow
-        const arrowY = yScale.range()[1] + 10; // Slightly below the top of the y-axis
+        const arrowSize = 10;
+        const arrowY = 10; // Position arrows near the top
         const arrowData = [
-            { direction: "left", x: thresholdValue - 0.33, y: arrowY },
-            { direction: "right", x: thresholdValue + 0.33, y: arrowY },
+            { direction: "left", y: arrowY },
+            { direction: "right", y: arrowY }
         ];
 
-        const arrows = groupMerge.selectAll(".threshold-arrow")
+        const arrows = thresholdMerge.selectAll(".threshold-arrow")
             .data(arrowData);
 
         arrows.enter()
@@ -329,32 +305,76 @@ function initializeBinary() {
             .attr("class", "threshold-arrow")
             .merge(arrows)
             .attr("d", d => {
-                const x = xScale(d.x);
+                const x = xScale(thresholdValue + (d.direction === "left" ? -0.33 : 0.33));
                 const y = d.y;
                 if (d.direction === "left") {
-                    // Outward-pointing left triangle
                     return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
                 } else {
-                    // Outward-pointing right triangle
                     return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
                 }
             })
             .attr("fill", "red");
 
+        // Remove any excess elements
         arrows.exit().remove();
 
-        // Ensure the threshold group is always on top
-        groupMerge.raise();
+        // Add drag behavior after elements are created
+        thresholdMerge.call(d3.drag()
+            .on("drag", function(event) {
+                // Get new threshold value from drag position, accounting for margins
+                let newThreshold = xScale.invert(event.x);
+                // Constrain to the x-axis domain
+                newThreshold = Math.max(xDomain[0], Math.min(xDomain[1], newThreshold));
+                thresholdValue = newThreshold;
 
-        // Remove excess groups
-        thresholdGroup.exit().remove();
+                // Update threshold line position immediately
+                d3.select(this).select(".threshold-line")
+                    .attr("x1", xScale(newThreshold))
+                    .attr("x2", xScale(newThreshold));
+
+                // Update hitbox position immediately
+                d3.select(this).select(".threshold-hitbox")
+                    .attr("x", xScale(newThreshold) - 10);
+
+                // Update arrows immediately
+                d3.select(this).selectAll(".threshold-arrow")
+                    .attr("d", d => {
+                        const x = xScale(newThreshold + (d.direction === "left" ? -0.33 : 0.33));
+                        const y = d.y;
+                        if (d.direction === "left") {
+                            return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+                        } else {
+                            return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+                        }
+                    });
+
+                // Get current d value and update ROC plot
+                const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+                const icc1 = parseFloat(document.getElementById("icc1-slider").value);
+                const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+                const iccG = parseFloat(document.getElementById("iccc-slider").value);
+                const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
+                const dToUse = currentView === "true" ? trueD : dObs;
+                plotROC(dToUse);
+            }));
+
+        // Ensure the threshold group is always on top
+        thresholdMerge.raise();
     }
 
     function plotROC(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
 
-        // Calculate AUC once - it only depends on d
-        const auc = cumulativeDistributionFunction(d / Math.sqrt(2), 0, 1);
+        // Get ICC values for standard deviation calculation
+        const icc1 = parseFloat(document.getElementById("icc1-slider").value);
+        const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+
+        // Calculate standard deviations based on current view
+        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
+        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
+
+        // Calculate AUC once - it depends on d and standard deviations
+        const auc = cumulativeDistributionFunction(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
 
         const tMin = -5;
         const tMax = 5;
@@ -372,8 +392,9 @@ function initializeBinary() {
         recall.push(1);
 
         for (let t = tMin; t <= tMax; t += step) {
-            const cdfA = cumulativeDistributionFunction(t, 0, 1);
-            const cdfB = cumulativeDistributionFunction(t, d, 1);  // d is already the correct value from updatePlots
+            // Use appropriate standard deviations for each distribution
+            const cdfA = cumulativeDistributionFunction(t, 0, sigma1);  // Controls
+            const cdfB = cumulativeDistributionFunction(t, d, sigma2);  // Patients
 
             FPR.push(1 - cdfA);
             TPR.push(1 - cdfB);
@@ -392,8 +413,9 @@ function initializeBinary() {
         precision.push(1);
         recall.push(0);
 
-        const thresholdFPR = 1 - cumulativeDistributionFunction(thresholdValue, 0, 1);
-        const thresholdTPR = 1 - cumulativeDistributionFunction(thresholdValue, d, 1);
+        // Use appropriate standard deviations for threshold calculations
+        const thresholdFPR = 1 - cumulativeDistributionFunction(thresholdValue, 0, sigma1);
+        const thresholdTPR = 1 - cumulativeDistributionFunction(thresholdValue, d, sigma2);
 
         // Calculate metrics
         const specificity = 1 - thresholdFPR;
@@ -435,10 +457,22 @@ function initializeBinary() {
         };
 
         const rocLayout = {
-            xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
-            yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
+            xaxis: { 
+                title: "1 - Specificity (FPR)", 
+                range: [0, 1], 
+                showgrid: false, 
+                titlefont: { size: 15 }, 
+                dtick: 1 
+            },
+            yaxis: { 
+                title: "Sensitivity (TPR)", 
+                range: [0, 1], 
+                showgrid: false, 
+                titlefont: { size: 15 }, 
+                dtick: 1 
+            },
             showlegend: false,
-            margin: { t: 40, l: 60, r: 20, b: 40 },
+            margin: { t: 20, l: 50, r: 30, b: 40 },
             font: { size: 12 },
             annotations: [{
                 x: 0.95,
@@ -450,6 +484,7 @@ function initializeBinary() {
                 font: { size: 16, color: "black", weight: "bold" },
                 align: "right",
             }],
+            autosize: true,
         };
 
         // Precision-Recall Plot
@@ -465,18 +500,30 @@ function initializeBinary() {
         };
 
         const prThresholdMarker = {
-            x: [sensitivity],  // recall = sensitivity
-            y: [ppv],         // precision = positive predictive value
+            x: [sensitivity],
+            y: [ppv],
             type: "scatter",
             mode: "markers",
             marker: { color: "red", size: 10 },
         };
 
         const prLayout = {
-            xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
-            yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
+            xaxis: { 
+                title: "Recall (TPR)", 
+                range: [0, 1], 
+                showgrid: false, 
+                titlefont: { size: 15 }, 
+                dtick: 1 
+            },
+            yaxis: { 
+                title: "Precision (PPV)", 
+                range: [0, 1], 
+                showgrid: false, 
+                titlefont: { size: 15 }, 
+                dtick: 1 
+            },
             showlegend: false,
-            margin: { t: 40, l: 60, r: 20, b: 40 },
+            margin: { t: 20, l: 50, r: 30, b: 40 },
             font: { size: 13 },
             annotations: [{
                 x: 0.05,
@@ -488,14 +535,25 @@ function initializeBinary() {
                 font: { size: 16, color: "black", weight: "bold" },
                 align: "left",
             }],
+            autosize: true,
         };
 
-        const config = { staticPlot: true };
+        const config = { 
+            staticPlot: true,
+            responsive: true,
+            displayModeBar: false
+        };
 
         if (!rocInitialized) {
             Plotly.newPlot("roc-plot", [rocTrace, rocThresholdMarker], rocLayout, config);
             Plotly.newPlot("pr-plot", [prTrace, prThresholdMarker], prLayout, config);
             rocInitialized = true;
+
+            // Add resize event listeners
+            window.addEventListener('resize', () => {
+                Plotly.Plots.resize('roc-plot');
+                Plotly.Plots.resize('pr-plot');
+            });
         } else {
             Plotly.react("roc-plot", [rocTrace, rocThresholdMarker], rocLayout, config);
             Plotly.react("pr-plot", [prTrace, prThresholdMarker], prLayout, config);
@@ -559,8 +617,8 @@ function initializeBinary() {
         
         // Update observed metrics
         document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
-        document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.PI / Math.sqrt(3)).toFixed(2);
-        document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.PI / Math.sqrt(3)).toFixed(2);
+        document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.sqrt(3) / Math.PI).toFixed(2);
+        document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.sqrt(3) / Math.PI).toFixed(2);
         document.getElementById("observed-auc-bin").value = cdfNormal(dObs / Math.sqrt(2), 0, 1).toFixed(2);
         document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
         const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
