@@ -220,9 +220,9 @@ input.slider-value {
 
 .metrics-header {
     display: grid;
-    grid-template-columns: 1fr 70px 55px;
+    grid-template-columns: 1fr 73px 54px;
     align-items: left;
-    margin-bottom: 5px;
+    margin-top: 5px;
 }
 .metrics-header span {
     text-align: left;
