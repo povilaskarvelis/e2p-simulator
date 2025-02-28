@@ -158,12 +158,29 @@ h1 {
     accent-color: #222222;
 }
 
-.slider-container input[type="number"] {
-    width: 60px;
+.slider-container input[type="number"],
+.slider-value-container input[type="number"],
+input.slider-value {
+    width: 60px !important;
     text-align: right;
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.slider-value-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.slider-value-container span {
+    font-size: 1.1em;
+    color: #555;
+    flex: 1;
+    margin-right: 10px;
 }
 
 /* ==========================================================================
@@ -200,3 +217,21 @@ h1 {
         flex: 0 0 400px;
     }
 } 
+
+.metrics-header {
+    display: grid;
+    grid-template-columns: 1fr 70px 55px;
+    align-items: left;
+    margin-bottom: 5px;
+}
+.metrics-header span {
+    text-align: left;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.metrics-header span:first-child {
+    text-align: left;
+}

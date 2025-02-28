@@ -41,15 +41,15 @@
             <div class="slider-section">
                 <div class="slider-container">
                     <!-- Cohen's d and other metrics -->
-                    <div style="margin-bottom: 20px;">
+                    <div>
                         <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="0.5" style="width: 100%; margin-bottom: 10px;">
                         
                         <!-- Continuous Metrics -->
                         <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
-                            <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-bottom: 5px;">
-                                <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;"> </span>
-                                <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">True</span>
-                                <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">Obs.</span>
+                            <div class="metrics-header">
+                                <span></span>
+                                <span>True</span>
+                                <span>Obs.</span>
                             </div>
 
                             <!-- Cohen's d -->
@@ -96,17 +96,8 @@
                         </div>
                     </div>
                     
-                    <!-- Base rate -->
-                    <div>
-                        <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50" style="width: 100%;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
-                            <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
-                        </div>
-                    </div>
-
                     <!-- Reliability Controls -->
-                    <div style="margin-top: 30px;">
+                    <div style="margin-top: 20px; margin-bottom: 20px;">
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
@@ -126,6 +117,15 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span style="font-size: 1.1em; color: #555;">Grouping reliability</span>
                             <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
+                        </div>
+                    </div>
+
+                    <!-- Base rate -->
+                    <div>
+                        <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50" style="width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
+                            <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
                 </div>
@@ -231,29 +231,29 @@
                     </div>
 
                     <!-- Effect size slider -->
-                    <div style="display: flex; flex-direction: column; margin-top: 15px;">
-                        <input type="range" id="effectSize-slider" min="0.1" max="2" step="0.01" value="0.5" style="width: 100%; accent-color: #222222;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span style="font-size: 1.1em; color: #555;">Effect size of each predictor (d)</span>
-                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.5" style="width: 60px; margin-right: 0;">
+                    <div class="slider-container">
+                        <input type="range" id="effectSize-slider" min="0.1" max="2" step="0.01" value="0.5" class="slider">
+                        <div class="slider-value-container">
+                            <span>Effect size of each predictor (d)</span>
+                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                     </div>
 
                     <!-- Correlation slider -->
-                    <div style="display: flex; flex-direction: column; margin-top: 15px;">
-                        <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" style="width: 100%; accent-color: #222222;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span style="font-size: 1.1em; color: #555;">Collinearity among predictors (r)</span>
-                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" style="width: 60px; margin-right: 0;">
+                    <div class="slider-container">
+                        <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" class="slider">
+                        <div class="slider-value-container">
+                            <span>Collinearity among predictors (r)</span>
+                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" style="width: 60px;">
                         </div>
                     </div>
 
                     <!-- Number of variables slider -->
-                    <div style="display: flex; flex-direction: column; margin-top: 15px;">
-                        <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="50" style="width: 100%; accent-color: #222222;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span style="font-size: 1.1em; color: #555;">Number of predictors</span>
-                            <input type="number" id="numVariables" min="1" max="100" step="1" value="50" style="width: 60px; margin-right: 0;">
+                    <div class="slider-container">
+                        <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="50" class="slider">
+                        <div class="slider-value-container">
+                            <span>Number of predictors</span>
+                            <input type="number" id="numVariables" min="1" max="100" step="1" value="50" style="width: 60px;">
                         </div>
                     </div>
 
@@ -281,11 +281,11 @@
                     <input type="range" id="effect-slider-cont" min="0" max="1" step="0.01" value="0.50" style="width: 100%; margin-bottom: 10px;">
 
                     <!-- Continuous Metrics -->
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
-                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-bottom: 5px;">
-                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;"> </span>
-                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">True</span>
-                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">Obs.</span>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                        <div class="metrics-header">
+                            <span></span>
+                            <span>True</span>
+                            <span>Obs.</span>
                         </div>
 
                         <!-- Pearson's r -->
@@ -312,22 +312,22 @@
 
                     <!-- Reliability X -->
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
                         <span style="font-size: 1.1em; color: #555;">Predictor reliability</span>
                         <input type="number" id="reliability-x-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
                         <span style="font-size: 1.1em; color: #555;">Outcome reliability</span>
                         <input type="number" id="reliability-y-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
                     <!-- Base rate -->
-                    <div style="margin-top: 30px; margin-bottom: 30px;">
+                    <div style="margin-top: 20px; margin-bottom: 30px;">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 100%;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
                             <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
                             <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 60px;">
                         </div>
@@ -335,10 +335,10 @@
 
                     <!-- Binary Metrics -->
                     <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: grid; grid-template-columns: 1fr 50px 50px; align-items: center; margin-bottom: 5px;">
-                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;"> </span>
-                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">True</span>
-                            <span style="text-align: left; font-size: 0.8em; font-weight: bold; color: #555;">Obs.</span>
+                        <div class="metrics-header">
+                            <span></span>
+                            <span>True</span>
+                            <span>Obs.</span>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -451,29 +451,29 @@
                 </div>
                 
                 <!-- Predictor correlation slider -->
-                <div style="display: flex; flex-direction: column; margin-top: 30px;">
-                    <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.2" style="width: 100%; accent-color: #222222;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                        <span style="font-size: 1.1em; color: #555;">Correlation of each predictor (r)</span>
-                        <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.2" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                <div class="slider-container">
+                    <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.2" class="slider">
+                    <div class="slider-value-container">
+                        <span>Correlation of each predictor (r)</span>
+                        <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.2" class="slider-value">
                     </div>
                 </div>
                 
                 <!-- Collinearity slider -->
-                <div style="display: flex; flex-direction: column; margin-top: 30px;">
-                    <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.1" style="width: 100%; accent-color: #222222;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                        <span style="font-size: 1.1em; color: #555;">Collinearity among predictors</span>
-                        <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.1" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                <div class="slider-container">
+                    <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.1" class="slider">
+                    <div class="slider-value-container">
+                        <span>Collinearity among predictors</span>
+                        <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.1" class="slider-value">
                     </div>
                 </div>
                 
                 <!-- Number of predictors slider -->
-                <div style="display: flex; flex-direction: column; margin-top: 30px;">
-                    <input type="range" id="num-predictors-r2-slider" min="1" max="100" step="1" value="20" style="width: 100%; accent-color: #222222;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                        <span style="font-size: 1.1em; color: #555;">Number of predictors</span>
-                        <input type="number" id="num-predictors-r2" min="1" max="100" step="1" value="20" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                <div class="slider-container">
+                    <input type="range" id="num-predictors-r2-slider" min="1" max="100" step="1" value="20" class="slider">
+                    <div class="slider-value-container">
+                        <span>Number of predictors</span>
+                        <input type="number" id="num-predictors-r2" min="1" max="100" step="1" value="20" class="slider-value">
                     </div>
                 </div>
                 
