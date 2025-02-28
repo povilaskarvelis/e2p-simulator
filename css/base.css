@@ -143,6 +143,7 @@ h1 {
    ========================================================================== */
 .slider-container {
     width: 100%;
+    margin: 0 auto;
 }
 
 .slider-container label {
@@ -174,9 +175,10 @@ input.slider-value {
     justify-content: space-between;
     align-items: center;
     margin-top: 5px;
+    max-width: 100%;
 }
 
-.slider-value-container span {
+.slider-label {
     font-size: 1.1em;
     color: #555;
     flex: 1;
@@ -234,4 +236,200 @@ input.slider-value {
 }
 .metrics-header span:first-child {
     text-align: left;
+}
+
+/* ==========================================================================
+   Calculator Container Styles
+   ========================================================================== */
+.mahalanobis-container,
+.r-squared-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    margin-bottom: 50px;
+    height: 550px;
+}
+
+/* Calculator Sections */
+.section {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px 25px 25px 25px;
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.section.sliders {
+    padding: 30px 25px 25px 25px;
+    flex: 0 0 360px;
+    width: 360px;
+    min-width: 360px;
+}
+
+/* Calculator section layout */
+.mahalanobis-container .section:last-child,
+.r-squared-container .section:last-child {
+    flex: 1;
+    width: 800px;
+    min-width: 600px;
+}
+
+/* Calculator Form Container */
+.form-container {
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.form-container input[type="number"] {
+    width: 60px !important;
+    margin-right: 0;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Calculator Plot Container */
+#chartContainer,
+#r2PlotContainer {
+    height: 500px;
+    width: 100%;
+    position: relative;
+    margin: 20px 0;
+}
+
+#dPlot,
+#r2Plot {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 1000px;
+    background-color: white;
+}
+
+/* Chart Legend */
+.chart-legend {
+    margin-bottom: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Calculator buttons */
+.section button {
+    padding: 8px 15px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.section button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Record and Reset buttons for calculators */
+.mahalanobis-container button,
+.r-squared-container button {
+    width: 100%;
+    padding: 10px;
+    margin: 20px 0;
+    background-color: #222222;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.mahalanobis-container button:hover,
+.r-squared-container button:hover {
+    background-color: #333;
+}
+
+#reset-mahalanobis,
+#reset-r2 {
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+}
+
+#reset-mahalanobis:hover,
+#reset-r2:hover {
+    background-color: #f0f0f0 !important;
+}
+
+/* Calculator equation box styles */
+.equation-box.equation-wide {
+    margin: 10px auto 30px auto;
+    width: 100%;
+    max-width: 320px;
+    height: 140px;
+    align-self: flex-start;
+    justify-content: flex-start;
+}
+
+/* Add specific styles for calculator section equation boxes */
+.section .equation-box {
+    margin: 10px auto 30px auto;
+    height: 140px;
+    align-self: flex-start;
+    justify-content: flex-start;
+}
+
+/* New style for calculator equations without nested appearance */
+.section .equation-box.flat {
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0 0 40px 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.section .equation-box.flat .equation-title {
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.section .equation-box.flat .equation-content {
+    background-color: transparent;
+    margin-bottom: 15px;
+}
+
+/* Calculator Responsive Design */
+@media (max-width: 1200px) {
+    .mahalanobis-container,
+    .r-squared-container {
+        flex-direction: column;
+        min-height: 800px;
+    }
+
+    .section.sliders {
+        width: 100%;
+        min-width: 0;
+        max-height: 300px;
+    }
+
+    .mahalanobis-container .section:last-child,
+    .r-squared-container .section:last-child {
+        width: 100%;
+        min-width: 0;
+        flex: 0 0 400px;
+    }
 }

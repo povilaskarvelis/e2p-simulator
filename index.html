@@ -54,42 +54,42 @@
 
                             <!-- Cohen's d -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Cohen's d</span>
+                                <span class="slider-label">Cohen's d</span>
                                 <input type="number" id="true-difference-number-bin" min="0" max="5" step="0.01" value="0.5" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-difference-number-bin" min="0" max="5" step="0.01" value="1" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Odds Ratio</span>
+                                <span class="slider-label">Odds Ratio</span>
                                 <input type="number" id="true-odds-ratio-bin" min="1" max = "8681" step="1" value="1" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-odds-ratio-bin" min="1" max = "8681" step="1" value="1" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Log Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Log Odds Ratio</span>
+                                <span class="slider-label">Log Odds Ratio</span>
                                 <input type="number" id="true-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- AUC -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">AUC</span>
+                                <span class="slider-label">AUC</span>
                                 <input type="number" id="true-auc-bin" min="0.5" max="1" step="0.01" value="0.1" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-auc-bin" min="0.5" max="1" step="0.01" value="0.1" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Point-biserial r -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">r<sub>pb</sub></span>
+                                <span class="slider-label">r<sub>pb</sub></span>
                                 <input type="number" id="true-pb-r-bin" min="0" max="0.93" step="0.01" value="0" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-pb-r-bin" min="0" max="0.93" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Eta squared -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">&eta;²</span>
+                                <span class="slider-label">&eta;²</span>
                                 <input type="number" id="true-eta-squared-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-eta-squared-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                             </div>
@@ -101,21 +101,21 @@
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span style="font-size: 1.1em; color: #555;">Group 1 reliability</span>
+                            <span class="slider-label">Group 1 reliability</span>
                             <input type="number" id="icc1-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Group 2 Reliability -->
                         <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%; margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span style="font-size: 1.1em; color: #555;">Group 2 reliability</span>
+                            <span class="slider-label">Group 2 reliability</span>
                             <input type="number" id="icc2-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Classification Reliability -->
                         <input type="range" id="iccc-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%; margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span style="font-size: 1.1em; color: #555;">Grouping reliability</span>
+                            <span class="slider-label">Grouping reliability</span>
                             <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                     </div>
@@ -124,7 +124,7 @@
                     <div>
                         <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
+                            <span class="slider-label">Base rate (%)</span>
                             <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
@@ -214,28 +214,28 @@
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
-        <div class="container mahalanobis-container" style="grid-template-columns: 1.5fr 1fr;">
+        <div class="container mahalanobis-container">
             <div class="section sliders">
                 <!-- Mahalanobis D equation box -->
-                <div class="equation-box equation-wide" style="margin: 0 auto 20px auto; width: 320px;">
-                    <p class="equation-title">Mahalanobis D formula</p>
+                <div class="equation-box equation-wide flat">
+                    <p class="equation-title">When all predictors have the same effect size and collinearity, Mahalanobis D is:</p>
                     <div class="equation-content">
-                        \[D = d \times \sqrt{\frac{n}{1 + (n-1) \times r}}\]
+                        \[D = d \sqrt{\frac{p}{1 + (p-1)r_{ij}}}\]
                     </div>
                 </div>
                 
-                <div class="form-container" style="padding: 0 20px; padding-top: 10px; padding-bottom: 10px;">
+                <div class="form-container">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 1.1em; color: #555;">Needed Mahalanobis D</span>
-                        <input type="number" id="neededD" title="Enter the needed Mahalanobis D" step="0.01" value="3" style="width: 60px; margin-right: 0;" required>
+                        <span class="slider-label">Needed Mahalanobis D</span>
+                        <input type="number" id="neededD" title="Enter the needed Mahalanobis D" step="0.01" value="3" class="slider-value" required>
                     </div>
 
                     <!-- Effect size slider -->
                     <div class="slider-container">
                         <input type="range" id="effectSize-slider" min="0.1" max="2" step="0.01" value="0.5" class="slider">
                         <div class="slider-value-container">
-                            <span>Effect size of each predictor (d)</span>
-                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.5" style="width: 60px;">
+                            <span class="slider-label">Effect size of each predictor (d)</span>
+                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.5" class="slider-value">
                         </div>
                     </div>
 
@@ -243,8 +243,8 @@
                     <div class="slider-container">
                         <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" class="slider">
                         <div class="slider-value-container">
-                            <span>Collinearity among predictors (r)</span>
-                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" style="width: 60px;">
+                            <span class="slider-label">Collinearity among predictors (r_ij)</span>
+                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" class="slider-value">
                         </div>
                     </div>
 
@@ -252,18 +252,18 @@
                     <div class="slider-container">
                         <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="50" class="slider">
                         <div class="slider-value-container">
-                            <span>Number of predictors</span>
-                            <input type="number" id="numVariables" min="1" max="100" step="1" value="50" style="width: 60px;">
+                            <span class="slider-label">Number of predictors (p)</span>
+                            <input type="number" id="numVariables" min="1" max="100" step="1" value="50" class="slider-value">
                         </div>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
-                        <button id="record-mahalanobis" style="flex: 2;">Record curve</button>
-                        <button id="reset-mahalanobis" style="flex: 1;">Reset</button>
+                        <button id="record-mahalanobis">Record curve</button>
+                        <button id="reset-mahalanobis">Reset</button>
                     </div>
                 </div>
             </div>
-            <div class="section" style="padding: 20px;">
+            <div class="section">
                 <div id="chartContainer">
                     <canvas id="dPlot"></canvas>
                 </div>
@@ -290,21 +290,21 @@
 
                         <!-- Pearson's r -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Pearson's r</span>
+                            <span class="slider-label">Pearson's r</span>
                             <input type="number" id="true-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" style="width: 50px; text-align: right;">
                             <input type="number" id="observed-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <!-- R² -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">R²</span>
+                            <span class="slider-label">R²</span>
                             <input type="number" id="true-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <!-- c-index -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">c-index</span>
+                            <span class="slider-label">c-index</span>
                             <input type="number" id="true-c-index-cont" min="0.5" max="1" step="0.001" value="0.5" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-c-index-cont" min="0.5" max="1" step="0.001" value="0.5" style="width: 50px; text-align: right;" readonly>
                         </div>
@@ -313,14 +313,14 @@
                     <!-- Reliability X -->
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                     <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
-                        <span style="font-size: 1.1em; color: #555;">Predictor reliability</span>
+                        <span class="slider-label">Predictor reliability</span>
                         <input type="number" id="reliability-x-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                     <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
-                        <span style="font-size: 1.1em; color: #555;">Outcome reliability</span>
+                        <span class="slider-label">Outcome reliability</span>
                         <input type="number" id="reliability-y-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
@@ -328,7 +328,7 @@
                     <div style="margin-top: 20px; margin-bottom: 30px;">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
-                            <span style="font-size: 1.1em; color: #555;">Base rate (%)</span>
+                            <span class="slider-label">Base rate (%)</span>
                             <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
@@ -342,43 +342,43 @@
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Cohen's d</span>
+                            <span class="slider-label">Cohen's d</span>
                             <input type="number" id="true-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Cohen's d*</span>
+                            <span class="slider-label">Cohen's d*</span>
                             <input type="number" id="true-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Rank-biserial r</span>
+                            <span class="slider-label">Rank-biserial r</span>
                             <input type="number" id="true-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Glass's &Delta;</span>
+                            <span class="slider-label">Glass's &Delta;</span>
                             <input type="number" id="true-glass-d-cont" min="0" max="5" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-glass-d-cont" min="0" max="5" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Odds Ratio</span>
+                            <span class="slider-label">Odds Ratio</span>
                             <input type="number" id="true-odds-ratio-cont" min="1" step="1" value="1" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-odds-ratio-cont" min="1" step="1" value="1" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">Log Odds Ratio</span>
+                            <span class="slider-label">Log Odds Ratio</span>
                             <input type="number" id="true-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 1.1em; color: #555; text-align: left; flex: 1;">AUC</span>
+                            <span class="slider-label">AUC</span>
                             <input type="number" id="true-auc-cont" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-auc-cont" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
                         </div>
@@ -414,7 +414,7 @@
                     <div id="roc-plot-cont" class="half-plot"></div>
                     <div id="pr-plot-cont" class="half-plot"></div>
                 </div>
-                <div id="dashboard-cont" class="dashboard" style="padding-left: 10px; padding-right: 10px;">
+                <div id="dashboard-cont" class="dashboard">
                     <p style="display: none;">AUC: <span id="auc-value-cont">0.00%</span></p>
                     <p>Balanced accuracy: <span id="accuracy-value-cont">0.00%</span></p>
                     <p>Sensitivity: <span id="sensitivity-value-cont">0.00%</span></p>
@@ -427,34 +427,34 @@
     <!-- Multivariate R² Calculator Section -->
     <div style="margin-top: 50px;"></div>
     <h2 style="text-align: center; font-size: 2em; margin-top: 40px;">Multivariate R² Calculator</h2>
-    <div class="description" style="text-align: center; padding: 0 100px; margin-bottom: 20px;">
+    <div class="description">
         <p>This calculator shows how multiple correlated predictors combine to create explained variance in multivariate regression. 
         It accounts for intercorrelations among predictors, helping you understand the unique contribution of each variable.
         Use this to estimate how predictive power changes as you add correlated predictors to your model.</p>
     </div>
 
     <!-- Multivariate R² Calculator Container -->
-    <div class="container r-squared-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto;">
-        <div class="section sliders" style="background-color: white; border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <div class="container r-squared-container">
+        <div class="section sliders">
             <!-- Multivariate R² equation box -->
-            <div class="equation-box equation-wide" style="margin: 0 auto 20px auto; width: 320px;">
-                <p class="equation-title">Multivariate R² formula</p>
+            <div class="equation-box equation-wide flat">
+                <p class="equation-title">When all predictors have the same effect size and collinearity, Multivariate R² is:</p>
                 <div class="equation-content">
-                    \[R^2 = \frac{\sum_{i=1}^{n} r_i^2 - \sum_{i \neq j} r_i r_j r_{ij}}{1 - \sum_{i \neq j} r_{ij}^2}\]
+                    \[R^2 = \frac{pr^2}{1+(p-1)r_{ij}}\]
                 </div>
             </div>
             
-            <div class="form-container" style="padding: 0 20px; padding-top: 10px; padding-bottom: 10px;">
+            <div class="form-container">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.1em; color: #555;">Needed R²</span>
-                    <input type="number" id="needed-r2" min="0.1" max="0.9" step="0.01" value="0.6" style="width: 60px; margin-right: 0; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" required>
+                    <span class="slider-label">Needed R²</span>
+                    <input type="number" id="needed-r2" min="0.1" max="0.9" step="0.01" value="0.6" class="slider-value" required>
                 </div>
                 
                 <!-- Predictor correlation slider -->
                 <div class="slider-container">
                     <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.2" class="slider">
                     <div class="slider-value-container">
-                        <span>Correlation of each predictor (r)</span>
+                        <span class="slider-label">Correlation of each predictor (r)</span>
                         <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.2" class="slider-value">
                     </div>
                 </div>
@@ -463,7 +463,7 @@
                 <div class="slider-container">
                     <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.1" class="slider">
                     <div class="slider-value-container">
-                        <span>Collinearity among predictors</span>
+                        <span class="slider-label">Collinearity among predictors (r_ij)</span>
                         <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.1" class="slider-value">
                     </div>
                 </div>
@@ -472,20 +472,20 @@
                 <div class="slider-container">
                     <input type="range" id="num-predictors-r2-slider" min="1" max="100" step="1" value="20" class="slider">
                     <div class="slider-value-container">
-                        <span>Number of predictors</span>
+                        <span class="slider-label">Number of predictors (p)</span>
                         <input type="number" id="num-predictors-r2" min="1" max="100" step="1" value="20" class="slider-value">
                     </div>
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
-                    <button id="record-r2" style="flex: 2; width: auto;">Record curve</button>
-                    <button id="reset-r2" style="flex: 1; width: auto;">Reset</button>
+                    <button id="record-r2">Record curve</button>
+                    <button id="reset-r2">Reset</button>
                 </div>
             </div>
         </div>
         
-        <div class="section" style="padding: 20px;">
-            <div id="r2PlotContainer" style="height: 500px;">
+        <div class="section">
+            <div id="r2PlotContainer">
                 <canvas id="r2Plot"></canvas>
             </div>
         </div>
@@ -501,6 +501,7 @@
     <!-- Load shared plugins -->
     <script src="js/shared-plugins.js"></script>
     <!-- Load our module scripts -->
+    <script src="js/utils.js"></script>
     <script src="js/binary.js"></script>
     <script src="js/continuous.js"></script>
     <!-- Load main.js last since it depends on the other scripts -->

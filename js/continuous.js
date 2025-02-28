@@ -28,25 +28,6 @@ function initializeContinuous() {
     cleanupContinuous();
     
     // Utility functions (these don't depend on DOM or state)
-    function normalPDF(x, mean, stdDev) {
-        return Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
-    }
-    
-    function erf(z) {
-        const sign = z < 0 ? -1 : 1;
-        z = Math.abs(z);
-        const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
-        const p = 0.3275911;
-    
-        const t = 1 / (1 + p * z);
-        const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
-        return sign * y;
-    }
-    
-    function cumulativeDistributionFunction(x, mu = 0, sigma = 1) {
-        return 0.5 * (1 + erf((x - mu) / (Math.sqrt(2) * sigma)));
-    }
-    
     function kernelDensityEstimator(kernel, X) {
         return function (sample) {
             return X.map(x => [x, d3.mean(sample, v => kernel(x - v))]);
@@ -475,7 +456,7 @@ function initializeContinuous() {
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(reliabilityY); // Patients
 
         // Calculate AUC once - it depends on d and standard deviations
-        const auc = cumulativeDistributionFunction(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
+        const auc = StatUtils.normalCDF(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
         
         const tMin = -5;
         const tMax = 5;
@@ -494,8 +475,8 @@ function initializeContinuous() {
 
         for (let t = tMin; t <= tMax; t += step) {
             // Use appropriate standard deviations for each distribution
-            const cdfA = cumulativeDistributionFunction(t, 0, sigma1);  // Controls
-            const cdfB = cumulativeDistributionFunction(t, d, sigma2);  // Patients
+            const cdfA = StatUtils.normalCDF(t, 0, sigma1);  // Controls
+            const cdfB = StatUtils.normalCDF(t, d, sigma2);  // Patients
 
             FPR.push(1 - cdfA);
             TPR.push(1 - cdfB);
@@ -515,8 +496,8 @@ function initializeContinuous() {
         recall.push(0);
 
         // Use appropriate standard deviations for threshold calculations
-        const thresholdFPR = 1 - cumulativeDistributionFunction(thresholdValue, 0, sigma1);
-        const thresholdTPR = 1 - cumulativeDistributionFunction(thresholdValue, d, sigma2);
+        const thresholdFPR = 1 - StatUtils.normalCDF(thresholdValue, 0, sigma1);
+        const thresholdTPR = 1 - StatUtils.normalCDF(thresholdValue, d, sigma2);
 
         // Calculate specificity, sensitivity, and PPV for threshold point only
         const specificity = 1 - thresholdFPR;
@@ -638,9 +619,9 @@ function initializeContinuous() {
     }
 
     function updateMetricsFromD(d, da, type) {
-        const oddsRatio = Math.exp(da * Math.PI / Math.sqrt(3));
-        const logOddsRatio = da * Math.PI / Math.sqrt(3);
-        const auc = cumulativeDistributionFunction(da / Math.sqrt(2), 0, 1);
+        const oddsRatio = StatUtils.dToOddsRatio(da);
+        const logOddsRatio = StatUtils.dToLogOddsRatio(da);
+        const auc = StatUtils.normalCDF(da / Math.sqrt(2), 0, 1);
         
         document.getElementById(`${type}-cohens-d-cont`).value = d.toFixed(2);
         document.getElementById(`${type}-cohens-da-cont`).value = da.toFixed(2);

@@ -106,26 +106,6 @@ function initializeBinary() {
         });
     }
 
-    function normalPDF(x, mean, stdDev) {
-        // Add back normalization factor (1/(σ√(2π)))
-        return Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
-    }
-
-    function erf(z) {
-        const sign = z < 0 ? -1 : 1;
-        z = Math.abs(z);
-        const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
-        const p = 0.3275911;
-
-        const t = 1 / (1 + p * z);
-        const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
-        return sign * y;
-    }
-
-    function cumulativeDistributionFunction(x, mu = 0, sigma = 1) {
-        return 0.5 * (1 + erf((x - mu) / (Math.sqrt(2) * sigma)));
-    }
-
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
 
@@ -150,11 +130,11 @@ function initializeBinary() {
 
         const data1 = x.map(val => ({
             x: val,
-            y: normalPDF(val, 0, sigma1) * (1-baseRate),
+            y: StatUtils.normalPDF(val, 0, sigma1) * (1-baseRate),
         }));
         const data2 = x.map(val => ({
             x: val,
-            y: normalPDF(val, meanDiff, sigma2) * baseRate,
+            y: StatUtils.normalPDF(val, meanDiff, sigma2) * baseRate,
         }));
 
         // Calculate maximum y-value for adjusting the yScale
@@ -374,7 +354,7 @@ function initializeBinary() {
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
 
         // Calculate AUC once - it depends on d and standard deviations
-        const auc = cumulativeDistributionFunction(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
+        const auc = StatUtils.normalCDF(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
 
         const tMin = -5;
         const tMax = 5;
@@ -393,8 +373,8 @@ function initializeBinary() {
 
         for (let t = tMin; t <= tMax; t += step) {
             // Use appropriate standard deviations for each distribution
-            const cdfA = cumulativeDistributionFunction(t, 0, sigma1);  // Controls
-            const cdfB = cumulativeDistributionFunction(t, d, sigma2);  // Patients
+            const cdfA = StatUtils.normalCDF(t, 0, sigma1);  // Controls
+            const cdfB = StatUtils.normalCDF(t, d, sigma2);  // Patients
 
             FPR.push(1 - cdfA);
             TPR.push(1 - cdfB);
@@ -414,8 +394,8 @@ function initializeBinary() {
         recall.push(0);
 
         // Use appropriate standard deviations for threshold calculations
-        const thresholdFPR = 1 - cumulativeDistributionFunction(thresholdValue, 0, sigma1);
-        const thresholdTPR = 1 - cumulativeDistributionFunction(thresholdValue, d, sigma2);
+        const thresholdFPR = 1 - StatUtils.normalCDF(thresholdValue, 0, sigma1);
+        const thresholdTPR = 1 - StatUtils.normalCDF(thresholdValue, d, sigma2);
 
         // Calculate metrics
         const specificity = 1 - thresholdFPR;
@@ -570,17 +550,17 @@ function initializeBinary() {
         const dObs = d * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
 
         // Calculate values for true d
-        const trueOddsRatio = Math.exp(d * Math.PI / Math.sqrt(3));
-        const trueLogOddsRatio = d * Math.PI / Math.sqrt(3);
-        const trueAuc = cdfNormal(d / Math.sqrt(2), 0, 1);
-        const trueR = d / Math.sqrt(d ** 2 + 4);
+        const trueOddsRatio = StatUtils.dToOddsRatio(d);
+        const trueLogOddsRatio = StatUtils.dToLogOddsRatio(d);
+        const trueAuc = StatUtils.normalCDF(d / Math.sqrt(2), 0, 1);
+        const trueR = StatUtils.dToR(d);
         const trueEtaSquared = trueR ** 2;
 
         // Calculate values for observed d
-        const obsOddsRatio = Math.exp(dObs * Math.PI / Math.sqrt(3));
-        const obsLogOddsRatio = dObs * Math.PI / Math.sqrt(3);
-        const obsAuc = cdfNormal(dObs / Math.sqrt(2), 0, 1);
-        const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
+        const obsOddsRatio = StatUtils.dToOddsRatio(dObs);
+        const obsLogOddsRatio = StatUtils.dToLogOddsRatio(dObs);
+        const obsAuc = StatUtils.normalCDF(dObs / Math.sqrt(2), 0, 1);
+        const obsR = StatUtils.dToR(dObs);
         const obsEtaSquared = obsR ** 2;
 
         // Update all inputs
@@ -619,7 +599,7 @@ function initializeBinary() {
         document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
         document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.sqrt(3) / Math.PI).toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.sqrt(3) / Math.PI).toFixed(2);
-        document.getElementById("observed-auc-bin").value = cdfNormal(dObs / Math.sqrt(2), 0, 1).toFixed(2);
+        document.getElementById("observed-auc-bin").value = StatUtils.normalCDF(dObs / Math.sqrt(2), 0, 1).toFixed(2);
         document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
         const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
         document.getElementById("observed-eta-squared-bin").value = (obsR ** 2).toFixed(2);
@@ -653,12 +633,7 @@ function initializeBinary() {
         const d = (2 * r) / Math.sqrt(1 - r ** 2);
         updateMetricsFromD(d);
     }
-
-    // Utility functions
-    function cdfNormal(x, mean, stdev) {
-        return (1 - erf((mean - x) / (Math.sqrt(2) * stdev))) / 2;
-    }
-
+    
     function qNorm(p) {
         p = parseFloat(p);
         var split = 0.42;

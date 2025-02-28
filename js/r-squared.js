@@ -63,14 +63,14 @@ function initializeR2Calculator() {
     initializeR2Chart();
     
     // Function to calculate multivariate R²
-    function calculateMultivariateR2(n, predictorCorrelation, collinearity) {
-        // For n predictors with equal correlation (r) and collinearity (c)
-        const r = predictorCorrelation;
-        const c = collinearity;
+    function calculateMultivariateR2(p, predictorCorrelation, collinearity) {
+        // p = number of predictors
+        // predictorCorrelation = correlation of each predictor (r)
+        // collinearity = correlation between predictors (r_ij)
         
-        // Calculate R² using the corrected formula
-        const numerator = n * r * r + n * (n - 1) * r * r * c;
-        const denominator = 1 + n * (n - 1) * c * c;
+        // Calculate R² using the formula: R² = (pr²)/(1+(p-1)r_ij)
+        const numerator = p * predictorCorrelation * predictorCorrelation;
+        const denominator = 1 + (p - 1) * collinearity;
         
         const r2 = numerator / denominator;
         
@@ -109,7 +109,7 @@ function initializeR2Calculator() {
                 labels: xValues,
                 datasets: [
                     {
-                        label: `Target R² = ${targetR2}`,
+                        label: `Needed R² = ${targetR2}`,
                         data: Array(xValues.length).fill(targetR2),
                         borderColor: 'black',
                         borderWidth: 3,
