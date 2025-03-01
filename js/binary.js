@@ -89,23 +89,6 @@ function initializeBinary() {
     // Add resize listener
     window.addEventListener("resize", updateDimensions);
 
-    // Wait for elements to be in the DOM
-    const baseRateSlider = document.getElementById("base-rate-slider");
-    const baseRateValue = document.getElementById("base-rate-value");
-
-    // Only set up event listeners if elements exist
-    if (baseRateSlider && baseRateValue) {
-        baseRateSlider.addEventListener("input", () => {
-            baseRateValue.textContent = `${baseRateSlider.value}%`;
-            const d = parseFloat(slider.value);
-            const baseRate = parseFloat(baseRateSlider.value);
-            baseRateValue.textContent = baseRate.toFixed(1) + "%";
-            drawDistributions(d);
-            drawThreshold(d);
-            plotROC(d);
-        });
-    }
-
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
 
@@ -117,24 +100,14 @@ function initializeBinary() {
         const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
         
-        // Get the true d value from the input
-        const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-        
-        // Get ICC_G value
-        const iccG = parseFloat(document.getElementById("iccc-slider").value);
-        
-        // Calculate the mean difference based on true d and ICC_G
-        const meanDiff = currentView === "true" ? trueD : trueD * Math.sqrt(iccG);
-        
         const x = d3.range(-6, 6.1, 0.1);  // Changed to match domain, added .1 to include end point
-
         const data1 = x.map(val => ({
             x: val,
             y: StatUtils.normalPDF(val, 0, sigma1) * (1-baseRate),
         }));
         const data2 = x.map(val => ({
             x: val,
-            y: StatUtils.normalPDF(val, meanDiff, sigma2) * baseRate,
+            y: StatUtils.normalPDF(val, d, sigma2) * baseRate,
         }));
 
         // Calculate maximum y-value for adjusting the yScale
@@ -220,7 +193,7 @@ function initializeBinary() {
 
         // Update the position and properties of all legend elements
         legendEnter.merge(legend)
-            .attr("x", margin.left)
+            .attr("x", 40)  // Moved more to the left from margin.left
             .attr("y", (d, i) => margin.top + i * 20);
     }
 
@@ -328,14 +301,7 @@ function initializeBinary() {
                         }
                     });
 
-                // Get current d value and update ROC plot
-                const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-                const icc1 = parseFloat(document.getElementById("icc1-slider").value);
-                const icc2 = parseFloat(document.getElementById("icc2-slider").value);
-                const iccG = parseFloat(document.getElementById("iccc-slider").value);
-                const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
-                const dToUse = currentView === "true" ? trueD : dObs;
-                plotROC(dToUse);
+                plotROC(d);
             }));
 
         // Ensure the threshold group is always on top
@@ -348,13 +314,14 @@ function initializeBinary() {
         // Get ICC values for standard deviation calculation
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
+        const iccG = parseFloat(document.getElementById("iccc-slider").value);
 
         // Calculate standard deviations based on current view
         const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
 
         // Calculate AUC once - it depends on d and standard deviations
-        const auc = StatUtils.normalCDF(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
+        const auc = StatUtils.normalCDF(d / Math.sqrt(2), 0, 1);
 
         const tMin = -5;
         const tMax = 5;
