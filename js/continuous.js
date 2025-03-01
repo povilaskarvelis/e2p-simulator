@@ -9,9 +9,19 @@ function initializeContinuous() {
     console.log("Initializing continuous version");
     
     // Local constants
-    const width = 800;
+    const width = 1200;
     const height = 600;
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+    const margin = { top: 30, right: 50, bottom: 70, left: 95 };
+    
+    // Global font and tick size settings
+    const fontSize = {
+        axisLabel: 30,     // Axis labels (x, y)
+        legendText: 27,    // Legend text
+        annotationText: 25, // Annotation text (variance, etc.)
+        tickLabel: 14      // Axis tick labels
+    };
+    const tickSize = 11;    // Size of axis ticks
+    const tickWidth = 1.5;   // Width of axis ticks
     
     // Scales
     const xScale = d3.scaleLinear().domain([-4, 5]).range([margin.left, width - margin.right]);
@@ -48,12 +58,9 @@ function initializeContinuous() {
     // Drawing functions (depend on DOM elements)
     function drawScatterPlot(r, type) {
         const numPoints = 50000; // Full dataset for metrics
-        const numPlotPoints = 10000; // Reduced dataset for visualization
+        const numPlotPoints = 5000; // Reduced dataset for visualization
         const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
-
-        // Define consistent x-axis range
-        const xRange = [-4, 4];
 
         // Generate the full dataset
         const fullData = d3.range(numPoints).map(() => {
@@ -74,8 +81,8 @@ function initializeContinuous() {
         // Use full dataset for metric calculations
         drawDistributions(tealData.map(d => d.x), grayData.map(d => d.x), type);
 
-        const scatterXScale = d3.scaleLinear().domain(xRange).range([margin.left, width - margin.right]);
-        const scatterYScale = d3.scaleLinear().domain([-5, 5]).range([height - margin.bottom, margin.top]);
+        const scatterXScale = d3.scaleLinear().domain([-4, 4]).range([margin.left, width - margin.right]);
+        const scatterYScale = d3.scaleLinear().domain([-4, 4]).range([height - margin.bottom, margin.top]);
 
         const svgScatter = d3.select(`#scatter-plot-${type}-cont`)
             .selectAll("svg")
@@ -84,36 +91,46 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "xMidYMid meet");
+            .attr("preserveAspectRatio", "none");
 
-        // Axes
+        // Axes with larger ticks
         svgScatter.selectAll(".x-axis")
             .data([null])
             .join("g")
             .attr("class", "x-axis")
             .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(scatterXScale).ticks(5).tickFormat(() => ""));
+            .call(d3.axisBottom(scatterXScale).ticks(5).tickFormat(() => ""))
+            .call(g => g.selectAll(".tick line")
+                .attr("stroke-width", tickWidth)
+                .attr("y2", tickSize))
+            .call(g => g.selectAll("path.domain")
+                .attr("stroke-width", tickWidth));
 
         svgScatter.selectAll(".y-axis")
             .data([null])
             .join("g")
             .attr("class", "y-axis")
             .attr("transform", `translate(${margin.left},0)`)
-            .call(d3.axisLeft(scatterYScale).ticks(5).tickFormat(() => ""));
+            .call(d3.axisLeft(scatterYScale).ticks(5).tickFormat(() => ""))
+            .call(g => g.selectAll(".tick line")
+                .attr("stroke-width", tickWidth)
+                .attr("x2", -tickSize))
+            .call(g => g.selectAll("path.domain")
+                .attr("stroke-width", tickWidth));
 
-        // Editable axis labels
+        // Editable axis labels with larger font
         svgScatter.selectAll(".x-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 50)
-            .attr("y", height - margin.bottom + 20)
-            .attr("width", 100)
-            .attr("height", 20)
+            .attr("x", width / 2 - 70)
+            .attr("y", height - margin.bottom + 35)
+            .attr("width", 140)
+            .attr("height", 30)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
-            .style("font-size", "18px")
+            .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
             .text("Predictor");
 
@@ -122,49 +139,16 @@ function initializeContinuous() {
             .join("foreignObject")
             .attr("class", "y-label")
             .attr("x", -height / 2)
-            .attr("y", margin.left - 40)
+            .attr("y", margin.left - 80)
             .attr("transform", `rotate(-90)`)
-            .attr("width", 100)
-            .attr("height", 20)
+            .attr("width", 140)
+            .attr("height", 30)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
-            .style("font-size", "18px")
+            .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
             .text("Outcome");
-
-        // Editable legend
-        const legendData = ["Patients", "Controls"];
-        const legend = svgScatter.selectAll(".legend-group").data(legendData);
-
-        legend.exit().remove();
-
-        const legendEnter = legend.enter()
-            .append("foreignObject")
-            .attr("class", "legend-group")
-            .attr("width", 150)
-            .attr("height", 20);
-
-        // Add non-editable "Group" prefix
-        legendEnter.append("xhtml:div")
-            .style("font-size", "16px")
-            .style("font-weight", "bold")
-            .style("color", (d, i) => (i === 0 ? "teal" : "gray"))
-            .style("display", "inline")
-            .text((d, i) => `Group ${i + 1}: `);
-
-        // Add editable part
-        legendEnter.append("xhtml:div")
-            .attr("contenteditable", true)
-            .style("font-size", "16px")
-            .style("font-weight", "bold")
-            .style("color", (d, i) => (i === 0 ? "teal" : "gray"))
-            .style("display", "inline")
-            .text(d => d);
-
-        legendEnter.merge(legend)
-            .attr("x", width - 520)
-            .attr("y", (d, i) => margin.top + i * 20);
 
         // Points - Update instead of Redraw
         svgScatter.selectAll(".scatter-point")
@@ -175,7 +159,7 @@ function initializeContinuous() {
             .join(
                 enter => enter.append("circle")
                     .attr("class", "scatter-point")
-                    .attr("r", 4) // Reduce size for better performance
+                    .attr("r", 7) 
                     .attr("fill", d => d.color)
                     .attr("opacity", 0.5)
                     .attr("cx", d => scatterXScale(d.x))
@@ -231,14 +215,17 @@ function initializeContinuous() {
         // Update glass d
         document.getElementById(`${type}-glass-d-cont`).value = glassD.toFixed(2);
 
+        // Create metrics object
+        const metrics = { d, da, meanTeal, meanGray, varianceTeal, varianceGray };
+        
         // Store metrics and update UI
         if (type === "true") {
-            trueMetrics = { d, meanTeal, meanGray, varianceTeal, varianceGray };
+            trueMetrics = metrics;
         } else if (type === "observed") {
-            observedMetrics = { d, meanTeal, meanGray, varianceTeal, varianceGray };
+            observedMetrics = metrics;
         }
 
-        updateMetricsFromD(d, da, type);
+        updateMetricsFromD(metrics, type);
 
         // Determine the maximum Y value for scaling
         const maxYTeal = d3.max(tealDensity, d => d.y);
@@ -254,7 +241,7 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "xMidYMid meet");
+            .attr("preserveAspectRatio", "none");
 
         // Remove old distributions
         svgDistributions.selectAll(".distribution").remove();
@@ -267,10 +254,8 @@ function initializeContinuous() {
         svgDistributions.append("path")
             .datum(grayDensity)
             .attr("class", "distribution gray-distribution")
-            .attr("fill", "gray")
-            .attr("opacity", 0.4)
-            .attr("stroke", "gray")
-            .attr("stroke-width", 1.5)
+            .attr("fill", "black")
+            .attr("opacity", 0.3)
             .attr("d", line);
 
         // Draw teal (experimental group) distribution
@@ -279,23 +264,21 @@ function initializeContinuous() {
             .attr("class", "distribution teal-distribution")
             .attr("fill", "teal")
             .attr("opacity", 0.4)
-            .attr("stroke", "teal")
-            .attr("stroke-width", 1.5)
             .attr("d", line);
 
-        // Editable axis labels
+        // Editable axis labels with larger font
         svgDistributions.selectAll(".x-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 50)
-            .attr("y", height - margin.bottom + 20)
-            .attr("width", 100)
-            .attr("height", 20)
+            .attr("x", width / 2 - 70)
+            .attr("y", height - margin.bottom + 35)
+            .attr("width", 140)
+            .attr("height", 30)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
-            .style("font-size", "18px")
+            .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
             .text("Predictor");
 
@@ -304,47 +287,80 @@ function initializeContinuous() {
             .join("foreignObject")
             .attr("class", "y-label")
             .attr("x", -height / 1.5)
-            .attr("y", margin.left - 40)
+            .attr("y", margin.left - 80)
             .attr("transform", `rotate(-90)`)
-            .attr("width", 200)
-            .attr("height", 20)
+            .attr("width", 300)
+            .attr("height", 30)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
-            .style("font-size", "18px")
+            .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
-            .text("Probability Density");
+            .text("Probability density");
 
-        // Add variance text annotations
+        // Add variance text annotations with larger font
         svgDistributions.selectAll(".variance-annotation").remove(); // Remove existing annotations first
+        
+        // Calculate variance ratio (gray/teal to match the labeling)
+        const varianceRatio = (varianceGray / varianceTeal).toFixed(2);
+        
+        // Define a larger font size for the variance fraction
+        const varianceFontSize = fontSize.annotationText * 1.2;
         
         svgDistributions.append("foreignObject")
             .attr("class", "variance-annotation") 
-            .attr("x", width - margin.right - 150)
-            .attr("y", margin.top + 20)
-            .attr("width", 150)
-            .attr("height", 50)
+            .attr("x", width - margin.right - 300)
+            .attr("y", margin.top + 170)
+            .attr("width", 300)
+            .attr("height", 120)
             .append("xhtml:div")
-            .selectAll("div")
-            .data([
-                {text: `Group 1 var: ${varianceTeal.toFixed(2)}`, color: "teal"},
-                {text: `Group 2 var: ${varianceGray.toFixed(2)}`, color: "gray"}
-            ])
-            .join("div")
-            .style("font-size", "15px")
+            .style("font-size", `${fontSize.annotationText}px`)
             .style("font-weight", "bold")
-            .style("color", d => d.color)
-            .style("margin-top", (d,i) => i === 0 ? "0px" : "3px")
-            .text(d => d.text);
+            .style("text-align", "center")
+            .html(`
+                <div style="display: inline-flex; align-items: center; justify-content: center;">
+                    <div style="display: inline-block; text-align: center; position: relative;">
+                        <div style="color: #777777; padding: 0 5px; font-size: ${varianceFontSize}px;">σ₁²</div>
+                        <div style="height: 3px; background-color: #333333; margin: 8px auto; width: 50px;"></div>
+                        <div style="color: teal; padding: 0 5px; font-size: ${varianceFontSize}px;">σ₂²</div>
+                    </div>
+                    <span style="color: #444444; margin-left: 20px;"> = ${varianceRatio}</span>
+                </div>
+            `);
+
+        // Add editable legend with larger font
+        const legendData = ["Group 1", "Group 2"];
+        const legend = svgDistributions.selectAll(".legend-group").data(legendData);
+
+        legend.exit().remove();
+
+        const legendEnter = legend.enter()
+            .append("foreignObject")
+            .attr("class", "legend-group")
+            .attr("width", 300)
+            .attr("height", 30);
+
+        // Add editable group labels
+        legendEnter.append("xhtml:div")
+            .attr("contenteditable", true)
+            .style("font-size", `${fontSize.legendText}px`)
+            .style("font-weight", "bold")
+            .style("color", (d, i) => (i === 0 ? "#777777" : "teal"))
+            .style("display", "inline")
+            .text(d => d);
+
+        legendEnter.merge(legend)
+            .attr("x", margin.left + 100)
+            .attr("y", (d, i) => margin.top + i * 35 + 30);
 
         // Remove any existing threshold before redrawing
         svgDistributions.selectAll(".threshold-group").remove();
 
         // Draw threshold after distributions
-        drawThreshold(d, type);
+        drawThreshold(metrics, type);
     }
 
-    function drawThreshold(d, type) {
+    function drawThreshold(metrics, type) {
         // Remove any existing threshold before creating new one
         d3.select(`#distribution-plot-${type}-cont`).select("svg")
             .selectAll(".threshold-group").remove();
@@ -368,12 +384,12 @@ function initializeContinuous() {
 
                     // Update the marker position on the ROC curve
                     if (type === "true") {
-                        plotROC(trueMetrics.d);
+                        plotROC(trueMetrics);
                     } else {
-                        plotROC(observedMetrics.d);
+                        plotROC(observedMetrics);
                     }
                     // Redraw the threshold group and update visuals
-                    drawThreshold(d, type);
+                    drawThreshold(metrics, type);
                 })
             );
 
@@ -393,7 +409,7 @@ function initializeContinuous() {
             .attr("y1", yScale.range()[0])
             .attr("y2", yScale.range()[1])
             .attr("stroke", "red")
-            .attr("stroke-width", 4)
+            .attr("stroke-width", 7)
             .attr("opacity", 0.9);
 
         // Add or update the hitbox for interaction
@@ -404,18 +420,18 @@ function initializeContinuous() {
             .append("rect")
             .attr("class", "threshold-hitbox")
             .merge(hitbox)
-            .attr("x", xScale(thresholdValue) - 10)
-            .attr("width", 20)
+            .attr("x", xScale(thresholdValue) - 15)
+            .attr("width", 30)
             .attr("y", yScale.range()[1])
             .attr("height", yScale.range()[0] - yScale.range()[1])
             .attr("fill", "transparent");
 
         // Add or update the arrows
-        const arrowSize = 10; // Size of the arrow
-        const arrowY = yScale.range()[1] + 10; // Slightly below the top of the y-axis
+        const arrowSize = 15;
+        const arrowY = yScale.range()[1] + 15;
         const arrowData = [
-            { direction: "left", x: thresholdValue - 0.3, y: arrowY },
-            { direction: "right", x: thresholdValue + 0.3, y: arrowY },
+            { direction: "left", x: thresholdValue - 0.2, y: arrowY },
+            { direction: "right", x: thresholdValue + 0.2, y: arrowY },
         ];
 
         const arrows = groupMerge.selectAll(".threshold-arrow")
@@ -444,7 +460,10 @@ function initializeContinuous() {
         groupMerge.raise();
     }
 
-    function plotROC(d) {
+    function plotROC(metrics) {
+        // Unpack needed variables from metrics object
+        const { d, meanTeal, meanGray, varianceTeal, varianceGray } = metrics;
+        
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
 
         // Get reliability values for standard deviation calculation
@@ -455,8 +474,9 @@ function initializeContinuous() {
         const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(reliabilityX); // Controls
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(reliabilityY); // Patients
 
-        // Calculate AUC once - it depends on d and standard deviations
-        const auc = StatUtils.normalCDF(d / Math.sqrt(sigma1 * sigma1 + sigma2 * sigma2), 0, 1);
+
+        // Calculate AUC using the actual means and standard deviations
+        const auc = StatUtils.normalCDF( d/ Math.sqrt(2), 0, 1);
         
         const tMin = -5;
         const tMax = 5;
@@ -474,9 +494,9 @@ function initializeContinuous() {
         recall.push(1);
 
         for (let t = tMin; t <= tMax; t += step) {
-            // Use appropriate standard deviations for each distribution
-            const cdfA = StatUtils.normalCDF(t, 0, sigma1);  // Controls
-            const cdfB = StatUtils.normalCDF(t, d, sigma2);  // Patients
+            // Use appropriate means and standard deviations for each distribution
+            const cdfA = StatUtils.normalCDF(t, meanGray, sigma1);  // Controls
+            const cdfB = StatUtils.normalCDF(t, meanTeal, sigma2);  // Patients
 
             FPR.push(1 - cdfA);
             TPR.push(1 - cdfB);
@@ -495,9 +515,9 @@ function initializeContinuous() {
         precision.push(1);
         recall.push(0);
 
-        // Use appropriate standard deviations for threshold calculations
-        const thresholdFPR = 1 - StatUtils.normalCDF(thresholdValue, 0, sigma1);
-        const thresholdTPR = 1 - StatUtils.normalCDF(thresholdValue, d, sigma2);
+        // Use appropriate means and standard deviations for threshold calculations
+        const thresholdFPR = 1 - StatUtils.normalCDF(thresholdValue, meanGray, sigma1);
+        const thresholdTPR = 1 - StatUtils.normalCDF(thresholdValue, meanTeal, sigma2);
 
         // Calculate specificity, sensitivity, and PPV for threshold point only
         const specificity = 1 - thresholdFPR;
@@ -618,7 +638,8 @@ function initializeContinuous() {
         }
     }
 
-    function updateMetricsFromD(d, da, type) {
+    function updateMetricsFromD(metrics, type) {
+        const { d, da } = metrics;
         const oddsRatio = StatUtils.dToOddsRatio(da);
         const logOddsRatio = StatUtils.dToLogOddsRatio(da);
         const auc = StatUtils.normalCDF(da / Math.sqrt(2), 0, 1);
@@ -664,11 +685,11 @@ function initializeContinuous() {
 
         // Update metrics and threshold based on the selected plot type
         if (isTrueSelected) {
-            drawThreshold(trueMetrics.d, "true"); // Update threshold for true effect size
-            plotROC(trueMetrics.d); // Update ROC curve for true effect size
+            drawThreshold(trueMetrics, "true"); // Update threshold for true effect size
+            plotROC(trueMetrics); // Pass the entire metrics object
         } else {
-            drawThreshold(observedMetrics.d, "observed"); // Update threshold for observed effect size
-            plotROC(observedMetrics.d); // Update ROC curve for observed effect size
+            drawThreshold(observedMetrics, "observed"); // Update threshold for observed effect size
+            plotROC(observedMetrics); // Pass the entire metrics object
         }
     }
 
@@ -681,19 +702,29 @@ function initializeContinuous() {
                 .attr("width", "100%")
                 .attr("height", "100%")
                 .attr("viewBox", `0 0 ${width} ${height}`)
-                .attr("preserveAspectRatio", "xMidYMid meet");
+                .attr("preserveAspectRatio", "none");
 
-            // Add x-axis
+            // Add x-axis with larger ticks
             svgDistributions.append("g")
                 .attr("class", "x-axis")
                 .attr("transform", `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(xScale).tickFormat(() => "")); // Remove x-axis tick labels
+                .call(d3.axisBottom(xScale).tickFormat(() => ""))
+                .call(g => g.selectAll(".tick line")
+                    .attr("stroke-width", tickWidth)
+                    .attr("y2", tickSize))
+                .call(g => g.selectAll("path.domain")
+                    .attr("stroke-width", tickWidth));
 
-            // Add y-axis
+            // Add y-axis with larger ticks
             svgDistributions.append("g")
                 .attr("class", "y-axis")
                 .attr("transform", `translate(${margin.left},0)`)
-                .call(d3.axisLeft(yScale).tickFormat(() => "")); // Remove y-axis tick labels
+                .call(d3.axisLeft(yScale).tickFormat(() => ""))
+                .call(g => g.selectAll(".tick line")
+                    .attr("stroke-width", tickWidth)
+                    .attr("x2", -tickSize))
+                .call(g => g.selectAll("path.domain")
+                    .attr("stroke-width", tickWidth));
         });
     }
 

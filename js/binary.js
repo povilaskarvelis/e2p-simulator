@@ -81,7 +81,7 @@ function initializeBinary() {
         .attr("class", "y-label")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
-        .text("Probability Density");
+        .text("Probability density");
 
     // Initial update of dimensions
     updateDimensions();
@@ -96,9 +96,9 @@ function initializeBinary() {
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
 
-        // Use true or observed standard deviations based on current view
-        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
-        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
+        // Calculate standard deviations based on reliabilities
+        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Group 1
+        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Group 2
         
         const x = d3.range(-6, 6.1, 0.1);  // Changed to match domain, added .1 to include end point
         const data1 = x.map(val => ({
@@ -155,7 +155,7 @@ function initializeBinary() {
             .attr("d", area);
 
         // Update legend
-        const legendData = ["Controls", "Patients"];
+        const legendData = ["Group 1", "Group 2"];
         updateLegend(legendData);
     }
 
@@ -172,15 +172,7 @@ function initializeBinary() {
             .attr("width", 150)
             .attr("height", 20);
 
-        // Add non-editable "Group" prefix
-        legendEnter.append("xhtml:div")
-            .style("font-size", "14px")
-            .style("font-weight", "bold")
-            .style("color", (d, i) => (i === 0 ? "black" : "teal"))
-            .style("display", "inline")
-            .text((d, i) => `Group ${i + 1}: `);
-
-        // Add editable part
+        // Add editable group labels
         legendEnter.append("xhtml:div")
             .attr("contenteditable", true)
             .style("font-size", "14px")
@@ -193,8 +185,8 @@ function initializeBinary() {
 
         // Update the position and properties of all legend elements
         legendEnter.merge(legend)
-            .attr("x", 40)  // Moved more to the left from margin.left
-            .attr("y", (d, i) => margin.top + i * 20);
+            .attr("x", margin.left)
+            .attr("y", (d, i) => margin.top + i * 18);
     }
 
     function drawThreshold(d) {
@@ -317,8 +309,8 @@ function initializeBinary() {
         const iccG = parseFloat(document.getElementById("iccc-slider").value);
 
         // Calculate standard deviations based on current view
-        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Controls
-        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Patients
+        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Group 1
+        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Group 2
 
         // Calculate AUC once - it depends on d and standard deviations
         const auc = StatUtils.normalCDF(d / Math.sqrt(2), 0, 1);
@@ -340,8 +332,8 @@ function initializeBinary() {
 
         for (let t = tMin; t <= tMax; t += step) {
             // Use appropriate standard deviations for each distribution
-            const cdfA = StatUtils.normalCDF(t, 0, sigma1);  // Controls
-            const cdfB = StatUtils.normalCDF(t, d, sigma2);  // Patients
+            const cdfA = StatUtils.normalCDF(t, 0, sigma1);  // Group 1
+            const cdfB = StatUtils.normalCDF(t, d, sigma2);  // Group 2
 
             FPR.push(1 - cdfA);
             TPR.push(1 - cdfB);

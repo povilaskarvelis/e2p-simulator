@@ -36,8 +36,7 @@ h1 {
 }
 
 .slider-section {
-    flex: 1;
-    width: 280px;
+    flex: 0 0 280px;
     min-width: 280px;
     background: white;
     border-radius: 15px;
@@ -48,7 +47,6 @@ h1 {
 
 .main-plot-section {
     flex: 2;
-    width: 800px;
     min-width: 600px;
     background: white;
     border-radius: 15px;
@@ -194,6 +192,13 @@ input.slider-value {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+}
+
+.container.secondary {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    height: 100%;
 }
 
 /* ==========================================================================
