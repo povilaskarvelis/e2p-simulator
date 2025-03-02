@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Understanding Predictive Value of Effect Sizes</title>
     <!-- Load libraries first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -16,14 +16,35 @@
     <!-- MathJax for professional equation rendering -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        },
+        svg: {
+            scale: 1,                    // global scaling factor
+            minScale: .5,               // smallest scaling factor to use
+        },
+        options: {
+            enableMenu: false,           // disable the MathJax context menu
+            menuOptions: {
+                settings: {
+                    zoom: "Click",       // or "Double-Click" or "None"
+                    zscale: "200%",
+                }
+            }
+        }
+    };
+    </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <h1>Understanding predictive value of effect sizes</h1>
 
     <div class="description">
-        <p>This interactive tool demonstrates how statistical effect sizes translate into real-world predictive utility, 
-        allowing you to explore how measurement reliability and base rates impact predictive metrics.</p>
+        <p>This interactive tool demonstrates how statistical effect sizes translate into predictive utility, 
+            allowing you to explore the effects of measurement reliability and base rate.</p>
     </div>
 
     <!-- Version Selection -->
@@ -54,42 +75,42 @@
 
                             <!-- Cohen's d -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label">Cohen's d</span>
+                                <span class="slider-label" data-tooltip="Standardized mean difference between groups">Cohen's d</span>
                                 <input type="number" id="true-difference-number-bin" min="0" max="5" step="0.01" value="0.5" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-difference-number-bin" min="0" max="5" step="0.01" value="1" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label">Odds Ratio</span>
+                                <span class="slider-label" data-tooltip="Ratio of odds of being in group 1 vs group 2">Odds Ratio</span>
                                 <input type="number" id="true-odds-ratio-bin" min="1" max = "8681" step="1" value="1" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-odds-ratio-bin" min="1" max = "8681" step="1" value="1" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Log Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label">Log Odds Ratio</span>
+                                <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
                                 <input type="number" id="true-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- AUC -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label">AUC</span>
+                                <span class="slider-label" data-tooltip="Area Under the ROC Curve - probability of correctly ranking a random positive case above a random negative case">AUC</span>
                                 <input type="number" id="true-auc-bin" min="0.5" max="1" step="0.01" value="0.1" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-auc-bin" min="0.5" max="1" step="0.01" value="0.1" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Point-biserial r -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label">r<sub>pb</sub></span>
+                                <span class="slider-label" data-tooltip="Correlation between a continuous variable and a binary variable">r<sub>pb</sub></span>
                                 <input type="number" id="true-pb-r-bin" min="0" max="0.93" step="0.01" value="0" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-pb-r-bin" min="0" max="0.93" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Eta squared -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label">&eta;²</span>
+                                <span class="slider-label" data-tooltip="Proportion of variance explained by group membership">η²</span>
                                 <input type="number" id="true-eta-squared-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;">
                                 <input type="number" id="observed-eta-squared-bin" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                             </div>
@@ -101,21 +122,21 @@
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label">Group 1 reliability</span>
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1">Group 1 reliability</span>
                             <input type="number" id="icc1-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Group 2 Reliability -->
                         <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%; margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label">Group 2 reliability</span>
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2">Group 2 reliability</span>
                             <input type="number" id="icc2-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Classification Reliability -->
                         <input type="range" id="iccc-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100%; margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label">Grouping reliability</span>
+                            <span class="slider-label" data-tooltip="Reliability of the group assignment">Grouping reliability</span>
                             <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                     </div>
@@ -124,7 +145,7 @@
                     <div>
                         <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label">Base rate (%)</span>
+                            <span class="slider-label" data-tooltip="Percentage of cases in group 2">Base rate (%)</span>
                             <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
@@ -151,29 +172,29 @@
         </div>
 
         <!-- Results dashboard -->
-        <div id="dashboard" class="dashboard" style="padding-left: 100px; padding-right: 100px;">
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-metrics">
                 <p style="display: none;">AUC: <span id="auc-value">0.00%</span></p>
-                <p>Balanced accuracy: <span id="accuracy-value">0.00%</span></p>
-                <p>Sensitivity: <span id="sensitivity-value">0.00%</span></p>
-                <p>Specificity: <span id="specificity-value">0.00%</span></p>
-                <p>PPV: <span id="ppv-value">0.00%</span></p>
+                <p data-tooltip="Average of sensitivity and specificity">Balanced accuracy: <span id="accuracy-value">0.00%</span></p>
+                <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value">0.00%</span></p>
+                <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value">0.00%</span></p>
+                <p data-tooltip="Positive predictive value - percentage of positive predictions that are correct">PPV: <span id="ppv-value">0.00%</span></p>
             </div>
         </div>
         
         <!-- Equations Section -->
         <div class="equations-container">
             <!-- Reliability attenuation -->
-            <div class="equation-box equation-wide">
+            <div class="equation-box wide">
                 <p class="equation-title">Cohen's d attenuation by reliability</p>
                 <div class="equation-content">
-                    \[d_{obs} = d_{true} \times \sqrt{\frac{2r_1r_2}{r_1+r_2} \times r_g}\]
+                    \[d_{obs} = d_{true} \sqrt{\frac{2\rho_1\rho_2}{\rho_1+\rho_2} \rho_g}\]
                 </div>
             </div>
             
             <!-- d to Log Odds Ratio -->
             <div class="equation-box">
-                <p class="equation-title">Cohen's d to Log Odds Ratio</p>
+                <p class="equation-title">d to Log Odds Ratio</p>
                 <div class="equation-content">
                     \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
                 </div>
@@ -181,7 +202,7 @@
             
             <!-- d to AUC -->
             <div class="equation-box">
-                <p class="equation-title">Cohen's d to AUC</p>
+                <p class="equation-title">d to AUC</p>
                 <div class="equation-content">
                     \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
                 </div>
@@ -189,7 +210,7 @@
             
             <!-- d to Point-biserial r -->
             <div class="equation-box">
-                <p class="equation-title">Cohen's d to Point-biserial r</p>
+                <p class="equation-title">d to Point-biserial r</p>
                 <div class="equation-content">
                     \[r_{pb} = \frac{d}{\sqrt{d^2 + 4}}\]
                 </div>
@@ -197,7 +218,7 @@
             
             <!-- d to Eta squared -->
             <div class="equation-box">
-                <p class="equation-title">Cohen's d to Eta squared</p>
+                <p class="equation-title">d to Eta squared</p>
                 <div class="equation-content">
                     \[\eta^2 = \frac{d^2}{d^2 + 4}\]
                 </div>
@@ -206,19 +227,19 @@
 
         <div style="margin-top: 50px;"></div>
         <!-- Mahalanobis D Calculator Header -->
-        <h2 style="text-align: center; font-size: 2em; margin-top: 40px;">Mahalanobis D Calculator</h2>
-        <div class="description" style="text-align: center; padding: 0 100px; margin-bottom: 20px;">
-            <p>This calculator shows how multiple correlated predictors combine to create group separation in multivariate space. 
-            Mahalanobis D extends Cohen's d to multiple dimensions while accounting for correlations between measures.
-            Use this to estimate how many predictors you need to achieve a target level of group separation.</p>
+        <h2 style="text-align: center; font-size: clamp(1.2rem, 4vw, 2em); margin-top: 40px;">Mahalanobis D Calculator</h2>
+        <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+            <p>This calculator demonstrates how multiple predictors combine to create group separation in multivariate space. 
+            Mahalanobis D, just like Cohen's d, can be used to approximate the performance of linear ML models (LDA, logistic regression, linear SVMs) 
+            with normally distributed features. Use it to estimate how many predictors you need to achieve your target separation.</p>
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
         <div class="container mahalanobis-container">
             <div class="section sliders">
                 <!-- Mahalanobis D equation box -->
-                <div class="equation-box equation-wide flat">
-                    <p class="equation-title">When all predictors have the same effect size and collinearity, Mahalanobis D is:</p>
+                <div class="equation-box flat">
+                    <p class="equation-title">Mahalanobis D formula when all predictors have the same effect size and collinearity:</p>
                     <div class="equation-content">
                         \[D = d \sqrt{\frac{p}{1 + (p-1)r_{ij}}}\]
                     </div>
@@ -290,21 +311,21 @@
 
                         <!-- Pearson's r -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Pearson's r</span>
+                            <span class="slider-label" data-tooltip="Linear correlation between predictor and outcome">Pearson's r</span>
                             <input type="number" id="true-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" style="width: 50px; text-align: right;">
                             <input type="number" id="observed-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <!-- R² -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">R²</span>
+                            <span class="slider-label" data-tooltip="Proportion of variance in outcome explained by predictor">R²</span>
                             <input type="number" id="true-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <!-- c-index -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">c-index</span>
+                            <span class="slider-label" data-tooltip="Probability of correctly ranking a random pair of cases by their outcome values">c-index</span>
                             <input type="number" id="true-c-index-cont" min="0.5" max="1" step="0.001" value="0.5" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-c-index-cont" min="0.5" max="1" step="0.001" value="0.5" style="width: 50px; text-align: right;" readonly>
                         </div>
@@ -313,14 +334,14 @@
                     <!-- Reliability X -->
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                     <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
-                        <span class="slider-label">Predictor reliability</span>
+                        <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable">Predictor reliability</span>
                         <input type="number" id="reliability-x-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5" style="width: 100%;">
                     <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
-                        <span class="slider-label">Outcome reliability</span>
+                        <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable">Outcome reliability</span>
                         <input type="number" id="reliability-y-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
@@ -328,7 +349,7 @@
                     <div style="margin-top: 20px; margin-bottom: 30px;">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 100%;">
                         <div style="display: flex; justify-content: space-between; align-items: right; margin-top: 5px;">
-                            <span class="slider-label">Base rate (%)</span>
+                            <span class="slider-label" data-tooltip="Percentage of cases in group 2">Base rate (%)</span>
                             <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
@@ -342,43 +363,43 @@
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Cohen's d</span>
+                            <span class="slider-label" data-tooltip="Standardized mean difference between groups">Cohen's d</span>
                             <input type="number" id="true-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Cohen's d*</span>
+                            <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances">Cohen's d*</span>
                             <input type="number" id="true-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Rank-biserial r</span>
+                            <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r</span>
                             <input type="number" id="true-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Glass's &Delta;</span>
+                            <span class="slider-label" data-tooltip="Mean difference divided by standard deviation of group 1">Glass's &Delta;</span>
                             <input type="number" id="true-glass-d-cont" min="0" max="5" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-glass-d-cont" min="0" max="5" step="0.01" value="0.00" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Odds Ratio</span>
+                            <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
                             <input type="number" id="true-odds-ratio-cont" min="1" step="1" value="1" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-odds-ratio-cont" min="1" step="1" value="1" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">Log Odds Ratio</span>
+                            <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
                             <input type="number" id="true-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label">AUC</span>
+                            <span class="slider-label" data-tooltip="Area Under the ROC Curve - probability of correctly ranking a random positive case above a random negative case ">AUC</span>
                             <input type="number" id="true-auc-cont" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-auc-cont" min="0.5" max="1" step="0.005" value="0.1" style="width: 50px; text-align: right;" readonly>
                         </div>
@@ -415,30 +436,32 @@
                     <div id="pr-plot-cont" class="half-plot"></div>
                 </div>
                 <div id="dashboard-cont" class="dashboard">
-                    <p style="display: none;">AUC: <span id="auc-value-cont">0.00%</span></p>
-                    <p>Balanced accuracy: <span id="accuracy-value-cont">0.00%</span></p>
-                    <p>Sensitivity: <span id="sensitivity-value-cont">0.00%</span></p>
-                    <p>Specificity: <span id="specificity-value-cont">0.00%</span></p>
-                    <p>PPV: <span id="ppv-value-cont">0.00%</span></p>
+                    <div class="dashboard-metrics">
+                        <p style="display: none;">AUC: <span id="auc-value-cont">0.00%</span></p>
+                        <p data-tooltip="Average of sensitivity and specificity">Balanced accuracy: <span id="accuracy-value-cont">0.00%</span></p>
+                        <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value-cont">0.00%</span></p>
+                        <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value-cont">0.00%</span></p>
+                        <p data-tooltip="Positive predictive value - percentage of positive predictions that are correct">PPV: <span id="ppv-value-cont">0.00%</span></p>
+                    </div>
                 </div>
             </div>
         </div>
 
     <!-- Multivariate R² Calculator Section -->
     <div style="margin-top: 50px;"></div>
-    <h2 style="text-align: center; font-size: 2em; margin-top: 40px;">Multivariate R² Calculator</h2>
-    <div class="description">
-        <p>This calculator shows how multiple correlated predictors combine to create explained variance in multivariate regression. 
-        It accounts for intercorrelations among predictors, helping you understand the unique contribution of each variable.
-        Use this to estimate how predictive power changes as you add correlated predictors to your model.</p>
+    <h2 style="text-align: center; font-size: clamp(1.2rem, 4vw, 2em); margin-top: 40px;">Multivariate R² Calculator</h2>
+    <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+        <p>This calculator demonstrates how multiple predictors combine to explain the variance in an outcome. 
+        Multivariate R² quantifies predictive power for linear regression models while accounting for predictor collinearity. 
+        Use it to estimate how many predictors you need to achieve your target level of explained variance.</p>
     </div>
 
     <!-- Multivariate R² Calculator Container -->
     <div class="container r-squared-container">
         <div class="section sliders">
             <!-- Multivariate R² equation box -->
-            <div class="equation-box equation-wide flat">
-                <p class="equation-title">When all predictors have the same effect size and collinearity, Multivariate R² is:</p>
+            <div class="equation-box flat">
+                <p class="equation-title">Multivariate R² formula when all predictors have the same effect size and collinearity:</p>
                 <div class="equation-content">
                     \[R^2 = \frac{pr^2}{1+(p-1)r_{ij}}\]
                 </div>

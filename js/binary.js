@@ -250,7 +250,7 @@ function initializeBinary() {
             .attr("class", "threshold-arrow")
             .merge(arrows)
             .attr("d", d => {
-                const x = xScale(thresholdValue + (d.direction === "left" ? -0.33 : 0.33));
+                const x = xScale(thresholdValue + (d.direction === "left" ? -0.35 : 0.35));
                 const y = d.y;
                 if (d.direction === "left") {
                     return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;

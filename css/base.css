@@ -7,12 +7,20 @@ body {
     max-width: 1400px;
     padding: 20px;
     background-color: #f9f9f9;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 0;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
 }
 
 h1 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
 }
 
 /* Description Text */
@@ -21,8 +29,9 @@ h1 {
     max-width: 800px;
     margin: 0 auto 30px;
     color: #555;
-    font-size: 1.1em;
+    font-size: clamp(1rem, 2vw, 1.1rem);
     line-height: 1.5;
+    padding: 0 15px;
 }
 
 /* ==========================================================================
@@ -33,21 +42,24 @@ h1 {
     justify-content: space-between;
     gap: 20px;
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .slider-section {
-    flex: 0 0 280px;
+    flex: 1 1 280px;
     min-width: 280px;
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     overflow-y: auto;
+    max-height: 80vh;
+    overflow: visible !important;
 }
 
 .main-plot-section {
-    flex: 2;
-    min-width: 600px;
+    flex: 2 1 600px;
+    min-width: 300px;
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -55,10 +67,11 @@ h1 {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    overflow: visible !important;
 }
 
 .roc-pr-section {
-    flex: 1;
+    flex: 1 1 300px;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -67,6 +80,7 @@ h1 {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    overflow: visible !important;
 }
 
 /* Plot containers within sections */
@@ -75,6 +89,8 @@ h1 {
     min-width: 0;
     width: 100%;
     margin-bottom: 0;
+    overflow: hidden;
+    overflow: visible !important;
 }
 
 .plot-container {
@@ -83,12 +99,15 @@ h1 {
     width: 100%;
     height: 100%;
     gap: 20px;
+    overflow: visible !important;
 }
 
 .half-plot {
     flex: 1;
     min-width: 0;
     height: 50%;
+    min-height: 150px;
+    overflow: visible !important;
 }
 
 /* ==========================================================================
@@ -98,16 +117,28 @@ h1 {
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 20px 40px;
     text-align: center;
     margin-top: 20px;
+    position: relative;
+    overflow: visible !important;
+}
+
+.dashboard-metrics {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: relative;
+    overflow: visible !important;
 }
 
 .dashboard p {
-    font-size: 1.2em;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
     font-weight: bold;
     color: #444;
     margin: 8px 0;
+    position: relative;
 }
 
 /* ==========================================================================
@@ -117,13 +148,14 @@ h1 {
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     color: #333;
-    padding: 10px 20px;
-    font-size: 1.1em;
+    padding: 8px 16px;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     cursor: pointer;
     outline: none;
     border-radius: 20px;
-    margin: 0 5px;
+    margin: 5px 5px;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .toggle-button.active {
@@ -147,7 +179,7 @@ h1 {
 .slider-container label {
     display: block;
     margin-bottom: 20px;
-    font-size: 1.1em;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     color: #555;
 }
 
@@ -159,8 +191,9 @@ h1 {
 
 .slider-container input[type="number"],
 .slider-value-container input[type="number"],
-input.slider-value {
-    width: 60px !important;
+input.slider-value,
+.form-container input[type="number"] {
+    width: 68px !important;
     text-align: right;
     padding: 5px;
     border: 1px solid #ccc;
@@ -174,10 +207,11 @@ input.slider-value {
     align-items: center;
     margin-top: 5px;
     max-width: 100%;
+    flex-wrap: wrap;
 }
 
 .slider-label {
-    font-size: 1.1em;
+    font-size: clamp(0.8rem, 2vw, 1.1rem);
     color: #555;
     flex: 1;
     margin-right: 10px;
@@ -187,11 +221,12 @@ input.slider-value {
    Grid Layout
    ========================================================================== */
 .container {
-    max-width: 1400px;
+    max-width: 100%;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    overflow: visible !important;
 }
 
 .container.secondary {
@@ -204,11 +239,30 @@ input.slider-value {
 /* ==========================================================================
    Responsive Design
    ========================================================================== */
+@media (max-width: 1400px) {
+    .container {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .equation-box {
+        padding: 8px;
+    }
+    
+    .dashboard {
+        padding: 15px;
+    }
+    
+    .main-container {
+        gap: 15px;
+    }
+}
+
 @media (max-width: 1200px) {
     .main-container {
         height: auto;
         flex-direction: column;
-        min-height: 800px;
+        min-height: auto;
     }
 
     .slider-section {
@@ -223,11 +277,80 @@ input.slider-value {
         min-width: 0;
         flex: 0 0 400px;
     }
-} 
+    
+    .equations-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .equation-box {
+        width: 90%;
+        max-width: 400px;
+        margin: 8px auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-metrics {
+        justify-content: center;
+    }
+    
+    .dashboard p {
+        margin: 5px 10px;
+    }
+    
+    .slider-section,
+    .main-plot-section,
+    .roc-pr-section {
+        flex: 0 0 auto;
+    }
+    
+    .main-plot-section {
+        min-height: 400px;
+    }
+    
+    .half-plot {
+        min-height: 200px;
+    }
+    
+    .slider-section {
+        order: -1;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    .toggle-button {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+        margin: 3px;
+    }
+    
+    .main-plot-section,
+    .roc-pr-section {
+        padding: 15px;
+    }
+    
+    .slider-section {
+        padding: 15px;
+        max-height: 250px;
+    }
+    
+    .half-plot {
+        min-height: 180px;
+    }
+}
 
 .metrics-header {
     display: grid;
-    grid-template-columns: 1fr 73px 54px;
+    grid-template-columns: 1fr 68px 54px;
     align-items: left;
     margin-top: 5px;
 }
@@ -244,6 +367,64 @@ input.slider-value {
 }
 
 /* ==========================================================================
+   Equation Styles
+   ========================================================================== */
+.equations-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.equation-box {
+    background-color: white;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 160px;
+    align-self: flex-start;
+    width: auto;
+}
+
+.equation-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 100%;
+}
+
+/* Special class for wider equations that need more space */
+.equation-box.wide {
+    width: 100%;
+    min-width: 300px;
+    max-width: 300px;
+}
+
+.equation-box.wide .equation-title {
+    margin-bottom: 0;
+}
+
+.equation-title {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* Add MathJax specific styling */
+.equation-content .MathJax {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* ==========================================================================
    Calculator Container Styles
    ========================================================================== */
 .mahalanobis-container,
@@ -251,11 +432,13 @@ input.slider-value {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    max-width: 1400px;
+    max-width: 100%;
     margin: 0 auto;
     width: 100%;
     margin-bottom: 50px;
-    height: 550px;
+    height: auto;
+    min-height: 550px;
+    flex-wrap: wrap;
 }
 
 /* Calculator Sections */
@@ -273,17 +456,19 @@ input.slider-value {
 
 .section.sliders {
     padding: 30px 25px 25px 25px;
-    flex: 0 0 360px;
-    width: 360px;
-    min-width: 360px;
+    flex: 1 1 300px;
+    width: 100%;
+    min-width: 300px;
+    height: auto;
 }
 
 /* Calculator section layout */
 .mahalanobis-container .section:last-child,
 .r-squared-container .section:last-child {
-    flex: 1;
-    width: 800px;
-    min-width: 600px;
+    flex: 2 1 600px;
+    width: 100%;
+    min-width: 300px;
+    height: auto;
 }
 
 /* Calculator Form Container */
@@ -297,18 +482,11 @@ input.slider-value {
     margin: 0 auto;
 }
 
-.form-container input[type="number"] {
-    width: 60px !important;
-    margin-right: 0;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
 /* Calculator Plot Container */
 #chartContainer,
 #r2PlotContainer {
-    height: 500px;
+    height: 100%;
+    max-height: 500px;
     width: 100%;
     position: relative;
     margin: 20px 0;
@@ -327,114 +505,228 @@ input.slider-value {
     margin-bottom: 10px;
     text-align: center;
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
 }
 
-/* Calculator buttons */
-.section button {
-    padding: 8px 15px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s;
-}
-
-.section button:hover {
-    background-color: #e0e0e0;
-}
-
-/* Record and Reset buttons for calculators */
-.mahalanobis-container button,
-.r-squared-container button {
-    width: 100%;
-    padding: 10px;
-    margin: 20px 0;
-    background-color: #222222;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.1em;
-    cursor: pointer;
-}
-
-.mahalanobis-container button:hover,
-.r-squared-container button:hover {
-    background-color: #333;
-}
-
-#reset-mahalanobis,
-#reset-r2 {
-    background-color: white !important;
-    color: black !important;
-    border: 1px solid black !important;
-}
-
-#reset-mahalanobis:hover,
-#reset-r2:hover {
-    background-color: #f0f0f0 !important;
-}
-
-/* Calculator equation box styles */
-.equation-box.equation-wide {
-    margin: 10px auto 30px auto;
-    width: 100%;
-    max-width: 320px;
-    height: 140px;
-    align-self: flex-start;
-    justify-content: flex-start;
-}
-
-/* Add specific styles for calculator section equation boxes */
+/* Calculator equation styles - use the same style as main equations */
 .section .equation-box {
     margin: 10px auto 30px auto;
-    height: 140px;
-    align-self: flex-start;
-    justify-content: flex-start;
 }
 
-/* New style for calculator equations without nested appearance */
+/* Style for flat equations in calculator sections */
 .section .equation-box.flat {
     background-color: transparent;
     box-shadow: none;
     border-radius: 0;
     padding: 0;
-    margin: 0 0 40px 0;
+    margin: 0 0 20px 0;
     width: 100%;
     max-width: 100%;
 }
 
 .section .equation-box.flat .equation-title {
     font-size: 1em;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .section .equation-box.flat .equation-content {
     background-color: transparent;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
 }
 
-/* Calculator Responsive Design */
+.section button {
+    background-color: #222222;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.section button:hover {
+    background-color: #444;
+}
+
+.mahalanobis-container button,
+.r-squared-container button {
+    background-color: #222222;
+    color: white;
+    border: none;
+    padding: 12px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    flex: 1;
+    text-align: center;
+    min-height: 44px;
+}
+
+.mahalanobis-container button:hover,
+.r-squared-container button:hover {
+    background-color: #666;
+}
+
+#reset-mahalanobis,
+#reset-r2 {
+    background-color: white;
+    color: #444;
+    border: 1px solid #ccc;
+}
+
+#reset-mahalanobis:hover,
+#reset-r2:hover {
+    background-color: #f5f5f5;
+}
+
+/* Add a container for the buttons to ensure they take up the full width */
+.mahalanobis-container .form-container > div:last-child,
+.r-squared-container .form-container > div:last-child {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Ensure the buttons are equal width */
+.mahalanobis-container .form-container > div:last-child button,
+.r-squared-container .form-container > div:last-child button {
+    flex: 1;
+}
+
+/* Mahalanobis container responsive styles */
 @media (max-width: 1200px) {
     .mahalanobis-container,
     .r-squared-container {
         flex-direction: column;
-        min-height: 800px;
+        height: auto;
+        min-height: 0;
     }
-
+    
     .section.sliders {
         width: 100%;
+        flex: 0 0 auto;
         min-width: 0;
-        max-height: 300px;
+        max-width: 100%;
     }
-
+    
     .mahalanobis-container .section:last-child,
     .r-squared-container .section:last-child {
         width: 100%;
+        flex: 0 0 500px;
         min-width: 0;
+    }
+    
+    #chartContainer,
+    #r2PlotContainer {
+        height: 400px;
+    }
+}
+
+@media (max-width: 900px) {
+    .section {
+        padding: 20px;
+    }
+    
+    .section.sliders {
+        padding: 20px;
+    }
+    
+    .mahalanobis-container .section:last-child,
+    .r-squared-container .section:last-child {
         flex: 0 0 400px;
     }
+    
+    #chartContainer,
+    #r2PlotContainer {
+        height: 350px;
+    }
+}
+
+@media (max-width: 600px) {
+    .section {
+        padding: 15px;
+    }
+    
+    .section.sliders {
+        padding: 15px;
+    }
+    
+    .mahalanobis-container .section:last-child,
+    .r-squared-container .section:last-child {
+        flex: 0 0 300px;
+    }
+    
+    #chartContainer,
+    #r2PlotContainer {
+        height: 300px;
+        margin: 10px 0;
+    }
+    
+    .section button {
+        padding: 8px 12px;
+        font-size: 0.8em;
+    }
+}
+
+/* ==========================================================================
+   Tooltip Styles
+   ========================================================================== */
+/* Create a root stacking context */
+body {
+    position: relative;
+    z-index: 0;
+}
+
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+    z-index: 1;
+}
+
+[data-tooltip]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 9999;
+    pointer-events: none;
+    width: max-content;
+    max-width: 300px;
+    white-space: normal;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+}
+
+[data-tooltip]:hover:before {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Remove any overflow constraints */
+.slider-section,
+.main-plot-section,
+.roc-pr-section,
+.dashboard,
+.dashboard-metrics,
+.container,
+.plot-container,
+.plots-stack,
+.scatter-plots,
+.distribution-plots,
+.half-plot,
+.plot {
+    overflow: visible !important;
 }

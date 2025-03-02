@@ -178,7 +178,7 @@ function initializeR2Calculator() {
         
         // Create active curve
         activeCurve = {
-            label: `r=${params.predictorCorrelation.toFixed(2)}, r_ij=${params.collinearity.toFixed(2)}`,
+            label: `r = ${params.predictorCorrelation.toFixed(2)}, r_ij = ${params.collinearity.toFixed(2)}`,
             data: r2Values,
             borderColor: colors[nextColorIndex % colors.length] + '80', // 50% opacity
             backgroundColor: `${colors[nextColorIndex % colors.length]}20`,
@@ -209,7 +209,7 @@ function initializeR2Calculator() {
         r2Chart.options.scales.x.max = params.numPredictors;
         
         // Update the target line
-        r2Chart.data.datasets[0].label = `Target R² = ${params.neededR2}`;
+        r2Chart.data.datasets[0].label = `Needed R² = ${params.neededR2}`;
         r2Chart.data.datasets[0].data = Array(params.numPredictors).fill(params.neededR2);
         
         // Generate data for the plot

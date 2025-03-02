@@ -51,4 +51,65 @@ const StatUtils = {
 };
 
 // Make utilities available globally
-window.StatUtils = StatUtils; 
+window.StatUtils = StatUtils;
+
+// Utility functions for shared behavior
+
+// Common layout settings for Plotly plots
+function getCommonPlotlyLayout() {
+    return {
+        margin: { l: 50, r: 40, b: 50, t: 10, pad: 0 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        autosize: true
+    };
+}
+
+// Common configuration settings for Plotly plots
+function getCommonPlotlyConfig() {
+    return {
+        responsive: true,
+        displayModeBar: false,
+        scrollZoom: false,
+        staticPlot: false
+    };
+}
+
+// Format a number to specified precision, with defaults
+function formatNumber(value, precision = 2) {
+    return parseFloat(value).toFixed(precision);
+}
+
+// Ensure value is clamped between min and max
+function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
+
+// Debounce function to limit event firing
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+// Function to ensure plots are responsive
+function makeResizablePlot(plotId) {
+    function resizePlot() {
+        Plotly.relayout(plotId, {
+            autosize: true
+        });
+    }
+    
+    const debouncedResize = debounce(resizePlot, 250);
+    window.addEventListener('resize', debouncedResize);
+    return debouncedResize;
+}
+
+// Convert decimal to percentage for display
+function toPercentage(decimal, precision = 1) {
+    return (decimal * 100).toFixed(precision) + '%';
+} 

@@ -4,15 +4,15 @@
 
 /* Main container dimensions */
 #continuous-container .main-container {
-    height: 765px;
-    min-height: 600px;
-    max-height: 1200px;
+    min-height: 620px;
+    max-height: none;
 }
 
 /* Plot dimensions and layout */
 #continuous-container .plot {
     height: 100%;
     width: 100%;
+    overflow: hidden;
 }
 
 #continuous-container .plots-stack {
@@ -21,29 +21,32 @@
     flex-direction: column;
     gap: 10px;
     flex: 1;
+    min-height: 0;
 }
 
 #continuous-container .scatter-plots,
 #continuous-container .distribution-plots {
     width: 100%;
     height: calc(50% - 5px);
-    min-height: 300px;
+    min-height: 200px;
 }
 
 /* Results section */
 #continuous-container .results-container {
-    width: 350px;
-    flex: none;
+    width: 100%;
+    flex: 1 1 300px;
     overflow: hidden;
 }
 
 #continuous-container .results-container .plot-container {
-    height: 475px;
-    margin-bottom: 20px;
+    height: 100%;
+    min-height: 400px;
+    margin-bottom: 10px;
 }
 
 #continuous-container .results-container .half-plot {
     height: calc(50% - 10px);
+    min-height: 150px;
 }
 
 /* Continuous-specific plot containers */
@@ -53,21 +56,50 @@
 #scatter-plot-observed-cont {
     width: 100%;
     height: 100%;
-    min-width: 500px;
+    min-width: 0;
+    min-height: 150px;
 }
 
 #roc-plot-cont,
 #pr-plot-cont {
     flex: 1;
     min-width: 0;
-    min-height: 200px;
+    min-height: 170px;
 }
 
 /* Dashboard styles */
 #continuous-container .dashboard {
-    padding: 10px 0 0 0;
+    padding: 4px 4px;
     margin-top: 0;
-    border-top: 1px solid #eee;
+    min-height: 120px;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+#continuous-container .dashboard-metrics {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    min-height: 110px;
+    max-width: 300px;
+    width: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#continuous-container .dashboard p {
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    width: auto;
+    white-space: nowrap;
+    text-align: center;
+    padding: 0;
+    line-height: 1.1;
 }
 
 /* ==========================================================================
@@ -76,6 +108,70 @@
 @media (max-width: 1200px) {
     #continuous-container .main-container {
         height: auto;
-        min-height: 1000px;
+        min-height: auto;
+    }
+    
+    #continuous-container .plots-stack {
+        min-height: 500px;
+    }
+    
+    #continuous-container .dashboard {
+        min-height: 110px;
+    }
+}
+
+@media (max-width: 900px) {
+    #continuous-container .scatter-plots,
+    #continuous-container .distribution-plots {
+        min-height: 180px;
+    }
+    
+    #continuous-container .plots-stack {
+        min-height: 400px;
+    }
+    
+    #roc-plot-cont,
+    #pr-plot-cont {
+        min-height: 160px;
+    }
+    
+    #continuous-container .dashboard {
+        min-height: 100px;
+    }
+}
+
+@media (max-width: 600px) {
+    #continuous-container .scatter-plots,
+    #continuous-container .distribution-plots {
+        min-height: 150px;
+    }
+    
+    #continuous-container .plots-stack {
+        min-height: 320px;
+    }
+    
+    #continuous-container .results-container .plot-container {
+        min-height: 320px;
+    }
+    
+    #roc-plot-cont,
+    #pr-plot-cont {
+        min-height: 140px;
+    }
+    
+    #continuous-container .dashboard {
+        min-height: 90px;
+        padding: 8px 5px;
+    }
+    
+    #continuous-container .dashboard-metrics {
+        max-width: 280px;
+        min-height: 95px;
+    }
+    
+    #continuous-container .dashboard p {
+        margin: 0;
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        line-height: 1.1;
     }
 }
