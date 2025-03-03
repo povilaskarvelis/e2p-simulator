@@ -89,6 +89,8 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: stretch;
+    margin-top: 15px;
+    margin-bottom: 15px;
     gap: 15px;
 }
 
