@@ -2,7 +2,7 @@
 
 An interactive web tool for simulating how statistical effect sizes translate into practical predictive utility, with adjustments for measurement reliability and base rates. 
 
-**Try it out**: [https://e2p-simulator.github.io](https://e2p-simulator.github.io)
+**Try it out**: [https://povilaskarvelis.github.io/e2p-simulator](https://povilaskarvelis.github.io/e2p-simulator)
 
 ![Screenshot of the simulator](screenshot.png)
 
