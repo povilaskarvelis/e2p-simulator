@@ -4,7 +4,7 @@
 
 /* Main container dimensions */
 #continuous-container .main-container {
-    min-height: 620px;
+    min-height: 755px;
     max-height: none;
 }
 
@@ -71,7 +71,7 @@
 #continuous-container .dashboard {
     padding: 4px 4px;
     margin-top: 0;
-    min-height: 120px;
+    min-height: 140px;
     overflow: visible;
     display: flex;
     justify-content: center;
@@ -84,12 +84,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1px;
-    min-height: 110px;
+    gap: 2px;
+    min-height: 120px;
     max-width: 300px;
     width: auto;
     padding-top: 5px;
-    padding-bottom: 5px;
+    padding-bottom: 2px;
 }
 
 #continuous-container .dashboard p {
@@ -105,6 +105,12 @@
 /* ==========================================================================
    Continuous-Specific Media Queries
    ========================================================================== */
+@media (max-width: 1400px) {
+    #continuous-container .slider-section {
+        overflow-y: auto;
+    }
+}
+
 @media (max-width: 1200px) {
     #continuous-container .main-container {
         height: auto;
@@ -116,7 +122,23 @@
     }
     
     #continuous-container .dashboard {
-        min-height: 110px;
+        min-height: 130px;
+        margin: 0;
+        padding: 4px 4px;
+    }
+
+    #continuous-container .slider-section {
+        overflow-y: auto;
+        max-height: 400px;
+    }
+
+    #continuous-container .results-container {
+        position: relative;
+    }
+
+    #continuous-container .dashboard-metrics {
+        min-height: 130px;
+        padding: 6px;
     }
 }
 
@@ -136,7 +158,7 @@
     }
     
     #continuous-container .dashboard {
-        min-height: 100px;
+        min-height: 130px;
     }
 }
 
@@ -150,6 +172,10 @@
         min-height: 320px;
     }
     
+    #continuous-container .results-container {
+        position: relative;
+    }
+    
     #continuous-container .results-container .plot-container {
         min-height: 320px;
     }
@@ -160,13 +186,15 @@
     }
     
     #continuous-container .dashboard {
-        min-height: 90px;
-        padding: 8px 5px;
+        min-height: 120px;
+        margin: 0;
+        padding: 4px 4px;
     }
     
     #continuous-container .dashboard-metrics {
         max-width: 280px;
-        min-height: 95px;
+        min-height: 115px;
+        padding: 6px;
     }
     
     #continuous-container .dashboard p {

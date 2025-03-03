@@ -45,13 +45,13 @@ function initializeBinary() {
             .call(d3.axisLeft(yScale).tickFormat(() => ""));
 
         // Update axis labels with consistent distance from axes
-        svgDistributions.select(".x-label")
-            .attr("x", width / 2)
-            .attr("y", height - margin.bottom / 10); 
+        svgDistributions.selectAll(".x-label")
+            .attr("x", width / 2 - 50)
+            .attr("y", height - margin.bottom / 2);
 
-        svgDistributions.select(".y-label")
-            .attr("x", -height / 2)
-            .attr("y", margin.left / 3);
+        svgDistributions.selectAll(".y-label")
+            .attr("x", -height / 2 - 80)
+            .attr("y", margin.left / 6);
 
         // Redraw the plot if we have a valid value
         const trueInput = document.getElementById("true-difference-number-bin");
@@ -72,15 +72,27 @@ function initializeBinary() {
         .attr("class", "y-axis");
 
     // Add axis labels
-    svgDistributions.append("text")
+    svgDistributions.append("foreignObject")
         .attr("class", "x-label")
-        .attr("text-anchor", "middle")
+        .attr("width", 100)
+        .attr("height", 25)
+        .append("xhtml:div")
+        .attr("contenteditable", true)
+        .style("text-align", "center")
+        .style("font-size", "16px")
+        .style("color", "black")
         .text("Predictor");
 
-    svgDistributions.append("text")
+    svgDistributions.append("foreignObject")
         .attr("class", "y-label")
-        .attr("text-anchor", "middle")
+        .attr("width", 200)
+        .attr("height", 25)
         .attr("transform", "rotate(-90)")
+        .append("xhtml:div")
+        .attr("contenteditable", true)
+        .style("text-align", "center")
+        .style("font-size", "16px")
+        .style("color", "black")
         .text("Probability density");
 
     // Initial update of dimensions
@@ -361,6 +373,7 @@ function initializeBinary() {
         const sensitivity = thresholdTPR;
         const ppv = (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
         const balancedAccuracy = (sensitivity + specificity) / 2;
+        const npv = (specificity * (1 - baseRate)) / (specificity * (1 - baseRate) + (1 - sensitivity) * baseRate);
 
         // Calculate PR AUC (Average Precision)
         let prauc = 0;
@@ -373,7 +386,8 @@ function initializeBinary() {
         document.getElementById("sensitivity-value").textContent = (sensitivity * 100).toFixed(1) + "%";
         document.getElementById("specificity-value").textContent = (specificity * 100).toFixed(1) + "%";
         document.getElementById("accuracy-value").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
-        document.getElementById("ppv-value").textContent = (ppv * 100).toFixed(1) + "%";
+        document.getElementById("precision-value").textContent = (ppv * 100).toFixed(1) + "%";
+        document.getElementById("npv-value").textContent = (npv * 100).toFixed(1) + "%";
 
         // ROC Plot
         const rocTrace = {

@@ -123,7 +123,7 @@ function initializeContinuous() {
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 70)
+            .attr("x", width / 2 - 50)
             .attr("y", height - margin.bottom + 35)
             .attr("width", 140)
             .attr("height", 30)
@@ -271,7 +271,7 @@ function initializeContinuous() {
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 70)
+            .attr("x", width / 2 - 50)
             .attr("y", height - margin.bottom + 35)
             .attr("width", 140)
             .attr("height", 30)
@@ -523,6 +523,7 @@ function initializeContinuous() {
         const specificity = 1 - thresholdFPR;
         const sensitivity = thresholdTPR;
         const ppv = (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
+        const npv = (specificity * (1 - baseRate)) / (specificity * (1 - baseRate) + (1 - sensitivity) * baseRate);
         const balancedAccuracy = (sensitivity + specificity) / 2;
 
         // Calculate PR AUC (Average Precision)
@@ -536,6 +537,7 @@ function initializeContinuous() {
         document.getElementById("sensitivity-value-cont").textContent = (sensitivity * 100).toFixed(1) + "%";
         document.getElementById("specificity-value-cont").textContent = (specificity * 100).toFixed(1) + "%";
         document.getElementById("accuracy-value-cont").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
+        document.getElementById("npv-value-cont").textContent = (npv * 100).toFixed(1) + "%";
         document.getElementById("ppv-value-cont").textContent = (ppv * 100).toFixed(1) + "%";
 
         // ROC Plot configuration...
