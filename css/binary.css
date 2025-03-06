@@ -30,13 +30,13 @@
 
 /* Binary-specific dashboard styles */
 #binary-container .dashboard {
-    padding: 20px 100px;
+    padding: 20px40px;
     margin-top: 20px;
     overflow-x: auto;
 }
 
 #binary-container .dashboard p {
-    font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+    font-size: clamp(0.95rem, 1.8vw, 1.2rem);
     margin: 8px 0;
     line-height: 1.3;
 }
@@ -130,7 +130,7 @@
 
 @media (max-width: 600px) {
     #binary-container .dashboard {
-        padding: 10px 30px;
+        padding: 10px 20px;
     }
     
     #overlap-plot {

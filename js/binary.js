@@ -79,7 +79,7 @@ function initializeBinary() {
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
-        .style("font-size", "16px")
+        .style("font-size", "18px")
         .style("color", "black")
         .text("Predictor");
 
@@ -91,7 +91,7 @@ function initializeBinary() {
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
-        .style("font-size", "16px")
+        .style("font-size", "18px")
         .style("color", "black")
         .text("Probability density");
 
@@ -181,15 +181,15 @@ function initializeBinary() {
         const legendEnter = legend.enter()
             .append("foreignObject")
             .attr("class", "legend-group")
-            .attr("width", 150)
-            .attr("height", 20);
+            .attr("width", 300)
+            .attr("height", 40);
 
         // Add editable group labels
         legendEnter.append("xhtml:div")
             .attr("contenteditable", true)
-            .style("font-size", "14px")
+            .style("font-size", "16px")
             .style("font-weight", "bold")
-            .style("color", (d, i) => (i === 0 ? "black" : "teal"))
+            .style("color", (d, i) => (i === 0 ? "#555555" : "teal"))
             .style("display", "inline")
             .style("white-space", "nowrap")
             .style("overflow", "visible")
@@ -327,8 +327,8 @@ function initializeBinary() {
         // Calculate AUC once - it depends on d and standard deviations
         const auc = StatUtils.normalCDF(d / Math.sqrt(2), 0, 1);
 
-        const tMin = -5;
-        const tMax = 5;
+        const tMin = -20;
+        const tMax = 20;
         const step = 0.01;
 
         const FPR = [];
@@ -353,7 +353,8 @@ function initializeBinary() {
             // Calculate precision for each point
             const sens = 1 - cdfB;  // Sensitivity (TPR)
             const spec = cdfA;      // Specificity (1 - FPR)
-            const prec = (sens * baseRate) / (sens * baseRate + (1 - spec) * (1 - baseRate));
+            // When sensitivity is 0, precision is 1 by convention
+            const prec = sens === 0 ? 1 : (sens * baseRate) / (sens * baseRate + (1 - spec) * (1 - baseRate));
             precision.push(prec);
             recall.push(sens);      // Recall is the same as sensitivity
         }
@@ -371,21 +372,45 @@ function initializeBinary() {
         // Calculate metrics
         const specificity = 1 - thresholdFPR;
         const sensitivity = thresholdTPR;
-        const ppv = (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
+        // When sensitivity is 0, precision is 1 by convention
+        const ppv = sensitivity === 0 ? 1 : (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
         const balancedAccuracy = (sensitivity + specificity) / 2;
         const npv = (specificity * (1 - baseRate)) / (specificity * (1 - baseRate) + (1 - sensitivity) * baseRate);
+        
+        // Calculate regular accuracy
+        const accuracy = sensitivity * baseRate + specificity * (1 - baseRate);
+        
+        // Calculate F1-score (harmonic mean of precision and recall)
+        const f1Score = (ppv + sensitivity > 0) ? 2 * (ppv * sensitivity) / (ppv + sensitivity) : 0;
+
+        // Calculate Matthews Correlation Coefficient (MCC)
+        // First calculate TP, TN, FP, FN based on the confusion matrix
+        const TP = sensitivity * baseRate;
+        const TN = specificity * (1 - baseRate);
+        const FP = (1 - specificity) * (1 - baseRate);
+        const FN = (1 - sensitivity) * baseRate;
+        
+        // Calculate MCC
+        const mcc = (TP * TN - FP * FN) / Math.sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN));
 
         // Calculate PR AUC (Average Precision)
         let prauc = 0;
         for (let i = 1; i < recall.length; i++) {
-            prauc += (recall[i-1] - recall[i]) * precision[i-1];
+            // Only include segments where recall is decreasing
+            if (recall[i] < recall[i-1]) {
+                const width = recall[i-1] - recall[i];
+                const avgHeight = (precision[i-1] + precision[i]) / 2;
+                prauc += width * avgHeight;
+            }
         }
 
         // Update dashboard values
-        document.getElementById("auc-value").textContent = (auc * 100).toFixed(1) + "%";
         document.getElementById("sensitivity-value").textContent = (sensitivity * 100).toFixed(1) + "%";
         document.getElementById("specificity-value").textContent = (specificity * 100).toFixed(1) + "%";
-        document.getElementById("accuracy-value").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
+        document.getElementById("balanced-accuracy-value").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
+        document.getElementById("accuracy-value").textContent = (accuracy * 100).toFixed(1) + "%";
+        document.getElementById("f1-value").textContent = (f1Score * 100).toFixed(1) + "%";
+        document.getElementById("mcc-value").textContent = (mcc * 100).toFixed(1) + "%";
         document.getElementById("precision-value").textContent = (ppv * 100).toFixed(1) + "%";
         document.getElementById("npv-value").textContent = (npv * 100).toFixed(1) + "%";
 
@@ -525,14 +550,12 @@ function initializeBinary() {
         // Calculate values for true d
         const trueOddsRatio = StatUtils.dToOddsRatio(d);
         const trueLogOddsRatio = StatUtils.dToLogOddsRatio(d);
-        const trueAuc = StatUtils.normalCDF(d / Math.sqrt(2), 0, 1);
         const trueR = StatUtils.dToR(d);
         const trueEtaSquared = trueR ** 2;
 
         // Calculate values for observed d
         const obsOddsRatio = StatUtils.dToOddsRatio(dObs);
         const obsLogOddsRatio = StatUtils.dToLogOddsRatio(dObs);
-        const obsAuc = StatUtils.normalCDF(dObs / Math.sqrt(2), 0, 1);
         const obsR = StatUtils.dToR(dObs);
         const obsEtaSquared = obsR ** 2;
 
@@ -544,18 +567,18 @@ function initializeBinary() {
         // Update true metrics
         document.getElementById("true-odds-ratio-bin").value = trueOddsRatio.toFixed(2);
         document.getElementById("true-log-odds-ratio-bin").value = trueLogOddsRatio.toFixed(2);
-        document.getElementById("true-auc-bin").value = trueAuc.toFixed(2);
+
         document.getElementById("true-pb-r-bin").value = trueR.toFixed(2);
         document.getElementById("true-eta-squared-bin").value = trueEtaSquared.toFixed(2);
 
         // Update observed metrics
         document.getElementById("observed-odds-ratio-bin").value = obsOddsRatio.toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = obsLogOddsRatio.toFixed(2);
-        document.getElementById("observed-auc-bin").value = obsAuc.toFixed(2);
-        document.getElementById("observed-pb-r-bin").value = obsR.toFixed(2);
-        document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
 
-        // Update plots using updatePlots to respect current view
+        document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
+        document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
+        
+        // Update plots
         updatePlots();
     }
 
@@ -572,7 +595,6 @@ function initializeBinary() {
         document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
         document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.sqrt(3) / Math.PI).toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.sqrt(3) / Math.PI).toFixed(2);
-        document.getElementById("observed-auc-bin").value = StatUtils.normalCDF(dObs / Math.sqrt(2), 0, 1).toFixed(2);
         document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
         const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
         document.getElementById("observed-eta-squared-bin").value = (obsR ** 2).toFixed(2);
@@ -594,11 +616,6 @@ function initializeBinary() {
 
     function updateMetricsFromLogOddsRatio(logOddsRatio) {
         const d = logOddsRatio * Math.sqrt(3) / Math.PI;
-        updateMetricsFromD(d);
-    }
-
-    function updateMetricsFromAUC(auc) {
-        const d = qNorm(auc) * Math.sqrt(2);
         updateMetricsFromD(d);
     }
 
@@ -678,7 +695,6 @@ function initializeBinary() {
             d: document.getElementById("true-difference-number-bin"),
             oddsRatio: document.getElementById("true-odds-ratio-bin"),
             logOddsRatio: document.getElementById("true-log-odds-ratio-bin"),
-            auc: document.getElementById("true-auc-bin"),
             pbr: document.getElementById("true-pb-r-bin"),
             etaSquared: document.getElementById("true-eta-squared-bin")
         };
@@ -740,10 +756,6 @@ function initializeBinary() {
             updateMetricsFromLogOddsRatio(logOddsRatio);
         });
 
-        trueMetricInputs.auc.addEventListener("input", (e) => {
-            const auc = parseFloat(e.target.value);
-            updateMetricsFromAUC(auc);
-        });
 
         trueMetricInputs.pbr.addEventListener("input", (e) => {
             const r = parseFloat(e.target.value);

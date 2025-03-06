@@ -15,8 +15,8 @@ function initializeContinuous() {
     
     // Global font and tick size settings
     const fontSize = {
-        axisLabel: 30,     // Axis labels (x, y)
-        legendText: 27,    // Legend text
+        axisLabel: 34,     // Axis labels (x, y)
+        legendText: 30,    // Legend text
         annotationText: 25, // Annotation text (variance, etc.)
         tickLabel: 14      // Axis tick labels
     };
@@ -34,30 +34,22 @@ function initializeContinuous() {
     let observedMetrics = {};
     let currentView = "observed";  // Add currentView state variable with default value
     
+    // Global variables for data sharing
+    let currentTealData = [];
+    let currentGrayData = [];
+    let currentLabeledData = [];
+    
     // Clean up any existing state
     cleanupContinuous();
     
     // Utility functions (these don't depend on DOM or state)
-    function kernelDensityEstimator(kernel, X) {
-        return function (sample) {
-            return X.map(x => [x, d3.mean(sample, v => kernel(x - v))]);
-        };
-    }
-    
-    function kernelEpanechnikov(bandwidth) {
-        return function (u) {
-            u = u / bandwidth;
-            return Math.abs(u) <= 1 ? (0.75 * (1 - u * u)) / bandwidth : 0;
-        };
-    }
-    
     function computeObservedR(trueR, reliabilityX, reliabilityY) {
         return trueR * Math.sqrt(reliabilityX * reliabilityY);
     }
 
     // Drawing functions (depend on DOM elements)
     function drawScatterPlot(r, type) {
-        const numPoints = 50000; // Full dataset for metrics
+        const numPoints = 60000; // Full dataset for metrics
         const numPlotPoints = 5000; // Reduced dataset for visualization
         const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
@@ -77,6 +69,18 @@ function initializeContinuous() {
         const thresholdIndex = Math.floor(numPoints * baseRate);
         const tealData = sortedData.slice(0, thresholdIndex);
         const grayData = sortedData.slice(thresholdIndex);
+
+        // Store data for use in plotROC
+        if (type === currentView) {
+            currentTealData = tealData;
+            currentGrayData = grayData;
+            
+            // Create labeled data for ROC calculations
+            currentLabeledData = [
+                ...tealData.map(d => ({ ...d, trueClass: 1 })),
+                ...grayData.map(d => ({ ...d, trueClass: 0 }))
+            ];
+        }
 
         // Use full dataset for metric calculations
         drawDistributions(tealData.map(d => d.x), grayData.map(d => d.x), type);
@@ -126,7 +130,7 @@ function initializeContinuous() {
             .attr("x", width / 2 - 50)
             .attr("y", height - margin.bottom + 35)
             .attr("width", 140)
-            .attr("height", 30)
+            .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
@@ -142,7 +146,7 @@ function initializeContinuous() {
             .attr("y", margin.left - 90)
             .attr("transform", `rotate(-90)`)
             .attr("width", 140)
-            .attr("height", 30)
+            .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
@@ -181,10 +185,31 @@ function initializeContinuous() {
         const greenScale = baseRate;
         const blueScale = 1 - baseRate;
 
-        // Kernel density estimation
-        const kde = kernelDensityEstimator(kernelEpanechnikov(0.4), d3.range(xRange[0], xRange[1], 0.01));
-        const tealDensity = kde(tealX).map(d => ({ x: d[0], y: d[1] * greenScale }));
-        const grayDensity = kde(grayX).map(d => ({ x: d[0], y: d[1] * blueScale }));
+        // Create histograms instead of KDE
+        const binCount = 70; // Number of bins for the histogram
+        const histogramGenerator = d3.histogram()
+            .domain(xRange)
+            .thresholds(d3.range(xRange[0], xRange[1], (xRange[1] - xRange[0]) / binCount));
+        
+        // Generate histogram data
+        const tealBins = histogramGenerator(tealX);
+        const grayBins = histogramGenerator(grayX);
+        
+        // Convert bins to density format (normalize by total count and bin width)
+        const tealTotal = tealX.length;
+        const grayTotal = grayX.length;
+        const binWidth = tealBins[0].x1 - tealBins[0].x0;
+        
+        // Convert to density format compatible with existing visualization
+        const tealDensity = tealBins.map(bin => ({
+            x: (bin.x0 + bin.x1) / 2, // Use bin midpoint for x
+            y: (bin.length / tealTotal / binWidth) * greenScale // Normalize by count and bin width
+        }));
+        
+        const grayDensity = grayBins.map(bin => ({
+            x: (bin.x0 + bin.x1) / 2, // Use bin midpoint for x
+            y: (bin.length / grayTotal / binWidth) * blueScale // Normalize by count and bin width
+        }));
 
         // Compute metrics
         const meanTeal = d3.mean(tealX);
@@ -246,25 +271,30 @@ function initializeContinuous() {
         // Remove old distributions
         svgDistributions.selectAll(".distribution").remove();
 
-        const line = d3.line()
-            .x(d => xScale(d.x))
-            .y(d => yScale(d.y));
-
-        // Draw gray (control group) distribution
-        svgDistributions.append("path")
-            .datum(grayDensity)
-            .attr("class", "distribution gray-distribution")
+        // Draw distributions as true histograms (bar charts)
+        // Gray (control group) histogram
+        svgDistributions.selectAll(".gray-bar")
+            .data(grayDensity)
+            .join("rect")
+            .attr("class", "distribution gray-distribution gray-bar")
+            .attr("x", d => xScale(d.x - binWidth/2))
+            .attr("y", d => yScale(d.y))
+            .attr("width", d => xScale(d.x + binWidth/2) - xScale(d.x - binWidth/2))
+            .attr("height", d => yScale(0) - yScale(d.y))
             .attr("fill", "black")
-            .attr("opacity", 0.3)
-            .attr("d", line);
-
-        // Draw teal (experimental group) distribution
-        svgDistributions.append("path")
-            .datum(tealDensity)
-            .attr("class", "distribution teal-distribution")
+            .attr("opacity", 0.3);
+            
+        // Teal (experimental group) histogram
+        svgDistributions.selectAll(".teal-bar")
+            .data(tealDensity)
+            .join("rect")
+            .attr("class", "distribution teal-distribution teal-bar")
+            .attr("x", d => xScale(d.x - binWidth/2))
+            .attr("y", d => yScale(d.y))
+            .attr("width", d => xScale(d.x + binWidth/2) - xScale(d.x - binWidth/2))
+            .attr("height", d => yScale(0) - yScale(d.y))
             .attr("fill", "teal")
-            .attr("opacity", 0.4)
-            .attr("d", line);
+            .attr("opacity", 0.4);
 
         // Editable axis labels with larger font
         svgDistributions.selectAll(".x-label")
@@ -274,7 +304,7 @@ function initializeContinuous() {
             .attr("x", width / 2 - 50)
             .attr("y", height - margin.bottom + 35)
             .attr("width", 140)
-            .attr("height", 30)
+            .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
@@ -337,8 +367,8 @@ function initializeContinuous() {
         const legendEnter = legend.enter()
             .append("foreignObject")
             .attr("class", "legend-group")
-            .attr("width", 300)
-            .attr("height", 30);
+            .attr("width", 400)
+            .attr("height", 40);
 
         // Add editable group labels
         legendEnter.append("xhtml:div")
@@ -351,7 +381,7 @@ function initializeContinuous() {
 
         legendEnter.merge(legend)
             .attr("x", margin.left + 100)
-            .attr("y", (d, i) => margin.top + i * 35 + 30);
+            .attr("y", (d, i) => margin.top + i * 34 + 30);
 
         // Remove any existing threshold before redrawing
         svgDistributions.selectAll(".threshold-group").remove();
@@ -461,86 +491,114 @@ function initializeContinuous() {
     }
 
     function plotROC(metrics) {
-        // Unpack needed variables from metrics object
-        const { d, meanTeal, meanGray, varianceTeal, varianceGray } = metrics;
-        
+        // Get current base rate
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
 
-        // Get reliability values for standard deviation calculation
-        const reliabilityX = parseFloat(document.getElementById("reliability-x-slider-cont").value);
-        const reliabilityY = parseFloat(document.getElementById("reliability-y-slider-cont").value);
-
-        // Calculate standard deviations based on reliabilities
-        const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(reliabilityX); // Controls
-        const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(reliabilityY); // Patients
-
-
-        // Calculate AUC using the actual means and standard deviations
-        const auc = StatUtils.normalCDF( d/ Math.sqrt(2), 0, 1);
+        // Use the data already generated in drawScatterPlot
+        // No need to regenerate data here
         
-        const tMin = -5;
-        const tMax = 5;
-        const step = 0.01;
-
-        const FPR = [];
-        const TPR = [];
-        const precision = [];
-        const recall = [];
-
-        // Add the zero point explicitly
-        FPR.push(1);
-        TPR.push(1);
-        precision.push(baseRate);
-        recall.push(1);
-
-        for (let t = tMin; t <= tMax; t += step) {
-            // Use appropriate means and standard deviations for each distribution
-            const cdfA = StatUtils.normalCDF(t, meanGray, sigma1);  // Controls
-            const cdfB = StatUtils.normalCDF(t, meanTeal, sigma2);  // Patients
-
-            FPR.push(1 - cdfA);
-            TPR.push(1 - cdfB);
+        // Function to compute metrics at a given threshold
+        function computeMetrics(threshold, data) {
+            const predictions = data.map(d => d.x >= threshold ? 1 : 0);
+            const trueClasses = data.map(d => d.trueClass);
             
-            // Calculate precision for each point
-            const sens = 1 - cdfB;  // Sensitivity (TPR)
-            const spec = cdfA;      // Specificity (1 - FPR)
-            const prec = (sens * baseRate) / (sens * baseRate + (1 - spec) * (1 - baseRate));
-            precision.push(prec);
-            recall.push(sens);      // Recall is the same as sensitivity
+            let TP = 0, FP = 0, TN = 0, FN = 0;
+            
+            for (let i = 0; i < data.length; i++) {
+                if (trueClasses[i] === 1) {
+                    if (predictions[i] === 1) TP++;
+                    else FN++;
+                } else {
+                    if (predictions[i] === 1) FP++;
+                    else TN++;
+                }
+            }
+            
+            const sensitivity = TP / (TP + FN) || 0;
+            const specificity = TN / (TN + FP) || 0;
+            const ppv = TP / (TP + FP) || 0;
+            const npv = TN / (TN + FN) || 0;
+            const accuracy = (TP + TN) / data.length;
+            const balancedAccuracy = (sensitivity + specificity) / 2;
+            const f1Score = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
+            
+            return {
+                TP, FP, TN, FN,
+                sensitivity,
+                specificity,
+                ppv,
+                npv,
+                accuracy,
+                balancedAccuracy,
+                f1Score,
+                fpr: 1 - specificity
+            };
         }
 
-        // Add the end point explicitly
-        FPR.push(0);
-        TPR.push(0);
-        precision.push(1);
-        recall.push(0);
+        // Generate ROC and PR curve points
+        const uniqueXValues = Array.from(new Set(currentLabeledData.map(d => d.x))).sort((a, b) => a - b);
+        const stepSize = Math.max(1, Math.floor(uniqueXValues.length / 200)); // Limit to ~200 points for performance
+        const thresholds = uniqueXValues.filter((_, i) => i % stepSize === 0);
 
-        // Use appropriate means and standard deviations for threshold calculations
-        const thresholdFPR = 1 - StatUtils.normalCDF(thresholdValue, meanGray, sigma1);
-        const thresholdTPR = 1 - StatUtils.normalCDF(thresholdValue, meanTeal, sigma2);
+        const curvePoints = thresholds.map(t => computeMetrics(t, currentLabeledData));
 
-        // Calculate specificity, sensitivity, and PPV for threshold point only
-        const specificity = 1 - thresholdFPR;
-        const sensitivity = thresholdTPR;
-        const ppv = (sensitivity * baseRate) / (sensitivity * baseRate + (1 - specificity) * (1 - baseRate));
-        const npv = (specificity * (1 - baseRate)) / (specificity * (1 - baseRate) + (1 - sensitivity) * baseRate);
-        const balancedAccuracy = (sensitivity + specificity) / 2;
+        // Arrays for plotting
+        const FPR = curvePoints.map(p => p.fpr);
+        const TPR = curvePoints.map(p => p.sensitivity);
+        const precision = curvePoints.map(p => p.ppv);
+        const recall = TPR; // recall is the same as sensitivity/TPR
 
-        // Calculate PR AUC (Average Precision)
+        // Calculate AUC using trapezoidal rule
+        // Make sure FPR is sorted in ascending order for proper integration
+        const sortedPoints = [...curvePoints].sort((a, b) => a.fpr - b.fpr);
+        const sortedFPR = sortedPoints.map(p => p.fpr);
+        const sortedTPR = sortedPoints.map(p => p.sensitivity);
+        
+        // Ensure we have points at 0 and 1 for proper integration
+        if (sortedFPR[0] > 0) {
+            sortedFPR.unshift(0);
+            sortedTPR.unshift(0);
+        }
+        if (sortedFPR[sortedFPR.length - 1] < 1) {
+            sortedFPR.push(1);
+            sortedTPR.push(1);
+        }
+        
+        // Calculate AUC properly using trapezoidal rule
+        let auc = 0;
+        for (let i = 1; i < sortedFPR.length; i++) {
+            auc += (sortedFPR[i] - sortedFPR[i-1]) * (sortedTPR[i] + sortedTPR[i-1]) / 2;
+        }
+
+        // Calculate PR-AUC using trapezoidal rule
         let prauc = 0;
         for (let i = 1; i < recall.length; i++) {
-            prauc += (recall[i-1] - recall[i]) * precision[i-1];
+            if (recall[i] < recall[i-1]) { // Only include segments where recall is decreasing
+                prauc += (recall[i-1] - recall[i]) * (precision[i] + precision[i-1]) / 2;
+            }
         }
 
+        // Get metrics at current threshold
+        const currentMetrics = computeMetrics(thresholdValue, currentLabeledData);
+        
         // Update dashboard values
         document.getElementById("auc-value-cont").textContent = (auc * 100).toFixed(1) + "%";
-        document.getElementById("sensitivity-value-cont").textContent = (sensitivity * 100).toFixed(1) + "%";
-        document.getElementById("specificity-value-cont").textContent = (specificity * 100).toFixed(1) + "%";
-        document.getElementById("accuracy-value-cont").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
-        document.getElementById("npv-value-cont").textContent = (npv * 100).toFixed(1) + "%";
-        document.getElementById("ppv-value-cont").textContent = (ppv * 100).toFixed(1) + "%";
-
-        // ROC Plot configuration...
+        document.getElementById("accuracy-value-cont").textContent = (currentMetrics.accuracy * 100).toFixed(1) + "%";
+        document.getElementById("sensitivity-value-cont").textContent = (currentMetrics.sensitivity * 100).toFixed(1) + "%";
+        document.getElementById("specificity-value-cont").textContent = (currentMetrics.specificity * 100).toFixed(1) + "%";
+        document.getElementById("balanced-accuracy-value-cont").textContent = (currentMetrics.balancedAccuracy * 100).toFixed(1) + "%";
+        document.getElementById("f1-value-cont").textContent = (currentMetrics.f1Score * 100).toFixed(1) + "%";
+        document.getElementById("mcc-value-cont").textContent = (
+            ((currentMetrics.TP * currentMetrics.TN - currentMetrics.FP * currentMetrics.FN) /
+            Math.sqrt((currentMetrics.TP + currentMetrics.FP) * 
+                     (currentMetrics.TP + currentMetrics.FN) * 
+                     (currentMetrics.TN + currentMetrics.FP) * 
+                     (currentMetrics.TN + currentMetrics.FN)) || 0) * 100
+        ).toFixed(1) + "%";
+        document.getElementById("npv-value-cont").textContent = (currentMetrics.npv * 100).toFixed(1) + "%";
+        document.getElementById("ppv-value-cont").textContent = (currentMetrics.ppv * 100).toFixed(1) + "%";
+        
+        // ROC Plot
         const rocTrace = {
             x: FPR,
             y: TPR,
@@ -551,15 +609,15 @@ function initializeContinuous() {
             fillcolor: "rgba(200, 200, 200, 0.4)",
             line: { color: "black" },
         };
-
+        
         const thresholdMarker = {
-            x: [thresholdFPR],
-            y: [thresholdTPR],
+            x: [1 - currentMetrics.specificity],
+            y: [currentMetrics.sensitivity],
             type: "scatter",
             mode: "markers",
             marker: { color: "red", size: 10 },
         };
-
+        
         const rocLayout = {
             xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
             yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
@@ -578,8 +636,8 @@ function initializeContinuous() {
                 align: "right",
             }]
         };
-
-        // Precision-Recall Plot
+        
+        // PR Plot
         const prTrace = {
             x: recall,
             y: precision,
@@ -590,15 +648,15 @@ function initializeContinuous() {
             fillcolor: "rgba(200, 200, 200, 0.4)",
             line: { color: "black" },
         };
-
+        
         const prThresholdMarker = {
-            x: [sensitivity],  // recall = sensitivity
-            y: [ppv],         // precision = positive predictive value
+            x: [currentMetrics.sensitivity],
+            y: [currentMetrics.ppv],
             type: "scatter",
             mode: "markers",
             marker: { color: "red", size: 10 },
         };
-
+        
         const prLayout = {
             xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
             yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
@@ -617,7 +675,7 @@ function initializeContinuous() {
                 align: "left",
             }]
         };
-
+        
         const config = { 
             staticPlot: true,
             responsive: true,
@@ -641,16 +699,25 @@ function initializeContinuous() {
     }
 
     function updateMetricsFromD(metrics, type) {
-        const { d, da } = metrics;
-        const oddsRatio = StatUtils.dToOddsRatio(da);
-        const logOddsRatio = StatUtils.dToLogOddsRatio(da);
-        const auc = StatUtils.normalCDF(da / Math.sqrt(2), 0, 1);
+        const { d, da, meanTeal, meanGray, varianceTeal, varianceGray } = metrics;
+        
+        // Calculate metrics from actual data
+        // For AUC, we'll use the actual data points in plotROC
+        // Here we'll just update the other metrics
+        const oddsRatio = Math.exp(da * Math.PI / Math.sqrt(3));
+        const logOddsRatio = da * Math.PI / Math.sqrt(3);
+        
+        // Calculate point-biserial correlation
+        const pbR = d / Math.sqrt(d ** 2 + 4);
         
         document.getElementById(`${type}-cohens-d-cont`).value = d.toFixed(2);
         document.getElementById(`${type}-cohens-da-cont`).value = da.toFixed(2);
         document.getElementById(`${type}-odds-ratio-cont`).value = oddsRatio.toFixed(2);
         document.getElementById(`${type}-log-odds-ratio-cont`).value = logOddsRatio.toFixed(2);
-        document.getElementById(`${type}-auc-cont`).value = auc.toFixed(2);
+        document.getElementById(`${type}-pb-r-cont`).value = pbR.toFixed(2);
+        
+        // AUC will be calculated and updated in plotROC using actual data
+        // We'll leave it blank here and let plotROC update it
     }
 
     // Update function (coordinates all updates)
@@ -666,12 +733,6 @@ function initializeContinuous() {
         // Update R²
         document.getElementById("true-R-squared-cont").value = (trueR ** 2).toFixed(2);
         document.getElementById("observed-R-squared-cont").value = (observedR ** 2).toFixed(2);
-
-        // Update c-index
-        const trueCIndex = 0.5 + (Math.asin(trueR) / Math.PI);
-        const observedCIndex = 0.5 + (Math.asin(observedR) / Math.PI);
-        document.getElementById("true-c-index-cont").value = trueCIndex.toFixed(2);
-        document.getElementById("observed-c-index-cont").value = observedCIndex.toFixed(2);
 
         // Update input fields
         document.getElementById("true-pearson-r-cont").value = trueR.toFixed(2);

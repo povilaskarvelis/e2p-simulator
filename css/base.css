@@ -54,9 +54,10 @@ h1 {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    overflow-y: auto;
     height: 100%;
     max-height: none;
+    display: flex;
+    flex-direction: column;
 }
 
 .main-plot-section {
@@ -149,8 +150,8 @@ h1 {
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     color: #333;
-    padding: 10px 18px;
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    padding: 8px 16px;
+    font-size: clamp(0.95rem, 2vw, 1.2rem);
     cursor: pointer;
     outline: none;
     border-radius: 20px;
@@ -184,6 +185,11 @@ input[type="range"] {
     width: 100%;
     margin: 0 auto;
     padding: 0;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
 }
 
 .slider-container label {
@@ -251,7 +257,7 @@ input.slider-value,
 
 .metrics-header {
     display: grid;
-    grid-template-columns: 1fr 68px 54px;
+    grid-template-columns: 1fr 70px 52px;
     align-items: left;
     margin-top: 5px;
 }
@@ -579,7 +585,8 @@ input.slider-value,
 .main-plot-section,
 .roc-pr-section,
 .dashboard,
-.section {
+.section,
+.slider-container {
     position: relative;
     z-index: 1;
 }
@@ -587,6 +594,11 @@ input.slider-value,
 /* Give tooltips highest z-index */
 [data-tooltip]:before {
     z-index: 10000;
+}
+
+.slider-container [data-tooltip] {
+    overflow: visible;
+    z-index: 100;
 }
 
 /* ==========================================================================
@@ -680,8 +692,16 @@ input.slider-value,
         min-width: 0;
         height: 300px;
         max-height: 300px;
-        overflow-y: auto;
         margin-bottom: 30px;
+        padding-right: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .slider-container {
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
     }
 
     .main-plot-section {
@@ -810,7 +830,20 @@ input.slider-value,
         margin: 5px 10px;
     }
     
-    .slider-section,
+    .slider-section {
+        order: -1;
+        height: 300px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .slider-container {
+        overflow-y: auto;
+    }
+    
     .main-plot-section,
     .roc-pr-section {
         flex: 0 0 auto;
@@ -850,11 +883,6 @@ input.slider-value,
         position: relative;
     }
     
-    .slider-section {
-        order: -1;
-        height: 300px;
-    }
-    
     .section {
         padding: 20px;
         overflow: hidden;
@@ -862,6 +890,11 @@ input.slider-value,
     
     .section.sliders {
         padding: 20px;
+    }
+
+    /* Adjust font sizes for better readability at small screens */
+    .slider-label {
+        font-size: 1rem;
     }
     
     .mahalanobis-container .section:last-child,
@@ -922,9 +955,24 @@ input.slider-value,
     
     .slider-section {
         padding: 15px;
+        padding-right: 15px;
         max-height: 250px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
-    
+
+    .slider-container {
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* Adjust font sizes for better readability at small screens */
+    .slider-label {
+        font-size: 1rem;
+    }
+
     .half-plot {
         min-height: 180px;
     }
