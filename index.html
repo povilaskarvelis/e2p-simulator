@@ -145,7 +145,7 @@
                     <!-- Classification Reliability -->
                     <input type="range" id="iccc-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                        <span class="slider-label" data-tooltip="Reliability of the group assignment">Grouping reliability</span>
+                        <span class="slider-label" data-tooltip="Reliability of the group labels">Grouping reliability</span>
                         <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
                 </div>
@@ -154,7 +154,7 @@
                 <div>
                     <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                        <span class="slider-label" data-tooltip="Percentage of cases in group 2">Base rate (%)</span>
+                        <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
                         <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50" style="width: 60px;">
                     </div>
                 </div>
@@ -183,15 +183,15 @@
     <!-- Results dashboard -->
     <div id="dashboard" class="dashboard">
         <div class="dashboard-metrics">
-            <p style="display: none;">AUC: <span id="auc-value">0.00%</span></p>
-            <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value">0.00%</span></p>
-            <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value">0.00%</span></p>
-            <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value">0.00%</span></p>
-            <p data-tooltip="Balanced accuracy - average of sensitivity and specificity">BAcc: <span id="balanced-accuracy-value">0.00%</span></p>
-            <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value">0.00%</span></p>
-            <p data-tooltip="Negative predictive value - percentage of negative predictions that are correct">NPV: <span id="npv-value">0.00%</span></p>
-            <p data-tooltip="Positive predictive value - percentage of positive predictions that are correct">PPV: <span id="precision-value">0.00%</span></p>
-            <p data-tooltip="Matthews Correlation Coefficient - balanced measure of classification quality">MCC: <span id="mcc-value">0.00</span></p>
+            <p style="display: none;">AUC: <span id="auc-value">0.00</span></p>
+            <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value">0.00</span></p>
+            <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value">0.00</span></p>
+            <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value">0.00</span></p>
+            <p data-tooltip="Balanced accuracy - average of sensitivity and specificity">BA: <span id="balanced-accuracy-value">0.00</span></p>
+            <p data-tooltip="Negative Predictive Value - percentage of negative predictions that are correct">NPV: <span id="npv-value">0.00</span></p>
+            <p data-tooltip="Positive Predictive Value - percentage of positive predictions that are correct">PPV: <span id="precision-value">0.00</span></p>
+            <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value">0.00</span></p>
+            <p data-tooltip="Matthews Correlation Coefficient - an overall performance metric that accounts for true and false positives and negatives">MCC: <span id="mcc-value">0.00</span></p>
         </div>
     </div>
     
@@ -244,9 +244,10 @@
     <div style="margin-top: 50px;"></div>
     <h2 style="text-align: center; font-size: clamp(1.2rem, 4vw, 2em); margin-top: 40px;">Mahalanobis D Calculator</h2>
     <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-        <p>This calculator demonstrates how multiple predictors combine to create group separation in multivariate space. 
-        Mahalanobis D, just like Cohen's d, can be used to approximate the performance of linear ML models (LDA, logistic regression, linear SVMs) 
-        with normally distributed features. Use it to estimate how many predictors you need to achieve your target separation.</p>
+        <p>While the interactive graphs above can help determine the group separation needed for desired predictive performance, 
+            this separation can be achieved by combining multiple predictors. Mahalanobis D is a multivariate extension 
+            of Cohen's d that quantifies the overall separation between groups in multivariate space, accounting for 
+            the intercorrelations among predictors. </p>
     </div>
 
     <!-- Mahalanobis D Calculator Container -->
@@ -358,7 +359,7 @@
                 <div style="margin-top: 20px; margin-bottom: 30px;">
                     <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                        <span class="slider-label" data-tooltip="Percentage of cases in group 2">Base rate (%)</span>
+                        <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
                         <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 60px;">
                     </div>
                 </div>
@@ -449,15 +450,15 @@
             </div>
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
-                    <p style="display: none;">AUC: <span id="auc-value-cont">0.00%</span></p>
-                    <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value-cont">0.00%</span></p>
-                    <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value-cont">0.00%</span></p>
-                    <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value-cont">0.00%</span></p>
-                    <p data-tooltip="Balanced accuracy - average of sensitivity and specificity">BAcc: <span id="balanced-accuracy-value-cont">0.00%</span></p>
-                    <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value-cont">0.00%</span></p>
-                    <p data-tooltip="Negative predictive value - percentage of negative predictions that are correct">NPV: <span id="npv-value-cont">0.00%</span></p>
-                    <p data-tooltip="Positive predictive value - percentage of positive predictions that are correct">PPV: <span id="ppv-value-cont">0.00%</span></p>
-                    <p data-tooltip="Matthews Correlation Coefficient - balanced measure of classification quality">MCC: <span id="mcc-value-cont">0.00</span></p>
+                    <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
+                    <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
+                    <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
+                    <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value-cont">0.00</span></p>
+                    <p data-tooltip="Balanced accuracy - average of sensitivity and specificity">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+                    <p data-tooltip="Negative Predictive Value - percentage of negative predictions that are correct">NPV: <span id="npv-value-cont">0.00</span></p>
+                    <p data-tooltip="Positive Predictive Value - percentage of positive predictions that are correct">PPV: <span id="ppv-value-cont">0.00</span></p>
+                    <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value-cont">0.00</span></p>
+                    <p data-tooltip="Matthews Correlation Coefficient - an overall performance metric that accounts for true and false positives and negatives">MCC: <span id="mcc-value-cont">0.00</span></p>
                 </div>
             </div>
         </div>
@@ -468,9 +469,9 @@
 <div style="margin-top: 50px;"></div>
 <h2 style="text-align: center; font-size: clamp(1.2rem, 4vw, 2em); margin-top: 40px;">Multivariate R² Calculator</h2>
 <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-    <p>This calculator demonstrates how multiple predictors combine to explain the variance in an outcome. 
-    Multivariate R² quantifies predictive power for linear regression models while accounting for predictor collinearity. 
-    Use it to estimate how many predictors you need to achieve your target level of explained variance.</p>
+    <p>While the interactive graphs above can help determine the correlation strength needed for desired predictive performance, 
+        this correlation can be achieved by combining multiple predictors. Multivariate R² quantifies the variance explained by a 
+        set of predictors, accounting for their intercorrelations. </p>
 </div>
 
 <!-- Multivariate R² Calculator Container -->

@@ -405,14 +405,14 @@ function initializeBinary() {
         }
 
         // Update dashboard values
-        document.getElementById("sensitivity-value").textContent = (sensitivity * 100).toFixed(1) + "%";
-        document.getElementById("specificity-value").textContent = (specificity * 100).toFixed(1) + "%";
-        document.getElementById("balanced-accuracy-value").textContent = (balancedAccuracy * 100).toFixed(1) + "%";
-        document.getElementById("accuracy-value").textContent = (accuracy * 100).toFixed(1) + "%";
-        document.getElementById("f1-value").textContent = (f1Score * 100).toFixed(1) + "%";
-        document.getElementById("mcc-value").textContent = (mcc * 100).toFixed(1) + "%";
-        document.getElementById("precision-value").textContent = (ppv * 100).toFixed(1) + "%";
-        document.getElementById("npv-value").textContent = (npv * 100).toFixed(1) + "%";
+        document.getElementById("sensitivity-value").textContent = sensitivity.toFixed(2);
+        document.getElementById("specificity-value").textContent = specificity.toFixed(2);
+        document.getElementById("balanced-accuracy-value").textContent = balancedAccuracy.toFixed(2);
+        document.getElementById("accuracy-value").textContent = accuracy.toFixed(2);
+        document.getElementById("f1-value").textContent = f1Score.toFixed(2);
+        document.getElementById("mcc-value").textContent = mcc.toFixed(2);
+        document.getElementById("precision-value").textContent = ppv.toFixed(2);
+        document.getElementById("npv-value").textContent = npv.toFixed(2);
 
         // ROC Plot
         const rocTrace = {

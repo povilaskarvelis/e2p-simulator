@@ -412,12 +412,8 @@ function initializeContinuous() {
                     newThreshold = Math.max(xScale.domain()[0], Math.min(xScale.domain()[1], newThreshold));
                     thresholdValue = newThreshold;
 
-                    // Update the marker position on the ROC curve
-                    if (type === "true") {
-                        plotROC(trueMetrics);
-                    } else {
-                        plotROC(observedMetrics);
-                    }
+                    plotROC();
+
                     // Redraw the threshold group and update visuals
                     drawThreshold(metrics, type);
                 })
@@ -490,50 +486,50 @@ function initializeContinuous() {
         groupMerge.raise();
     }
 
-    function plotROC(metrics) {
-        // Get current base rate
-        const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
-
-        // Use the data already generated in drawScatterPlot
-        // No need to regenerate data here
+    // Function to compute metrics at a given threshold
+    function computeMetrics(threshold, data) {
+        const predictions = data.map(d => d.x >= threshold ? 1 : 0);
+        const trueClasses = data.map(d => d.trueClass);
         
-        // Function to compute metrics at a given threshold
-        function computeMetrics(threshold, data) {
-            const predictions = data.map(d => d.x >= threshold ? 1 : 0);
-            const trueClasses = data.map(d => d.trueClass);
-            
-            let TP = 0, FP = 0, TN = 0, FN = 0;
-            
-            for (let i = 0; i < data.length; i++) {
-                if (trueClasses[i] === 1) {
-                    if (predictions[i] === 1) TP++;
-                    else FN++;
-                } else {
-                    if (predictions[i] === 1) FP++;
-                    else TN++;
-                }
+        let TP = 0, FP = 0, TN = 0, FN = 0;
+        
+        for (let i = 0; i < data.length; i++) {
+            if (trueClasses[i] === 1) {
+                if (predictions[i] === 1) TP++;
+                else FN++;
+            } else {
+                if (predictions[i] === 1) FP++;
+                else TN++;
             }
-            
-            const sensitivity = TP / (TP + FN) || 0;
-            const specificity = TN / (TN + FP) || 0;
-            const ppv = TP / (TP + FP) || 0;
-            const npv = TN / (TN + FN) || 0;
-            const accuracy = (TP + TN) / data.length;
-            const balancedAccuracy = (sensitivity + specificity) / 2;
-            const f1Score = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
-            
-            return {
-                TP, FP, TN, FN,
-                sensitivity,
-                specificity,
-                ppv,
-                npv,
-                accuracy,
-                balancedAccuracy,
-                f1Score,
-                fpr: 1 - specificity
-            };
         }
+        
+        const sensitivity = TP / (TP + FN) || 0;
+        const specificity = TN / (TN + FP) || 0;
+        const ppv = TP / (TP + FP) || 0;
+        const npv = TN / (TN + FN) || 0;
+        const accuracy = (TP + TN) / data.length;
+        const balancedAccuracy = (sensitivity + specificity) / 2;
+        const f1Score = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
+        
+        // Calculate Matthews Correlation Coefficient (MCC)
+        const mcc = ((TP * TN - FP * FN) /
+            Math.sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)) || 0);
+        
+        return {
+            TP, FP, TN, FN,
+            sensitivity,
+            specificity,
+            ppv,
+            npv,
+            accuracy,
+            balancedAccuracy,
+            f1Score,
+            mcc,
+            fpr: 1 - specificity
+        };
+    }
+
+    function plotROC() {
 
         // Generate ROC and PR curve points
         const uniqueXValues = Array.from(new Set(currentLabeledData.map(d => d.x))).sort((a, b) => a - b);
@@ -582,21 +578,15 @@ function initializeContinuous() {
         const currentMetrics = computeMetrics(thresholdValue, currentLabeledData);
         
         // Update dashboard values
-        document.getElementById("auc-value-cont").textContent = (auc * 100).toFixed(1) + "%";
-        document.getElementById("accuracy-value-cont").textContent = (currentMetrics.accuracy * 100).toFixed(1) + "%";
-        document.getElementById("sensitivity-value-cont").textContent = (currentMetrics.sensitivity * 100).toFixed(1) + "%";
-        document.getElementById("specificity-value-cont").textContent = (currentMetrics.specificity * 100).toFixed(1) + "%";
-        document.getElementById("balanced-accuracy-value-cont").textContent = (currentMetrics.balancedAccuracy * 100).toFixed(1) + "%";
-        document.getElementById("f1-value-cont").textContent = (currentMetrics.f1Score * 100).toFixed(1) + "%";
-        document.getElementById("mcc-value-cont").textContent = (
-            ((currentMetrics.TP * currentMetrics.TN - currentMetrics.FP * currentMetrics.FN) /
-            Math.sqrt((currentMetrics.TP + currentMetrics.FP) * 
-                     (currentMetrics.TP + currentMetrics.FN) * 
-                     (currentMetrics.TN + currentMetrics.FP) * 
-                     (currentMetrics.TN + currentMetrics.FN)) || 0) * 100
-        ).toFixed(1) + "%";
-        document.getElementById("npv-value-cont").textContent = (currentMetrics.npv * 100).toFixed(1) + "%";
-        document.getElementById("ppv-value-cont").textContent = (currentMetrics.ppv * 100).toFixed(1) + "%";
+        document.getElementById("auc-value-cont").textContent = auc.toFixed(2);
+        document.getElementById("accuracy-value-cont").textContent = currentMetrics.accuracy.toFixed(2);
+        document.getElementById("sensitivity-value-cont").textContent = currentMetrics.sensitivity.toFixed(2);
+        document.getElementById("specificity-value-cont").textContent = currentMetrics.specificity.toFixed(2);
+        document.getElementById("balanced-accuracy-value-cont").textContent = currentMetrics.balancedAccuracy.toFixed(2);
+        document.getElementById("f1-value-cont").textContent = currentMetrics.f1Score.toFixed(2);
+        document.getElementById("mcc-value-cont").textContent = currentMetrics.mcc.toFixed(2);
+        document.getElementById("npv-value-cont").textContent = currentMetrics.npv.toFixed(2);
+        document.getElementById("ppv-value-cont").textContent = currentMetrics.ppv.toFixed(2);
         
         // ROC Plot
         const rocTrace = {
@@ -716,8 +706,6 @@ function initializeContinuous() {
         document.getElementById(`${type}-log-odds-ratio-cont`).value = logOddsRatio.toFixed(2);
         document.getElementById(`${type}-pb-r-cont`).value = pbR.toFixed(2);
         
-        // AUC will be calculated and updated in plotROC using actual data
-        // We'll leave it blank here and let plotROC update it
     }
 
     // Update function (coordinates all updates)
@@ -749,11 +737,11 @@ function initializeContinuous() {
         // Update metrics and threshold based on the selected plot type
         if (isTrueSelected) {
             drawThreshold(trueMetrics, "true"); // Update threshold for true effect size
-            plotROC(trueMetrics); // Pass the entire metrics object
         } else {
             drawThreshold(observedMetrics, "observed"); // Update threshold for observed effect size
-            plotROC(observedMetrics); // Pass the entire metrics object
         }
+
+        plotROC();
     }
 
     // Initialization functions
@@ -860,10 +848,6 @@ function initializeContinuous() {
             currentView = "true";  // Set currentView to "true"
             trueButton.classList.add("active");
             observedButton.classList.remove("active");
-            document.getElementById("scatter-plot-true-cont").style.display = "block";
-            document.getElementById("scatter-plot-observed-cont").style.display = "none";
-            document.getElementById("distribution-plot-true-cont").style.display = "block";
-            document.getElementById("distribution-plot-observed-cont").style.display = "none";
             updatePlots();
         });
 
@@ -871,10 +855,6 @@ function initializeContinuous() {
             currentView = "observed";  // Set currentView to "observed"
             observedButton.classList.add("active");
             trueButton.classList.remove("active");
-            document.getElementById("scatter-plot-true-cont").style.display = "none";
-            document.getElementById("scatter-plot-observed-cont").style.display = "block";
-            document.getElementById("distribution-plot-true-cont").style.display = "none";
-            document.getElementById("distribution-plot-observed-cont").style.display = "block";
             updatePlots();
         });
     }
