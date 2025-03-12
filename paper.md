@@ -12,10 +12,10 @@ tags:
   - research planning
 authors:
   - name: Povilas Karvelis
-    orcid: 0000-0000-0000-0000  # Replace with actual ORCID
+    orcid: 0000-0001-7469-5624  
     affiliation: 1
   - name: Andreea O. Diaconescu
-    orcid: 0000-0000-0000-0000  # Replace with actual ORCID
+    orcid: 0000-0002-3633-9757
     affiliation: 1
 affiliations:
   - name: Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health, University of Toronto, Canada
