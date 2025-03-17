@@ -115,113 +115,177 @@
 
     <div class="guide-section">
         <h2>What is the E2P Simulator?</h2>
-        <p>The E2P Simulator (Effect-to-Prediction Simulator) is an interactive tool that helps researchers understand how statistical effect sizes translate into practical predictive utility. It visualizes the relationship between commonly reported statistical metrics (such as Cohen's d and correlation coefficients) and their real-world predictive value, while accounting for crucial factors like measurement reliability and outcome base rates.</p>
+        <p>The E2P Simulator (Effect-to-Prediction Simulator) bridges the gap between statistical significance and practical utility. It helps answer a crucial question: "If I find an effect of a certain size, how useful will it actually be for prediction or classification in practice?"</p>
+        <p>This interactive tool visualizes how commonly reported effect sizes (like Cohen's d and Pearson's r) translate into real-world predictive performance, while accounting for critical factors that researchers often overlook: measurement reliability and outcome base rates.</p>
     </div>
 
     <div class="guide-section">
-        <h2>Choosing Your Analysis Mode</h2>
-        <p>The E2P Simulator offers two analysis modes:</p>
+        <h2>Key Concepts</h2>
         
-        <h3>Binary Mode</h3>
-        <p>Use this mode when your groups are naturally distinct (e.g., treatment vs. control, male vs. female).</p>
-        <p>This mode helps you understand:</p>
+        <h3>Effect Sizes and Predictive Utility</h3>
+        <p>Statistical effect sizes quantify the strength of relationships between variables, but they don't directly tell us how useful these relationships are for prediction. The E2P Simulator helps you understand this translation by showing how different effect sizes impact classification metrics like accuracy, sensitivity, and precision.</p>
+        
+        <h3>True vs. Observed Effects</h3>
+        <p>A fundamental concept in measurement is the distinction between true and observed effects:</p>
         <ul>
-            <li>How Cohen's d values translate to group separation</li>
-            <li>How reliability affects observed effect sizes</li>
-            <li>How base rates impact classification metrics</li>
-            <li>How many predictors would be needed to achieve desired group separation</li>
+            <li><strong>True effect</strong>: The actual relationship that would exist with perfect measurement</li>
+            <li><strong>Observed effect</strong>: The attenuated effect we actually see due to measurement error</li>
+        </ul>
+        <p>The relationship follows: $\text{Observed effect} = \text{True effect} \times \sqrt{\text{Reliability}}$</p>
+        <p>The simulator lets you toggle between these views to understand how improving reliability can enhance predictive performance. Note that this does not account for sample size, which can introduce additional variability in the true and observed effects in real-world settings.</p>
+        
+        <h3>Base Rates</h3>
+        <p>The base rate (prevalence) of outcomes dramatically affects predictive utility. Even with strong effect sizes, rare outcomes (low base rates) can be difficult to predict with high precision. The simulator demonstrates how the same effect size can yield very different predictive performance depending on base rates. This concept differs from imbalanced classes in machine learning, which merely refers to unequal group sizes in collected data. Instead, we focus on real-world prevalence, which offers valuable insights into the clinical or practical utility of predictive tools when implemented in real-world settings.</p>
+    </div>
+
+    <div class="guide-section">
+        <h2>Understanding Predictive Metrics</h2>
+        
+        <h3>Classification Outcomes and Metrics</h3>
+        <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
+        
+        <div id="predictive-metrics-diagram" style="text-align: center; margin: 20px 0;">
+            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 90%;">
+        </div>
+        
+        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how positive and negative distributions overlap and how a classification threshold creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it.</p>
+        
+        <h3>Key Metrics for Different Contexts</h3>
+        <p>Depending on your research context, certain metrics may be more relevant than others:</p>
+        <ul>
+            <li><strong>When false negatives are costly</strong> (e.g., missing a disease diagnosis): Focus on sensitivity/recall</li>
+            <li><strong>When false positives are costly</strong> (e.g., unnecessary treatments): Focus on specificity</li>
+            <li><strong>When you need to know how much to trust a positive result</strong>: Focus on precision/PPV</li>
+            <li><strong>When working with rare outcomes</strong>: Consider balanced accuracy, F1 score, or MCC instead of accuracy</li>
         </ul>
         
-        <h3>Continuous Mode</h3>
-        <p>Use this mode when your groups are formed by thresholding a continuous outcome variable (e.g., responders vs. non-responders).</p>
-        <p>This mode helps you understand:</p>
+        <h3>Threshold-Independent Metrics</h3>
+        <p>Some metrics evaluate performance across all possible thresholds:</p>
         <ul>
-            <li>How correlation coefficients translate to predictive performance</li>
-            <li>How reliability affects observed correlations</li>
-            <li>How base rates impact classification metrics</li>
-            <li>How many predictors would be needed to achieve desired explained variance</li>
+            <li><strong>AUC (Area Under the ROC Curve)</strong>: Measures the ability to discriminate between groups across all thresholds. An AUC of 0.5 indicates no discriminative ability (random guessing), while 1.0 indicates perfect discrimination.</li>
+            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Similar to AUC but focuses on precision and recall, making it more informative for rare outcomes.</li>
+        </ul>
+        
+       </div>
+
+    <div class="guide-section">
+        <h2>Binary vs. Continuous Outcomes</h2>
+        
+        <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous. In machine learning language, that corresponds to classification and prediction tasks, respectively. Each mode includes specialized calculators to help you translate between effect sizes and practical applications.</p>
+        
+        <h3>Binary Outcomes</h3>
+        <p>Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, diagnostic categories, biological sex).</p>
+        
+        <p>In this mode, you can:</p>
+        <ul>
+            <li>Visualize how Cohen's d values translate to overlap between two distributions</li>
+            <li>See how different classification thresholds affect all predictive metrics</li>
+            <li>Understand the tradeoffs between sensitivity and specificity</li>
+        </ul>
+        
+        <h3>Continuous Outcomes</h3>
+        <p>Use this mode when your research involves continuous variables that are later thresholded to create groups (e.g., responders vs. non-responders to a treatment, above/below cutoff on a risk scale).</p>
+        
+        <p>In this mode, you can:</p>
+        <ul>
+            <li>See how Pearson's r correlations translate to explained variance and prediction error</li>
+            <li>Understand how dichotomizing continuous outcomes affects predictive utility</li>
+            <li>Explore how different cutoff thresholds change performance metrics</li>
+        </ul>
+        
+        <h3>Understanding Multivariate Effects with Calculators</h3>
+        <p>Both analysis modes include calculators that help you explore how multiple predictors can be combined to achieve stronger effects:</p>
+        
+        <ul>
+            <li><strong>Mahalanobis D Calculator</strong> (Binary mode): Illustrates how multiple predictors interact to achieve greater group separation</li>
+            <li><strong>Multivariate R² Calculator</strong> (Continuous mode): Demonstrates how multiple predictors combine to increase explained variance</li>
+        </ul>
+        
+        <p>The calculators help illustrate:</p>
+        
+        <ul>
+            <li>How the number of predictors affects combined effect size</li>
+            <li>The diminishing returns of adding more predictors</li>
+            <li>How collinearity (correlation among predictors) reduces their combined effectiveness</li>
+            <li>The trade-offs between using fewer strong predictors versus more moderate ones</li>
+        </ul>
+        
+        <h4>Calculator Assumptions and Limitations</h4>
+        <p>Both calculators correspond to fundamental predictive models in statistics: the Mahalanobis D Calculator approximates Linear Discriminant Analysis and logistic regression, while the Multivariate R² Calculator aligns with multiple linear regression using standardized variables. These connections make the calculators valuable for understanding how these common predictive methods work in practice.</p>
+        
+        <p>Like the statistical methods they approximate, the calculators operate under several simplifying assumptions:</p>
+        <ul>
+            <li><strong>Average effects and correlations</strong>: The calculators use single values to represent the average effect size across predictors and average correlation among them, which can provide useful approximations even when individual predictors vary in strength</li>
+            <li><strong>Linear, additive effects</strong>: The formulas assume that predictors contribute independently to the overall effect in a simple additive way. They don't account for interaction effects, where the impact of one predictor depends on the level of another predictor</li>
+            <li><strong>Normality</strong>: Variables are assumed to be normally distributed</li>
+        </ul>
+        
+        <p>Despite these limitations, these calculators serve as valuable tools for building intuition about how multiple predictors combine to achieve stronger effects. Even though real-world predictors will vary in their individual strengths and correlations, the overall patterns demonstrated (such as diminishing returns and the impact of shared variance) remain informative for understanding multivariate relationships.</p>
+    </div>
+
+    <div class="guide-section">
+        <h2>What can you do with the E2P Simulator?</h2>
+        
+        <h3>Research Planning</h3>
+        <p>Before conducting a study, use the simulator to:</p>
+        <ul>
+            <li>Determine what effect size you need to achieve meaningful predictive utility</li>
+            <li>Understand how measurement reliability affects your ability to detect effects</li>
+            <li>Estimate how many predictors you might need to combine for adequate prediction</li>
+        </ul>
+        
+        <h3>Interpreting Results</h3>
+        <p>After finding an effect, use the simulator to:</p>
+        <ul>
+            <li>Translate your statistical findings into practical predictive terms</li>
+            <li>Correct for measurement reliability to estimate the true effect</li>
+            <li>Understand the limitations of your findings for real-world applications</li>
         </ul>
     </div>
 
     <div class="guide-section">
-        <h2>Using the Binary Mode</h2>
-        <p>In Binary mode, you can:</p>
+        <h2>Quick Start Examples</h2>
+        
+        <h3>Example 1: Predicting Depression Diagnosis</h3>
+        <p>A psychiatrist wants to understand how well a biomarker can predict depression diagnosis:</p>
         <ol>
-            <li><strong>Adjust Cohen's d</strong>: Use the slider to set different effect sizes and observe how they affect group separation.</li>
-            <li><strong>Modify reliability</strong>: Adjust the reliability sliders to see how measurement error affects observed effect sizes.</li>
-            <li><strong>Change base rates</strong>: Adjust the percentage of cases in each group to see how prevalence affects classification metrics.</li>
-            <li><strong>View classification metrics</strong>: See how your settings affect accuracy, sensitivity, specificity, and other metrics.</li>
-            <li><strong>Use the Mahalanobis D calculator</strong>: Estimate how many predictors of smaller effect sizes would need to be combined to achieve a desired level of group separation.</li>
-        </ol>
-    </div>
+            <li>Select Binary Mode and set base rate to 0.1 (~10% of the population being depressed)</li>
+            <li>Set the grouping reliability to 0.37 (empirical value for DSM-5 depression diagnosis)</li>
+            <li>Set the predictor reliability to 0.7 (typical for clinical biomarkers)</li>
 
-    <div class="guide-section">
-        <h2>Using the Continuous Mode</h2>
-        <p>In Continuous mode, you can:</p>
-        <ol>
-            <li><strong>Adjust correlation coefficients</strong>: Use the slider to set different correlation strengths and observe how they affect predictive performance.</li>
-            <li><strong>Modify reliability</strong>: Adjust the reliability sliders to see how measurement error affects observed correlations.</li>
-            <li><strong>Change base rates</strong>: Adjust the percentage of cases in each group to see how prevalence affects classification metrics.</li>
-            <li><strong>View classification metrics</strong>: See how your settings affect accuracy, sensitivity, specificity, and other metrics.</li>
-            <li><strong>Use the Multivariate R² calculator</strong>: Estimate how many predictors of smaller correlations would need to be combined to achieve a desired level of explained variance.</li>
-        </ol>
-    </div>
-
-    <div class="guide-section">
-        <h2>Interpreting the Results</h2>
-        <p>The E2P Simulator provides several visualizations to help you understand the relationship between effect sizes and predictive utility:</p>
-        
-        <h3>In Binary Mode:</h3>
-        <ul>
-            <li><strong>Overlapping distributions</strong>: Shows the separation between groups based on the effect size.</li>
-            <li><strong>ROC curve</strong>: Shows the trade-off between sensitivity and specificity at different classification thresholds.</li>
-            <li><strong>PR curve</strong>: Shows the trade-off between precision and recall at different classification thresholds.</li>
-            <li><strong>Classification metrics</strong>: Provides quantitative measures of predictive performance.</li>
-        </ul>
-        
-        <h3>In Continuous Mode:</h3>
-        <ul>
-            <li><strong>Scatter plot</strong>: Shows the relationship between the predictor and outcome variables.</li>
-            <li><strong>Distribution plot</strong>: Shows the distributions of the predictor variable for each group.</li>
-            <li><strong>ROC curve</strong>: Shows the trade-off between sensitivity and specificity at different classification thresholds.</li>
-            <li><strong>PR curve</strong>: Shows the trade-off between precision and recall at different classification thresholds.</li>
-            <li><strong>Classification metrics</strong>: Provides quantitative measures of predictive performance.</li>
-        </ul>
-    </div>
-
-    <div class="guide-section">
-        <h2>Example Use Cases</h2>
-        
-        <h3>Example 1: Planning a Clinical Trial</h3>
-        <p>A researcher planning a clinical trial for a new treatment wants to determine what effect size they need to achieve to make the treatment clinically useful:</p>
-        <ol>
-            <li>Set the base rate to 0.5 (equal groups)</li>
-            <li>Adjust the reliability to 0.8 (typical for clinical measures)</li>
-            <li>Experiment with different Cohen's d values and observe that:
+            <li>Experiment with different effect sizes to see that:
                 <ul>
-                    <li>With d = 0.5, classification accuracy is only 64%</li>
-                    <li>With d = 1.0, classification accuracy improves to 76%</li>
-                    <li>With d = 2.0, classification accuracy reaches 92%</li>
+                    <li>Observed d = 0.5 yields AUC = 0.64 and PR-AUC = 0.15, showing very limited discriminative ability</li>
+                    <li>Observed d = 1.0 improves to AUC = 0.76 and PR-AUC = 0.24, indicating moderate discrimination</li>
+                    <li>Observed d = 2.0 achieves AUC = 0.92 and PR-AUC = 0.55, demonstrating strong discriminative power</li>
                 </ul>
             </li>
-            <li>Based on this exploration, determine that the intervention needs to achieve at least d = 1.5 to be clinically meaningful</li>
-            <li>Use the Mahalanobis D calculator to determine how many smaller predictors would need to be combined to achieve this level of separation</li>
-        </ol>
-        
-        <h3>Example 2: Interpreting Correlational Findings</h3>
-        <p>A researcher has found a correlation of r = 0.3 between a psychological measure and an outcome of interest:</p>
-        <ol>
-            <li>Set the reliability to 0.7 (realistic for their measure)</li>
-            <li>Set the base rate to 0.2 (the prevalence of the outcome in their population)</li>
-            <li>Observe that:
+
+            <li>Note that with the low reliability values (0.37 for diagnosis, 0.7 for biomarker), these observed effects correspond to much larger true effects:
                 <ul>
-                    <li>The true correlation (corrected for reliability) is approximately r = 0.36</li>
-                    <li>The classification accuracy is only 62%</li>
-                    <li>The positive predictive value is 31%</li>
+                    <li>Observed d = 0.5 represents a true d = 0.98 when corrected for reliability</li>
+                    <li>Observed d = 1.0 represents a true d = 1.96, rarely seen in most psychological research</li>
+                    <li>Observed d = 2.0 represents a true d = 3.92, virtually unheard of in clinical biomarker research</li>
+                    <li>This means that even with true effects that are exceptionally large, the predictive performance remains poor for the prevalence rates typically seen in mental health conditions</li>
                 </ul>
             </li>
-            <li>This helps understand that despite finding a "moderate" correlation, the practical predictive utility is limited</li>
-            <li>Use the Multivariate R² calculator to determine how many similar predictors would be needed to achieve more useful predictions</li>
+
+            <li>Use the Mahalanobis D calculator to explore how many biomarkers with smaller d values could be combined to achieve the same discriminative power as a single biomarker with d = 2.0 or larger</li>
+        </ol>
+        
+        <h3>Example 2: Interpreting a Correlation</h3>
+        <p>A researcher has found r = 0.3 between a biomarker and a clinical outcome:</p>
+        <ol>
+            <li>Select Continuous Mode and set reliability to 0.7 (typical for clinical biomarkers)</li>
+            <li>Set the base rate to 0.2 (the prevalence in the population)</li>
+            <li>Observe that despite being a "moderate" correlation:
+                <ul>
+                    <li>The true correlation (corrected for reliability) is r = 0.36, explaining 13% of outcome variance (R² = 0.13)</li>
+                    <li>This correlation yields AUC = 0.67 and PR-AUC = 0.38 for distinguishing cases above/below thresholds</li>
+                    <li>These values indicate limited predictive utility, especially for rare outcomes</li>
+                </ul>
+            </li>
+            <li>Use the Multivariate R² calculator to determine that combining 8-10 similar biomarkers could achieve more clinically useful predictions with substantial improvement in both AUC and PR-AUC</li>
         </ol>
     </div>
 

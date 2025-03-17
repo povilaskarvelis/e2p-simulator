@@ -4,7 +4,7 @@ An interactive web tool for simulating how statistical effect sizes translate in
 
 **Try it out**: [https://povilaskarvelis.github.io/e2p-simulator](https://povilaskarvelis.github.io/e2p-simulator)
 
-![Screenshot of the simulator](screenshot.png)
+![Screenshot of the simulator](images/interface.png)
 
 ## Overview
 
