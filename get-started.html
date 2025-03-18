@@ -229,28 +229,6 @@
     </div>
 
     <div class="guide-section">
-        <h2>What is E2P Simulator good for?</h2>
-        
-        <p>The E2P Simulator has several potential applications:</p>
-        
-        <h3>Research Planning</h3>
-        <p>Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies, understanding reliability impacts, and estimating the number of predictors needed for adequate performance. This enables more efficient allocation of research resources by focusing efforts on achievable outcomes.</p>
-        
-        <h3>Research Interpretation</h3>
-        <p>Providing context for interpreting published effect sizes in terms of their practical predictive value, translating statistical findings into practical terms, and fostering realistic expectations about the impact of research discoveries and their real-world limitations.</p>
-        
-        <h3>Model Development</h3>
-        <p>Guiding expectations about the predictive performance of models based on known effect sizes and collinearity, and building intuition about how statistical effect sizes translate to practical group separation and predictive metrics. This helps researchers allocate development resources more effectively.</p>
-
-        <h3>Education</h3>
-        <p>Teaching students and researchers about the relationship between statistical metrics and practical implications, demonstrating statistical concepts, and illustrating why multiple predictors are often necessary in applied settings. This builds capacity for realistic research planning and interpretation.</p>
-        
-        <h3>Communication with Stakeholders</h3>
-        <p>Helping researchers explain to non-technical stakeholders (clinicians, policymakers, funders) why certain effect sizes may or may not translate to useful applications, setting realistic expectations for predictive tools in various contexts, and justifying resource allocation decisions based on potential real-world impact.</p>
-        
-    </div>
-
-    <div class="guide-section">
         <h2>What can E2P Simulator help with?</h2>
         
         <p>The E2P Simulator has several potential applications:</p>
@@ -295,18 +273,16 @@
         </ol>
         
         <h3>Example 2: Interpreting a Correlation</h3>
-        <p>A researcher has found r = 0.3 between a biomarker and a clinical outcome:</p>
+        <p>A researcher has found r = 0.4 between a biomarker and treatment response in depression:</p>
         <ol>
-            <li>Select Continuous Mode and set reliability to 0.7 (typical for clinical biomarkers)</li>
-            <li>Set the base rate to 0.2 (the prevalence in the population)</li>
-            <li>Observe that despite being a "moderate" correlation:
+            <li>Select Continuous Mode and set reliability to 0.7 (aspirational for clinical biomarkers and outcomes)</li>
+            <li>Set the base rate to 30% (response rate to antidepressant treatment)</li>
+            <li>Observe that despite being a "large" correlation rarely seen in practice:
                 <ul>
-                    <li>The true correlation (corrected for reliability) is r = 0.36, explaining 13% of outcome variance (R² = 0.13)</li>
-                    <li>This correlation yields AUC = 0.67 and PR-AUC = 0.38 for distinguishing cases above/below thresholds</li>
-                    <li>These values indicate limited predictive utility, especially for rare outcomes</li>
+                    <li>This correlation yields AUC = 0.69 and PR-AUC = 0.47 for distinguishing cases above/below thresholds, indicating rather poor predictive utility</li>
+                    <li>Consider how improving reliability could substantially increase predictive utility</li>
                 </ul>
             </li>
-            <li>Use the Multivariate R² calculator to determine that combining 8-10 similar biomarkers could achieve more clinically useful predictions with substantial improvement in both AUC and PR-AUC</li>
         </ol>
     </div>
 
