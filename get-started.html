@@ -176,25 +176,30 @@
         <h3>Binary Outcomes</h3>
         <p>Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, diagnostic categories, biological sex).</p>
         
-        <p>In this mode, you can:</p>
+        <p>In this mode, you can explore how:</p>
         <ul>
-            <li>Visualize how Cohen's d values translate to overlap between two distributions</li>
-            <li>See how different classification thresholds affect all predictive metrics</li>
-            <li>Understand the tradeoffs between sensitivity and specificity</li>
+            <li>Cohen's d values translate to overlap between two distributions</li>
+            <li>Measurement reliabilities affect both effect size and predictive metrics</li>
+            <li>Base rates affect predictive utility</li>
+            <li>Classification thresholds affect all predictive metrics</li>
+
         </ul>
         
         <h3>Continuous Outcomes</h3>
         <p>Use this mode when your research involves continuous variables that are later thresholded to create groups (e.g., responders vs. non-responders to a treatment, above/below cutoff on a risk scale).</p>
         
-        <p>In this mode, you can:</p>
+        <p>In this mode, you can explore how:</p>
         <ul>
-            <li>See how Pearson's r correlations translate to explained variance and prediction error</li>
-            <li>Understand how dichotomizing continuous outcomes affects predictive utility</li>
-            <li>Explore how different cutoff thresholds change performance metrics</li>
+            <li>Pearson's r correlations translate to explained variance</li>
+            <li>Measurement reliabilities affect correlation, binarized effect size, and predictive metrics</li>
+            <li>Dichotomizing continuous outcomes translates to predictive utility</li>
+            <li>Base rates (cutoff thresholds) change predictive metrics</li>
+            <li>Classification thresholds affect all predictive metrics</li>
+
         </ul>
         
         <h3>Understanding Multivariate Effects with Calculators</h3>
-        <p>Both analysis modes include calculators that help you explore how multiple predictors can be combined to achieve stronger effects:</p>
+        <p>Both analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
         
         <ul>
             <li><strong>Mahalanobis D Calculator</strong> (Binary mode): Illustrates how multiple predictors interact to achieve greater group separation</li>
@@ -224,23 +229,40 @@
     </div>
 
     <div class="guide-section">
-        <h2>What can you do with the E2P Simulator?</h2>
+        <h2>What is E2P Simulator good for?</h2>
+        
+        <p>The E2P Simulator has several potential applications:</p>
         
         <h3>Research Planning</h3>
-        <p>Before conducting a study, use the simulator to:</p>
+        <p>Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies, understanding reliability impacts, and estimating the number of predictors needed for adequate performance. This enables more efficient allocation of research resources by focusing efforts on achievable outcomes.</p>
+        
+        <h3>Research Interpretation</h3>
+        <p>Providing context for interpreting published effect sizes in terms of their practical predictive value, translating statistical findings into practical terms, and fostering realistic expectations about the impact of research discoveries and their real-world limitations.</p>
+        
+        <h3>Model Development</h3>
+        <p>Guiding expectations about the predictive performance of models based on known effect sizes and collinearity, and building intuition about how statistical effect sizes translate to practical group separation and predictive metrics. This helps researchers allocate development resources more effectively.</p>
+
+        <h3>Education</h3>
+        <p>Teaching students and researchers about the relationship between statistical metrics and practical implications, demonstrating statistical concepts, and illustrating why multiple predictors are often necessary in applied settings. This builds capacity for realistic research planning and interpretation.</p>
+        
+        <h3>Communication with Stakeholders</h3>
+        <p>Helping researchers explain to non-technical stakeholders (clinicians, policymakers, funders) why certain effect sizes may or may not translate to useful applications, setting realistic expectations for predictive tools in various contexts, and justifying resource allocation decisions based on potential real-world impact.</p>
+        
+    </div>
+
+    <div class="guide-section">
+        <h2>What can E2P Simulator help with?</h2>
+        
+        <p>The E2P Simulator has several potential applications:</p>
+        
         <ul>
-            <li>Determine what effect size you need to achieve meaningful predictive utility</li>
-            <li>Understand how measurement reliability affects your ability to detect effects</li>
-            <li>Estimate how many predictors you might need to combine for adequate prediction</li>
+            <li><strong>Research Planning</strong>: Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies</li>
+            <li><strong>Research Interpretation</strong>: Providing context for interpreting published effect sizes in terms of their practical predictive value</li>
+            <li><strong>Model Development</strong>: Guiding expectations about the predictive performance of models based on known effect sizes and collinearity estimates</li>
+            <li><strong>Education</strong>: Teaching students and researchers about the relationship between statistical metrics and practical implications</li>
         </ul>
         
-        <h3>Interpreting Results</h3>
-        <p>After finding an effect, use the simulator to:</p>
-        <ul>
-            <li>Translate your statistical findings into practical predictive terms</li>
-            <li>Correct for measurement reliability to estimate the true effect</li>
-            <li>Understand the limitations of your findings for real-world applications</li>
-        </ul>
+        <p>By allowing to explore the relationships among effect sizes, reliability, base rates, and practical utility, the E2P Simulator contributes to more realistic research planning and interpretation, potentially leading to more efficient resource allocation and improved research outcomes.</p>
     </div>
 
     <div class="guide-section">
@@ -251,22 +273,21 @@
         <ol>
             <li>Select Binary Mode and set base rate to 0.1 (~10% of the population being depressed)</li>
             <li>Set the grouping reliability to 0.37 (empirical value for DSM-5 depression diagnosis)</li>
-            <li>Set the predictor reliability to 0.7 (typical for clinical biomarkers)</li>
+            <li>Set the predictor reliability to 0.7 (an optimistic value for clinical biomarkers)</li>
 
-            <li>Experiment with different effect sizes to see that:
+            <li>Set the effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice):
                 <ul>
-                    <li>Observed d = 0.5 yields AUC = 0.64 and PR-AUC = 0.15, showing very limited discriminative ability</li>
-                    <li>Observed d = 1.0 improves to AUC = 0.76 and PR-AUC = 0.24, indicating moderate discrimination</li>
-                    <li>Observed d = 2.0 achieves AUC = 0.92 and PR-AUC = 0.55, demonstrating strong discriminative power</li>
+                    <li>This yields AUC = 0.71 and PR-AUC = 0.23, showing limited discriminative ability despite being considered a "large" effect</li>
+                    <li>Even with this optimistic effect size, the predictive utility remains modest, especially for identifying positive cases (as shown by the low PR-AUC)</li>
                 </ul>
             </li>
 
-            <li>Note that with the low reliability values (0.37 for diagnosis, 0.7 for biomarker), these observed effects correspond to much larger true effects:
+            <li>Note that with the low reliability values (0.37 for diagnosis, 0.7 for biomarker), this observed effect corresponds to a much larger true effect:
                 <ul>
-                    <li>Observed d = 0.5 represents a true d = 0.98 when corrected for reliability</li>
-                    <li>Observed d = 1.0 represents a true d = 1.96, rarely seen in most psychological research</li>
-                    <li>Observed d = 2.0 represents a true d = 3.92, virtually unheard of in clinical biomarker research</li>
-                    <li>This means that even with true effects that are exceptionally large, the predictive performance remains poor for the prevalence rates typically seen in mental health conditions</li>
+                    <li>Observed d = 0.8 represents a true d = 1.57 when corrected for reliability</li>
+                    <li>This true effect size is exceptionally large and unheard of in clinical biomarker research</li>
+                    <li>This demonstrates how measurement reliability severely limits our ability to detect even large true effects</li>
+                    <li>Even with this substantial true effect, the predictive performance remains modest for the low prevalence rates typically seen in mental health conditions</li>
                 </ul>
             </li>
 
