@@ -15,7 +15,32 @@ body {
     min-height: 100vh;
     transform: none !important; /* Disable any transforms */
     -moz-box-sizing: border-box; /* Firefox-specific box sizing */
+    /* Prevent mobile zooming and scaling */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
+
+/* Add WebKit-specific slider thumb styling to match Firefox */
+input[type="range"]::-webkit-slider-thumb {
+    border: none;
+    background: #222222;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    -webkit-appearance: none;
+}
+
+/* Standard slider styling for all browsers */
+/* input[type="range"] {
+    Removing these properties to restore original appearance
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #f5f5f5;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    height: 8px;
+} */
 
 /* Firefox-specific fix for rendering consistency */
 @-moz-document url-prefix() {
@@ -25,11 +50,13 @@ body {
     
     /* Firefox-specific input styling */
     input[type="range"] {
-        height: 4px;
+        height: 8px;
         margin-top: 10px;
         margin-bottom: 10px;
         accent-color: #222222;
-        background: linear-gradient(to right, #222222 0%, #222222 var(--value, 50%), #ddd var(--value, 50%), #ddd 100%);
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        background-color: #f5f5f5;
     }
     
     input[type="range"]::-moz-range-track {
@@ -750,11 +777,6 @@ input.slider-value,
     overflow: visible;
     z-index: 100;
 }
-
-/* ==========================================================================
-   Responsive Design - No Longer Needed
-   ========================================================================== */
-/* This section has been removed since we're using a fixed layout */
 
 /* ==========================================================================
    Get Started Page Styles
