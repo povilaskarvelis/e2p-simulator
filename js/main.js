@@ -1,5 +1,25 @@
 // Initialize version switching
 document.addEventListener('DOMContentLoaded', function() {
+    // Detect touch devices and add class to body
+    function isTouchDevice() {
+        return (('ontouchstart' in window) ||
+           (navigator.maxTouchPoints > 0) ||
+           (navigator.msMaxTouchPoints > 0));
+    }
+    
+    if (isTouchDevice()) {
+        document.body.classList.add('touch-device');
+        
+        // For improved touch experience on tooltip elements
+        document.querySelectorAll('[data-tooltip]').forEach(el => {
+            el.addEventListener('touchstart', function(e) {
+                // Toggle a class to show/hide tooltip on touch
+                this.classList.toggle('tooltip-active');
+                e.preventDefault();
+            });
+        });
+    }
+    
     // Get the version buttons
     const binaryButton = document.getElementById('binary-button');
     const continuousButton = document.getElementById('continuous-button');

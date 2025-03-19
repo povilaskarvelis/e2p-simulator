@@ -3,8 +3,6 @@
    ========================================================================== */
 body {
     font-family: Arial, sans-serif;
-    margin: 0 auto;
-    max-width: 1400px;
     padding: 20px;
     background-color: #f9f9f9;
     box-sizing: border-box;
@@ -647,418 +645,95 @@ input.slider-value,
 }
 
 /* ==========================================================================
-   Responsive Design
+   Responsive Design - Maintain Fixed Layout
    ========================================================================== */
+
+/* Remove all @media queries that change the layout and replace with this */
 @media (max-width: 1400px) {
-    /* Reset container layout */
-    .container {
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-    
-    /* Adjust main container for better spacing */
-    .main-container {
-        gap: 15px;
-        height: auto;
-        min-height: 630px;
-        margin-bottom: 60px;
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-    
-    /* Ensure all sections have proper height and spacing */
-    .main-plot-section,
-    .roc-pr-section,
-    .slider-section {
-        height: 630px;
-        margin-bottom: 30px;
-        overflow: hidden;
-    }
-    
-    /* Fix dashboard positioning and spacing */
-    .dashboard {
-        padding: 15px;
-        margin-top: 60px;
-        margin-bottom: 60px;
-        position: relative;
-        clear: both;
-        width: 100%;
-        box-sizing: border-box;
-        z-index: 5;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Adjust equation boxes */
+    /* No layout changes, only minor adjustments to padding/margins if needed */
     .equation-box {
         padding: 8px;
         margin: 8px;
     }
-    
-    /* Fix equations container spacing */
-    .equations-container {
-        margin-top: 60px;
-        margin-bottom: 60px;
-        padding-top: 20px;
-        padding-bottom: 20px;
-        position: relative;
-        clear: both;
-    }
-    
-    /* Fix Mahalanobis container spacing */
-    .mahalanobis-container,
-    .r-squared-container {
-        margin-top: 80px;
-        padding-top: 30px;
-        border-top: 2px solid #eee;
-        position: relative;
-        clear: both;
-        overflow: visible;
-    }
-    
-    /* Ensure plots don't overflow */
-    .plot, 
-    .plot-container,
-    .half-plot {
-        overflow: hidden;
-    }
 }
 
-@media (max-width: 1200px) {
-    /* Main container styles */
+/* Override all other media queries in this and other CSS files */
+@media (max-width: 1200px), 
+       (max-width: 900px),
+       (max-width: 600px) {
+    /* Maintain the same layout structure for all screen sizes */
     .main-container {
-        height: auto;
-        flex-direction: column;
-        min-height: auto;
-        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        width: 100%;
+        flex-wrap: nowrap; /* Prevent wrapping */
+        align-items: stretch;
+        height: 630px;
+        flex-direction: row; /* Force row layout always */
+        min-height: 630px !important;
+    }
+
+    /* Ensure all sections maintain their original sizes and don't reflow */
+    .slider-section,
+    .main-plot-section, 
+    .roc-pr-section {
+        height: 100% !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        width: auto !important; /* Let flex control the width */
+        overflow: visible !important;
+        flex-basis: auto !important;
+        order: unset !important; /* Don't change the order */
     }
 
     .slider-section {
-        width: 100%;
-        min-width: 0;
-        height: 300px;
-        max-height: 300px;
-        margin-bottom: 30px;
-        padding-right: 15px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .slider-container {
-        overflow-y: auto;
-        flex: 1;
-        min-height: 0;
+        flex: 1 1 280px !important;
+        min-width: 290px !important;
+        padding: 20px !important;
     }
 
     .main-plot-section {
-        width: 100%;
-        min-width: 0;
-        height: 500px;
-        max-height: 500px;
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 30px;
-    }
-    
-    .roc-pr-section {
-        width: 100%;
-        min-width: 0;
-        height: 650px;
-        max-height: 650px;
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        padding-bottom: 40px;
-        margin-bottom: 30px;
-    }
-    
-    .plot,
-    .plot-container {
-        height: 100%;
-        max-height: 100%;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .half-plot {
-        height: 45%;
-        min-height: 0;
-        max-height: 45%;
-        position: relative;
-        overflow: hidden;
+        flex: 2 1 600px !important;
+        min-width: 300px !important;
+        padding: 30px 25px 25px 25px !important;
     }
 
-    .equations-container {
-        flex-direction: column;
-        align-items: center;
-        margin-top: 40px;
-        margin-bottom: 40px;
+    .roc-pr-section {
+        flex: 1 1 300px !important;
+        min-width: 300px !important;
+        padding: 20px !important;
     }
-    
-    .equation-box {
-        width: 90%;
-        max-width: 400px;
-        margin: 8px auto;
-    }
-    
+
+    /* Calculator containers */
     .mahalanobis-container,
     .r-squared-container {
-        flex-direction: column;
-        height: auto;
-        min-height: 0;
-        margin-top: 60px;
-        padding-top: 30px;
-        border-top: 1px solid #eee;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
     }
-    
+
     .section.sliders {
-        width: 100%;
-        flex: 0 0 auto;
-        min-width: 0;
-        max-width: 100%;
-        overflow: hidden;
+        flex: 1 1 300px !important;
+        width: auto !important;
     }
-    
+
     .mahalanobis-container .section:last-child,
     .r-squared-container .section:last-child {
-        width: 100%;
-        flex: 0 0 500px;
-        min-width: 0;
-        overflow: hidden;
-    }
-    
-    #chartContainer,
-    #r2PlotContainer {
-        height: 400px;
-        max-height: 400px;
-        background-color: white;
-        overflow: hidden;
-    }
-    
-    .container.secondary {
-        height: 100%;
-        max-height: 100%;
-        overflow: hidden;
+        flex: 2 1 600px !important;
+        width: auto !important;
     }
 
-    /* Dashboard adjustments */
-    .dashboard {
-        margin-top: 40px;
-        margin-bottom: 40px;
-        clear: both;
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        box-sizing: border-box;
+    /* Equations container */
+    .equations-container {
+        flex-direction: row !important;
+        align-items: stretch !important;
     }
-}
 
-@media (max-width: 900px) {
-    /* Main container styles */
-    .main-container {
-        min-height: auto;
-        height: auto;
-        margin-bottom: 40px;
-    }
-    
-    .container {
-        grid-template-columns: 1fr;
-    }
-    
+    /* Make sure dashboard */
+    .dashboard,
     .dashboard-metrics {
-        justify-content: center;
-    }
-    
-    .dashboard p {
-        margin: 5px 10px;
-    }
-    
-    .slider-section {
-        order: -1;
-        height: 300px;
-        max-height: 300px;
-        overflow-y: auto;
-        padding-right: 15px;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .slider-container {
-        overflow-y: auto;
-    }
-    
-    .main-plot-section,
-    .roc-pr-section {
-        flex: 0 0 auto;
-        margin-bottom: 30px;
-    }
-    
-    .main-plot-section {
-        height: 450px;
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .roc-pr-section {
-        height: 600px;
-        max-height: 600px;
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        padding-bottom: 40px;
-    }
-    
-    .plot,
-    .plot-container {
-        height: 100%;
-        max-height: 100%;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .half-plot {
-        height: 45%;
-        min-height: 0;
-        max-height: 45%;
-        position: relative;
-    }
-    
-    .section {
-        padding: 20px;
-        overflow: hidden;
-    }
-    
-    .section.sliders {
-        padding: 20px;
-    }
-
-    /* Adjust font sizes for better readability at small screens */
-    .slider-label {
-        font-size: 1rem;
-    }
-    
-    .mahalanobis-container .section:last-child,
-    .r-squared-container .section:last-child {
-        flex: 0 0 400px;
-        overflow: hidden;
-    }
-    
-    #chartContainer,
-    #r2PlotContainer {
-        height: 350px;
-        background-color: white;
-        overflow: hidden;
-    }
-    
-    .dashboard {
-        margin-top: 50px;
-        margin-bottom: 50px;
-        clear: both;
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .mahalanobis-container,
-    .r-squared-container {
-        margin-top: 70px;
-        padding-top: 30px;
-        border-top: 1px solid #eee;
-    }
-}
-
-@media (max-width: 600px) {
-    /* Main container styles */
-    .main-container {
-        min-height: auto;
-        height: auto;
-    }
-
-    /* Base styles */
-    body {
-        padding: 10px;
-    }
-    
-    /* Button styles */
-    .toggle-button {
-        padding: 6px 12px;
-        font-size: 0.9rem;
-        margin: 3px;
-    }
-    
-    /* Section styles */
-    .main-plot-section,
-    .roc-pr-section {
-        padding: 15px;
-    }
-    
-    .slider-section {
-        padding: 15px;
-        padding-right: 15px;
-        max-height: 250px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .slider-container {
-        overflow-y: auto;
-        flex: 1;
-        min-height: 0;
-    }
-
-    /* Adjust font sizes for better readability at small screens */
-    .slider-label {
-        font-size: 1rem;
-    }
-
-    .half-plot {
-        min-height: 180px;
-    }
-    
-    /* Calculator section styles */
-    .section {
-        padding: 15px;
-    }
-    
-    .section.sliders {
-        padding: 15px;
-    }
-    
-    .mahalanobis-container .section:last-child,
-    .r-squared-container .section:last-child {
-        flex: 0 0 300px;
-    }
-    
-    #chartContainer,
-    #r2PlotContainer {
-        height: 300px;
-        margin: 10px 0;
-        background-color: white;
-    }
-    
-    .section button {
-        padding: 8px 12px;
-        font-size: 0.8em;
-    }
-    
-    .main-plot-section,
-    .roc-pr-section {
-        height: 350px;
-        max-height: 60vh;
-        overflow: hidden;
-    }
-    
-    .plot,
-    .plot-container {
-        height: 100%;
-        max-height: 100%;
-        overflow: hidden;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
     }
 }

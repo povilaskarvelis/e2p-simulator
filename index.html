@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="msapplication-tap-highlight" content="no">
     <title>Understanding Predictive Value of Effect Sizes</title>
     
     <!-- Google tag (gtag.js) -->
@@ -25,6 +27,7 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/binary.css">
     <link rel="stylesheet" href="css/continuous.css">
+    <link rel="stylesheet" href="css/mobile.css">
     
     <!-- MathJax for professional equation rendering -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
@@ -203,7 +206,7 @@
             <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value">0.00</span></p>
             <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value">0.00</span></p>
             <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value">0.00</span></p>
-            <p data-tooltip="Balanced accuracy - average of sensitivity and specificity">BA: <span id="balanced-accuracy-value">0.00</span></p>
+            <p data-tooltip="Balanced Accuracy - average of sensitivity and specificity">BA: <span id="balanced-accuracy-value">0.00</span></p>
             <p data-tooltip="Negative Predictive Value - percentage of negative predictions that are correct">NPV: <span id="npv-value">0.00</span></p>
             <p data-tooltip="Positive Predictive Value - percentage of positive predictions that are correct">PPV: <span id="precision-value">0.00</span></p>
             <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value">0.00</span></p>
@@ -389,13 +392,13 @@
                     </div>
 
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="slider-label" data-tooltip="Standardized mean difference between groups">Cohen's d</span>
+                        <span class="slider-label" data-tooltip="Standardized mean difference between groups (using pooled standard deviation)">Cohen's d</span>
                         <input type="number" id="true-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         <input type="number" id="observed-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                     </div>
                     
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances">Cohen's d*</span>
+                        <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances (using non-pooled standard deviation)">Cohen's d*</span>
                         <input type="number" id="true-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                         <input type="number" id="observed-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" style="width: 50px; text-align: right;" readonly>
                     </div>
@@ -464,19 +467,21 @@
                 <div id="roc-plot-cont" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
                 <div id="pr-plot-cont" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
             </div>
-            <div id="dashboard-cont" class="dashboard">
-                <div class="dashboard-metrics">
-                    <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
-                    <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
-                    <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
-                    <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value-cont">0.00</span></p>
-                    <p data-tooltip="Balanced accuracy - average of sensitivity and specificity">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
-                    <p data-tooltip="Negative Predictive Value - percentage of negative predictions that are correct">NPV: <span id="npv-value-cont">0.00</span></p>
-                    <p data-tooltip="Positive Predictive Value - percentage of positive predictions that are correct">PPV: <span id="ppv-value-cont">0.00</span></p>
-                    <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value-cont">0.00</span></p>
-                    <p data-tooltip="Matthews Correlation Coefficient - an overall performance metric that accounts for true and false positives and negatives">MCC: <span id="mcc-value-cont">0.00</span></p>
-                </div>
-            </div>
+        </div>
+    </div>
+
+    <!-- Results dashboard -->
+    <div id="dashboard-cont" class="dashboard">
+        <div class="dashboard-metrics">
+            <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
+            <p data-tooltip="Percentage of all cases correctly classified">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
+            <p data-tooltip="Percentage of true positive cases correctly identified">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
+            <p data-tooltip="Percentage of true negative cases correctly identified">Specificity: <span id="specificity-value-cont">0.00</span></p>
+            <p data-tooltip="Balanced Accuracy - average of sensitivity and specificity">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+            <p data-tooltip="Negative Predictive Value - percentage of negative predictions that are correct">NPV: <span id="npv-value-cont">0.00</span></p>
+            <p data-tooltip="Positive Predictive Value - percentage of positive predictions that are correct">PPV: <span id="ppv-value-cont">0.00</span></p>
+            <p data-tooltip="Harmonic mean of precision and recall (sensitivity)">F1-score: <span id="f1-value-cont">0.00</span></p>
+            <p data-tooltip="Matthews Correlation Coefficient - an overall performance metric that accounts for true and false positives and negatives">MCC: <span id="mcc-value-cont">0.00</span></p>
         </div>
     </div>
 

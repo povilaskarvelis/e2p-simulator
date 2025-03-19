@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="msapplication-tap-highlight" content="no">
     <title>Get Started - E2P Simulator</title>
     
     <!-- Google tag (gtag.js) -->
@@ -25,6 +27,7 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/binary.css">
     <link rel="stylesheet" href="css/continuous.css">
+    <link rel="stylesheet" href="css/mobile.css">
     
     <!-- MathJax for professional equation rendering -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
@@ -117,6 +120,17 @@
         <h2>What is the E2P Simulator?</h2>
         <p>The E2P Simulator (Effect-to-Prediction Simulator) bridges the gap between statistical significance and practical utility. It helps answer a crucial question: "If I find an effect of a certain size, how useful will it actually be for prediction or classification in practice?"</p>
         <p>This interactive tool visualizes how commonly reported effect sizes (like Cohen's d and Pearson's r) translate into real-world predictive performance, while accounting for critical factors that researchers often overlook: measurement reliability and outcome base rates.</p>
+
+        <p>The E2P Simulator has several potential applications:</p>
+        
+        <ul>
+            <li><strong>Research Planning</strong>: Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies</li>
+            <li><strong>Research Interpretation</strong>: Providing context for interpreting published effect sizes in terms of their practical predictive value</li>
+            <li><strong>Model Development</strong>: Guiding expectations about the predictive performance of models based on known effect sizes and collinearity estimates</li>
+            <li><strong>Education</strong>: Teaching students and researchers about the relationship between statistical metrics and practical implications</li>
+        </ul>
+        
+        <p>By allowing to explore the relationships among effect sizes, reliability, base rates, and practical utility, the E2P Simulator contributes to more realistic research planning and interpretation, potentially leading to more efficient resource allocation and improved research outcomes.</p>
     </div>
 
     <div class="guide-section">
@@ -226,21 +240,6 @@
         </ul>
         
         <p>Despite these limitations, these calculators serve as valuable tools for building intuition about how multiple predictors combine to achieve stronger effects. Even though real-world predictors will vary in their individual strengths and correlations, the overall patterns demonstrated (such as diminishing returns and the impact of shared variance) remain informative for understanding multivariate relationships.</p>
-    </div>
-
-    <div class="guide-section">
-        <h2>What can E2P Simulator help with?</h2>
-        
-        <p>The E2P Simulator has several potential applications:</p>
-        
-        <ul>
-            <li><strong>Research Planning</strong>: Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies</li>
-            <li><strong>Research Interpretation</strong>: Providing context for interpreting published effect sizes in terms of their practical predictive value</li>
-            <li><strong>Model Development</strong>: Guiding expectations about the predictive performance of models based on known effect sizes and collinearity estimates</li>
-            <li><strong>Education</strong>: Teaching students and researchers about the relationship between statistical metrics and practical implications</li>
-        </ul>
-        
-        <p>By allowing to explore the relationships among effect sizes, reliability, base rates, and practical utility, the E2P Simulator contributes to more realistic research planning and interpretation, potentially leading to more efficient resource allocation and improved research outcomes.</p>
     </div>
 
     <div class="guide-section">

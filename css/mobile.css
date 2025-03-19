@@ -1,0 +1,160 @@
+/* ==========================================================================
+   Universal Scaling Approach - Maintains relative layout for all screen sizes
+   ========================================================================== */
+
+/* Base container setup */
+html {
+    overflow-x: auto; /* Allow horizontal scrolling */
+    min-height: 100%;
+}
+
+body {
+    transform-origin: top left; /* Always scale from top left */
+    width: 1400px; /* Fixed reference width */
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* For wider screens, center the content */
+@media (min-width: 1401px) {
+    html {
+        overflow-x: hidden; /* No need for horizontal scroll on wide screens */
+    }
+    
+    body {
+        margin: 0 auto; /* Center the content */
+    }
+}
+
+/* Scale down for smaller screens with proper positioning */
+@media (max-width: 1400px) {
+    body {
+        margin-left: 0; /* Don't use margin for centering, let browser handle scroll */
+        transform: scale(0.95);
+    }
+}
+
+@media (max-width: 1300px) {
+    body {
+        transform: scale(0.9);
+    }
+}
+
+@media (max-width: 1200px) {
+    body {
+        transform: scale(0.85);
+    }
+}
+
+@media (max-width: 1100px) {
+    body {
+        transform: scale(0.8);
+    }
+}
+
+@media (max-width: 1000px) {
+    body {
+        transform: scale(0.7);
+    }
+}
+
+@media (max-width: 900px) {
+    body {
+        transform: scale(0.65);
+    }
+}
+
+@media (max-width: 800px) {
+    body {
+        transform: scale(0.6);
+    }
+}
+
+@media (max-width: 700px) {
+    body {
+        transform: scale(0.5);
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        transform: scale(0.45);
+    }
+}
+
+@media (max-width: 500px) {
+    body {
+        transform: scale(0.4);
+    }
+}
+
+@media (max-width: 400px) {
+    body {
+        transform: scale(0.35);
+    }
+}
+
+/* Ensure footer appears correctly */
+footer {
+    width: 100%;
+    position: relative;
+    clear: both;
+}
+
+/* Touch device specific optimizations */
+.touch-device .toggle-button,
+.touch-device .slider-container input[type="range"],
+.touch-device button,
+.touch-device input[type="number"] {
+    /* Make touch targets larger */
+    min-height: 44px; /* Minimum Apple recommendation for touch targets */
+}
+
+.touch-device input[type="range"] {
+    height: 30px; /* Slightly larger for better touch control */
+}
+
+.touch-device [data-tooltip] {
+    position: relative;
+}
+
+.touch-device [data-tooltip].tooltip-active:before,
+.touch-device [data-tooltip]:active:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 100;
+    display: block;
+    margin-bottom: 5px;
+    max-width: 300px;
+    text-align: center;
+}
+
+/* Prevent long press text selection on mobile */
+.touch-device * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Exception for input fields */
+.touch-device input {
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+} 
