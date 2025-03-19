@@ -81,7 +81,7 @@
 
     <div class="guide-section">
         <h2>What is the E2P Simulator?</h2>
-        <p>The E2P Simulator (Effect-to-Prediction Simulator) bridges the gap between statistical effect sizes and practical utility. It visualizes how commonly reported effect size metrics (like Cohen's d and Pearson's r) translate into real-world predictive performance, while accounting for critical factors that researchers often overlook: measurement reliability and outcome base rates.</p>
+        <p>The E2P Simulator (Effect-to-Prediction Simulator) bridges the gap between statistical effect sizes and practical utility. It interactively and visually shows how commonly reported effect size metrics (like Cohen's d and Pearson's r) translate into real-world predictive performance, while accounting for often overlooked factors: measurement reliability and outcome base rates.</p>
 
         <p>The E2P Simulator has several potential applications:</p>
         
@@ -94,15 +94,28 @@
     </div>
 
     <div class="guide-section">
-        <h2>Key Concepts</h2>
+        <h2>Key Features</h2>
+
+        <h3>Binary vs. Continuous Outcomes</h3>
         
-        <h3>Reliability: True vs. Observed Effects</h3>
-        <p>Measurements are often noisy, and it is important to consider how much the observed effect size is attenuated by measurement reliability. The simulator lets you toggle between true and observed effect sizes to understand how improving reliability can enhance predictive performance. Note that this does not account for sample size, which can introduce additional variability due to sampling error.</p>
+        <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous. In machine learning language, that corresponds to classification and prediction tasks, respectively. Each mode includes specialized calculators to help you translate between effect sizes and practical applications.</p>
+        
+        <ul>
+            <li><strong>Binary Outcomes</strong>: Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, male vs. female).</li>
+            
+            <li><strong>Continuous Outcomes</strong>: Use this mode when your research involves continuous variables that are later thresholded to create groups (e.g., responders vs. non-responders to a treatment, above/below cutoff on a risk scale).</li>
+        </ul>
+        
+        <h3>Measurement Reliability and True vs. Observed Effects</h3>
+        <p>All measurements contain some degree of error, which attenuates the effect sizes we observe in practice. The simulator allows you to explore this relationship by adjusting the reliability of the measurements and toggling between true effect sizes (what would be observed with perfect measurement) and observed effect sizes (what you actually see given a specific level of reliability).</p>
+            
+        <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
         <h3>Base Rates</h3>
         <p>The base rate (prevalence) of outcomes dramatically affects predictive utility. Even with strong effect sizes, rare outcomes (e.g, suicide attempts) would be very difficult to predict with high precision. The simulator demonstrates how the same effect size can yield very different predictive performance depending on base rates.</p>
             
         <p>Note that base rate considerations here are not the same as having imbalanced classes in machine learning, which merely refers to unequal group sizes in collected data. Instead, here we want to consider real-world prevalence, which offers valuable insights into how different effect sizes translate into practical utility in real-world settings.</p>
+
     </div>
 
     <div class="guide-section">
@@ -132,22 +145,12 @@
             <li><strong>AUC (Area Under the ROC Curve)</strong>: Measures the ability to discriminate between groups across all thresholds. An AUC of 0.5 indicates no discriminative ability (random guessing), while 1.0 indicates perfect discrimination.</li>
             <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Similar to AUC but focuses on precision and recall, making it more informative for rare outcomes.</li>
         </ul>
-        
        </div>
 
     <div class="guide-section">
-        <h2>Binary vs. Continuous Outcomes</h2>
-        
-        <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous. In machine learning language, that corresponds to classification and prediction tasks, respectively. Each mode includes specialized calculators to help you translate between effect sizes and practical applications.</p>
-        
-        <ul>
-            <li><strong>Binary Outcomes</strong>: Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, male vs. female).</li>
-            
-            <li><strong>Continuous Outcomes</strong>: Use this mode when your research involves continuous variables that are later thresholded to create groups (e.g., responders vs. non-responders to a treatment, above/below cutoff on a risk scale).</li>
-        </ul>
 
-        <h3>Understanding Multivariate Effects with Calculators</h3>
-        <p>Both analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
+        <h2>Understanding Multivariate Effects with Calculators</h2>
+        <p>Both binary and continuous outomes analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
         
         <ul>
             <li><strong>Mahalanobis D Calculator</strong> (Binary mode): Illustrates how multiple predictors interact to achieve greater group separation</li>
@@ -163,7 +166,7 @@
             <li>The trade-offs between using fewer strong predictors versus more moderate ones</li>
         </ul>
         
-        <h4>Calculator Assumptions and Limitations</h4>
+        <h3>Calculator Assumptions and Limitations</h3>
         <p>Both calculators correspond to fundamental predictive models in statistics: the Mahalanobis D Calculator approximates Linear Discriminant Analysis and logistic regression, while the Multivariate R² Calculator aligns with multiple linear regression using standardized variables. These connections make the calculators valuable for understanding how these common predictive methods work in practice.</p>
         
         <p>Like the statistical methods they approximate, the calculators operate under several simplifying assumptions:</p>
