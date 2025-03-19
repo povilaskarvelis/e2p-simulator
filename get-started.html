@@ -96,20 +96,13 @@
     <div class="guide-section">
         <h2>Key Concepts</h2>
         
-        <h3>Effect Sizes and Predictive Utility</h3>
-        <p>Statistical effect sizes quantify the strength of relationships between variables, but they don't directly tell us how useful these relationships are for prediction. The E2P Simulator helps you understand this translation by showing how different effect sizes impact classification metrics like accuracy, sensitivity, and precision.</p>
-        
-        <h3>True vs. Observed Effects</h3>
-        <p>A fundamental concept in measurement is the distinction between true and observed effects:</p>
-        <ul>
-            <li><strong>True effect</strong>: The actual relationship that would exist with perfect measurement</li>
-            <li><strong>Observed effect</strong>: The attenuated effect we actually see due to measurement error</li>
-        </ul>
-        <p>The relationship follows: $\text{Observed effect} = \text{True effect} \times \sqrt{\text{Reliability}}$</p>
-        <p>The simulator lets you toggle between these views to understand how improving reliability can enhance predictive performance. Note that this does not account for sample size, which can introduce additional variability in the true and observed effects in real-world settings.</p>
+        <h3>Reliability: True vs. Observed Effects</h3>
+        <p>Measurements are often noisy, and it is important to consider how much the observed effect size is attenuated by measurement reliability. The simulator lets you toggle between true and observed effect sizes to understand how improving reliability can enhance predictive performance. Note that this does not account for sample size, which can introduce additional variability due to sampling error.</p>
         
         <h3>Base Rates</h3>
-        <p>The base rate (prevalence) of outcomes dramatically affects predictive utility. Even with strong effect sizes, rare outcomes (low base rates) can be difficult to predict with high precision. The simulator demonstrates how the same effect size can yield very different predictive performance depending on base rates. This concept differs from imbalanced classes in machine learning, which merely refers to unequal group sizes in collected data. Instead, we focus on real-world prevalence, which offers valuable insights into the clinical or practical utility of predictive tools when implemented in real-world settings.</p>
+        <p>The base rate (prevalence) of outcomes dramatically affects predictive utility. Even with strong effect sizes, rare outcomes (e.g, suicide attempts) would be very difficult to predict with high precision. The simulator demonstrates how the same effect size can yield very different predictive performance depending on base rates.</p>
+            
+        <p>Note that base rate considerations here are not the same as having imbalanced classes in machine learning, which merely refers to unequal group sizes in collected data. Instead, here we want to consider real-world prevalence, which offers valuable insights into how different effect sizes translate into practical utility in real-world settings.</p>
     </div>
 
     <div class="guide-section">
@@ -147,31 +140,12 @@
         
         <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous. In machine learning language, that corresponds to classification and prediction tasks, respectively. Each mode includes specialized calculators to help you translate between effect sizes and practical applications.</p>
         
-        <h3>Binary Outcomes</h3>
-        <p>Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, diagnostic categories, biological sex).</p>
-        
-        <p>In this mode, you can explore how:</p>
         <ul>
-            <li>Cohen's d values translate to overlap between two distributions</li>
-            <li>Measurement reliabilities affect both effect size and predictive metrics</li>
-            <li>Base rates affect predictive utility</li>
-            <li>Classification thresholds affect all predictive metrics</li>
-
+            <li><strong>Binary Outcomes</strong>: Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, male vs. female).</li>
+            
+            <li><strong>Continuous Outcomes</strong>: Use this mode when your research involves continuous variables that are later thresholded to create groups (e.g., responders vs. non-responders to a treatment, above/below cutoff on a risk scale).</li>
         </ul>
-        
-        <h3>Continuous Outcomes</h3>
-        <p>Use this mode when your research involves continuous variables that are later thresholded to create groups (e.g., responders vs. non-responders to a treatment, above/below cutoff on a risk scale).</p>
-        
-        <p>In this mode, you can explore how:</p>
-        <ul>
-            <li>Pearson's r correlations translate to explained variance</li>
-            <li>Measurement reliabilities affect correlation, binarized effect size, and predictive metrics</li>
-            <li>Dichotomizing continuous outcomes translates to predictive utility</li>
-            <li>Base rates (cutoff thresholds) change predictive metrics</li>
-            <li>Classification thresholds affect all predictive metrics</li>
 
-        </ul>
-        
         <h3>Understanding Multivariate Effects with Calculators</h3>
         <p>Both analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
         
