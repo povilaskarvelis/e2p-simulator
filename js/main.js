@@ -20,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Get the version buttons
-    const binaryButton = document.getElementById('binary-button');
-    const continuousButton = document.getElementById('continuous-button');
+    // Get all the version buttons by their classes
+    const binaryButtons = document.querySelectorAll('.binary-mode');
+    const continuousButtons = document.querySelectorAll('.continuous-mode');
     
     // Get the container elements
     const binaryContainer = document.getElementById('binary-container');
@@ -34,25 +34,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the binary version by default
     initializeBinary();
     
-    // Handle binary button click
-    binaryButton.addEventListener('click', function() {
-        binaryButton.classList.add('active');
-        continuousButton.classList.remove('active');
-        binaryContainer.style.display = 'block';
-        continuousContainer.style.display = 'none';
+    // Add click handler to all binary buttons
+    binaryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Update all buttons
+            binaryButtons.forEach(btn => btn.classList.add('active'));
+            continuousButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show binary container, hide continuous
+            binaryContainer.style.display = 'block';
+            continuousContainer.style.display = 'none';
+        });
     });
 
-    // Handle continuous button click
-    continuousButton.addEventListener('click', function() {
-        continuousButton.classList.add('active');
-        binaryButton.classList.remove('active');
-        binaryContainer.style.display = 'none';
-        continuousContainer.style.display = 'block';
-        // Initialize continuous version if not already done
-        if (!continuousInitialized) {
-            initializeContinuous();
-            continuousInitialized = true;
-        }
+    // Add click handler to all continuous buttons
+    continuousButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Update all buttons
+            continuousButtons.forEach(btn => btn.classList.add('active'));
+            binaryButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show continuous container, hide binary
+            binaryContainer.style.display = 'none';
+            continuousContainer.style.display = 'block';
+            
+            // Initialize continuous version if not already done
+            if (!continuousInitialized) {
+                initializeContinuous();
+                continuousInitialized = true;
+            }
+        });
     });
     
     // Setup responsive behavior for plots

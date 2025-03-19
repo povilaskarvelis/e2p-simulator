@@ -30,7 +30,7 @@ The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based t
 
 # Statement of Need
 
-Researchers across disciplines frequently report effect sizes to quantify the magnitude of their findings [@funder2019evaluating]. However, there is often a disconnect between these statistical metrics and their practical implications for prediction and classification tasks [@meehl1990summaries; @webb2020effect]. This disconnect can lead to:
+Researchers across disciplines frequently report effect sizes to quantify the magnitude of their findings [@funder2019evaluating;@gignac2016effect]. However, there is often a disconnect between these statistical metrics and their practical implications for prediction and classification tasks [@meehl1990summaries;@webb2020effect]. This disconnect can lead to:
 
 1. Overestimation of the practical utility of research findings
 2. Unrealistic expectations about the predictive performance of models
@@ -40,11 +40,11 @@ The E2P Simulator addresses these challenges by providing an intuitive, interact
 
 - Visualize how statistical effect sizes translate to group separation and predictive performance
 - Understand how measurement reliability affects the observed effect sizes and predictive utility
-- Explore the impact of outcome base rates on classification metrics [@boschloo2012sensitivity]
-- Determine required effect sizes for achieving desired levels of predictive performance [@gignac2016effect]
-- Estimate how many predictors of smaller effect sizes would need to be combined to achieve a target level of predictive performance [@boschloo2019predicting]
+- Explore the impact of outcome base rates on classification metrics
+- Determine required effect sizes for achieving desired levels of predictive performance 
+- Estimate how many predictors of smaller effect sizes would need to be combined to achieve a target level of predictive performance
 
-This tool is particularly valuable for researchers in psychology, medicine, neuroscience, and other fields where prediction and classification are important but where the limitations imposed by reliability and base rates are often overlooked [@borsboom2008psychometric].
+This tool is particularly valuable for researchers in psychology, medicine, neuroscience, and other fields where prediction and classification are important but where the limitations imposed by reliability and base rates are often overlooked.
 
 # Features
 
@@ -68,7 +68,7 @@ This mode addresses scenarios where groups are formed by thresholding a continuo
 - Change base rates to understand their impact on classification metrics
 - Use the Multivariate R² calculator to estimate how many predictors would need to be combined to achieve a desired level of explained variance
 
-Both modes provide interactive visualizations and quantitative metrics that update in real-time as parameters are adjusted, facilitating intuitive understanding of complex statistical relationships [@rice2005comparing].
+Both modes provide interactive visualizations and quantitative metrics that update in real-time as parameters are adjusted, facilitating intuitive understanding of complex statistical relationships.
 
 # Implementation
 
@@ -86,12 +86,11 @@ The application is designed to be accessible without installation, running entir
 
 The E2P Simulator has several potential applications:
 
-1. **Research Planning**: Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies [@schonbrodt2018bayes]
+1. **Research Planning**: Helping researchers determine the required effect sizes for achieving meaningful predictive utility in their studies
 2. **Research Interpretation**: Providing context for interpreting published effect sizes in terms of their practical predictive value
-3. **Model Development**: Guiding expectations about the predictive performance of models based on known effect sizes and collinearity estimates
-4. **Education**: Teaching students and researchers about the relationship between statistical metrics and practical implications
+3. **Education**: Teaching students and researchers about the relationship between statistical metrics and practical implications
 
-By allowing to explore the relationships among effect sizes, reliability, base rates, and practical utility, the E2P Simulator contributes to more realistic research planning and interpretation, potentially leading to more efficient resource allocation and improved research outcomes.
+By allowing to explore the relationships between effect sizes and practical utility - and how these are affected by measurement reliability and outcome base rates - the E2P Simulator contributes to more realistic research planning and interpretation, potentially leading to more efficient resource allocation and improved research outcomes
 
 # Acknowledgements
 

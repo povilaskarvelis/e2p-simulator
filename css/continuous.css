@@ -4,7 +4,7 @@
 
 /* Main container dimensions */
 #continuous-container .main-container {
-    min-height: 755px;
+    min-height: 720px;
     max-height: none;
 }
 
@@ -96,7 +96,7 @@
 
 #continuous-container .dashboard p {
     margin: 8px 0;
-    font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+    font-size: 1.2rem;
     width: auto;
     white-space: nowrap;
     text-align: left;
@@ -106,105 +106,4 @@
 
 #continuous-container .dashboard span {
     font-weight: bold;
-}
-
-/* ==========================================================================
-   Continuous-Specific Media Queries
-   ========================================================================== */
-@media (max-width: 1400px) {
-    #continuous-container .slider-section {
-        overflow-y: auto;
-    }
-}
-
-@media (max-width: 1200px) {
-    #continuous-container .main-container {
-        height: auto;
-        min-height: auto;
-    }
-    
-    #continuous-container .plots-stack {
-        min-height: 500px;
-    }
-    
-    #continuous-container .dashboard {
-        padding: 20px 40px;
-        min-height: auto;
-    }
-
-    #continuous-container .slider-section {
-        overflow-y: auto;
-        max-height: 400px;
-    }
-
-    #continuous-container .results-container {
-        position: relative;
-    }
-
-    #continuous-container .dashboard-metrics {
-        min-height: auto;
-        padding: 0;
-    }
-}
-
-@media (max-width: 900px) {
-    #continuous-container .scatter-plots,
-    #continuous-container .distribution-plots {
-        min-height: 180px;
-    }
-    
-    #continuous-container .plots-stack {
-        min-height: 400px;
-    }
-    
-    #roc-plot-cont,
-    #pr-plot-cont {
-        min-height: 160px;
-    }
-    
-    #continuous-container .dashboard {
-        min-height: auto;
-        padding: 20px 40px;
-    }
-}
-
-@media (max-width: 600px) {
-    #continuous-container .scatter-plots,
-    #continuous-container .distribution-plots {
-        min-height: 150px;
-    }
-    
-    #continuous-container .plots-stack {
-        min-height: 320px;
-    }
-    
-    #continuous-container .results-container {
-        position: relative;
-    }
-    
-    #continuous-container .results-container .plot-container {
-        min-height: 320px;
-    }
-    
-    #roc-plot-cont,
-    #pr-plot-cont {
-        min-height: 140px;
-    }
-    
-    #continuous-container .dashboard {
-        min-height: auto;
-        padding: 10px 20px;
-    }
-    
-    #continuous-container .dashboard-metrics {
-        max-width: none;
-        min-height: auto;
-        padding: 0;
-    }
-    
-    #continuous-container .dashboard p {
-        margin: 8px 0;
-        font-size: clamp(0.95rem, 1.8vw, 1.2rem);
-        line-height: 1.3;
-    }
 }

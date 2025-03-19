@@ -18,7 +18,7 @@ h1 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-size: 2.5rem;
 }
 
 /* ==========================================================================
@@ -39,7 +39,7 @@ h1 {
 
 .site-title {
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: #333;
     text-decoration: none;
 }
@@ -72,7 +72,7 @@ h1 {
     max-width: 800px;
     margin: 0 auto 30px;
     color: #555;
-    font-size: clamp(1rem, 2vw, 1.1rem);
+    font-size: 1.1rem;
     line-height: 1.5;
     padding: 0 15px;
 }
@@ -87,7 +87,7 @@ h1 {
     width: 100%;
     flex-wrap: wrap;
     align-items: stretch;
-    height: 630px;
+    height: 600px;
 }
 
 .slider-section {
@@ -117,6 +117,7 @@ h1 {
 
 .roc-pr-section {
     flex: 1 1 300px;
+    min-width: 300px;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -179,7 +180,7 @@ h1 {
 }
 
 .dashboard p {
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-size: 1.2rem;
     font-weight: bold;
     color: #444;
     margin: 8px 0;
@@ -189,16 +190,43 @@ h1 {
 /* ==========================================================================
    Toggle Buttons
    ========================================================================== */
+.toggle-group {
+    background-color: rgba(246, 246, 246, 0.9);
+    border-radius: 30px;
+    padding: 8px 16px 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    display: inline-block;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    min-width: 220px;
+}
+
+.toggle-label {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #495057;
+    margin-bottom: 8px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.toggle-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
 .toggle-button {
     border: 1px solid #ccc;
     background-color: #f9f9f9;
     color: #333;
     padding: 8px 16px;
-    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    font-size: 1.2rem;
     cursor: pointer;
     outline: none;
     border-radius: 20px;
-    margin: 5px 5px;
+    margin: 0;
     transition: all 0.3s ease;
     white-space: nowrap;
 }
@@ -238,7 +266,7 @@ input[type="range"] {
 .slider-container label {
     display: block;
     margin-bottom: 20px;
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    font-size: 1rem;
     color: #555;
 }
 
@@ -273,7 +301,7 @@ input.slider-value,
 }
 
 .slider-label {
-    font-size: clamp(0.8rem, 2vw, 1.1rem);
+    font-size: 1.1rem;
     color: #555;
     flex: 1;
     margin-right: 10px;
@@ -645,95 +673,76 @@ input.slider-value,
 }
 
 /* ==========================================================================
-   Responsive Design - Maintain Fixed Layout
+   Responsive Design - No Longer Needed
    ========================================================================== */
+/* This section has been removed since we're using a fixed layout */
 
-/* Remove all @media queries that change the layout and replace with this */
-@media (max-width: 1400px) {
-    /* No layout changes, only minor adjustments to padding/margins if needed */
-    .equation-box {
-        padding: 8px;
-        margin: 8px;
+/* ==========================================================================
+   Get Started Page Styles
+   ========================================================================== */
+.guide-section {
+        margin-bottom: 40px;
     }
+
+.guide-section h2 {
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
 }
 
-/* Override all other media queries in this and other CSS files */
-@media (max-width: 1200px), 
-       (max-width: 900px),
-       (max-width: 600px) {
-    /* Maintain the same layout structure for all screen sizes */
-    .main-container {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        width: 100%;
-        flex-wrap: nowrap; /* Prevent wrapping */
-        align-items: stretch;
-        height: 630px;
-        flex-direction: row; /* Force row layout always */
-        min-height: 630px !important;
+.guide-section h3 {
+    font-size: 1.4rem;
+}
+
+.guide-section p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+        font-size: 1rem;
+    }
+    
+.guide-section ul {
+    margin-bottom: 15px;
+}
+
+.guide-section li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+        font-size: 1rem;
     }
 
-    /* Ensure all sections maintain their original sizes and don't reflow */
-    .slider-section,
-    .main-plot-section, 
-    .roc-pr-section {
-        height: 100% !important;
-        min-height: 100% !important;
-        max-height: none !important;
-        width: auto !important; /* Let flex control the width */
-        overflow: visible !important;
-        flex-basis: auto !important;
-        order: unset !important; /* Don't change the order */
-    }
+.screenshot {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-    .slider-section {
-        flex: 1 1 280px !important;
-        min-width: 290px !important;
-        padding: 20px !important;
-    }
+/* Footer consistent font sizes */
+footer p {
+    font-size: 0.9rem !important;
+}
 
-    .main-plot-section {
-        flex: 2 1 600px !important;
-        min-width: 300px !important;
-        padding: 30px 25px 25px 25px !important;
-    }
+footer a {
+    font-size: 0.9rem !important;
+}
 
-    .roc-pr-section {
-        flex: 1 1 300px !important;
-        min-width: 300px !important;
-        padding: 20px !important;
-    }
+/* ==========================================================================
+   Calculator Title Styles
+   ========================================================================== */
+h2[style*="text-align: center"] {
+    font-size: 2rem !important;
+}
 
-    /* Calculator containers */
-    .mahalanobis-container,
-    .r-squared-container {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }
+.description[style*="text-align: center"] p {
+    font-size: 1.1rem !important;
+}
 
-    .section.sliders {
-        flex: 1 1 300px !important;
-        width: auto !important;
-    }
-
-    .mahalanobis-container .section:last-child,
-    .r-squared-container .section:last-child {
-        flex: 2 1 600px !important;
-        width: auto !important;
-    }
-
-    /* Equations container */
-    .equations-container {
-        flex-direction: row !important;
-        align-items: stretch !important;
-    }
-
-    /* Make sure dashboard */
-    .dashboard,
-    .dashboard-metrics {
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-    }
+/* Ensure all calculator section titles have consistent sizing */
+.mahalanobis-container h2,
+.r-squared-container h2,
+h2.calculator-title {
+    font-size: 2rem !important;
 }
