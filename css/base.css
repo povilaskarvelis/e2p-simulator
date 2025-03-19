@@ -8,6 +8,85 @@ body {
     box-sizing: border-box;
     position: relative;
     z-index: 0;
+    width: 1400px; /* Fixed width that never changes */
+    margin: 0 auto; /* Center the content when possible */
+    padding: 20px;
+    position: relative;
+    min-height: 100vh;
+    transform: none !important; /* Disable any transforms */
+    -moz-box-sizing: border-box; /* Firefox-specific box sizing */
+}
+
+/* Firefox-specific fix for rendering consistency */
+@-moz-document url-prefix() {
+    body {
+        width: 1400px !important;
+    }
+    
+    /* Firefox-specific input styling */
+    input[type="range"] {
+        height: 4px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        accent-color: #222222;
+        background: linear-gradient(to right, #222222 0%, #222222 var(--value, 50%), #ddd var(--value, 50%), #ddd 100%);
+    }
+    
+    input[type="range"]::-moz-range-track {
+        background: transparent;
+        height: 4px;
+    }
+    
+    input[type="range"]::-moz-range-progress {
+        background-color: #222222;
+        height: 4px;
+        border-radius: 0;
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+        border: none;
+        background: #222222;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+    }
+    
+    /* Number input styling - hide arrows by default */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+    
+    /* Show arrows only on hover for editable inputs (not readonly) */
+    input[type="number"]:not([readonly]):hover {
+        -moz-appearance: auto;
+    }
+    
+    /* Always hide arrows for readonly inputs (observed metrics) */
+    input[type="number"][readonly]:hover {
+        -moz-appearance: textfield !important;
+    }
+    
+    /* Consistent sizing for number inputs */
+    .slider-container input[type="number"],
+    .slider-value-container input[type="number"],
+    input.slider-value,
+    .form-container input[type="number"] {
+        height: 28px;
+        line-height: 1;
+        padding: 4px 5px;
+        text-align: right;
+        width: 68px !important;
+    }
+    
+    /* Ensure consistent slider value container spacing */
+    .slider-value-container {
+        align-items: center;
+    }
+    
+    /* Ensure consistent spacing for the slider labels */
+    .slider-label {
+        margin-right: 10px;
+    }
 }
 
 *, *:before, *:after {

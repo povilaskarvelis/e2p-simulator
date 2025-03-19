@@ -68,6 +68,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup responsive behavior for plots
     setupResponsivePlots();
+
+    // Setup range input styling for Firefox
+    setupRangeInputs();
 }); 
 
 // Function to set up responsive behavior for plots
@@ -128,3 +131,59 @@ function setupResponsivePlots() {
     // Initial resize to make sure everything is properly sized
     setTimeout(resizePlotly, 100);
 } 
+
+// Function to style range inputs for Firefox
+function setupRangeInputs() {
+    // Only run in Firefox
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+        // Get all range inputs
+        const rangeInputs = document.querySelectorAll('input[type="range"]');
+        
+        // For each range input
+        rangeInputs.forEach(input => {
+            // Set initial value
+            updateRangeValue(input);
+            
+            // Add event listener for input
+            input.addEventListener('input', () => {
+                updateRangeValue(input);
+            });
+        });
+    }
+}
+
+// Function to update range input styling in Firefox
+function updateRangeValue(input) {
+    const min = input.min ? parseFloat(input.min) : 0;
+    const max = input.max ? parseFloat(input.max) : 100;
+    const val = parseFloat(input.value);
+    const percentage = ((val - min) / (max - min)) * 100;
+    input.style.setProperty('--value', percentage + '%');
+}
+
+// Add mutation observer to handle dynamically added sliders
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) { // Element node
+                    const sliders = node.querySelectorAll('input[type="range"]');
+                    if (sliders.length && navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+                        sliders.forEach(updateRangeValue);
+                        sliders.forEach(slider => {
+                            slider.addEventListener('input', () => {
+                                updateRangeValue(slider);
+                            });
+                        });
+                    }
+                }
+            });
+        }
+    });
+});
+
+// Start observing the document body for changes
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+}); 
