@@ -111,3 +111,10 @@
 #continuous-container .dashboard span {
     font-weight: bold;
 }
+
+@media (max-width: 768px) {
+    #continuous-container .scatter-plots,
+    #continuous-container .distribution-plots {
+        min-width: 300px; /* Set a minimum width for mobile devices */
+    }
+}
