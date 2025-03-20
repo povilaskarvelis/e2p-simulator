@@ -14,7 +14,6 @@
     flex-direction: column;
     gap: 20px;
     flex: 1;
-    width: 100%;
 }
 
 #overlap-plot {
@@ -27,12 +26,11 @@
     flex: 1;
     min-width: 0;
     min-height: 200px;
-    width: 100%;
 }
 
 /* Binary-specific dashboard styles */
 #binary-container .dashboard {
-    padding: 20px 40px;
+    padding: 20px40px;
     margin-top: 20px;
     overflow-x: auto;
 }

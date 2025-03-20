@@ -95,7 +95,7 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "xMinYMid meet");
+            .attr("preserveAspectRatio", "none");
 
         // Axes with larger ticks
         svgScatter.selectAll(".x-axis")
@@ -258,7 +258,7 @@ function initializeContinuous() {
         const maxY = Math.max(maxYTeal, maxYGray);
         yScale.domain([0, maxY * 1.1]);
 
-        // Create or update SVG element with explicit width/height settings
+        // Select or create the container for the given type
         const svgDistributions = d3.select(`#distribution-plot-${type}-cont`)
             .selectAll("svg")
             .data([null])
@@ -266,7 +266,7 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "xMinYMid meet");
+            .attr("preserveAspectRatio", "none");
 
         // Remove old distributions
         svgDistributions.selectAll(".distribution").remove();
@@ -753,7 +753,7 @@ function initializeContinuous() {
                 .attr("width", "100%")
                 .attr("height", "100%")
                 .attr("viewBox", `0 0 ${width} ${height}`)
-                .attr("preserveAspectRatio", "xMinYMid meet");
+                .attr("preserveAspectRatio", "none");
 
             // Add x-axis with larger ticks
             svgDistributions.append("g")
