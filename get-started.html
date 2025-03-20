@@ -86,9 +86,9 @@
         <p>The E2P Simulator has several potential applications:</p>
         
         <ul>
-            <li><strong>Interpretation of findings</strong>: Instead of applying arbitrary "small/medium/large" labels to effect sizes, this tool enalbes the interpretation of effect sizes in terms of their predictive value in specific settings</li>
-            <li><strong>Research planning</strong>: Better understanding of the relationship between effect sizes and practical utility - as well as how they are affected by measurement reliability and outcome base rates - allows for more realisitc research planning and resource allocation</li>
-            <li><strong>Education</strong>: The interactive nature of the simulator makes it a valuable tool for teaching students and researchers about the relationship between statistical metrics and practical implications, improving their intuitive understanding of abstract metrics</li>
+            <li><strong>Interpretation of findings</strong>: It helps researchers move beyond arbitrary "small/medium/large" labels and ground the interpretation of their findings in terms of actual predictive value in a given context (e.g., prevalence of the outcome, measurement reliability).</li>
+            <li><strong>Research planning</strong>: By clearly demonstrating how effect sizes relate to practical utility and how they're influenced by measurement reliability and outcome base rates, researchers can develop more realistic research plans and allocate resources more effectively.</li>
+            <li><strong>Education</strong>: The simulator's interactive design serves as an excellent teaching tool, helping students and researchers understand the connection between abstract statistical metrics and their practical implications in a more intuitive way.</li>
         </ul>
         
     </div>
@@ -98,7 +98,7 @@
 
         <h3>Binary vs. Continuous Outcomes</h3>
         
-        <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous. In machine learning language, that corresponds to classification and prediction tasks, respectively. Each mode includes specialized calculators to help you translate between effect sizes and practical applications.</p>
+        <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous (in machine learning language, that corresponds to classification and prediction tasks, respectively). Each mode includes specialized calculators to help you translate between effect sizes and practical applications.</p>
         
         <ul>
             <li><strong>Binary Outcomes</strong>: Use this mode when your research involves naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, male vs. female).</li>
@@ -119,7 +119,7 @@
     </div>
 
     <div class="guide-section">
-        <h2>Understanding Predictive Metrics</h2>
+        <h2 id="understanding-metrics">Understanding Predictive Metrics</h2>
         
         <h3>Classification Outcomes and Metrics</h3>
         <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
@@ -128,7 +128,7 @@
             <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 90%;">
         </div>
         
-        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how positive and negative distributions overlap and how a classification threshold creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it.</p>
+        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
         
         <h3>Key Metrics for Different Contexts</h3>
         <p>Depending on your research context, certain metrics may be more relevant than others:</p>
@@ -136,14 +136,14 @@
             <li><strong>When false negatives are costly</strong> (e.g., missing a disease diagnosis): Focus on sensitivity/recall</li>
             <li><strong>When false positives are costly</strong> (e.g., unnecessary treatments): Focus on specificity</li>
             <li><strong>When you need to know how much to trust a positive result</strong>: Focus on precision/PPV</li>
-            <li><strong>When working with rare outcomes</strong>: Consider balanced accuracy, F1 score, or MCC instead of accuracy</li>
+            <li><strong>When working with rare outcomes</strong>: Consider balanced accuracy, F1 score, or MCC</li>
         </ul>
         
         <h3>Threshold-Independent Metrics</h3>
         <p>Some metrics evaluate performance across all possible thresholds:</p>
         <ul>
-            <li><strong>AUC (Area Under the ROC Curve)</strong>: Measures the ability to discriminate between groups across all thresholds. An AUC of 0.5 indicates no discriminative ability (random guessing), while 1.0 indicates perfect discrimination.</li>
-            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Similar to AUC but focuses on precision and recall, making it more informative for rare outcomes.</li>
+            <li><strong>AUC (Area Under the ROC Curve)</strong>: Visualizes how well a model balances true positives (sensitivity) and false positives (1-specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
+            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and recall (sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects precision. A larger PR-AUC means the model can achieve high precision without sacrificing recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
         </ul>
        </div>
 
@@ -153,19 +153,19 @@
         <p>Both binary and continuous outomes analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
         
         <ul>
-            <li><strong>Mahalanobis D Calculator</strong> (Binary mode): Illustrates how multiple predictors interact to achieve greater group separation</li>
-            <li><strong>Multivariate R² Calculator</strong> (Continuous mode): Demonstrates how multiple predictors combine to increase explained variance</li>
+            <li><strong>Mahalanobis D Calculator</strong> (Binary mode)</li>
+            <li><strong>Multivariate R² Calculator</strong> (Continuous mode)</li>
         </ul>
         
-        <p>The calculators help illustrate:</p>
+        <p>The calculators can help approximate the expected performance of multivariate models without having to train the full models and thus helps with research planning and model development. More specifically, they illustrate:</p>
         
         <ul>
             <li>How the number of predictors affects combined effect size</li>
             <li>The diminishing returns of adding more predictors</li>
             <li>How collinearity (correlation among predictors) reduces their combined effectiveness</li>
             <li>The trade-offs between using fewer strong predictors versus more moderate ones</li>
-        </ul>
-        
+        </ul>     
+
         <h3>Calculator Assumptions and Limitations</h3>
         <p>Both calculators correspond to fundamental predictive models in statistics: the Mahalanobis D Calculator approximates Linear Discriminant Analysis and logistic regression, while the Multivariate R² Calculator aligns with multiple linear regression using standardized variables. These connections make the calculators valuable for understanding how these common predictive methods work in practice.</p>
         
@@ -192,18 +192,11 @@
             <li>Set the effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice):
                 <ul>
                     <li>This yields AUC = 0.71 and PR-AUC = 0.23, showing limited discriminative ability despite being considered a "large" effect</li>
-                    <li>Even with this optimistic effect size, the predictive utility remains modest, especially for identifying positive cases (as shown by the low PR-AUC)</li>
+                    <li>Even with this optimistic effect size, the predictive utility remains very modest, especially for when it comes to the tradeoff between recall and precision (as shown by the low PR-AUC)</li>
                 </ul>
             </li>
 
-            <li>Note that with the low reliability values (0.37 for diagnosis, 0.7 for biomarker), this observed effect corresponds to a much larger true effect:
-                <ul>
-                    <li>Observed d = 0.8 represents a true d = 1.57 when corrected for reliability</li>
-                    <li>This true effect size is exceptionally large and unheard of in clinical biomarker research</li>
-                    <li>This demonstrates how measurement reliability severely limits our ability to detect even large true effects</li>
-                    <li>Even with this substantial true effect, the predictive performance remains modest for the low prevalence rates typically seen in mental health conditions</li>
-                </ul>
-            </li>
+            <li>Note that with the low reliability values (0.37 for diagnosis, 0.7 for biomarker), this observed effect corresponds to a much larger true effect, d = 1.57, highlighting the improvements in predictive utility that can be achieved by simply improving measurement reliability.</li>
 
             <li>Use the Mahalanobis D calculator to explore how many biomarkers with smaller d values could be combined to achieve the same discriminative power as a single biomarker with d = 2.0 or larger</li>
         </ol>

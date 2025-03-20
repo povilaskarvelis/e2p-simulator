@@ -356,6 +356,7 @@ input[type="range"] {
     margin: 4px 0;
     padding: 0;
     accent-color: #222222;
+    cursor: pointer; /* Change cursor to pointer on hover */
 }
 
 .slider-container {
