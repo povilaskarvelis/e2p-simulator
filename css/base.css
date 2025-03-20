@@ -21,24 +21,6 @@ body {
     text-size-adjust: 100%;
 }
 
-/* Prevent mobile browser styling overrides - only for text/number inputs */
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="tel"] {
-    border-radius: 4px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    font-size: 16px; /* Prevent iOS zoom */
-}
-
-/* Override specifically for type=range to restore its appearance */
-input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-}
-
 /* Add WebKit-specific slider thumb styling to match Firefox */
 input[type="range"]::-webkit-slider-thumb {
     border: none;
@@ -103,65 +85,23 @@ input[type="range"]::-webkit-slider-thumb {
     
     /* Mobile Firefox fixes */
     @media (max-width: 768px) {
+        /* Input sizing for mobile */
         input[type="range"] {
-            -moz-appearance: none;
-            height: 8px;
-            border-radius: 8px;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            width: 100%;
         }
         
-        input[type="range"]::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            border: none;
-            border-radius: 50%;
-        }
-        
-        input[type="range"]::-moz-range-track {
-            height: 8px;
-            border-radius: 8px;
-        }
-        
-        /* Firefox mobile number input consistency */
+        /* Number input consistency */
         input[type="number"] {
-            -moz-appearance: textfield;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            -moz-appearance: textfield; /* Hide Firefox arrows by default */
             width: 68px !important;
-            text-align: right;
-            padding: 5px;
-            font-size: 16px;
-            line-height: normal;
-            height: 28px;
+            font-size: 16px; /* Prevent zoom on iOS */
         }
         
-        /* Keep arrow visibility behavior but ensure consistent sizing */
-        input[type="number"]:not([readonly]):hover {
-            -moz-appearance: auto;
-        }
-        
-        /* Always hide arrows for readonly inputs */
-        input[type="number"][readonly]:hover {
-            -moz-appearance: textfield !important;
-        }
-        
-        .slider-container input[type="range"] {
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .slider-container input[type="number"],
-        .slider-value-container input[type="number"],
-        input.slider-value,
-        .form-container input[type="number"] {
-            height: 28px;
-            line-height: 1;
-            padding: 4px 5px;
-            text-align: right;
-            width: 68px !important;
-            font-size: 16px;
-            margin: 0;
+        /* Container sizing for mobile */
+        .slider-container, 
+        .slider-value-container {
+            width: 100%;
+            padding: 0;
         }
     }
     
@@ -448,61 +388,26 @@ input[type="range"] {
 
 /* Mobile device slider fixes for all browsers */
 @media (max-width: 768px) {
+    /* Container sizing for mobile */
+    .slider-container, 
+    .slider-value-container {
+        width: 100%;
+        padding: 0;
+    }
+
+    /* Input sizing for mobile */
     input[type="range"] {
         width: 100%;
-        margin: 4px 0;
-        padding: 0;
-        /* Better touch target size for mobile */
-        margin-top: 10px;
-        margin-bottom: 10px;
     }
     
-    input[type="range"]::-webkit-slider-thumb {
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        /* Improved touch target */
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Ensure numerical inputs maintain desktop appearance */
-    input[type="number"] {
-        -webkit-appearance: none;
-        appearance: none;
-        font-size: 0.9em;
-        line-height: normal;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        width: 68px !important;
-        text-align: right;
-        padding: 5px;
-        /* Prevent iOS zoom on focus */
-        font-size: 16px; 
-    }
-    
-    /* Maintain specific styles for slider number inputs */
+    /* Number input consistency */
+    input[type="number"],
     .slider-container input[type="number"],
     .slider-value-container input[type="number"],
     input.slider-value,
     .form-container input[type="number"] {
         width: 68px !important;
-        text-align: right;
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        margin: 0;
-        height: 28px;
-    }
-    
-    /* Specific container adjustments for mobile */
-    .slider-container {
-        padding: 5px 0;
-    }
-    
-    .slider-container input[type="range"] {
-        margin-top: 15px;
-        margin-bottom: 15px;
+        font-size: 16px; /* Prevent zoom on iOS */
     }
 }
 
@@ -526,10 +431,12 @@ input[type="range"] {
 
 .slider-container input[type="range"] {
     width: 100%;
+    max-width: 100%;
     margin-top: 10px;
     accent-color: #222222;
     padding: 0;
     margin-left: 0;
+    box-sizing: border-box;
 }
 
 .slider-container input[type="number"],
@@ -542,6 +449,7 @@ input.slider-value,
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 0.9em;
+    box-sizing: border-box;
 }
 
 .slider-value-container {
