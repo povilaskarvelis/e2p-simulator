@@ -95,7 +95,7 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "none");
+            .attr("preserveAspectRatio", "xMidYMid meet");
 
         // Axes with larger ticks
         svgScatter.selectAll(".x-axis")
@@ -266,7 +266,7 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "none");
+            .attr("preserveAspectRatio", "xMidYMid meet");
 
         // Remove old distributions
         svgDistributions.selectAll(".distribution").remove();
@@ -753,7 +753,7 @@ function initializeContinuous() {
                 .attr("width", "100%")
                 .attr("height", "100%")
                 .attr("viewBox", `0 0 ${width} ${height}`)
-                .attr("preserveAspectRatio", "none");
+                .attr("preserveAspectRatio", "xMidYMid meet");
 
             // Add x-axis with larger ticks
             svgDistributions.append("g")
