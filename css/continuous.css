@@ -22,6 +22,7 @@
     gap: 10px;
     flex: 1;
     min-height: 0;
+    width: 100%; /* Ensure full width */
 }
 
 #continuous-container .scatter-plots,
@@ -29,19 +30,19 @@
     width: 100%;
     height: calc(50% - 5px);
     min-height: 200px;
-    /* Force consistent sizing on mobile */
     position: relative;
     flex-shrink: 0;
     box-sizing: border-box;
 }
 
-/* Fix for mobile - ensure plots don't get squished */
+/* Fix for plots */
 #scatter-plot-true-cont,
 #scatter-plot-observed-cont,
 #distribution-plot-true-cont,
 #distribution-plot-observed-cont {
     min-height: 200px !important;
     height: 100% !important;
+    width: 100% !important;
 }
 
 /* Results section */
