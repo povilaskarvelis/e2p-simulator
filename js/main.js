@@ -85,6 +85,9 @@ function setupResponsivePlots() {
     
     // Resize handler for Plotly plots 
     const resizePlotly = debounce(function() {
+        // Check if we're on a mobile device
+        const isMobile = window.innerWidth < 768;
+        
         const plotlyPlots = document.querySelectorAll('.js-plotly-plot');
         if (plotlyPlots.length > 0) {
             plotlyPlots.forEach(plot => {
@@ -108,8 +111,30 @@ function setupResponsivePlots() {
             const plot = document.getElementById(id);
             if (plot && plot._fullLayout) {
                 Plotly.relayout(id, {
-                    'autosize': true
+                    'autosize': true,
+                    // For mobile, ensure the plot fills the container width
+                    'width': isMobile ? plot.offsetWidth : null
                 });
+            }
+        });
+        
+        // For d3 plots, ensure SVG viewbox is properly set
+        const d3Plots = [
+            'scatter-plot-true-cont', 'scatter-plot-observed-cont',
+            'distribution-plot-true-cont', 'distribution-plot-observed-cont'
+        ];
+        
+        d3Plots.forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    // For mobile, ensure the SVG fills the container
+                    if (isMobile) {
+                        svg.style.width = '100%';
+                        svg.style.height = '100%';
+                    }
+                }
             }
         });
         
@@ -127,4 +152,9 @@ function setupResponsivePlots() {
     
     // Initial resize to make sure everything is properly sized
     setTimeout(resizePlotly, 100);
+    
+    // Also trigger resize when device orientation changes (particularly important for mobile)
+    window.addEventListener('orientationchange', function() {
+        setTimeout(resizePlotly, 200);
+    });
 } 

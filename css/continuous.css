@@ -44,6 +44,43 @@
     height: 100% !important;
 }
 
+/* Make sure SVG fills the container completely on all devices */
+#scatter-plot-true-cont svg,
+#scatter-plot-observed-cont svg,
+#distribution-plot-true-cont svg,
+#distribution-plot-observed-cont svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 767px) {
+    #continuous-container .scatter-plots,
+    #continuous-container .distribution-plots {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Ensure plotly plots are sized correctly on mobile */
+    .js-plotly-plot {
+        width: 100% !important;
+    }
+    
+    /* Force SVG elements to fill their containers on mobile */
+    #scatter-plot-true-cont svg,
+    #scatter-plot-observed-cont svg,
+    #distribution-plot-true-cont svg,
+    #distribution-plot-observed-cont svg {
+        width: 100% !important;
+        height: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        position: absolute !important;
+    }
+}
+
 /* Results section */
 #continuous-container .results-container {
     width: 100%;
