@@ -19,63 +19,58 @@ function initializeBinary() {
         .attr("class", "plot-content")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create scales that will be updated on resize
+    // Create scales with dynamic dimensions
     const xScale = d3.scaleLinear().domain([-5.5, 6]);
     const yScale = d3.scaleLinear().domain([0, 0.5]);
-
-    // Function to update dimensions and scales
-    function updateDimensions() {
-        const bbox = d3.select("#overlap-plot").node().getBoundingClientRect();
-        width = bbox.width;
-        height = bbox.height;
-
-        // Update SVG viewBox to match container size
-        svgDistributions.attr("viewBox", `0 0 ${width} ${height}`);
-
-        // Update scales with new dimensions
-        xScale.range([0, width - margin.left - margin.right]);
-        yScale.range([height - margin.bottom - margin.top, 0]);
-
-        // Update axes
-        plotGroup.selectAll(".x-axis")
-            .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
-            .call(d3.axisBottom(xScale).tickFormat(() => ""));
-
-        plotGroup.selectAll(".y-axis")
-            .call(d3.axisLeft(yScale).tickFormat(() => ""));
-
-        // Update axis labels with consistent distance from axes
-        svgDistributions.selectAll(".x-label")
-            .attr("x", width / 2 - 50)
-            .attr("y", height - margin.bottom / 2);
-
-        svgDistributions.selectAll(".y-label")
-            .attr("x", -height / 2 - 80)
-            .attr("y", margin.left / 6);
-
-        // Redraw the plot if we have a valid value
-        const trueInput = document.getElementById("true-difference-number-bin");
-        if (trueInput && trueInput.value) {
-            const d = parseFloat(trueInput.value);
-            if (!isNaN(d)) {
-                drawDistributions(d);
-                drawThreshold(d);
-            }
+    
+    // Set initial width and height variables
+    const bbox = d3.select("#overlap-plot").node().getBoundingClientRect();
+    width = bbox.width || 800;
+    height = bbox.height || 400;
+    
+    // Update SVG viewBox to match container size
+    svgDistributions.attr("viewBox", `0 0 ${width} ${height}`);
+    
+    // Update scales with dimensions
+    xScale.range([0, width - margin.left - margin.right]);
+    yScale.range([height - margin.bottom - margin.top, 0]);
+    
+    // Use ResizeObserver to update dimensions when container size changes
+    // without redrawing the content
+    const containerElement = document.getElementById("overlap-plot");
+    binaryResizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            // Update width and height
+            width = entry.contentRect.width;
+            height = entry.contentRect.height;
+            
+            // Only update the viewBox without redrawing content
+            svgDistributions.attr("viewBox", `0 0 ${width} ${height}`);
         }
+    });
+    
+    // Start observing the container
+    if (containerElement) {
+        binaryResizeObserver.observe(containerElement);
     }
 
     // Create axes groups
     plotGroup.append("g")
-        .attr("class", "x-axis");
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
+        .call(d3.axisBottom(xScale).tickFormat(() => ""));
 
     plotGroup.append("g")
-        .attr("class", "y-axis");
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(yScale).tickFormat(() => ""));
 
     // Add axis labels
     svgDistributions.append("foreignObject")
         .attr("class", "x-label")
         .attr("width", 100)
         .attr("height", 25)
+        .attr("x", width / 2 - 50)
+        .attr("y", height - margin.bottom / 2)
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
@@ -88,18 +83,14 @@ function initializeBinary() {
         .attr("width", 200)
         .attr("height", 25)
         .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2 - 80)
+        .attr("y", margin.left / 6)
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
         .style("font-size", "18px")
         .style("color", "black")
         .text("Probability density");
-
-    // Initial update of dimensions
-    updateDimensions();
-
-    // Add resize listener
-    window.addEventListener("resize", updateDimensions);
 
     function drawDistributions(d) {
         const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
@@ -202,6 +193,7 @@ function initializeBinary() {
     }
 
     function drawThreshold(d) {
+        // Use the stored thresholdValue (don't recalculate)
         const xDomain = xScale.domain();
 
         // Select or create the threshold group within plotGroup
@@ -526,12 +518,6 @@ function initializeBinary() {
             Plotly.newPlot("roc-plot", [rocTrace, rocThresholdMarker], rocLayout, config);
             Plotly.newPlot("pr-plot", [prTrace, prThresholdMarker], prLayout, config);
             rocInitialized = true;
-
-            // Add resize event listeners
-            window.addEventListener('resize', () => {
-                Plotly.Plots.resize('roc-plot');
-                Plotly.Plots.resize('pr-plot');
-            });
         } else {
             Plotly.react("roc-plot", [rocTrace, rocThresholdMarker], rocLayout, config);
             Plotly.react("pr-plot", [prTrace, prThresholdMarker], prLayout, config);
@@ -591,14 +577,6 @@ function initializeBinary() {
         // Calculate observed d based on reliabilities
         const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
         
-        // Update observed metrics
-        document.getElementById("observed-difference-number-bin").value = dObs.toFixed(2);
-        document.getElementById("observed-odds-ratio-bin").value = Math.exp(dObs * Math.sqrt(3) / Math.PI).toFixed(2);
-        document.getElementById("observed-log-odds-ratio-bin").value = (dObs * Math.sqrt(3) / Math.PI).toFixed(2);
-        document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
-        const obsR = dObs / Math.sqrt(dObs ** 2 + 4);
-        document.getElementById("observed-eta-squared-bin").value = (obsR ** 2).toFixed(2);
-        
         // Use appropriate d value based on current view
         const dToUse = currentView === "true" ? trueD : dObs;
         
@@ -622,44 +600,6 @@ function initializeBinary() {
     function updateMetricsFromR(r) {
         const d = (2 * r) / Math.sqrt(1 - r ** 2);
         updateMetricsFromD(d);
-    }
-    
-    function qNorm(p) {
-        p = parseFloat(p);
-        var split = 0.42;
-        var a0 = 2.50662823884;
-        var a1 = -18.61500062529;
-        var a2 = 41.39119773534;
-        var a3 = -25.44106049637;
-        var b1 = -8.47351093090;
-        var b2 = 23.08336743743;
-        var b3 = -21.06224101826;
-        var b4 = 3.13082909833;
-        var c0 = -2.78718931138;
-        var c1 = -2.29796479134;
-        var c2 = 4.85014127135;
-        var c3 = 2.32121276858;
-        var d1 = 3.54388924762;
-        var d2 = 1.63706781897;
-        var q = p - 0.5;
-
-        var r, ppnd;
-
-        if (Math.abs(q) <= split) {
-            r = q * q;
-            ppnd = q * (((a3 * r + a2) * r + a1) * r + a0) / ((((b4 * r + b3) * r + b2) * r + b1) * r + 1);
-        } else {
-            r = p;
-            if (q > 0) r = 1 - p;
-            if (r > 0) {
-                r = Math.sqrt(-Math.log(r));
-                ppnd = (((c3 * r + c2) * r + c1) * r + c0) / ((d2 * r + d1) * r + 1);
-                if (q < 0) ppnd = -ppnd;
-            } else {
-                ppnd = 0;
-            }
-        }
-        return ppnd;
     }
 
     // Move event listener setup to the top level
@@ -787,8 +727,7 @@ function initializeBinary() {
     setupEventListeners();
 
     // Initialize with default values
-    updateMetricsFromD(1);
-    updatePlots();
+    updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
     
     // Initialize Mahalanobis calculator
     initializeMahalanobis();

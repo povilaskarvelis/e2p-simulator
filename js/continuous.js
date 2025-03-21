@@ -95,7 +95,9 @@ function initializeContinuous() {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "xMidYMid meet");
+            .attr("preserveAspectRatio", "xMidYMid meet")
+            .style("display", "block")
+            .style("max-width", "100%");
 
         // Axes with larger ticks
         svgScatter.selectAll(".x-axis")
@@ -177,10 +179,13 @@ function initializeContinuous() {
     }
 
     function drawDistributions(tealX, grayX, type) {
+        // First, clear any existing SVG to avoid duplicate plots
+        d3.select(`#distribution-plot-${type}-cont`).selectAll("svg").remove();
+        
         // Use same x-axis range as scatter plot
         const xRange = [-4, 4];
         xScale.domain(xRange);
-
+        
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
         const greenScale = baseRate;
         const blueScale = 1 - baseRate;
@@ -258,18 +263,37 @@ function initializeContinuous() {
         const maxY = Math.max(maxYTeal, maxYGray);
         yScale.domain([0, maxY * 1.1]);
 
-        // Select or create the container for the given type
+        // Create the SVG container
         const svgDistributions = d3.select(`#distribution-plot-${type}-cont`)
-            .selectAll("svg")
-            .data([null])
-            .join("svg")
+            .append("svg")
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("viewBox", `0 0 ${width} ${height}`)
-            .attr("preserveAspectRatio", "xMidYMid meet");
+            .attr("preserveAspectRatio", "xMidYMid meet")
+            .style("display", "block")
+            .style("max-width", "100%");
+        
+        // Add x-axis
+        svgDistributions.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale).tickFormat(() => ""))
+            .call(g => g.selectAll(".tick line")
+                .attr("stroke-width", tickWidth)
+                .attr("y2", tickSize))
+            .call(g => g.selectAll("path.domain")
+                .attr("stroke-width", tickWidth));
 
-        // Remove old distributions
-        svgDistributions.selectAll(".distribution").remove();
+        // Add y-axis
+        svgDistributions.append("g")
+            .attr("class", "y-axis")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(yScale).tickFormat(() => ""))
+            .call(g => g.selectAll(".tick line")
+                .attr("stroke-width", tickWidth)
+                .attr("x2", -tickSize))
+            .call(g => g.selectAll("path.domain")
+                .attr("stroke-width", tickWidth));
 
         // Draw distributions as true histograms (bar charts)
         // Gray (control group) histogram
@@ -326,7 +350,7 @@ function initializeContinuous() {
             .style("text-align", "center")
             .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
-            .text("Probability density");
+            .text("Count");
 
         // Add variance text annotations with larger font
         svgDistributions.selectAll(".variance-annotation").remove(); // Remove existing annotations first
@@ -533,7 +557,7 @@ function initializeContinuous() {
 
         // Generate ROC and PR curve points
         const uniqueXValues = Array.from(new Set(currentLabeledData.map(d => d.x))).sort((a, b) => a - b);
-        const stepSize = Math.max(1, Math.floor(uniqueXValues.length / 200)); // Limit to ~200 points for performance
+        const stepSize = Math.max(1, Math.floor(uniqueXValues.length / 500)); // Limit to ~500 points for performance
         const thresholds = uniqueXValues.filter((_, i) => i % stepSize === 0);
 
         const curvePoints = thresholds.map(t => computeMetrics(t, currentLabeledData));
@@ -544,34 +568,17 @@ function initializeContinuous() {
         const precision = curvePoints.map(p => p.ppv);
         const recall = TPR; // recall is the same as sensitivity/TPR
 
-        // Calculate AUC using trapezoidal rule
-        // Make sure FPR is sorted in ascending order for proper integration
-        const sortedPoints = [...curvePoints].sort((a, b) => a.fpr - b.fpr);
-        const sortedFPR = sortedPoints.map(p => p.fpr);
-        const sortedTPR = sortedPoints.map(p => p.sensitivity);
-        
-        // Ensure we have points at 0 and 1 for proper integration
-        if (sortedFPR[0] > 0) {
-            sortedFPR.unshift(0);
-            sortedTPR.unshift(0);
-        }
-        if (sortedFPR[sortedFPR.length - 1] < 1) {
-            sortedFPR.push(1);
-            sortedTPR.push(1);
-        }
-        
+
         // Calculate AUC properly using trapezoidal rule
         let auc = 0;
-        for (let i = 1; i < sortedFPR.length; i++) {
-            auc += (sortedFPR[i] - sortedFPR[i-1]) * (sortedTPR[i] + sortedTPR[i-1]) / 2;
+        for (let i = 1; i < FPR.length; i++) {
+            auc += (FPR[i-1] - FPR[i]) * (TPR[i] + TPR[i-1]) / 2;  // Reversed the order of FPR difference
         }
 
         // Calculate PR-AUC using trapezoidal rule
         let prauc = 0;
         for (let i = 1; i < recall.length; i++) {
-            if (recall[i] < recall[i-1]) { // Only include segments where recall is decreasing
-                prauc += (recall[i-1] - recall[i]) * (precision[i] + precision[i-1]) / 2;
-            }
+            prauc += (recall[i-1] - recall[i]) * (precision[i] + precision[i-1]) / 2;  // Also fix PR-AUC calculation
         }
 
         // Get metrics at current threshold
@@ -627,7 +634,7 @@ function initializeContinuous() {
             }]
         };
         
-        // PR Plot
+        // PR Plot - Use the sorted data to ensure correct curve
         const prTrace = {
             x: recall,
             y: precision,
@@ -731,11 +738,14 @@ function initializeContinuous() {
         drawScatterPlot(trueR, "true");
         drawScatterPlot(observedR, "observed");
 
-        // Determine the currently selected plot type based on active button
-        const isTrueSelected = document.getElementById("true-button-cont").classList.contains("active");
+        // Show/hide plots based on currentView
+        document.getElementById("scatter-plot-true-cont").style.display = currentView === "true" ? "block" : "none";
+        document.getElementById("scatter-plot-observed-cont").style.display = currentView === "observed" ? "block" : "none";
+        document.getElementById("distribution-plot-true-cont").style.display = currentView === "true" ? "block" : "none";
+        document.getElementById("distribution-plot-observed-cont").style.display = currentView === "observed" ? "block" : "none";
 
         // Update metrics and threshold based on the selected plot type
-        if (isTrueSelected) {
+        if (currentView === "true") {
             drawThreshold(trueMetrics, "true"); // Update threshold for true effect size
         } else {
             drawThreshold(observedMetrics, "observed"); // Update threshold for observed effect size
@@ -748,12 +758,17 @@ function initializeContinuous() {
     function initializeDistributions() {
         // Initialize both "true" and "observed" distribution SVG containers
         ["true", "observed"].forEach(type => {
+            // Ensure we start with a clean container
+            d3.select(`#distribution-plot-${type}-cont`).selectAll("svg").remove();
+            
             const svgDistributions = d3.select(`#distribution-plot-${type}-cont`)
                 .append("svg")
                 .attr("width", "100%")
                 .attr("height", "100%")
                 .attr("viewBox", `0 0 ${width} ${height}`)
-                .attr("preserveAspectRatio", "xMidYMid meet");
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .style("display", "block")
+                .style("max-width", "100%");
 
             // Add x-axis with larger ticks
             svgDistributions.append("g")
