@@ -43,6 +43,15 @@
     min-height: 300px;
 }
 
+#scatter-plot-observed-cont svg,
+#scatter-plot-true-cont svg,
+#distribution-plot-observed-cont svg,
+#distribution-plot-true-cont svg {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+}
+
 /* Results section */
 #continuous-container .results-container {
     width: 100%;
