@@ -25,8 +25,8 @@ function initializeBinary() {
     
     // Set initial width and height variables
     const bbox = d3.select("#overlap-plot").node().getBoundingClientRect();
-    width = bbox.width || 800;
-    height = bbox.height || 400;
+    width = bbox.width;
+    height = bbox.height ;
     
     // Update SVG viewBox to match container size
     svgDistributions.attr("viewBox", `0 0 ${width} ${height}`);
