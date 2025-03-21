@@ -9,9 +9,8 @@ function initializeContinuous() {
     console.log("Initializing continuous version");
     
     // Local constants
-    const width = 1200;
-    const height = 600;
     const margin = { top: 30, right: 50, bottom: 70, left: 95 };
+    let width, height; // Declare width and height at the function scope
     
     // Global font and tick size settings
     const fontSize = {
@@ -22,10 +21,6 @@ function initializeContinuous() {
     };
     const tickSize = 11;    // Size of axis ticks
     const tickWidth = 1.5;   // Width of axis ticks
-    
-    // Scales
-    const xScale = d3.scaleLinear().domain([-4, 5]).range([margin.left, width - margin.right]);
-    const yScale = d3.scaleLinear().domain([0, 0.5]).range([height - margin.bottom, margin.top]);
     
     // State variables
     let thresholdValue = 0;
@@ -41,6 +36,19 @@ function initializeContinuous() {
     
     // Clean up any existing state
     cleanupContinuous();
+    
+    // Set initial width and height variables with fixed aspect ratio
+    const scatterContainer = document.getElementById("scatter-plot-observed-cont");
+    if (scatterContainer) {
+        const bbox = scatterContainer.getBoundingClientRect();
+        width = bbox.width || 1200;
+        // Set height to maintain a 2:1 aspect ratio (width:height)
+        height = width / 2;
+    }
+    
+    // Scales
+    const xScale = d3.scaleLinear().domain([-4, 5]).range([margin.left, width - margin.right]);
+    const yScale = d3.scaleLinear().domain([0, 0.5]).range([height - margin.bottom, margin.top]);
     
     // Utility functions (these don't depend on DOM or state)
     function computeObservedR(trueR, reliabilityX, reliabilityY) {

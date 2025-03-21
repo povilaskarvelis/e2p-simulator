@@ -34,25 +34,6 @@ function initializeBinary() {
     // Update scales with dimensions
     xScale.range([0, width - margin.left - margin.right]);
     yScale.range([height - margin.bottom - margin.top, 0]);
-    
-    // Use ResizeObserver to update dimensions when container size changes
-    // without redrawing the content
-    const containerElement = document.getElementById("overlap-plot");
-    binaryResizeObserver = new ResizeObserver(entries => {
-        for (let entry of entries) {
-            // Update width and height
-            width = entry.contentRect.width;
-            height = entry.contentRect.height;
-            
-            // Only update the viewBox without redrawing content
-            svgDistributions.attr("viewBox", `0 0 ${width} ${height}`);
-        }
-    });
-    
-    // Start observing the container
-    if (containerElement) {
-        binaryResizeObserver.observe(containerElement);
-    }
 
     // Create axes groups
     plotGroup.append("g")
