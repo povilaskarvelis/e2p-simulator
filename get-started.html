@@ -182,26 +182,45 @@
     <div class="guide-section">
         <h2>Quick Start Examples</h2>
         
-        <h3>Example 1: Predicting Depression Diagnosis</h3>
+        <h3>Example 1: Predicting Depression Diagnosis (low grouping reliability)</h3>
         <p>A psychiatrist wants to understand how well a biomarker can predict depression diagnosis:</p>
         <ol>
-            <li>Select Binary Mode and set base rate to 0.1 (~10% of the population being depressed)</li>
-            <li>Set the grouping reliability to 0.37 (empirical value for DSM-5 depression diagnosis)</li>
+            <li>In the Binary outcome mode:
+                <ul>
+                    <li>Set base rate to 8% (8% of the population being depressed; <a href="https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/bjc.12333" target="_blank">Shorey et al., 2021</a>)</li>
+                    <li>Set the grouping reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
+                    <li>Set the predictor reliability for both groups; e.g., cognitive biomarkers are on average 0.6 (<a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
+                    <li>Set the observed effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice)</li>
+                </ul>
+            </li>
+
+            <li>This will yield AUC = 0.72 and PR-AUC = 0.15. So, even with the optimistic effect size of 0.8, the predictive utility remains very modest, especially when it comes to the tradeoff between recall and precision (as shown by the low PR-AUC).</li>
+
+            <li>Note that with the low reliability values this observed effect corresponds to a much larger true effect, d = 1.96, which while not being very realistic, highlights how much information is lost due to measurement error.</li>
+
+            <li>We can also work backwards. Let's say for precision psychiatry applications we want to achieve a PR-AUC of 0.8. This would require an effect size of Use the Mahalanobis D calculator to explore how many biomarkers with smaller d values could be combined to achieve the same discriminative power as a single biomarker with d = 2.0 or larger</li>
+        </ol>
+        
+        <h3>Example 2: Predicting Suicide Attempts (extremely low base rate)</h3>
+        <p>A clinician wants to understand how well a biomarker can predict suicide attempts:</p>
+        <ol>
+            <li>Select Binary Mode and set base rate to 2% (2% of the population attempting suicide annually)</li>
+            <li>Set the grouping reliability to 0.85 (empirical value for suicide attempt classification)</li>
             <li>Set the predictor reliability to 0.7 (an optimistic value for clinical biomarkers)</li>
 
             <li>Set the effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice):
                 <ul>
-                    <li>This yields AUC = 0.71 and PR-AUC = 0.23, showing limited discriminative ability despite being considered a "large" effect</li>
-                    <li>Even with this optimistic effect size, the predictive utility remains very modest, especially for when it comes to the tradeoff between recall and precision (as shown by the low PR-AUC)</li>
+                    <li>This yields AUC = 0.71 and PR-AUC = 0.08, showing very limited discriminative ability despite being considered a "large" effect</li>
+                    <li>Even with this optimistic effect size, the predictive utility remains extremely modest, especially for when it comes to the tradeoff between recall and precision (as shown by the very low PR-AUC)</li>
                 </ul>
             </li>
 
-            <li>Note that with the low reliability values (0.37 for diagnosis, 0.7 for biomarker), this observed effect corresponds to a much larger true effect, d = 1.57, highlighting the improvements in predictive utility that can be achieved by simply improving measurement reliability.</li>
+            <li>Note that with the higher reliability values (0.85 for suicide attempt classification, 0.7 for biomarker), this observed effect corresponds to a true effect of d = 0.95, showing that even with good measurement reliability, achieving meaningful predictive utility for rare events is extremely challenging.</li>
 
             <li>Use the Mahalanobis D calculator to explore how many biomarkers with smaller d values could be combined to achieve the same discriminative power as a single biomarker with d = 2.0 or larger</li>
         </ol>
-        
-        <h3>Example 2: Interpreting a Correlation</h3>
+
+        <h3>Example 3: Interpreting a Correlation</h3>
         <p>A researcher has found r = 0.4 between a biomarker and treatment response in depression:</p>
         <ol>
             <li>Select Continuous Mode and set reliability to 0.7 (aspirational for clinical biomarkers and outcomes)</li>

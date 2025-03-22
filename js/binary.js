@@ -95,14 +95,10 @@ function initializeBinary() {
         }));
 
         // Calculate maximum y-value for adjusting the yScale
-        const maxYBlue = d3.max(data1, d => d.y);
-        const maxYGreen = d3.max(data2, d => d.y);
-        const maxY = Math.max(maxYBlue, maxYGreen);
+        const maxY = Math.max(d3.max(data1, d => d.y), d3.max(data2, d => d.y));
         
         // Ensure y-axis starts at 0 and extends slightly above max
-        const minY = 0;
-        const buffer = maxY * 0.1;  // 10% buffer for top of plot
-        yScale.domain([minY, maxY + buffer]);
+        yScale.domain([0, maxY + maxY * 0.1]); // 10% buffer for top of plot
 
         // Update y-axis
         plotGroup.select(".y-axis")
@@ -291,14 +287,14 @@ function initializeBinary() {
         // Get ICC values for standard deviation calculation
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
-        const iccG = parseFloat(document.getElementById("iccc-slider").value);
 
         // Calculate standard deviations based on current view
         const sigma1 = currentView === "true" ? 1 : 1 / Math.sqrt(icc1); // Group 1
         const sigma2 = currentView === "true" ? 1 : 1 / Math.sqrt(icc2); // Group 2
 
-        // Calculate AUC once - it depends on d and standard deviations
-        const auc = StatUtils.normalCDF(d / Math.sqrt(2), 0, 1);
+        // Calculate AUC 
+        const datt = d * Math.sqrt(2) / Math.sqrt(sigma1**2 + sigma2**2);
+        const auc = StatUtils.normalCDF(datt / Math.sqrt(2), 0, 1);
 
         const tMin = -20;
         const tMax = 20;
@@ -551,20 +547,18 @@ function initializeBinary() {
 
     function updatePlots() {
         const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-        const icc1 = parseFloat(document.getElementById("icc1-slider").value);
-        const icc2 = parseFloat(document.getElementById("icc2-slider").value);
         const iccG = parseFloat(document.getElementById("iccc-slider").value);
         
         // Calculate observed d based on reliabilities
-        const dObs = trueD * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
+        const dObs = trueD * Math.sqrt(iccG);
         
         // Use appropriate d value based on current view
-        const dToUse = currentView === "true" ? trueD : dObs;
+        const ddiff = currentView === "true" ? trueD : dObs;
         
         // Update plots with the appropriate d value
-        drawDistributions(dToUse);
-        drawThreshold(dToUse);
-        plotROC(dToUse);
+        drawDistributions(ddiff);
+        drawThreshold(ddiff);
+        plotROC(ddiff);
     }
 
     // Conversion functions
@@ -633,30 +627,42 @@ function initializeBinary() {
         // ICC1 listeners
         reliabilityControls.icc1Slider.addEventListener("input", () => {
             reliabilityControls.icc1Input.value = parseFloat(reliabilityControls.icc1Slider.value).toFixed(2);
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
         reliabilityControls.icc1Input.addEventListener("input", () => {
             reliabilityControls.icc1Slider.value = reliabilityControls.icc1Input.value;
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
 
         // ICC2 listeners
         reliabilityControls.icc2Slider.addEventListener("input", () => {
             reliabilityControls.icc2Input.value = parseFloat(reliabilityControls.icc2Slider.value).toFixed(2);
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
         reliabilityControls.icc2Input.addEventListener("input", () => {
             reliabilityControls.icc2Slider.value = reliabilityControls.icc2Input.value;
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
 
         // ICC_G listeners
         reliabilityControls.iccGSlider.addEventListener("input", () => {
             reliabilityControls.iccGInput.value = parseFloat(reliabilityControls.iccGSlider.value).toFixed(2);
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
         reliabilityControls.iccGInput.addEventListener("input", () => {
             reliabilityControls.iccGSlider.value = reliabilityControls.iccGInput.value;
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
 
