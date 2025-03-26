@@ -15,6 +15,8 @@ body {
     min-height: 100vh;
     transform: none !important; /* Disable any transforms */
     -moz-box-sizing: border-box; /* Firefox-specific box sizing */
+    min-width: 1400px !important; /* Force minimum width */
+    overflow-x: auto; /* Allow horizontal scrolling when needed */
 }
 
 /* Add WebKit-specific slider thumb styling to match Firefox */
@@ -856,19 +858,30 @@ h2.calculator-title {
     font-size: 2rem !important;
 }
 
-/* Mobile Chrome-specific fixes - only applies to mobile devices */
-@media only screen and (max-width: 1024px) and (-webkit-min-device-pixel-ratio: 0) {
+/* Chrome-specific fix that doesn't make things responsive */
+@supports (-webkit-appearance:none) {
     body {
-        width: 100%;
-        overflow-x: auto;
+        width: 1400px !important; /* Force fixed width on Chrome */
+        min-width: 1400px !important; /* Force minimum width on Chrome */
     }
     
-    /* Let plots render at their natural size on mobile */
-    .plot, #dPlot, #r2Plot {
-        max-width: 100%;
+    /* Remove the hardware acceleration that's breaking plot rendering */
+    /* .plot, #dPlot, #r2Plot {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    } */
+}
+
+/* Add specific fixes for mobile Chrome without affecting desktop */
+@media only screen and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 0) {
+    /* Only apply these fixes on mobile Chrome */
+    body {
+        width: 1400px !important;
+        overflow-x: auto;
     }
 }
 
-/* Add a viewport meta tag to your HTML head if you haven't already:
-<meta name="viewport" content="width=1400, initial-scale=1.0">
+/* Add a viewport meta tag to your HTML head:
+<meta name="viewport" content="width=1400, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 */
