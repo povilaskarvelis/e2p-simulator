@@ -58,7 +58,7 @@ const customLegendPlugin = {
             }
             
             const text = document.createElement('span');
-            text.innerText = item.text;
+            text.innerHTML = item.text;
             
             legendItem.appendChild(marker);
             legendItem.appendChild(text);

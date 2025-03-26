@@ -275,7 +275,7 @@ function initializeChart() {
     
     // Create an active curve dataset with parameters in the label
     activeCurve = {
-        label: `d = ${effectSize.toFixed(2)}, r = ${correlation.toFixed(2)}`,
+        label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
         data: [],
         borderColor: `${colors[nextColorIndex]}80`, // Add 50% transparency with hex alpha
         borderWidth: 3,
@@ -317,6 +317,7 @@ function initializeChart() {
                 },
                 y: {
                     min: 0,
+                    max: neededD * 1.3,
                     grid: {
                         display: false,
                         drawBorder: false
@@ -368,6 +369,9 @@ function updateActiveCurve(xValues, yValues) {
     thresholdDataset.data = Array(numVariables).fill(neededD);
     thresholdDataset.label = `Needed D = ${neededD}`;
     
+    // Update y-axis scale based on the new needed D value
+    dChart.options.scales.y.max = neededD * 1.3;
+    
     // Update chart
     dChart.update();
 }
@@ -375,7 +379,7 @@ function updateActiveCurve(xValues, yValues) {
 function addDataset(xValues, yValues, neededD, effectSize, correlation, color) {
     // Create a new dataset with the current parameters
     const newDataset = {
-        label: `d = ${effectSize.toFixed(2)}, r = ${correlation.toFixed(2)}`,
+        label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
         data: yValues,
         borderColor: color,
         borderWidth: 2,
@@ -443,7 +447,7 @@ function updateActiveCurveLabel() {
     const correlation = parseFloat(document.getElementById("correlation").value);
     
     // Update the label with current parameters
-    activeCurve.label = `d = ${effectSize.toFixed(2)}, r = ${correlation.toFixed(2)}`;
+    activeCurve.label = `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`;
     
     // Update the chart to reflect the new label
     dChart.update();

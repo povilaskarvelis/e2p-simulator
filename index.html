@@ -161,22 +161,22 @@
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1">Group 1 reliability</span>
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Group 1 reliability, ICC<sub>1</sub></span>
                             <input type="number" id="icc1-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Group 2 Reliability -->
                         <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2">Group 2 reliability</span>
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Group 2 reliability, ICC<sub>2</sub></span>
                             <input type="number" id="icc2-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                         
                         <!-- Classification Reliability -->
-                        <input type="range" id="iccc-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
+                        <input type="range" id="kappa-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label" data-tooltip="Reliability of the group labels">Grouping reliability</span>
-                            <input type="number" id="iccc-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
+                            <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Grouping reliability, <i>&kappa;</i></span>
+                            <input type="number" id="kappa-number" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                         </div>
                     </div>
 
@@ -230,41 +230,49 @@
                 <a href="https://osf.io/preprints/psyarxiv/z4yqe_v3" style="text-decoration: none; color: inherit;">
                     <p class="equation-title">Cohen's d attenuation by reliability</p>
                     <div class="equation-content">
-                        \[d_{obs} = d_{true} \sqrt{\frac{2\rho_1\rho_2}{\rho_1+\rho_2} \rho_g}\]
+                        \[d_{obs} = d_{true} \sqrt{\frac{2ICC_1ICC_2}{ICC_1+ICC_2}\sin\left(\frac{\pi}{2}\kappa\right)}\]
                     </div>
                 </a>
             </div>
             
             <!-- d to Log Odds Ratio -->
             <div class="equation-box">
-                <p class="equation-title">d to Log Odds Ratio</p>
-                <div class="equation-content">
-                    \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
-                </div>
+                <a href="https://psycnet.apa.org/buy/2003-10163-006" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">d to Log Odds Ratio</p>
+                    <div class="equation-content">
+                        \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
+                    </div>
+                </a>
             </div>
             
             <!-- d to AUC -->
             <div class="equation-box">
-                <p class="equation-title">d to AUC</p>
-                <div class="equation-content">
-                    \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
-                </div>
+                <a href="https://psycnet.apa.org/record/2008-02525-002" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">d to AUC</p>
+                    <div class="equation-content">
+                        \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
+                    </div>
+                </a>
             </div>
             
             <!-- d to Point-biserial r -->
             <div class="equation-box">
-                <p class="equation-title">d to Point-biserial r</p>
-                <div class="equation-content">
-                    \[r_{pb} = \frac{d}{\sqrt{d^2 + 4}}\]
-                </div>
+                <a href="https://psycnet.apa.org/record/2006-22258-004" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">d to Point-biserial r</p>
+                    <div class="equation-content">
+                        \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{p(1-p)}}}\]
+                    </div>
+                </a>
             </div>
             
             <!-- d to Eta squared -->
             <div class="equation-box">
-                <p class="equation-title">d to Eta squared</p>
-                <div class="equation-content">
-                    \[\eta^2 = \frac{d^2}{d^2 + 4}\]
-                </div>
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">d to Eta squared</p>
+                    <div class="equation-content">
+                        \[\eta^2 = \frac{d^2}{d^2 + \frac{1}{p(1-p)}}\]
+                    </div>
+                </a>
             </div>
         </div>
 
@@ -272,10 +280,7 @@
         <div style="margin-top: 50px;"></div>
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Mahalanobis D Calculator</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graphs above can help determine the group separation needed for desired predictive performance, 
-                this separation can be achieved by combining multiple predictors. Mahalanobis D is a multivariate extension 
-                of Cohen's d that quantifies the overall separation between groups in multivariate space, accounting for 
-                the intercorrelations among predictors. </p>
+            <p>Instead of using a single large effect, it is often necessary to combine multiple smaller effects to achieve the desired level of predictive performance. This calculator shows how many predictors are needed, given their individual effect sizes and collinearity, to achieve a desired level of group separation. The separation is quantified using Mahalanobis D, which generalizes Cohen's d to multivariate settings.</p>
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
@@ -283,7 +288,7 @@
             <div class="section sliders">
                 <!-- Mahalanobis D equation box -->
                 <div class="equation-box flat">
-                    <p class="equation-title">Mahalanobis D formula when all predictors have the same effect size and collinearity:</p>
+                    <p class="equation-title">A simplified Mahalanobis D formula when all predictors have the same effect size and collinearity:</p>
                     <div class="equation-content">
                         \[D = d \sqrt{\dfrac{p}{1 + (p-1)r_{ij}}}\]
                     </div>
@@ -315,10 +320,10 @@
 
                     <!-- Number of variables slider -->
                     <div class="slider-container">
-                        <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="50" class="slider">
+                        <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="20" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Number of predictors (p)</span>
-                            <input type="number" id="numVariables" min="1" max="100" step="1" value="50" class="slider-value">
+                            <input type="number" id="numVariables" min="1" max="100" step="1" value="20" class="slider-value">
                         </div>
                     </div>
 
@@ -392,14 +397,14 @@
                     <!-- Reliability X -->
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                        <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable">Predictor reliability</span>
+                        <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>x</sub></span>
                         <input type="number" id="reliability-x-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                        <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable">Outcome reliability</span>
+                        <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
                         <input type="number" id="reliability-y-number-cont" min="0" max="1" step="0.01" value="0.5" style="width: 60px;">
                     </div>
 
@@ -512,14 +517,64 @@
             </div>
         </a>
 
-        <!-- Include R-squared Calculator -->
+        <!-- Equations Section for Continuous -->
+        <div class="equations-container">
+            <!-- Reliability attenuation -->
+            <div class="equation-box wider">
+                <a href="https://psycnet.apa.org/record/2006-10257-005" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">Reliability attenuation of Pearson's r</p>
+                    <div class="equation-content">
+                        \[r_{obs} = r_{true} \sqrt{ICC_x \cdot ICC_y}\]
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Cohen's d -->
+            <div class="equation-box wider">
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">Cohen's d</p>
+                    <div class="equation-content">
+                        \[d = \frac{\mu_2 - \mu_1}{\sqrt{\frac{(n_1-1)\sigma_1^2 + (n_2-1)\sigma_2^2}{n_1+n_2-2}}}\]
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Cohen's d* -->
+            <div class="equation-box">
+                <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">Cohen's d*</p>
+                    <div class="equation-content">
+                        \[d^* = \frac{\mu_2 - \mu_1}{\sqrt{\frac{\sigma_1^2 + \sigma_2^2}{2}}}\]
+                    </div>
+                </a>
+            </div>
+
+            <!-- r to rank-biserial r -->
+            <div class="equation-box">
+                <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">Rank-biserial correlation</p>
+                    <div class="equation-content">
+                        \[r_{rb} = \frac{2(\bar{Y}_1 - \bar{Y}_0)}{n}\]
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Glass's delta -->
+            <div class="equation-box">
+                <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" style="text-decoration: none; color: inherit;">
+                    <p class="equation-title">Glass's Δ</p>
+                    <div class="equation-content">
+                        \[\Delta = \frac{\mu_2 - \mu_1}{\sigma_1}\]
+                    </div>
+                </a>
+            </div>
+        </div>
+
         <!-- Multivariate R² Calculator -->
         <div style="margin-top: 50px;"></div>
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Multivariate R² Calculator</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graphs above can help determine the correlation strength needed for desired predictive performance, 
-                this correlation can be achieved by combining multiple predictors. Multivariate R² quantifies the variance explained by a 
-                set of predictors, accounting for their intercorrelations. </p>
+            <p>Instead of using a single strong correlation, it is often necessary to combine multiple smaller correlations to achieve the desired level of predictive performance. This calculator shows how many predictors are needed, given their individual correlations and collinearity, to achieve a desired level of explained variance. The variance explained is quantified using Multivariate R².</p>
         </div>
 
         <!-- Multivariate R² Calculator Container -->
@@ -527,7 +582,7 @@
             <div class="section sliders">
                 <!-- Multivariate R² equation box -->
                 <div class="equation-box flat">
-                    <p class="equation-title">Multivariate R² formula when all predictors have the same effect size and collinearity:</p>
+                    <p class="equation-title">A simplified multivariate R² formula when all predictors have the same effect size and collinearity:</p>
                     <div class="equation-content">
                         \[R^2 = \dfrac{pr^2}{1+(p-1)r_{ij}}\]
                     </div>

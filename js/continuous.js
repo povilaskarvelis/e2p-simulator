@@ -186,6 +186,42 @@ function initializeContinuous() {
             );
     }
 
+    // Function to compute all effect size metrics
+    function computeEffectSizeMetrics(tealX, grayX) {
+        // Compute basic statistics
+        const meanTeal = d3.mean(tealX);
+        const meanGray = d3.mean(grayX);
+        const varianceTeal = d3.variance(tealX);
+        const varianceGray = d3.variance(grayX);
+        const nTeal = tealX.length;
+        const nGray = grayX.length;
+
+        // Cohen's d with pooled standard deviation
+        const pooledSD = Math.sqrt(((nGray - 1) * varianceGray + (nTeal - 1) * varianceTeal) / (nGray + nTeal - 2));
+        const d = (meanTeal - meanGray) / pooledSD;
+
+        // Compute rank-biserial correlation
+        const allData = [...tealX, ...grayX].sort(d3.ascending);
+        const tealRankSum = d3.sum(tealX.map(x => d3.bisect(allData, x)));
+        const rankBiserial = 2 * (tealRankSum / nTeal - (nTeal + nGray + 1) / 2) / (nTeal + nGray);
+
+        // Adjust for unequal variances and sample sizes
+        const nonpooledSD = Math.sqrt((varianceGray + varianceTeal) / 2);
+        const da = (meanTeal - meanGray) / nonpooledSD;
+        const glassD = (meanTeal - meanGray) / Math.sqrt(varianceGray);
+
+        return {
+            d,
+            rankBiserial,
+            da, 
+            glassD,
+            meanTeal,
+            meanGray,
+            varianceTeal,
+            varianceGray
+        };
+    }
+
     function drawDistributions(tealX, grayX, type) {
         // First, clear any existing SVG to avoid duplicate plots
         d3.select(`#distribution-plot-${type}-cont`).selectAll("svg").remove();
@@ -224,37 +260,22 @@ function initializeContinuous() {
             y: (bin.length / grayTotal / binWidth) * blueScale // Normalize by count and bin width
         }));
 
-        // Compute metrics
-        const meanTeal = d3.mean(tealX);
-        const meanGray = d3.mean(grayX);
-        const varianceTeal = d3.variance(tealX);
-        const varianceGray = d3.variance(grayX);
-        const nTeal = tealX.length;
-        const nGray = grayX.length;
+        // Compute all effect size metrics
+        const esMetrics = computeEffectSizeMetrics(tealX, grayX);
+        
+        // Update UI displays
+        document.getElementById(`${type}-rank-biserial-cont`).value = esMetrics.rankBiserial.toFixed(2);
+        document.getElementById(`${type}-glass-d-cont`).value = esMetrics.glassD.toFixed(2);
 
-        // const pooledSD = Math.sqrt((varianceTeal + varianceGray) / 2);
-        const pooledSD = Math.sqrt(((nGray - 1) * varianceGray + (nTeal - 1) * varianceTeal) / (nGray + nTeal - 2));
-
-        const d = (meanTeal - meanGray) / pooledSD;
-
-        // Compute rank-biserial correlation
-        const allData = [...tealX, ...grayX].sort(d3.ascending);
-        const tealRankSum = d3.sum(tealX.map(x => d3.bisect(allData, x)));
-        const rankBiserial = 2 * (tealRankSum / nTeal - (nTeal + nGray + 1) / 2) / (nTeal + nGray);
-
-        // Update rank-biserial display
-        document.getElementById(`${type}-rank-biserial-cont`).value = rankBiserial.toFixed(2);
-
-        // Adjust for unequal variances and sample sizes
-        const nonpooledSD = Math.sqrt((varianceGray + varianceTeal) / 2);
-        const da = (meanTeal - meanGray) / nonpooledSD
-        const glassD = (meanTeal - meanGray) / Math.sqrt(varianceGray);
-
-        // Update glass d
-        document.getElementById(`${type}-glass-d-cont`).value = glassD.toFixed(2);
-
-        // Create metrics object
-        const metrics = { d, da, meanTeal, meanGray, varianceTeal, varianceGray };
+        // Create metrics object for the existing updateMetricsFromD function
+        const metrics = { 
+            d: esMetrics.d, 
+            da: esMetrics.da, 
+            meanTeal: esMetrics.meanTeal, 
+            meanGray: esMetrics.meanGray, 
+            varianceTeal: esMetrics.varianceTeal, 
+            varianceGray: esMetrics.varianceGray 
+        };
         
         // Store metrics and update UI
         if (type === "true") {
@@ -364,7 +385,7 @@ function initializeContinuous() {
         svgDistributions.selectAll(".variance-annotation").remove(); // Remove existing annotations first
         
         // Calculate variance ratio (gray/teal to match the labeling)
-        const varianceRatio = (varianceGray / varianceTeal).toFixed(2);
+        const varianceRatio = (esMetrics.varianceGray / esMetrics.varianceTeal).toFixed(2);
         
         // Define a larger font size for the variance fraction
         const varianceFontSize = fontSize.annotationText * 1.2;
@@ -519,7 +540,7 @@ function initializeContinuous() {
     }
 
     // Function to compute metrics at a given threshold
-    function computeMetrics(threshold, data) {
+    function computePredictiveMetrics(threshold, data) {
         const predictions = data.map(d => d.x >= threshold ? 1 : 0);
         const trueClasses = data.map(d => d.trueClass);
         
@@ -568,7 +589,7 @@ function initializeContinuous() {
         const stepSize = Math.max(1, Math.floor(uniqueXValues.length / 500)); // Limit to ~500 points for performance
         const thresholds = uniqueXValues.filter((_, i) => i % stepSize === 0);
 
-        const curvePoints = thresholds.map(t => computeMetrics(t, currentLabeledData));
+        const curvePoints = thresholds.map(t => computePredictiveMetrics(t, currentLabeledData));
 
         // Arrays for plotting
         const FPR = curvePoints.map(p => p.fpr);
@@ -590,7 +611,7 @@ function initializeContinuous() {
         }
 
         // Get metrics at current threshold
-        const currentMetrics = computeMetrics(thresholdValue, currentLabeledData);
+        const currentMetrics = computePredictiveMetrics(thresholdValue, currentLabeledData);
         
         // Update dashboard values
         document.getElementById("auc-value-cont").textContent = auc.toFixed(2);
@@ -704,7 +725,7 @@ function initializeContinuous() {
     }
 
     function updateMetricsFromD(metrics, type) {
-        const { d, da, meanTeal, meanGray, varianceTeal, varianceGray } = metrics;
+        const { d, da } = metrics;
         
         // Calculate metrics from actual data
         // For AUC, we'll use the actual data points in plotROC
@@ -713,14 +734,14 @@ function initializeContinuous() {
         const logOddsRatio = da * Math.PI / Math.sqrt(3);
         
         // Calculate point-biserial correlation
-        const pbR = d / Math.sqrt(d ** 2 + 4);
+        const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
+        const pbR = StatUtils.dToR(da,baseRate);
         
         document.getElementById(`${type}-cohens-d-cont`).value = d.toFixed(2);
         document.getElementById(`${type}-cohens-da-cont`).value = da.toFixed(2);
         document.getElementById(`${type}-odds-ratio-cont`).value = oddsRatio.toFixed(2);
         document.getElementById(`${type}-log-odds-ratio-cont`).value = logOddsRatio.toFixed(2);
         document.getElementById(`${type}-pb-r-cont`).value = pbR.toFixed(2);
-        
     }
 
     // Update function (coordinates all updates)

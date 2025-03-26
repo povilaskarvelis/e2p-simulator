@@ -28,8 +28,10 @@ const StatUtils = {
     },
     
     // Convert between effect sizes
-    dToR: function(d) {
-        return d / Math.sqrt(d * d + 4);
+    dToR: function(d,p) {
+        // Convert d to point-biserial correlation using base rate p
+        // When p = 0.5, this reduces to the standard formula d / sqrt(d^2 + 4)
+        return d / Math.sqrt(d * d + 1/(p * (1-p)));
     },
     
     rToD: function(r) {

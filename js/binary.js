@@ -505,21 +505,22 @@ function initializeBinary() {
         // Get reliability values
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
-        const iccG = parseFloat(document.getElementById("iccc-slider").value);
+        const kappa = parseFloat(document.getElementById("kappa-slider").value);
+        const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
         
         // Calculate attenuated d
-        const dObs = d * Math.sqrt((2 * icc1 * icc2 / (icc1 + icc2)) * iccG);
+        const dObs = d * Math.sqrt((2 * icc1 * icc2) / (icc1 + icc2) * Math.sin((Math.PI/2) * kappa));
 
         // Calculate values for true d
         const trueOddsRatio = StatUtils.dToOddsRatio(d);
         const trueLogOddsRatio = StatUtils.dToLogOddsRatio(d);
-        const trueR = StatUtils.dToR(d);
+        const trueR = StatUtils.dToR(d,baseRate);
         const trueEtaSquared = trueR ** 2;
 
         // Calculate values for observed d
         const obsOddsRatio = StatUtils.dToOddsRatio(dObs);
         const obsLogOddsRatio = StatUtils.dToLogOddsRatio(dObs);
-        const obsR = StatUtils.dToR(dObs);
+        const obsR = StatUtils.dToR(dObs,baseRate);
         const obsEtaSquared = obsR ** 2;
 
         // Update all inputs
@@ -538,7 +539,7 @@ function initializeBinary() {
         document.getElementById("observed-odds-ratio-bin").value = obsOddsRatio.toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = obsLogOddsRatio.toFixed(2);
 
-        document.getElementById("observed-pb-r-bin").value = (dObs / Math.sqrt(dObs ** 2 + 4)).toFixed(2);
+        document.getElementById("observed-pb-r-bin").value = obsR.toFixed(2);
         document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
         
         // Update plots
@@ -547,12 +548,12 @@ function initializeBinary() {
 
     function updatePlots() {
         const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-        const iccG = parseFloat(document.getElementById("iccc-slider").value);
+        const kappa = parseFloat(document.getElementById("kappa-slider").value);
         
-        // Calculate observed d based on reliabilities
-        const dObs = trueD * Math.sqrt(iccG);
+        // Calculate observed mean difference using the full attenuation formula
+        const dObs = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));
         
-        // Use appropriate d value based on current view
+        // Use appropriate mean difference value based on current view
         const ddiff = currentView === "true" ? trueD : dObs;
         
         // Update plots with the appropriate d value
@@ -563,16 +564,22 @@ function initializeBinary() {
 
     // Conversion functions
     function updateMetricsFromOddsRatio(oddsRatio) {
+        oddsRatio = parseFloat(oddsRatio);
+        if (isNaN(oddsRatio) || oddsRatio <= 0) return;
         const d = Math.log(oddsRatio) * Math.sqrt(3) / Math.PI;
         updateMetricsFromD(d);
     }
 
     function updateMetricsFromLogOddsRatio(logOddsRatio) {
+        logOddsRatio = parseFloat(logOddsRatio);
+        if (isNaN(logOddsRatio)) return;
         const d = logOddsRatio * Math.sqrt(3) / Math.PI;
         updateMetricsFromD(d);
     }
 
     function updateMetricsFromR(r) {
+        r = parseFloat(r);
+        if (isNaN(r) || r >= 1 || r <= 0) return;
         const d = (2 * r) / Math.sqrt(1 - r ** 2);
         updateMetricsFromD(d);
     }
@@ -620,8 +627,8 @@ function initializeBinary() {
             icc1Input: document.getElementById("icc1-number"),
             icc2Slider: document.getElementById("icc2-slider"),
             icc2Input: document.getElementById("icc2-number"),
-            iccGSlider: document.getElementById("iccc-slider"),
-            iccGInput: document.getElementById("iccc-number")
+            kappaSlider: document.getElementById("kappa-slider"),
+            kappaInput: document.getElementById("kappa-number")
         };
 
         // ICC1 listeners
@@ -652,46 +659,39 @@ function initializeBinary() {
             updatePlots();
         });
 
-        // ICC_G listeners
-        reliabilityControls.iccGSlider.addEventListener("input", () => {
-            reliabilityControls.iccGInput.value = parseFloat(reliabilityControls.iccGSlider.value).toFixed(2);
+        // Kappa listeners
+        reliabilityControls.kappaSlider.addEventListener("input", () => {
+            reliabilityControls.kappaInput.value = parseFloat(reliabilityControls.kappaSlider.value).toFixed(2);
             const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
             updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
-        reliabilityControls.iccGInput.addEventListener("input", () => {
-            reliabilityControls.iccGSlider.value = reliabilityControls.iccGInput.value;
+        reliabilityControls.kappaInput.addEventListener("input", () => {
+            reliabilityControls.kappaSlider.value = reliabilityControls.kappaInput.value;
             const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
             updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
 
         // Add event listeners to all true metric inputs
-        trueMetricInputs.d.addEventListener("input", (e) => {
-            const d = parseFloat(e.target.value);
-            differenceSlider.value = d;
-            updateMetricsFromD(d);
+        trueMetricInputs.d.addEventListener("input", () => {
+            updateMetricsFromD(parseFloat(trueMetricInputs.d.value));
+        });
+        
+        trueMetricInputs.oddsRatio.addEventListener("input", () => {
+            updateMetricsFromOddsRatio(trueMetricInputs.oddsRatio.value);
         });
 
-        trueMetricInputs.oddsRatio.addEventListener("input", (e) => {
-            const oddsRatio = parseFloat(e.target.value);
-            updateMetricsFromOddsRatio(oddsRatio);
+        trueMetricInputs.logOddsRatio.addEventListener("input", () => {
+            updateMetricsFromLogOddsRatio(trueMetricInputs.logOddsRatio.value);
         });
 
-        trueMetricInputs.logOddsRatio.addEventListener("input", (e) => {
-            const logOddsRatio = parseFloat(e.target.value);
-            updateMetricsFromLogOddsRatio(logOddsRatio);
+        trueMetricInputs.pbr.addEventListener("input", () => {
+            updateMetricsFromR(trueMetricInputs.pbr.value);
         });
 
-
-        trueMetricInputs.pbr.addEventListener("input", (e) => {
-            const r = parseFloat(e.target.value);
-            updateMetricsFromR(r);
-        });
-
-        trueMetricInputs.etaSquared.addEventListener("input", (e) => {
-            const etaSquared = parseFloat(e.target.value);
-            const r = Math.sqrt(etaSquared);
+        trueMetricInputs.etaSquared.addEventListener("input", () => {
+            const r = Math.sqrt(parseFloat(trueMetricInputs.etaSquared.value));
             updateMetricsFromR(r);
         });
 
@@ -701,11 +701,13 @@ function initializeBinary() {
 
         baseRateSlider.addEventListener("input", () => {
             baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(1);
+            updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
             updatePlots();
         });
 
         baseRateInput.addEventListener("input", () => {
             baseRateSlider.value = baseRateInput.value;
+            updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
             updatePlots();
         });
     }

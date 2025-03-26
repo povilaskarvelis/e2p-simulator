@@ -178,7 +178,7 @@ function initializeR2Calculator() {
         
         // Create active curve
         activeCurve = {
-            label: `r = ${params.predictorCorrelation.toFixed(2)}, r_ij = ${params.collinearity.toFixed(2)}`,
+            label: `r = ${params.predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${params.collinearity.toFixed(2)}`,
             data: r2Values,
             borderColor: colors[nextColorIndex % colors.length] + '80', // 50% opacity
             backgroundColor: `${colors[nextColorIndex % colors.length]}20`,
@@ -218,7 +218,7 @@ function initializeR2Calculator() {
         
         // Update active curve data and label
         activeCurve.data = r2Values;
-        activeCurve.label = `r=${params.predictorCorrelation.toFixed(2)}, r_ij=${params.collinearity.toFixed(2)}`;
+        activeCurve.label = `r=${params.predictorCorrelation.toFixed(2)}, r<sub>ij</sub>=${params.collinearity.toFixed(2)}`;
         
         // Update the chart
         r2Chart.update();
@@ -238,7 +238,7 @@ function initializeR2Calculator() {
         
         // Create a new dataset with a different color
         const newDataset = {
-            label: `r=${params.predictorCorrelation.toFixed(2)}, r_ij=${params.collinearity.toFixed(2)}`,
+            label: `r=${params.predictorCorrelation.toFixed(2)}, r<sub>ij</sub>=${params.collinearity.toFixed(2)}`,
             data: r2Values,
             borderColor: colors[nextColorIndex % colors.length],
             backgroundColor: `${colors[nextColorIndex % colors.length]}20`,
@@ -260,7 +260,7 @@ function initializeR2Calculator() {
                 while (dataset.data.length < currentLabels.length) {
                     const n = dataset.data.length + 1;
                     // Extract parameters from label
-                    const labelMatch = dataset.label.match(/r=([\d\.]+), r_ij=([\d\.]+)/);
+                    const labelMatch = dataset.label.match(/r=([\d\.]+), r<sub>ij<\/sub>=([\d\.]+)/);
                     if (labelMatch) {
                         const r = parseFloat(labelMatch[1]);
                         const rij = parseFloat(labelMatch[2]);
