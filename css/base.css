@@ -855,3 +855,20 @@ h2[style*="text-align: center"] {
 h2.calculator-title {
     font-size: 2rem !important;
 }
+
+/* Mobile Chrome-specific fixes - only applies to mobile devices */
+@media only screen and (max-width: 1024px) and (-webkit-min-device-pixel-ratio: 0) {
+    body {
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    /* Let plots render at their natural size on mobile */
+    .plot, #dPlot, #r2Plot {
+        max-width: 100%;
+    }
+}
+
+/* Add a viewport meta tag to your HTML head if you haven't already:
+<meta name="viewport" content="width=1400, initial-scale=1.0">
+*/
