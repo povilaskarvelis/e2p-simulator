@@ -8,7 +8,7 @@ There are several ways you can contribute to the E2P Simulator:
 
 1. **Reporting Bugs**: If you find a bug, please create an issue in the GitHub repository with a clear description of the problem, steps to reproduce it, and your environment details.
 
-2. **Suggesting Enhancements**: If you have ideas for new features or improvements, please create an issue describing your suggestion and how it would benefit users.
+2. **Suggesting Improvements**: If you have ideas for new features or improvements, please create an issue describing your suggestion and how it would benefit users.
 
 3. **Code Contributions**: If you'd like to contribute code, please follow the process below.
 

@@ -81,12 +81,12 @@
 
     <div class="guide-section">
         <h2>What is the E2P Simulator?</h2>
-        <p>The E2P Simulator (Effect-to-Prediction Simulator) bridges the gap between statistical effect sizes and practical utility. It interactively and visually shows how commonly reported effect size metrics (like Cohen's d and Pearson's r) translate into real-world predictive performance, while accounting for measurement reliability and outcome base rates.</p>
+        <p>The E2P Simulator (Effect-to-Prediction Simulator) bridges the gap between statistical effect sizes and practical utility. It interactively and visually shows how commonly reported effect size metrics (like Cohen's d and Pearson's r) translate into predictive performance, while accounting for measurement reliability and outcome base rates.</p>
 
         <p>The E2P Simulator has several potential applications:</p>
         
         <ul>
-            <li><strong>Interpretation of findings</strong>: It helps researchers move beyond arbitrary "small/medium/large" effect size labels, and instead ground their interpretations in actual predictive value within specific contexts (considering outcome prevalence and measurement reliability).</li>
+            <li><strong>Interpretation of findings</strong>: It can help researchers move beyond arbitrary "small/medium/large" effect size labels, and instead ground their interpretations in actual predictive value within specific contexts.</li>
             <li><strong>Research planning</strong>: By clearly demonstrating how effect sizes relate to practical utility and how they're influenced by measurement reliability and outcome base rates, researchers can develop more realistic research plans and allocate resources more effectively.</li>
             <li><strong>Education</strong>: The simulator's interactive design makes it a valuable teaching tool, helping students and researchers develop a more intuitive understanding of how different abstract statistical metrics relate to each other and to real-world impact.</li>
         </ul>
@@ -101,9 +101,9 @@
         <p>The E2P Simulator offers two complementary analysis modes: when outcomes are binary and when outcomes are continuous (in machine learning language, that corresponds to classification and prediction tasks, respectively).</p>
         
         <ul>
-            <li><strong>Binary Outcomes</strong>: This mode is ideal for research involving naturally distinct groups that exist independently of your measurement (e.g., treatment vs. control, male vs. female) or when only binary outcome data is available (e.g., presence/absence of a condition).</li>
+            <li><strong>Binary</strong>: For exploring how effect size measures of binary outcomes (e.g., patients vs. controls, treatment vs. control) translate to predictive metrics.</li>
             
-            <li><strong>Continuous Outcomes</strong>: This mode is ideal for research involving continuous outcomes that are later thresholded (e.g., into responders vs. non-responders to a treatment, above/below cutoff on a risk scale). This is reflects many real-world scenarios where the outcome is not naturally binary, but a binary decision needs to be made based on a continuous variable.</li>
+            <li><strong>Continuous</strong>: For exploring how continuous outcomes (e.g., symptom improvement) that are later thresholded for practical purposes (e.g., responder vs. non-responder) translate to predictive metrics.</li>
         </ul>
         
         <h3>Measurement Reliability and True vs. Observed Effects</h3>
@@ -112,9 +112,9 @@
         <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
         <h3>Base Rates</h3>
-        <p>The base rate (prevalence) of outcomes dramatically affects predictive utility. Even with strong effect sizes, rare outcomes (e.g, suicide attempts) would be very difficult to predict with high precision. The simulator demonstrates how the same effect size can yield very different predictive performance depending on base rates.</p>
+        <p>The base rate (prevalence) of outcomes dramatically affects predictive utility. Even with strong effect sizes, rare outcomes (e.g., suicide attempts) would be very difficult to predict with high precision. The simulator demonstrates how the same effect size can yield very different predictive performance depending on base rates.</p>
             
-        <p>Note that base rate considerations here are not the same as having imbalanced classes in machine learning, which merely refers to unequal group sizes in collected data. Instead, here we want to consider real-world prevalence, which offers valuable insights into how different effect sizes translate into practical utility in real-world settings.</p>
+        <p>Note that base rate considerations here are not exactly the same as having imbalanced classes in machine learning, which refers to unequal group sizes in collected data. Instead, here we want to consider how predictive performance found using balanced groups would translate to real-world prevalence.</p>
 
     </div>
 
@@ -150,14 +150,14 @@
     <div class="guide-section">
 
         <h2>Understanding Multivariate Effects with Calculators</h2>
-        <p>Both binary and continuous outomes analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
+        <p>Both binary and continuous outcomes analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
         
         <ul>
             <li><strong>Mahalanobis D Calculator</strong> (Binary mode)</li>
             <li><strong>Multivariate R² Calculator</strong> (Continuous mode)</li>
         </ul>
         
-        <p>The calculators can help approximate the expected performance of multivariate models without having to train the full models and thus helps with research planning and model development. More specifically, they illustrate:</p>
+        <p>The calculators can help approximate the expected performance of multivariate models without having to train the full models and thus help with research planning and model development. More specifically, they illustrate:</p>
         
         <ul>
             <li>How the number of predictors affects combined effect size</li>
@@ -167,7 +167,7 @@
         </ul>     
 
         <h3>Calculator Assumptions and Limitations</h3>
-        <p>Both calculators correspond to fundamental predictive models in statistics: the Mahalanobis D Calculator approximates Linear Discriminant Analysis and logistic regression, while the Multivariate R² Calculator aligns with multiple linear regression using standardized variables. These connections make the calculators valuable for understanding how these common predictive methods work in practice.</p>
+        <p>Both calculators correspond to fundamental predictive models in statistics: the Mahalanobis D Calculator approximates Linear Discriminant Analysis and logistic regression, while the Multivariate R² Calculator aligns with multiple linear regression.</p>
         
         <p>Like the statistical methods they approximate, the calculators operate under several simplifying assumptions:</p>
         <ul>
@@ -176,7 +176,7 @@
             <li><strong>Normality</strong>: Variables are assumed to be normally distributed</li>
         </ul>
         
-        <p>Despite these limitations, these calculators serve as valuable tools for building intuition about how multiple predictors combine to achieve stronger effects. Even though real-world predictors will vary in their individual strengths and correlations, the overall patterns demonstrated (such as diminishing returns and the impact of shared variance) remain informative for understanding multivariate relationships.</p>
+        <p>Despite these limitations, these calculators serve as valuable tools for building intuition about how multiple predictors combine to achieve stronger effects. Even though real-world predictors will vary in their individual strengths and collinearity, the overall patterns demonstrated (such as diminishing returns and the impact of shared variance) remain informative for understanding multivariate relationships.</p>
     </div>
 
     <div class="guide-section">
@@ -218,7 +218,7 @@
 
             <li>This will yield AUC = 0.73 and PR-AUC = 0.32, indicating rather modest predictive performance, as shown by the low PR-AUC. Note that the limiting factor in this scenario is not so much the reliability but the effect size.</li>
 
-            <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires r = 0.9 or (R² = 0.81). These are rather extremely ambitious values (requiring to explain 81% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for assessing treatment response prediction - it leads to a loss of valuable information and can misrepresent the actual predictive utility of the model.</li>
+            <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires r = 0.9 or (R² = 0.81). These are rather extremely ambitious values (requiring to explain 81% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for assessing treatment response prediction - it leads to a loss of valuable information and can misrepresent the actual predictive power of the model.</li>
         </ol>
 
         <button class="example-button" style="width: 250px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.6&outcomeReliability=0.94&effectSizeR=0.6&baseRate=0.15'">Try this example yourself →</button>

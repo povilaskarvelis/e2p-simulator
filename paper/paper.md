@@ -26,72 +26,45 @@ bibliography: paper.bib
 
 # Summary
 
-The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers understand how statistical effect sizes translate into practical predictive utility. This tool addresses a critical gap in research methodology by visually demonstrating the relationship between commonly reported statistical metrics (such as Cohen's d [@cohen1992power] and correlation coefficients [@spearman1904general]) and their real-world predictive value, while accounting for crucial factors like measurement reliability and outcome base rates.
+The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate statistical effect sizes to predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as recall and positive predictive value), while accounting for crucial factors like measurement reliability and outcome base rates.
+
+The E2P Simulator has several potential applications:
+
+1. **Interpretation of findings**: It can help researchers move beyond arbitrary "small/medium/large" effects size labels and ground the interpretation of their findings in terms of actual predictive value in specific contexts
+
+2. **Research planning**: By clearly demonstrating how effect sizes relate to practical utility and how they're influenced by measurement reliability and outcome base rates, researchers can develop more realistic research plans and allocate resources more effectively
+
+3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping students and researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world impact
+
+As such, this tool can be particularly valuable in biomedical and behavioral sciences, especially in areas such as biomarker research and precision medicine/psychiatry.  
 
 # Statement of Need
 
-Researchers across disciplines frequently report effect sizes to quantify the magnitude of their findings [@funder2019evaluating;@gignac2016effect]. However, there is often a disconnect between these statistical metrics and their practical implications for prediction and classification tasks [@meehl1990summaries;@webb2020effect]. This disconnect can lead to:
-
-1. Overestimation of the practical utility of research findings
-2. Unrealistic expectations about the predictive performance of models
-3. Inadequate study planning that fails to account for reliability and base rate effects
+In biomedical and behavioral sciences, the focus on statistical significance, which quantifies the probability of the effect being real, often overshadows effect sizes, which quantify the practical importance the effect [maher2013other]. This emphasis, paired with a methodological disconnect between classical statistics and predictive modeling, often leads to misinterpretation of results as clinically meaningful if significant, regardless of their real-world utility [funder2019evaluating]. Consequently, this results in unrealistic expectations, ineffective research planning, and resource misallocation - particularly in fields like biomarker research and precision medicine/psychiatry [abi2023candidate]. Key factors such as measurement reliability [karvelis2023individual,karvelis2025test], which attenuates effect sizes, and outcome base rates, which limit predictive power in low-prevalence scenarios, are often not accounted for.
 
 The E2P Simulator addresses these challenges by providing an intuitive, interactive platform that allows researchers to:
 
 - Visualize how statistical effect sizes translate to group separation and predictive performance
-- Understand how measurement reliability affects the observed effect sizes and predictive utility
+- Understand how measurement reliability attenuates observed effect sizes and predictive utility
 - Explore the impact of outcome base rates on classification metrics
 - Determine required effect sizes for achieving desired levels of predictive performance 
 - Estimate how many predictors of smaller effect sizes would need to be combined to achieve a target level of predictive performance
 
-This tool is particularly valuable for researchers in psychology, medicine, neuroscience, and other fields where prediction and classification are important but where the limitations imposed by reliability and base rates are often overlooked.
-
-# Features
-
-The E2P Simulator offers two primary analysis modes:
-
-## Binary Outcome Measures (Classification)
-
-This mode addresses scenarios where groups are naturally distinct (e.g., treatment vs. control, male vs. female). Users can:
-
-- Adjust Cohen's d values and observe the resulting group separation
-- Modify reliability to see how measurement error affects observed effect sizes
-- Change base rates to understand their impact on classification metrics
-- Use the Mahalanobis D calculator to estimate how many predictors would need to be combined to achieve a desired level of group separation
-
-## Continuous Outcome Measures (Prediction)
-
-This mode addresses scenarios where groups are formed by thresholding a continuous outcome variable (e.g., responders vs. non-responders). Users can:
-
-- Adjust correlation coefficients or R² values and observe the resulting predictive performance
-- Modify reliability to see how measurement error affects observed correlations
-- Change base rates to understand their impact on classification metrics
-- Use the Multivariate R² calculator to estimate how many predictors would need to be combined to achieve a desired level of explained variance
-
-Both modes provide interactive visualizations and quantitative metrics that update in real-time as parameters are adjusted, facilitating intuitive understanding of complex statistical relationships.
+By bridging the gap between statistical significance and practical utility, as well as the effects of measurement reliability and base rates, the E2P Simulator helps researchers make more informed decisions about their research designs, interpret findings more accurately, and communicate results more effectively to stakeholders and the broader scientific community.
 
 # Implementation
 
-The E2P Simulator is implemented as a client-side web application using HTML, CSS, and JavaScript. The tool leverages several open-source libraries:
+The E2P Simulator is implemented using HTML, CSS, and JavaScript. The tool leverages several open-source libraries:
 
 - D3.js for data visualization [@d3js]
 - Plotly.js for interactive plots [@plotlyjs]
-- Math.js for mathematical operations [@mathjs]
 - Chart.js for additional charting capabilities [@chartjs]
-- MathJax for rendering mathematical equations [@mathjax]
 
-The application is designed to be accessible without installation, running entirely in the user's web browser. This implementation ensures broad accessibility across different operating systems and devices.
-
-# Impact and Applications
-
-The E2P Simulator has several potential applications:
-
-1. **Interpretation of findings**: Instead of applying arbitrary "small/medium/large" labels to effect sizes, this tool enalbes the interpretation of effect sizes in terms of their predictive value in specific settings
-2. **Research planning**: Better understanding of the relationship between effect sizes and practical utility - as well as how they are affected by measurement reliability and outcome base rates - allows for more realisitc research planning and resource allocation
-3. **Education**: The interactive nature of the simulator makes it a valuable tool for teaching students and researchers about the relationship between statistical metrics and practical implications, improving their intuitive understanding of abstract metrics
+The application is designed to be accessible without installation, running entirely on the web. This implementation ensures broad accessibility across different operating systems and devices.
 
 # Acknowledgements
 
-We acknowledge contributions from colleagues who provided feedback during the development of this tool, as well as the open-source community for developing the libraries that made this project possible.
+AOD is supported by the Canadian Institutes of Health Research and the Krembil Foundation.
 
 # References 
+
