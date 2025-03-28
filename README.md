@@ -63,17 +63,3 @@ To run the E2P Simulator on your local machine for development or testing purpos
    - Open your web browser and navigate to `http://localhost:8000`
    - The simulator should now be running locally on your machine
 
-6. **Development**:
-   - The main application files are in the root directory (index.html)
-   - JavaScript files are in the `js` directory
-   - CSS files are in the `css` directory
-   - Make changes to these files to modify the application
-
-7. **Testing Your Changes**:
-   - After making changes, refresh your browser to see the updates
-   - The local server automatically serves the latest version of your files
-
-8. **Stopping the Server**:
-   - Press `Ctrl+C` in the terminal where the server is running to stop it
-
-Thank you for contributing to the E2P Simulator!
