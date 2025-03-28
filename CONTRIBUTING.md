@@ -26,7 +26,6 @@ There are several ways you can contribute to the E2P Simulator:
    ```
    git checkout -b feature/your-feature-name
    ```
-
 4. **Make Your Changes**: Implement your changes, following the coding style of the project.
 
 5. **Test Your Changes**: Ensure your changes work as expected and don't introduce new issues.
@@ -53,5 +52,3 @@ There are several ways you can contribute to the E2P Simulator:
 ## Questions?
 
 If you have any questions about contributing, please open an issue in the repository.
-
-Thank you for contributing to the E2P Simulator!
