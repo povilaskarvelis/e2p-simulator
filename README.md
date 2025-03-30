@@ -8,7 +8,7 @@ The E2P Simulator (Effect-to-Prediction Simulator) is designed to help researche
 
 ## Applications
 
-1. **Result Interpretation**: Move beyond arbitrary "small/medium/large" effect size labels by translating statistical metrics into predictive performance measures that are more relevant for real-world applications
+1. **Result Interpretation**: Instead of applying arbitrary "small/medium/large" effect size labels, interpret the practical significance of your findings by deriving predictive performance metrics which are more relevant for real-world applications
 2. **Research Planning**: Determine required effect sizes for desired predictive performance by simulating various scenarios
 3. **Education**: Develop a more intuitive understanding of statistical metrics and their practical implications through interactive visualization
 

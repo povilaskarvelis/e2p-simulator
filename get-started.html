@@ -172,7 +172,7 @@
         <p>Like the statistical methods they approximate, the calculators operate under several simplifying assumptions:</p>
         <ul>
             <li><strong>Average effects and correlations</strong>: The calculators use single values to represent the average effect size across predictors and average correlation among them, which can provide useful approximations even when individual predictors vary in strength</li>
-            <li><strong>Linear, additive effects</strong>: The formulas assume that predictors contribute independently to the overall effect in a simple additive way. They don't account for interaction effects, where the impact of one predictor depends on the level of another predictor</li>
+            <li><strong>Linear effects</strong>: The formulas assume predictors contribute additively without interactions (where one predictor's effect depends on another). However, research shows that in clinical prediction, complex non-linear models generally do not outperform simple linear logistic regression (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0895435618310813" target="_blank">Christodoulou et al., 2019</a>)</li>
             <li><strong>Normality</strong>: Variables are assumed to be normally distributed</li>
         </ul>
         
