@@ -57,7 +57,9 @@ function initializeContinuous() {
 
     // Drawing functions (depend on DOM elements)
     function drawScatterPlot(r, type) {
-        const numPoints = 60000; // Full dataset for metrics
+        // Check the state of the precise estimates checkbox
+        const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
+        const numPoints = preciseCheckbox && preciseCheckbox.checked ? 500000 : 50000; // Use 200k if checked, else 50k
         const numPlotPoints = 5000; // Reduced dataset for visualization
         const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
@@ -133,36 +135,40 @@ function initializeContinuous() {
                 .attr("stroke-width", tickWidth));
 
         // Editable axis labels with larger font
+        const urlParams = parseURLParams(); // Get URL params
+        const xAxisLabel = urlParams.xaxisLabel || "Predictor"; // Default if not provided
+        const yAxisScatterLabel = urlParams.yaxisScatterLabel || "Outcome"; // Default if not provided
+
         svgScatter.selectAll(".x-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 50)
+            .attr("x", width / 2 - 130)
             .attr("y", height - margin.bottom + 35)
-            .attr("width", 140)
+            .attr("width", 300)
             .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
             .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
-            .text("Predictor");
+            .text(xAxisLabel);
 
         svgScatter.selectAll(".y-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "y-label")
-            .attr("x", -height / 2)
+            .attr("x", -height / 2 - 130)
             .attr("y", margin.left - 90)
             .attr("transform", `rotate(-90)`)
-            .attr("width", 140)
+            .attr("width", 350)
             .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
             .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
-            .text("Outcome");
+            .text(yAxisScatterLabel);
 
         // Points - Update instead of Redraw
         svgScatter.selectAll(".scatter-point")
@@ -350,20 +356,23 @@ function initializeContinuous() {
             .attr("opacity", 0.4);
 
         // Editable axis labels with larger font
+        const urlParamsDist = parseURLParams(); // Get URL params again for this scope
+        const xAxisLabelDist = urlParamsDist.xaxisLabel || "Predictor"; // Default if not provided
+
         svgDistributions.selectAll(".x-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 50)
+            .attr("x", width / 2 - 130)
             .attr("y", height - margin.bottom + 35)
-            .attr("width", 140)
+            .attr("width", 300)
             .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
             .style("font-size", `${fontSize.axisLabel}px`)
             .style("color", "black")
-            .text("Predictor");
+            .text(xAxisLabelDist);
 
         svgDistributions.selectAll(".y-label")
             .data([null])
@@ -412,7 +421,10 @@ function initializeContinuous() {
             `);
 
         // Add editable legend with larger font
-        const legendData = ["Group 1", "Group 2"];
+        const urlParams = parseURLParams(); // Get URL params
+        const label1 = urlParams.label1 || "Group 1"; // Default if not provided
+        const label2 = urlParams.label2 || "Group 2"; // Default if not provided
+        const legendData = [label1, label2];
         const legend = svgDistributions.selectAll(".legend-group").data(legendData);
 
         legend.exit().remove();
@@ -845,11 +857,23 @@ function initializeContinuous() {
         // Effect slider and input
         const effectSlider = document.getElementById("effect-slider-cont");
         const effectInput = document.getElementById("true-pearson-r-cont");
+        const rSquaredInput = document.getElementById("true-R-squared-cont"); // Added R^2 input
         
         effectSlider.addEventListener("input", updatePlots);
-        effectInput.addEventListener("input", () => {
+        effectInput.addEventListener("change", () => {
             effectSlider.value = effectInput.value;
             updatePlots();
+        });
+        
+        // Added listener for R^2 input
+        rSquaredInput.addEventListener("change", () => {
+            const rSquared = parseFloat(rSquaredInput.value);
+            if (!isNaN(rSquared) && rSquared >= 0 && rSquared <= 1) {
+                const r = Math.sqrt(rSquared);
+                effectInput.value = r.toFixed(2);
+                effectSlider.value = r; // Update slider value too
+                updatePlots();
+            }
         });
 
         // Base rate slider and input
@@ -861,7 +885,7 @@ function initializeContinuous() {
             updatePlots();
         });
 
-        baseRateInput.addEventListener("input", () => {
+        baseRateInput.addEventListener("change", () => {
             baseRateSlider.value = baseRateInput.value;
             updatePlots();
         });
@@ -873,16 +897,22 @@ function initializeContinuous() {
         const reliabilityYInput = document.getElementById("reliability-y-number-cont");
 
         reliabilityXSlider.addEventListener("input", updatePlots);
-        reliabilityXInput.addEventListener("input", () => {
+        reliabilityXInput.addEventListener("change", () => {
             reliabilityXSlider.value = reliabilityXInput.value;
             updatePlots();
         });
 
         reliabilityYSlider.addEventListener("input", updatePlots);
-        reliabilityYInput.addEventListener("input", () => {
+        reliabilityYInput.addEventListener("change", () => {
             reliabilityYSlider.value = reliabilityYInput.value;
             updatePlots();
         });
+
+        // Precise Estimates Checkbox
+        const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
+        if (preciseCheckbox) { // Check if the element exists
+            preciseCheckbox.addEventListener("change", updatePlots);
+        }
 
         // Plot toggle buttons
         const trueButton = document.getElementById("true-button-cont");

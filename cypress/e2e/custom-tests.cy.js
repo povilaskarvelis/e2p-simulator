@@ -38,7 +38,7 @@ describe('E2P Simulator - Interactive Testing', () => {
     checkNumericValue('#true-difference-number-bin', '1.1');
     
     // Check related metrics are calculated correctly
-    checkNumericValue('#true-odds-ratio-bin', '7.35', 0.05);
+    checkNumericValue('#true-odds-ratio-bin', '7.39', 0.05);
     checkNumericValue('#true-log-odds-ratio-bin', '2', 0.05);
     
     // Set base rate to 20%
@@ -49,8 +49,55 @@ describe('E2P Simulator - Interactive Testing', () => {
     checkNumericValue('#true-pb-r-bin', '0.40', 0.02);
     checkNumericValue('#true-eta-squared-bin', '0.16', 0.02);
   });
+
+
+  it('correctly calculates true effect size metrics from Odds Ratio in binary mode', () => {
+    // Ensure we're in binary mode
+    cy.get('#binary-button').click();
+    
+    // Select "True" effects mode 
+    cy.get('#true-button-bin').click();
+    
+    // Set True Odds Ratio to 7.35 using the number input
+    cy.get('#true-odds-ratio-bin').clear().type('7.39').blur(); // Input OR and lose focus
   
-  it('correctly calculates attenuated effect size metrics', () => {
+    // Verify related metrics (Cohen's d and Log OR) are calculated correctly
+    checkNumericValue('#true-difference-number-bin', '1.1'); 
+    checkNumericValue('#true-log-odds-ratio-bin', '2', 0.05);
+    
+    // Set base rate to 20%
+    cy.get('#base-rate-slider').invoke('val', 20.0).trigger('input');
+    checkNumericValue('#base-rate-number', '20.0');
+    
+    // Check if point-biserial r and eta squared update correctly with the new base rate
+    checkNumericValue('#true-pb-r-bin', '0.40', 0.02);
+    checkNumericValue('#true-eta-squared-bin', '0.16', 0.02);
+  });
+
+  it('correctly calculates true effect size metrics from Log Odds Ratio in binary mode', () => {
+    // Ensure we're in binary mode
+    cy.get('#binary-button').click();
+    
+    // Select "True" effects mode 
+    cy.get('#true-button-bin').click();
+    
+    // Set True Log Odds Ratio to 2 using the number input
+    cy.get('#true-log-odds-ratio-bin').clear().type('2').blur(); // Input Log OR and lose focus
+
+    // Verify related metrics (Cohen's d and Log OR) are calculated correctly
+    checkNumericValue('#true-difference-number-bin', '1.1'); 
+    checkNumericValue('#true-odds-ratio-bin', '7.35', 0.05);
+    
+    // Set base rate to 20%
+    cy.get('#base-rate-slider').invoke('val', 20.0).trigger('input');
+    checkNumericValue('#base-rate-number', '20.0');
+    
+    // Check if point-biserial r and eta squared update correctly with the new base rate
+    checkNumericValue('#true-pb-r-bin', '0.40', 0.02);
+    checkNumericValue('#true-eta-squared-bin', '0.16', 0.02);
+  });
+  
+  it('correctly calculates attenuated effect size metrics in binary mode', () => {
     // Test that changing the difference slider updates the corresponding input fields
     
     // Ensure we're in binary mode
@@ -87,6 +134,7 @@ describe('E2P Simulator - Interactive Testing', () => {
     checkNumericValue('#observed-pb-r-bin', '0.25', 0.02); // Attenuated point-biserial r
     checkNumericValue('#observed-eta-squared-bin', '0.07', 0.02); // Attenuated eta squared
   });
+
 
   it('updates plots when reliability values change', () => {
     // Test that changing reliability values affects the visualizations

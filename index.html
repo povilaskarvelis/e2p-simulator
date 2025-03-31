@@ -76,7 +76,7 @@
     <h1>Understanding predictive value of effect sizes</h1>
 
     <div class="description">
-        <p>This tool allows you to perform <i>predictive utility analysis</i> to assess how different effect sizes can predict outcomes in practice, while accounting for measurement reliability and base rates</p>
+        <p>This tool allows you to perform <i>predictive utility analysis</i> to assess how different effect sizes can predict real-world outcomes, while accounting for measurement reliability and base rates</p>
     </div>
     
     <!-- Binary Container -->
@@ -128,15 +128,15 @@
                             <!-- Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Ratio of odds of being in group 1 vs group 2">Odds Ratio</span>
-                                <input type="number" id="true-odds-ratio-bin" min="1" max = "8681" step="1" value="1" style="width: 50px; text-align: right;">
-                                <input type="number" id="observed-odds-ratio-bin" min="1" max = "8681" step="1" value="1" style="width: 50px; text-align: right;" readonly>
+                                <input type="number" id="true-odds-ratio-bin" min="1" max = "8681" step="0.5" value="1" style="width: 50px; text-align: right;">
+                                <input type="number" id="observed-odds-ratio-bin" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Log Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
                                 <input type="number" id="true-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;">
-                                <input type="number" id="observed-log-odds-ratio-bin" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
+                                <input type="number" id="observed-log-odds-ratio-bin" style="width: 50px; text-align: right;" readonly>
                             </div>
 
                             <!-- Point-biserial r -->
@@ -388,7 +388,7 @@
                         <!-- R² -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Proportion of variance in outcome explained by predictor">R²</span>
-                            <input type="number" id="true-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
+                            <input type="number" id="true-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;">
                             <input type="number" id="observed-R-squared-cont" min="0" max="1" step="0.01" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
                     </div>
@@ -408,16 +408,16 @@
                     </div>
 
                     <!-- Base rate -->
-                    <div style="margin-top: 20px; margin-bottom: 30px;">
+                    <div style="margin-top: 20px; margin-bottom: 15px;">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                             <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
                             <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50" style="width: 60px;">
                         </div>
                     </div>
-
+                    
                     <!-- Binary Metrics -->
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div class="metrics-header">
                             <span></span>
                             <span>True</span>
@@ -466,8 +466,16 @@
                             <input type="number" id="true-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                             <input type="number" id="observed-log-odds-ratio-cont" step="0.05" value="0" style="width: 50px; text-align: right;" readonly>
                         </div>
-
-                        <!-- AUC row removed - now only displayed in ROC plot -->
+                    </div>
+                    
+                    <!-- Precise Estimates Toggle -->
+                    <div class="precise-toggle-container">
+                        <label for="precise-estimates-checkbox-cont" class="precise-toggle-label">Get precise estimates (slow)</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="precise-estimates-checkbox-cont">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-knob"></span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -595,10 +603,10 @@
                     
                     <!-- Predictor correlation slider -->
                     <div class="slider-container">
-                        <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.2" class="slider">
+                        <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.25" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Correlation of each predictor (r)</span>
-                            <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.2" class="slider-value">
+                            <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.25" class="slider-value">
                         </div>
                     </div>
                     

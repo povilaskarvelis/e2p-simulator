@@ -46,18 +46,21 @@ function initializeBinary() {
         .call(d3.axisLeft(yScale).tickFormat(() => ""));
 
     // Add axis labels
+    const urlParams = parseURLParams(); // Get URL params
+    const xAxisLabel = urlParams.xaxisLabel || "Predictor"; // Default if not provided
+
     svgDistributions.append("foreignObject")
         .attr("class", "x-label")
-        .attr("width", 100)
-        .attr("height", 25)
-        .attr("x", width / 2 - 50)
-        .attr("y", height - margin.bottom / 2)
+        .attr("width", 300) // Increased width
+        .attr("height", 40) // Increased height slightly
+        .attr("x", width / 2 - 150) // Adjusted for centering
+        .attr("y", height - margin.bottom / 1.5) // Adjusted y slightly
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
         .style("font-size", "18px")
         .style("color", "black")
-        .text("Predictor");
+        .text(xAxisLabel);
 
     svgDistributions.append("foreignObject")
         .attr("class", "y-label")
@@ -135,7 +138,10 @@ function initializeBinary() {
             .attr("d", area);
 
         // Update legend
-        const legendData = ["Group 1", "Group 2"];
+        const urlParams = parseURLParams(); // Get URL params
+        const label1 = urlParams.label1 || "Group 1"; // Default if not provided
+        const label2 = urlParams.label2 || "Group 2"; // Default if not provided
+        const legendData = [label1, label2];
         updateLegend(legendData);
     }
 
@@ -638,7 +644,7 @@ function initializeBinary() {
             updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
-        reliabilityControls.icc1Input.addEventListener("input", () => {
+        reliabilityControls.icc1Input.addEventListener("change", () => {
             reliabilityControls.icc1Slider.value = reliabilityControls.icc1Input.value;
             const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
             updateMetricsFromD(trueD);  // Update metrics with current true d value
@@ -652,7 +658,7 @@ function initializeBinary() {
             updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
-        reliabilityControls.icc2Input.addEventListener("input", () => {
+        reliabilityControls.icc2Input.addEventListener("change", () => {
             reliabilityControls.icc2Slider.value = reliabilityControls.icc2Input.value;
             const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
             updateMetricsFromD(trueD);  // Update metrics with current true d value
@@ -666,7 +672,7 @@ function initializeBinary() {
             updateMetricsFromD(trueD);  // Update metrics with current true d value
             updatePlots();
         });
-        reliabilityControls.kappaInput.addEventListener("input", () => {
+        reliabilityControls.kappaInput.addEventListener("change", () => {
             reliabilityControls.kappaSlider.value = reliabilityControls.kappaInput.value;
             const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
             updateMetricsFromD(trueD);  // Update metrics with current true d value
@@ -674,23 +680,23 @@ function initializeBinary() {
         });
 
         // Add event listeners to all true metric inputs
-        trueMetricInputs.d.addEventListener("input", () => {
+        trueMetricInputs.d.addEventListener("change", () => {
             updateMetricsFromD(parseFloat(trueMetricInputs.d.value));
         });
         
-        trueMetricInputs.oddsRatio.addEventListener("input", () => {
+        trueMetricInputs.oddsRatio.addEventListener("change", () => {
             updateMetricsFromOddsRatio(trueMetricInputs.oddsRatio.value);
         });
 
-        trueMetricInputs.logOddsRatio.addEventListener("input", () => {
+        trueMetricInputs.logOddsRatio.addEventListener("change", () => {
             updateMetricsFromLogOddsRatio(trueMetricInputs.logOddsRatio.value);
         });
 
-        trueMetricInputs.pbr.addEventListener("input", () => {
+        trueMetricInputs.pbr.addEventListener("change", () => {
             updateMetricsFromR(trueMetricInputs.pbr.value);
         });
 
-        trueMetricInputs.etaSquared.addEventListener("input", () => {
+        trueMetricInputs.etaSquared.addEventListener("change", () => {
             const r = Math.sqrt(parseFloat(trueMetricInputs.etaSquared.value));
             updateMetricsFromR(r);
         });
@@ -705,7 +711,7 @@ function initializeBinary() {
             updatePlots();
         });
 
-        baseRateInput.addEventListener("input", () => {
+        baseRateInput.addEventListener("change", () => {
             baseRateSlider.value = baseRateInput.value;
             updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
             updatePlots();
