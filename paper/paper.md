@@ -26,7 +26,7 @@ bibliography: paper.bib
 
 # Summary
 
-The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate statistical effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as recall and positive predictive value), while accounting for crucial factors like measurement reliability and outcome base rates.
+The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate statistical effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC), while accounting for crucial factors like measurement reliability and outcome base rates.
 
 The E2P Simulator has several potential applications:
 
@@ -36,21 +36,13 @@ The E2P Simulator has several potential applications:
 
 3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping students and researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world impact.
 
-This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research and precision medicine/psychiatry. However, it may be just as applicable in many other areas of research that focus on personalization of interventions, such as within education and sports sciences.
+This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research and precision medicine/psychiatry. However, it may be just as useful for any area of research that focuses on personalization of interventions, such as within education and sports sciences.
 
 # Statement of Need
 
-In biomedical and behavioral sciences, the focus on statistical significance, which quantifies the probability of the effect being real, often overshadows effect sizes, which quantify the practical significance of the effect [wasserstein2016asa]. This emphasis, combined with a methodological disconnect between classical statistics and predictive modeling, frequently leads researchers to misinterpret any statistically significant finding as clinically meaningful, regardless of its effect size [funder2019evaluating,wasserstein2019moving]. This misinterpretation creates unrealistic expectations, hampers effective research planning, and leads to resource misallocation - particularly in fields like biomarker research and precision medicine/psychiatry [monsarrat2018intriguing,abi2023candidate]. Furthermore, critical factors such as measurement reliability, which attenuates effect sizes [karvelis2023individual,karvelis2025test,hedge2018reliability], and outcome base rates, which limit predictive power in real-world contexts [ozenne2015precision,abi2016search,large2018role], are often overlooked in these assessments.
+In biomedical and behavioral sciences, the focus on statistical significance, which quantifies the probability of the effect being real, often overshadows effect sizes, which quantify the practical significance of the effect [wasserstein2016asa]. This emphasis, combined with a methodological disconnect between classical statistics and predictive modeling, frequently leads researchers to misinterpret any statistically significant finding as clinically meaningful, regardless of its effect size [funder2019evaluating,wasserstein2019moving]. This misinterpretation creates unrealistic expectations, hampers effective research planning, and leads to resource misallocation - particularly in fields like biomarker research and precision medicine/psychiatry [monsarrat2018intriguing,abi2023candidate]. Furthermore, critical factors such as measurement reliability, which attenuates effect sizes [karvelis2023individual,karvelis2025clarifying], and outcome base rates, which limit predictive power in real-world contexts [ozenne2015precision,abi2016search,large2018role], are often overlooked in these assessments.
 
-The E2P Simulator addresses these challenges by providing an intuitive, interactive platform that allows researchers to:
-
-- Visualize how statistical effect sizes translate into group separation and predictive performance
-- Understand how measurement reliability attenuates observed effect sizes and predictive utility
-- Explore the impact of outcome base rates on classification metrics
-- Determine required effect sizes for achieving desired levels of predictive performance 
-- Estimate how many predictors of smaller effect sizes would need to be combined to achieve a target level of predictive performance
-
-By bridging the gap between effect size and predictive value, while also accouting for measurement reliability and base rates, the E2P Simulator helps researchers make more informed decisions about their research designs, interpret findings more meaningfully, and communicate results more effectively to stakeholders and the broader scientific community.
+The E2P Simulator addressess these challenges by providing an interactive platform where researchers can explore the relationships among all of these factors. Similar to G*Power [@faul2007g], which has become a staple in study planning by helping researchers perform power analysis and explore relationships between sample size and significance levels, the E2P Simulator aims to fill the gap and provide an essential tool for performing predictive utility analysis. By making the relationships between effect sizes, reliability, base rates, and predictive metrics explicit and interactive, the E2P Simulator enables researchers to interpret findings more accurately, design more impactful studies, and communicate results more clearly to broader audience.
 
 # Implementation
 

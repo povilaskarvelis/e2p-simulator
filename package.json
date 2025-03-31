@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "Interactive effect size visualization",
   "scripts": {
-    "start": "http-server -p 8000 -c-1"
+    "start": "http-server -p 8000 -c-1",
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:custom": "cypress run --spec cypress/e2e/custom-tests.cy.js",
+    "test:custom:open": "cypress open --e2e --spec cypress/e2e/custom-tests.cy.js"
   },
   "devDependencies": {
+    "cypress": "^14.2.1",
     "http-server": "^14.1.1"
   },
   "main": "index.js",

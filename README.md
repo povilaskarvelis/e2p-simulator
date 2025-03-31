@@ -41,7 +41,7 @@ JOSS
 To run the E2P Simulator on your local machine for development or testing purposes, follow these steps:
 
 1. **Prerequisites**:
-   - Make sure you have [Node.js](https://nodejs.org/) installed (which includes npm)
+   - Make sure you have [Node.js](https://nodejs.org/) installed
 
 2. **Clone the Repository**:
    ```
