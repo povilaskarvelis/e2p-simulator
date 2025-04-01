@@ -105,7 +105,6 @@ input[type="range"]::-webkit-slider-thumb {
         line-height: 1;
         padding: 4px 5px;
         text-align: right;
-        width: 68px !important;
     }
     
     /* Ensure consistent slider value container spacing */
@@ -860,33 +859,12 @@ h2.calculator-title {
     font-size: 2rem !important;
 }
 
-/* Chrome-specific fix that doesn't make things responsive */
-@supports (-webkit-appearance:none) {
-    body {
-        width: 1400px !important; /* Force fixed width on Chrome */
-        min-width: 1400px !important; /* Force minimum width on Chrome */
-    }
-}
+
 
 /* Safari (iOS) specific fixes */
 @supports (-webkit-touch-callout: none) {
     body {
-        width: 1400px !important;
-        min-width: 1400px !important;
-        -webkit-text-size-adjust: 100%; /* Prevent iOS text size adjustment */
-        overflow-x: auto;
-    }
-    
-    /* Force hardware acceleration for Safari rendering */
-    .plot-container, .half-plot, #roc-plot, #pr-plot, #roc-plot-cont, #pr-plot-cont {
-        -webkit-transform: translate3d(0,0,0);
-        transform: translate3d(0,0,0);
-    }
-    
-    /* Fix for canvas rendering in iOS Safari */
-    canvas {
-        width: 100% !important;
-        height: 100% !important;
+        -webkit-text-size-adjust: 100%; /* Prevent iOS from zooming in on text */
     }
 }
 
@@ -897,7 +875,3 @@ h2.calculator-title {
         overflow-x: auto;
     }
 }
-
-/* Add a viewport meta tag to your HTML head:
-<meta name="viewport" content="width=1400, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-*/

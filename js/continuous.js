@@ -28,11 +28,10 @@ function initializeContinuous() {
     let trueMetrics = {};
     let observedMetrics = {};
     let currentView = "observed";  // Add currentView state variable with default value
+    let trueLabeledData = [];
+    let observedLabeledData = [];
     
     // Global variables for data sharing
-    let currentTealData = [];
-    let currentGrayData = [];
-    let currentLabeledData = [];
     
     // Clean up any existing state
     cleanupContinuous();
@@ -55,12 +54,13 @@ function initializeContinuous() {
         return trueR * Math.sqrt(reliabilityX * reliabilityY);
     }
 
-    // Drawing functions (depend on DOM elements)
-    function drawScatterPlot(r, type) {
+    // Helper function to generate data points and labeled data
+    function generateLabeledData(r) {
         // Check the state of the precise estimates checkbox
         const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
-        const numPoints = preciseCheckbox && preciseCheckbox.checked ? 500000 : 50000; // Use 200k if checked, else 50k
-        const numPlotPoints = 5000; // Reduced dataset for visualization
+        // Corrected numPoints logic from previous user interaction if needed
+        const numPoints = preciseCheckbox && preciseCheckbox.checked ? 200000 : 50000; 
+        const numPlotPoints = 5000; // Keep plot points lower for performance
         const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
 
@@ -71,28 +71,32 @@ function initializeContinuous() {
             return { x, y };
         });
 
-        // Subsample for plotting
-        const plotData = fullData.filter((_, i) => i % (numPoints / numPlotPoints) === 0);
-
         // Sort and divide for colors
         const sortedData = fullData.sort((a, b) => b.y - a.y);
         const thresholdIndex = Math.floor(numPoints * baseRate);
         const tealData = sortedData.slice(0, thresholdIndex);
         const grayData = sortedData.slice(thresholdIndex);
 
-        // Store data for use in plotROC
-        if (type === currentView) {
-            currentTealData = tealData;
-            currentGrayData = grayData;
-            
-            // Create labeled data for ROC calculations
-            currentLabeledData = [
-                ...tealData.map(d => ({ ...d, trueClass: 1 })),
-                ...grayData.map(d => ({ ...d, trueClass: 0 }))
-            ];
-        }
+        // Create labeled data
+        const labeledData = [
+            ...tealData.map(d => ({ ...d, trueClass: 1 })),
+            ...grayData.map(d => ({ ...d, trueClass: 0 }))
+        ];
 
-        // Use full dataset for metric calculations
+        // Return necessary data components
+        return { labeledData, tealData, grayData, sortedData, thresholdIndex, numPlotPoints, numPoints, fullData };
+    }
+
+    // Drawing functions (depend on DOM elements)
+    function drawScatterPlot(r, type, plotDataGen) {
+        // Use pre-generated data
+        const { tealData, grayData, sortedData, thresholdIndex, numPlotPoints, numPoints, fullData } = plotDataGen;
+
+        // Subsample for plotting (using full generated data)
+        // Ensure fullData is used for subsampling if plotData isn't directly passed or suitable
+         const plotData = fullData.filter((_, i) => i % Math.max(1, Math.floor(numPoints / numPlotPoints)) === 0);
+
+        // Use full dataset for metric calculations (passed directly)
         drawDistributions(tealData.map(d => d.x), grayData.map(d => d.x), type);
 
         const scatterXScale = d3.scaleLinear().domain([-4, 4]).range([margin.left, width - margin.right]);
@@ -175,7 +179,7 @@ function initializeContinuous() {
             .data(plotData.map(d => ({
                 ...d,
                 color: d.y > sortedData[thresholdIndex]?.y ? "teal" : "gray",
-            })), d => d.x) // Use x-value as key to minimize DOM changes
+            })), d => `${d.x}-${d.y}`)
             .join(
                 enter => enter.append("circle")
                     .attr("class", "scatter-point")
@@ -595,8 +599,17 @@ function initializeContinuous() {
     }
 
     function plotROC() {
-
-        // Generate ROC and PR curve points
+        if (!currentLabeledData || currentLabeledData.length === 0) {
+            console.warn("plotROC called with no currentLabeledData.");
+            // Maybe draw empty plots?
+            Plotly.purge("roc-plot-cont");
+            Plotly.purge("pr-plot-cont");
+            // Clear dashboard too
+            document.getElementById("auc-value-cont").textContent = 'N/A';
+            // ... clear other dashboard values
+            return;
+        }
+        // Generate ROC and PR curve points using currentLabeledData
         const uniqueXValues = Array.from(new Set(currentLabeledData.map(d => d.x))).sort((a, b) => a - b);
         const stepSize = Math.max(1, Math.floor(uniqueXValues.length / 500)); // Limit to ~500 points for performance
         const thresholds = uniqueXValues.filter((_, i) => i % stepSize === 0);
@@ -608,7 +621,6 @@ function initializeContinuous() {
         const TPR = curvePoints.map(p => p.sensitivity);
         const precision = curvePoints.map(p => p.ppv);
         const recall = TPR; // recall is the same as sensitivity/TPR
-
 
         // Calculate AUC properly using trapezoidal rule
         let auc = 0;
@@ -622,7 +634,7 @@ function initializeContinuous() {
             prauc += (recall[i-1] - recall[i]) * (precision[i] + precision[i-1]) / 2;  // Also fix PR-AUC calculation
         }
 
-        // Get metrics at current threshold
+        // Get metrics at current threshold using currentLabeledData
         const currentMetrics = computePredictiveMetrics(thresholdValue, currentLabeledData);
         
         // Update dashboard values
@@ -756,43 +768,52 @@ function initializeContinuous() {
         document.getElementById(`${type}-pb-r-cont`).value = pbR.toFixed(2);
     }
 
-    // Update function (coordinates all updates)
+    // NEW function to toggle plot visibility without redrawing
+    function togglePlotVisibility() {
+        const showTrue = currentView === "true";
+        document.getElementById("scatter-plot-true-cont").style.display = showTrue ? "block" : "none";
+        document.getElementById("distribution-plot-true-cont").style.display = showTrue ? "block" : "none";
+        document.getElementById("scatter-plot-observed-cont").style.display = showTrue ? "none" : "block";
+        document.getElementById("distribution-plot-observed-cont").style.display = showTrue ? "none" : "block";
+    }
+
+    // Function to update plots and metrics based on current state
     function updatePlots() {
-        const trueR = parseFloat(document.getElementById("effect-slider-cont").value); // True Pearson's r
-        const reliabilityX = parseFloat(document.getElementById("reliability-x-slider-cont").value); // Reliability value
-        const reliabilityY = parseFloat(document.getElementById("reliability-y-slider-cont").value); // Reliability value
-        const observedR = computeObservedR(trueR, reliabilityX, reliabilityY); // Attenuated r
+        // Get current values
+        const trueR = parseFloat(document.getElementById("true-pearson-r-cont").value);
+        const reliabilityX = parseFloat(document.getElementById("reliability-x-number-cont").value);
+        const reliabilityY = parseFloat(document.getElementById("reliability-y-number-cont").value);
 
-        // Update observed r
+        // Calculate observed R
+        const observedR = computeObservedR(trueR, reliabilityX, reliabilityY);
+
+        // Update the readonly observed r and r-squared inputs
         document.getElementById("observed-pearson-r-cont").value = observedR.toFixed(2);
+        document.getElementById("true-R-squared-cont").value = (trueR**2).toFixed(2);
+        document.getElementById("observed-R-squared-cont").value = (observedR**2).toFixed(2);
 
-        // Update R²
-        document.getElementById("true-R-squared-cont").value = (trueR ** 2).toFixed(2);
-        document.getElementById("observed-R-squared-cont").value = (observedR ** 2).toFixed(2);
+        // Generate data for BOTH true and observed
+        const trueDataGen = generateLabeledData(trueR);
+        const observedDataGen = generateLabeledData(observedR);
 
-        // Update input fields
-        document.getElementById("true-pearson-r-cont").value = trueR.toFixed(2);
-        document.getElementById("reliability-x-number-cont").value = reliabilityX.toFixed(2);
-        document.getElementById("reliability-y-number-cont").value = reliabilityY.toFixed(2);
+        // Store globally
+        trueLabeledData = trueDataGen.labeledData;
+        observedLabeledData = observedDataGen.labeledData;
 
-        // Update scatter plots and distributions
-        drawScatterPlot(trueR, "true");
-        drawScatterPlot(observedR, "observed");
+        // Draw both plots using the generated data
+        // Make sure plotDataGen is passed correctly
+        drawScatterPlot(trueR, "true", trueDataGen);
+        drawScatterPlot(observedR, "observed", observedDataGen);
+        // drawDistributions is called within drawScatterPlot
 
-        // Show/hide plots based on currentView
-        document.getElementById("scatter-plot-true-cont").style.display = currentView === "true" ? "block" : "none";
-        document.getElementById("scatter-plot-observed-cont").style.display = currentView === "observed" ? "block" : "none";
-        document.getElementById("distribution-plot-true-cont").style.display = currentView === "true" ? "block" : "none";
-        document.getElementById("distribution-plot-observed-cont").style.display = currentView === "observed" ? "block" : "none";
+        // Set the CURRENT data for ROC plot based on view
+        currentLabeledData = (currentView === "true") ? trueLabeledData : observedLabeledData;
 
-        // Update metrics and threshold based on the selected plot type
-        if (currentView === "true") {
-            drawThreshold(trueMetrics, "true"); // Update threshold for true effect size
-        } else {
-            drawThreshold(observedMetrics, "observed"); // Update threshold for observed effect size
-        }
-
+        // Update ROC/PR plots
         plotROC();
+
+        // Ensure the correct scatter/distribution plots are visible
+        togglePlotVisibility();
     }
 
     // Initialization functions
@@ -848,6 +869,9 @@ function initializeContinuous() {
         document.getElementById("distribution-plot-true-cont").style.display = "none";
         document.getElementById("distribution-plot-observed-cont").style.display = "block";
 
+        // Initial plot visibility
+        togglePlotVisibility(); // Use the new function
+
         // Call updatePlots to render the initial plots and threshold
         updatePlots();
     }
@@ -857,9 +881,14 @@ function initializeContinuous() {
         // Effect slider and input
         const effectSlider = document.getElementById("effect-slider-cont");
         const effectInput = document.getElementById("true-pearson-r-cont");
-        const rSquaredInput = document.getElementById("true-R-squared-cont"); // Added R^2 input
+        const rSquaredInput = document.getElementById("true-R-squared-cont"); 
         
-        effectSlider.addEventListener("input", updatePlots);
+        effectSlider.addEventListener("input", (e) => {
+            const sliderValue = parseFloat(e.target.value);
+            effectInput.value = sliderValue.toFixed(2);
+            updatePlots();
+        });
+        
         effectInput.addEventListener("change", () => {
             effectSlider.value = effectInput.value;
             updatePlots();
@@ -919,17 +948,23 @@ function initializeContinuous() {
         const observedButton = document.getElementById("observed-button-cont");
 
         trueButton.addEventListener("click", () => {
-            currentView = "true";  // Set currentView to "true"
+            if (currentView === "true") return; // Do nothing if already selected
+            currentView = "true";
             trueButton.classList.add("active");
             observedButton.classList.remove("active");
-            updatePlots();
+            currentLabeledData = trueLabeledData; // Switch data source
+            togglePlotVisibility(); // Handles scatter/distribution visibility
+            plotROC(); // Update ROC/PR plot with current data & threshold
         });
 
         observedButton.addEventListener("click", () => {
-            currentView = "observed";  // Set currentView to "observed"
+            if (currentView === "observed") return; // Do nothing if already selected
+            currentView = "observed";
             observedButton.classList.add("active");
             trueButton.classList.remove("active");
-            updatePlots();
+            currentLabeledData = observedLabeledData; // Switch data source
+            togglePlotVisibility(); // Handles scatter/distribution visibility
+            plotROC(); // Update ROC/PR plot with current data & threshold
         });
     }
 
