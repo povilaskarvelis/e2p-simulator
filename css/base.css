@@ -200,7 +200,7 @@ h1 {
 
 .slider-section {
     flex: 1 1 280px;
-    min-width: 290px;
+    min-width: 280px;
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -213,7 +213,7 @@ h1 {
 
 .main-plot-section {
     flex: 2 1 600px;
-    min-width: 300px;
+    min-width: 600px;
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -258,7 +258,7 @@ h1 {
 .half-plot {
     flex: 1;
     min-width: 0;
-    height: 50%;
+    height: calc(50% - 10px);
     min-height: 150px;
 }
 
