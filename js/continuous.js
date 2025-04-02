@@ -1,7 +1,22 @@
 // Cleanup function for switching views
 function cleanupContinuous() {
-    // Reset state and clean up plots
+    // Reset state and clean up plots (existing cleanup)
     Plotly.purge('roc-plot-cont');
+    Plotly.purge('pr-plot-cont'); 
+    // Add purging/cleanup for D3 plots if necessary
+    d3.select('#scatter-plot-true-cont').selectAll("*").remove();
+    d3.select('#scatter-plot-observed-cont').selectAll("*").remove();
+    d3.select('#distribution-plot-true-cont').selectAll("*").remove();
+    d3.select('#distribution-plot-observed-cont').selectAll("*").remove();
+
+    // Reset global vars if needed
+    thresholdValue = 0;
+    rocInitialized = false;
+    trueMetrics = {};
+    observedMetrics = {};
+    currentView = "observed";
+    trueLabeledData = [];
+    observedLabeledData = [];
 }
 
 // Main initialization function
@@ -13,7 +28,6 @@ function initializeContinuous() {
     const margin = { top: 30, right: 50, bottom: 70, left: 95 }; // Keep this for scale ranges
     const viewBoxWidth = 1200; // Standard viewBox width
     const viewBoxHeight = 600; // Standard viewBox height (maintains 2:1 aspect ratio)
-    // let width, height; // Remove fixed width/height calculation
     
     // Global font and tick size settings
     const fontSize = {
@@ -38,8 +52,6 @@ function initializeContinuous() {
     
     // Clean up any existing state
     cleanupContinuous();
-    
-
     
     // Scales - Use viewBox dimensions for range calculation
     const plotAreaWidth = viewBoxWidth - margin.left - margin.right;
@@ -718,12 +730,6 @@ function initializeContinuous() {
             Plotly.newPlot("roc-plot-cont", [rocTrace, thresholdMarker], rocLayout, config);
             Plotly.newPlot("pr-plot-cont", [prTrace, prThresholdMarker], prLayout, config);
             rocInitialized = true;
-
-            // Add resize event listeners
-            window.addEventListener('resize', () => {
-                Plotly.Plots.resize('roc-plot-cont');
-                Plotly.Plots.resize('pr-plot-cont');
-            });
         } else {
             Plotly.react("roc-plot-cont", [rocTrace, thresholdMarker], rocLayout, config);
             Plotly.react("pr-plot-cont", [prTrace, prThresholdMarker], prLayout, config);

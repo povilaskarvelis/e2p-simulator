@@ -431,13 +431,6 @@ input.slider-value,
     gap: 20px;
 }
 
-.container.secondary {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-    height: 100%;
-}
-
 .metrics-header {
     display: grid;
     grid-template-columns: 1fr 70px 52px;
