@@ -1,14 +1,16 @@
 # E2P Simulator
 
-The E2P Simulator (Effect-to-Prediction Simulator) is designed to help researchers better understand how statistical effect sizes (like Cohen's d, Pearon's r) translate into predictive utility. It accounts for real-world challenges like measurement reliability and outcome prevalence rates to provide realistic estimates of predictive performance, effectively enabling researchers to perform *predictive utility analysis*. Much like how power analysis tools (such as G*Power) help researchers plan for statistical significance, the E2P Simulator helps plan for practical significance.
+The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate statistical effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC), while accounting for crucial factors like measurement reliability and outcome base rates.
 
-Potential applications include:
+The E2P Simulator has several potential applications:
 
-1. **Result Interpretation**: Interpreting the practical significance of findings by deriving predictive performance metrics, instead of applying arbitrary "small/medium/large" labels
-2. **Research Planning**: Determining required effect sizes for desired predictive performance by simulating various scenarios
-3. **Education**: Developing a more intuitive understanding of statistical metrics and their practical implications through interactive visualization
+1. **Interpretation of findings**: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and ground the interpretation of their findings in terms of predictive value in specific contexts.
 
-This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research and precision medicine/psychiatry. However, it may be just as applicable in many other areas of research that focus on personalization of interventions, such as within education and sports sciences.
+2. **Research planning**: Being able to easily derive what effect sizes are needed to achieve the desired predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.
+
+3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping students and researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world impact.
+
+This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research and precision medicine/psychiatry. However, it may be just as useful for any area of research that focuses on personalization of interventions, such as within education and sports sciences.
 
 **Try it out**: [https://www.e2p-simulator.com](https://www.e2p-simulator.com)
 
