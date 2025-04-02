@@ -874,18 +874,3 @@ h2.calculator-title {
         overflow-x: auto;
     }
 }
-
-/* Media Query for Mobile/Tablet Responsive Adjustments */
-@media only screen and (max-width: 1024px) {
-
-    /* Allow the secondary container in continuous view to size automatically */
-    #continuous-container .container.secondary {
-        height: auto;
-        min-height: 500px; /* Give it a reasonable minimum */
-    }
-
-    html, body {
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        overflow-x: auto;
-    }
-}

@@ -9,8 +9,11 @@ function initializeContinuous() {
     console.log("Initializing continuous version");
     
     // Local constants
-    const margin = { top: 30, right: 50, bottom: 70, left: 95 };
-    let width, height; // Declare width and height at the function scope
+    // Define relative margins for viewBox calculation
+    const margin = { top: 30, right: 50, bottom: 70, left: 95 }; // Keep this for scale ranges
+    const viewBoxWidth = 1200; // Standard viewBox width
+    const viewBoxHeight = 600; // Standard viewBox height (maintains 2:1 aspect ratio)
+    // let width, height; // Remove fixed width/height calculation
     
     // Global font and tick size settings
     const fontSize = {
@@ -36,18 +39,13 @@ function initializeContinuous() {
     // Clean up any existing state
     cleanupContinuous();
     
-    // Set initial width and height variables with fixed aspect ratio
-    const scatterContainer = document.getElementById("scatter-plot-observed-cont");
-    if (scatterContainer) {
-        const bbox = scatterContainer.getBoundingClientRect();
-        width = bbox.width || 1200;
-        // Set height to maintain a 2:1 aspect ratio (width:height)
-        height = width / 2;
-    }
+
     
-    // Scales
-    const xScale = d3.scaleLinear().domain([-4, 5]).range([margin.left, width - margin.right]);
-    const yScale = d3.scaleLinear().domain([0, 0.5]).range([height - margin.bottom, margin.top]);
+    // Scales - Use viewBox dimensions for range calculation
+    const plotAreaWidth = viewBoxWidth - margin.left - margin.right;
+    const plotAreaHeight = viewBoxHeight - margin.bottom - margin.top;
+    const xScale = d3.scaleLinear().domain([-4, 4]).range([margin.left, margin.left + plotAreaWidth]); // Adjusted range
+    const yScale = d3.scaleLinear().domain([0, 0.5]).range([margin.top + plotAreaHeight, margin.top]); // Adjusted range
     
     // Utility functions (these don't depend on DOM or state)
     function computeObservedR(trueR, reliabilityX, reliabilityY) {
@@ -99,8 +97,8 @@ function initializeContinuous() {
         // Use full dataset for metric calculations (passed directly)
         drawDistributions(tealData.map(d => d.x), grayData.map(d => d.x), type);
 
-        const scatterXScale = d3.scaleLinear().domain([-4, 4]).range([margin.left, width - margin.right]);
-        const scatterYScale = d3.scaleLinear().domain([-4, 4]).range([height - margin.bottom, margin.top]);
+        const scatterXScale = d3.scaleLinear().domain([-4, 4]).range([margin.left, margin.left + plotAreaWidth]); // Use adjusted range
+        const scatterYScale = d3.scaleLinear().domain([-4, 4]).range([margin.top + plotAreaHeight, margin.top]); // Use adjusted range
 
         const svgScatter = d3.select(`#scatter-plot-${type}-cont`)
             .selectAll("svg")
@@ -108,17 +106,18 @@ function initializeContinuous() {
             .join("svg")
             .attr("width", "100%")
             .attr("height", "100%")
-            .attr("viewBox", `0 0 ${width} ${height}`)
+            // Use standard viewBox, remove width/height attributes if they existed
+            .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
             .attr("preserveAspectRatio", "xMidYMid meet")
             .style("display", "block")
             .style("max-width", "100%");
 
-        // Axes with larger ticks
+        // Axes - Use viewBox dimensions for positioning
         svgScatter.selectAll(".x-axis")
             .data([null])
             .join("g")
             .attr("class", "x-axis")
-            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .attr("transform", `translate(0,${margin.top + plotAreaHeight})`) // Use viewBox-relative position
             .call(d3.axisBottom(scatterXScale).ticks(5).tickFormat(() => ""))
             .call(g => g.selectAll(".tick line")
                 .attr("stroke-width", tickWidth)
@@ -130,7 +129,7 @@ function initializeContinuous() {
             .data([null])
             .join("g")
             .attr("class", "y-axis")
-            .attr("transform", `translate(${margin.left},0)`)
+            .attr("transform", `translate(${margin.left},0)`) // Use viewBox-relative position
             .call(d3.axisLeft(scatterYScale).ticks(5).tickFormat(() => ""))
             .call(g => g.selectAll(".tick line")
                 .attr("stroke-width", tickWidth)
@@ -138,17 +137,17 @@ function initializeContinuous() {
             .call(g => g.selectAll("path.domain")
                 .attr("stroke-width", tickWidth));
 
-        // Editable axis labels with larger font
-        const urlParams = parseURLParams(); // Get URL params
-        const xAxisLabel = urlParams.xaxisLabel || "Predictor"; // Default if not provided
-        const yAxisScatterLabel = urlParams.yaxisScatterLabel || "Outcome"; // Default if not provided
+        // Axis labels - Adjust positioning based on viewBox
+        const urlParams = parseURLParams();
+        const xAxisLabel = urlParams.xaxisLabel || "Predictor";
+        const yAxisScatterLabel = urlParams.yaxisScatterLabel || "Outcome";
 
         svgScatter.selectAll(".x-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 130)
-            .attr("y", height - margin.bottom + 35)
+            .attr("x", margin.left + plotAreaWidth / 2 - 150) // Centered in plot area
+            .attr("y", margin.top + plotAreaHeight + 35) // Below x-axis
             .attr("width", 300)
             .attr("height", 40)
             .append("xhtml:div")
@@ -162,9 +161,8 @@ function initializeContinuous() {
             .data([null])
             .join("foreignObject")
             .attr("class", "y-label")
-            .attr("x", -height / 2 - 130)
-            .attr("y", margin.left - 90)
-            .attr("transform", `rotate(-90)`)
+             // Rotate around top-left corner of text area, adjust x/y
+            .attr("transform", `translate(${margin.left - 90}, ${margin.top + plotAreaHeight / 2 + 175}) rotate(-90)`)
             .attr("width", 350)
             .attr("height", 40)
             .append("xhtml:div")
@@ -174,7 +172,7 @@ function initializeContinuous() {
             .style("color", "black")
             .text(yAxisScatterLabel);
 
-        // Points - Update instead of Redraw
+        // Points - Use updated scales
         svgScatter.selectAll(".scatter-point")
             .data(plotData.map(d => ({
                 ...d,
@@ -296,26 +294,32 @@ function initializeContinuous() {
 
         updateMetricsFromD(metrics, type);
 
-        // Determine the maximum Y value for scaling
         const maxYTeal = d3.max(tealDensity, d => d.y);
         const maxYGray = d3.max(grayDensity, d => d.y);
-        const maxY = Math.max(maxYTeal, maxYGray);
-        yScale.domain([0, maxY * 1.1]);
+        const maxY = Math.max(maxYTeal, maxYGray, 0.1); // Ensure maxY is not 0
+        // Update yScale domain based on actual data, range uses viewBox
+        yScale.domain([0, maxY * 1.1]).range([margin.top + plotAreaHeight, margin.top]);
+        // Update xScale range based on viewBox
+        xScale.range([margin.left, margin.left + plotAreaWidth]);
 
         // Create the SVG container
         const svgDistributions = d3.select(`#distribution-plot-${type}-cont`)
-            .append("svg")
+            // Remove previous SVG if exists
+            .select("svg").remove(); 
+        const newSvg = d3.select(`#distribution-plot-${type}-cont`)
+            .append("svg") // Append new SVG
             .attr("width", "100%")
             .attr("height", "100%")
-            .attr("viewBox", `0 0 ${width} ${height}`)
+             // Use standard viewBox
+            .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
             .attr("preserveAspectRatio", "xMidYMid meet")
             .style("display", "block")
             .style("max-width", "100%");
         
-        // Add x-axis
-        svgDistributions.append("g")
+        // Add x-axis - Use viewBox dimensions
+        newSvg.append("g")
             .attr("class", "x-axis")
-            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .attr("transform", `translate(0,${margin.top + plotAreaHeight})`) // Use viewBox-relative position
             .call(d3.axisBottom(xScale).tickFormat(() => ""))
             .call(g => g.selectAll(".tick line")
                 .attr("stroke-width", tickWidth)
@@ -323,10 +327,10 @@ function initializeContinuous() {
             .call(g => g.selectAll("path.domain")
                 .attr("stroke-width", tickWidth));
 
-        // Add y-axis
-        svgDistributions.append("g")
+        // Add y-axis - Use viewBox dimensions
+        newSvg.append("g")
             .attr("class", "y-axis")
-            .attr("transform", `translate(${margin.left},0)`)
+            .attr("transform", `translate(${margin.left},0)`) // Use viewBox-relative position
             .call(d3.axisLeft(yScale).tickFormat(() => ""))
             .call(g => g.selectAll(".tick line")
                 .attr("stroke-width", tickWidth)
@@ -334,41 +338,40 @@ function initializeContinuous() {
             .call(g => g.selectAll("path.domain")
                 .attr("stroke-width", tickWidth));
 
+        const binWidthPixels = (xScale(tealBins[0].x1) - xScale(tealBins[0].x0)); // Calculate bin width in pixels for rect width
         // Draw distributions as true histograms (bar charts)
-        // Gray (control group) histogram
-        svgDistributions.selectAll(".gray-bar")
+        newSvg.selectAll(".gray-bar")
             .data(grayDensity)
             .join("rect")
             .attr("class", "distribution gray-distribution gray-bar")
             .attr("x", d => xScale(d.x - binWidth/2))
             .attr("y", d => yScale(d.y))
-            .attr("width", d => xScale(d.x + binWidth/2) - xScale(d.x - binWidth/2))
-            .attr("height", d => yScale(0) - yScale(d.y))
+            .attr("width", binWidthPixels)
+            .attr("height", d => Math.max(0, yScale(0) - yScale(d.y))) // Ensure height >= 0
             .attr("fill", "black")
             .attr("opacity", 0.3);
             
-        // Teal (experimental group) histogram
-        svgDistributions.selectAll(".teal-bar")
+        newSvg.selectAll(".teal-bar")
             .data(tealDensity)
             .join("rect")
             .attr("class", "distribution teal-distribution teal-bar")
             .attr("x", d => xScale(d.x - binWidth/2))
             .attr("y", d => yScale(d.y))
-            .attr("width", d => xScale(d.x + binWidth/2) - xScale(d.x - binWidth/2))
-            .attr("height", d => yScale(0) - yScale(d.y))
+            .attr("width", binWidthPixels)
+            .attr("height", d => Math.max(0, yScale(0) - yScale(d.y))) // Ensure height >= 0
             .attr("fill", "teal")
             .attr("opacity", 0.4);
 
-        // Editable axis labels with larger font
-        const urlParamsDist = parseURLParams(); // Get URL params again for this scope
-        const xAxisLabelDist = urlParamsDist.xaxisLabel || "Predictor"; // Default if not provided
+        // Axis labels - Adjust positioning based on viewBox
+        const urlParamsDist = parseURLParams();
+        const xAxisLabelDist = urlParamsDist.xaxisLabel || "Predictor";
 
-        svgDistributions.selectAll(".x-label")
+        newSvg.selectAll(".x-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "x-label")
-            .attr("x", width / 2 - 130)
-            .attr("y", height - margin.bottom + 35)
+            .attr("x", margin.left + plotAreaWidth / 2 - 150) // Centered
+            .attr("y", margin.top + plotAreaHeight + 35) // Below axis
             .attr("width", 300)
             .attr("height", 40)
             .append("xhtml:div")
@@ -378,13 +381,12 @@ function initializeContinuous() {
             .style("color", "black")
             .text(xAxisLabelDist);
 
-        svgDistributions.selectAll(".y-label")
+        newSvg.selectAll(".y-label")
             .data([null])
             .join("foreignObject")
             .attr("class", "y-label")
-            .attr("x", -height / 1.5)
-            .attr("y", margin.left - 90)
-            .attr("transform", `rotate(-90)`)
+             // Rotate around top-left corner of text area, adjust x/y
+            .attr("transform", `translate(${margin.left - 90}, ${margin.top + plotAreaHeight / 2 + 125}) rotate(-90)`) // Adjusted Y for centering
             .attr("width", 300)
             .attr("height", 40)
             .append("xhtml:div")
@@ -394,19 +396,15 @@ function initializeContinuous() {
             .style("color", "black")
             .text("Count");
 
-        // Add variance text annotations with larger font
-        svgDistributions.selectAll(".variance-annotation").remove(); // Remove existing annotations first
-        
-        // Calculate variance ratio (gray/teal to match the labeling)
+        // Variance annotation - Adjust positioning based on viewBox to match original approx location
         const varianceRatio = (esMetrics.varianceGray / esMetrics.varianceTeal).toFixed(2);
-        
-        // Define a larger font size for the variance fraction
         const varianceFontSize = fontSize.annotationText * 1.2;
         
-        svgDistributions.append("foreignObject")
+        newSvg.append("foreignObject")
             .attr("class", "variance-annotation") 
-            .attr("x", width - margin.right - 300)
-            .attr("y", margin.top + 170)
+            // Restore original positioning logic relative to viewBox/margins
+            .attr("x", viewBoxWidth - margin.right - 300) // Position near right edge
+            .attr("y", margin.top + 170) // Position relative to top margin
             .attr("width", 300)
             .attr("height", 120)
             .append("xhtml:div")
@@ -424,12 +422,12 @@ function initializeContinuous() {
                 </div>
             `);
 
-        // Add editable legend with larger font
-        const urlParams = parseURLParams(); // Get URL params
-        const label1 = urlParams.label1 || "Group 1"; // Default if not provided
-        const label2 = urlParams.label2 || "Group 2"; // Default if not provided
+        // Legend - Adjust positioning based on viewBox
+        const urlParams = parseURLParams();
+        const label1 = urlParams.label1 || "Group 1";
+        const label2 = urlParams.label2 || "Group 2";
         const legendData = [label1, label2];
-        const legend = svgDistributions.selectAll(".legend-group").data(legendData);
+        const legend = newSvg.selectAll(".legend-group").data(legendData);
 
         legend.exit().remove();
 
@@ -449,11 +447,11 @@ function initializeContinuous() {
             .text(d => d);
 
         legendEnter.merge(legend)
-            .attr("x", margin.left + 100)
-            .attr("y", (d, i) => margin.top + i * 34 + 30);
+            .attr("x", margin.left + 100) // Position relative to margin
+            .attr("y", (d, i) => margin.top + i * 34 + 30); // Position relative to margin
 
         // Remove any existing threshold before redrawing
-        svgDistributions.selectAll(".threshold-group").remove();
+        newSvg.selectAll(".threshold-group").remove();
 
         // Draw threshold after distributions
         drawThreshold(metrics, type);
@@ -818,42 +816,12 @@ function initializeContinuous() {
 
     // Initialization functions
     function initializeDistributions() {
-        // Initialize both "true" and "observed" distribution SVG containers
+        // Remove the initial SVG creation from here, it's done in drawDistributions now
+        /*
         ["true", "observed"].forEach(type => {
-            // Ensure we start with a clean container
-            d3.select(`#distribution-plot-${type}-cont`).selectAll("svg").remove();
-            
-            const svgDistributions = d3.select(`#distribution-plot-${type}-cont`)
-                .append("svg")
-                .attr("width", "100%")
-                .attr("height", "100%")
-                .attr("viewBox", `0 0 ${width} ${height}`)
-                .attr("preserveAspectRatio", "xMidYMid meet")
-                .style("display", "block")
-                .style("max-width", "100%");
-
-            // Add x-axis with larger ticks
-            svgDistributions.append("g")
-                .attr("class", "x-axis")
-                .attr("transform", `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(xScale).tickFormat(() => ""))
-                .call(g => g.selectAll(".tick line")
-                    .attr("stroke-width", tickWidth)
-                    .attr("y2", tickSize))
-                .call(g => g.selectAll("path.domain")
-                    .attr("stroke-width", tickWidth));
-
-            // Add y-axis with larger ticks
-            svgDistributions.append("g")
-                .attr("class", "y-axis")
-                .attr("transform", `translate(${margin.left},0)`)
-                .call(d3.axisLeft(yScale).tickFormat(() => ""))
-                .call(g => g.selectAll(".tick line")
-                    .attr("stroke-width", tickWidth)
-                    .attr("x2", -tickSize))
-                .call(g => g.selectAll("path.domain")
-                    .attr("stroke-width", tickWidth));
+            // ... remove SVG setup code ...
         });
+        */
     }
 
     function initializePlots() {
