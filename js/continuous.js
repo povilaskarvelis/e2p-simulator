@@ -42,8 +42,6 @@ function initializeContinuous() {
     // State variables
     let thresholdValue = 0;
     let rocInitialized = false;
-    let trueMetrics = {};
-    let observedMetrics = {};
     let currentView = "observed";  // Add currentView state variable with default value
     let trueLabeledData = [];
     let observedLabeledData = [];
