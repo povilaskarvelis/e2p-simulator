@@ -1,4 +1,5 @@
 # E2P Simulator
+[![DOI](https://zenodo.org/badge/934366440.svg)](https://doi.org/10.5281/zenodo.15127945)
 
 The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate statistical effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC), while accounting for crucial factors like measurement reliability and outcome base rates.
 
@@ -18,10 +19,9 @@ This tool has been designed with biomedical and behavioral sciences in mind, par
 
 ## Citation
 
-If you use this simulator in your research, please cite:
+If you use this simulator in your research, please cite it as:
 
-Zenodo - TBD
-JOSS - TBD
+Povilas Karvelis. (2025). povilaskarvelis/e2p-simulator: E2P Simulator v1.0.0 (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.15127945
 
 ## Running the E2P Simulator Locally
 
@@ -49,4 +49,16 @@ To run the E2P Simulator on your local machine for development or testing purpos
 5. **Access the Simulator**:
    - Open your web browser and navigate to `http://localhost:8000`
    - The simulator should now be running locally on your machine
+
+## Testing
+
+Key functionalities can be verified by running automated tests written with Cypress (`custom-tests.cy.js`).
+
+## Contributing
+
+Contributions to E2P Simulator are welcome! Please see the guidelines file `CONTRIBUTING.md` for more information.
+
+## License
+
+E2P Simulator is distributed under the MIT License. See the `LICENSE` file for more information.
 
