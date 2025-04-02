@@ -874,3 +874,23 @@ h2.calculator-title {
         overflow-x: auto;
     }
 }
+
+/* Media Query for Mobile/Tablet Responsive Adjustments */
+@media only screen and (max-width: 1024px) {
+    .main-container {
+        height: auto; /* Allow height to adjust to content on smaller screens */
+        max-height: 550px; /* Limit maximum height on smaller screens */
+    }
+
+    .slider-section,
+    .main-plot-section,
+    .roc-pr-section {
+        height: auto; /* Override height: 100% for flexibility on smaller screens */
+        overflow-y: auto; /* Allow internal scrolling if content overflows max-height */
+    }
+
+    html, body {
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        overflow-x: auto;
+    }
+}
