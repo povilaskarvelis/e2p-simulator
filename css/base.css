@@ -870,11 +870,14 @@ h2.calculator-title {
 /* Media Query for Mobile/Tablet Responsive Adjustments */
 @media only screen and (max-width: 1024px) {
  
-    /* Remove the rule targeting SVGs directly */
-    /* #continuous-container .plots-stack svg {
-        height: 600px; 
-        width: 100%;   
-    } */
+    /* Target specific plot containers in continuous view on mobile */
+    #scatter-plot-true-cont,
+    #scatter-plot-observed-cont,
+    #distribution-plot-true-cont,
+    #distribution-plot-observed-cont {
+        height: auto;      /* Override the default .plot height: 100% */
+        min-height: 300px; /* Prevent collapse */
+    }
 
     html, body {
         -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
