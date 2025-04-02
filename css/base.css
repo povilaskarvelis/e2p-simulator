@@ -877,16 +877,16 @@ h2.calculator-title {
 
 /* Media Query for Mobile/Tablet Responsive Adjustments */
 @media only screen and (max-width: 1024px) {
-    .main-container {
-        height: auto; /* Allow height to adjust to content on smaller screens */
-        max-height: 550px; /* Limit maximum height on smaller screens */
-    }
+    /* Remove the previous rule targeting individual plots */
+    /* #continuous-container .plots-stack .plot {
+        height: auto;
+        min-height: 300px; 
+    } */
 
-    .slider-section,
-    .main-plot-section,
-    .roc-pr-section {
-        height: auto; /* Override height: 100% for flexibility on smaller screens */
-        overflow-y: auto; /* Allow internal scrolling if content overflows max-height */
+    /* Allow the main stack of plots in continuous view to size automatically */
+    #continuous-container .plots-stack {
+        height: auto;
+        min-height: 500px; /* Give it a reasonable minimum */
     }
 
     html, body {
