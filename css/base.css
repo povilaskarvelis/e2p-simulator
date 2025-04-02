@@ -854,13 +854,18 @@ h2.calculator-title {
 /* Media Query for Mobile/Tablet Responsive Adjustments */
 @media only screen and (max-width: 1024px) {
  
-    /* Explicitly control slider height/spacing ONLY on mobile devices */
-    body.is-mobile input[type="range"] {
-        height: 8px; /* Match Firefox fix height */
-        margin-top: 10px; /* Adjust vertical spacing */
-        margin-bottom: 10px;
-        display: block; /* Ensure block behavior */
+    /* Slightly increase height for continuous container on mobile */
+    #continuous-container .main-container {
+        height: 610px;
     }
+
+    /* Remove the mobile-specific slider rule */
+    /* body.is-mobile input[type="range"] {
+        height: 8px; 
+        margin-top: 10px; 
+        margin-bottom: 10px;
+        display: block; 
+    } */
 
     html, body {
         -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
