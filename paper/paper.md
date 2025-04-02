@@ -1,5 +1,5 @@
 ---
-title: 'E2P Simulator: An Interactive Tool for Translating Statistical Effect Sizes into Practical Predictive Utility'
+title: 'E2P Simulator: An Interactive Tool for Translating Effect Sizes into Predictive Utility'
 tags:
   - JavaScript
   - statistics
