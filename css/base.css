@@ -867,8 +867,15 @@ h2.calculator-title {
     }
 }
 
-/* Fix for all mobile devices that keeps fixed layout */
-@media only screen and (max-device-width: 1024px) {
+/* Media Query for Mobile/Tablet Responsive Adjustments */
+@media only screen and (max-width: 1024px) {
+ 
+    /* Remove the rule targeting SVGs directly */
+    /* #continuous-container .plots-stack svg {
+        height: 600px; 
+        width: 100%;   
+    } */
+
     html, body {
         -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         overflow-x: auto;

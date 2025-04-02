@@ -458,99 +458,83 @@ function initializeContinuous() {
     }
 
     function drawThreshold(metrics, type) {
-        // Remove any existing threshold before creating new one
-        d3.select(`#distribution-plot-${type}-cont`).select("svg")
-            .selectAll(".threshold-group").remove();
+        const svg = d3.select(`#distribution-plot-${type}-cont`).select("svg");
+        if (svg.empty()) return; // Don't draw if SVG doesn't exist
 
-        // Create new threshold group
-        const thresholdGroup = d3.select(`#distribution-plot-${type}-cont`).select("svg")
-            .append("g")
+        // Remove existing threshold group before drawing a new one
+        svg.selectAll(".threshold-group").remove();
+
+        const thresholdGroup = svg.append("g") // Append to the existing SVG
             .attr("class", "threshold-group")
             .style("cursor", "pointer")
             .call(d3.drag()
                 .on("start", function (event) {
-                    // Capture the initial threshold position during drag
                     offsetX = xScale(thresholdValue) - event.x;
                 })
                 .on("drag", function (event) {
-                    // Update threshold value based on drag
                     let newThreshold = xScale.invert(event.x + offsetX);
-                    // Constrain to the x-axis domain
                     newThreshold = Math.max(xScale.domain()[0], Math.min(xScale.domain()[1], newThreshold));
                     thresholdValue = newThreshold;
-
                     plotROC();
-
-                    // Redraw the threshold group and update visuals
-                    drawThreshold(metrics, type);
+                    drawThreshold(metrics, type); // Redraw the threshold itself
                 })
             );
 
-        // Merge enter/update for the group
-        const groupMerge = thresholdGroup.merge(thresholdGroup);
+        // Calculate plot area bounds based on viewBox and margins
+        const plotTop = margin.top;
+        const plotBottom = margin.top + plotAreaHeight;
+        const plotLeft = margin.left;
+        const plotRight = margin.left + plotAreaWidth;
 
         // Add or update the threshold line
-        const line = groupMerge.selectAll(".threshold-line")
-            .data([null]);
-
-        line.enter()
-            .append("line")
+        thresholdGroup.selectAll(".threshold-line")
+            .data([null])
+            .join("line")
             .attr("class", "threshold-line")
-            .merge(line)
             .attr("x1", xScale(thresholdValue))
             .attr("x2", xScale(thresholdValue))
-            .attr("y1", yScale.range()[0])
-            .attr("y2", yScale.range()[1])
+            .attr("y1", plotTop) // Use calculated plot area top
+            .attr("y2", plotBottom) // Use calculated plot area bottom
             .attr("stroke", "red")
             .attr("stroke-width", 7)
             .attr("opacity", 0.9);
 
         // Add or update the hitbox for interaction
-        const hitbox = groupMerge.selectAll(".threshold-hitbox")
-            .data([null]);
-
-        hitbox.enter()
-            .append("rect")
+        thresholdGroup.selectAll(".threshold-hitbox")
+            .data([null])
+            .join("rect")
             .attr("class", "threshold-hitbox")
-            .merge(hitbox)
             .attr("x", xScale(thresholdValue) - 15)
             .attr("width", 30)
-            .attr("y", yScale.range()[1])
-            .attr("height", yScale.range()[0] - yScale.range()[1])
+            .attr("y", plotTop) // Use calculated plot area top
+            .attr("height", plotAreaHeight) // Use calculated plot area height
             .attr("fill", "transparent");
 
         // Add or update the arrows
         const arrowSize = 15;
-        const arrowY = yScale.range()[1] + 15;
+        const arrowY = plotTop + 15; // Position near top of plot area
         const arrowData = [
             { direction: "left", x: thresholdValue - 0.2, y: arrowY },
             { direction: "right", x: thresholdValue + 0.2, y: arrowY },
         ];
 
-        const arrows = groupMerge.selectAll(".threshold-arrow")
-            .data(arrowData);
-
-        arrows.enter()
-            .append("path")
+        thresholdGroup.selectAll(".threshold-arrow")
+            .data(arrowData)
+            .join("path")
             .attr("class", "threshold-arrow")
-            .merge(arrows)
             .attr("d", d => {
                 const x = xScale(d.x);
                 const y = d.y;
                 if (d.direction === "left") {
-                    // Outward-pointing left triangle
                     return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
                 } else {
-                    // Outward-pointing right triangle
                     return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
                 }
             })
             .attr("fill", "red");
 
-        arrows.exit().remove();
-
         // Ensure the threshold group is always on top
-        groupMerge.raise();
+        thresholdGroup.raise();
     }
 
     // Function to compute metrics at a given threshold
