@@ -165,3 +165,25 @@
 .toggle-switch input:checked + .toggle-slider + .toggle-knob {
     transform: translateX(20px); /* Move knob */
 }
+
+/* Media Query for Mobile/Tablet Responsive Adjustments */
+@media only screen and (max-width: 1024px) {
+ 
+    /* Slightly increase height for continuous container on mobile */
+    #continuous-container .main-container {
+        min-height: 740px;
+    }
+
+    /* Remove the mobile-specific slider rule */
+    /* body.is-mobile input[type="range"] {
+        height: 8px; 
+        margin-top: 10px; 
+        margin-bottom: 10px;
+        display: block; 
+    } */
+
+    html, body {
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        overflow-x: auto;
+    }
+}

@@ -851,25 +851,3 @@ h2.calculator-title {
     font-size: 2rem !important;
 }
 
-/* Media Query for Mobile/Tablet Responsive Adjustments */
-@media only screen and (max-width: 1024px) {
- 
-    /* Slightly increase height for continuous container on mobile */
-    #continuous-container .main-container {
-        height: 610px;
-    }
-
-    /* Remove the mobile-specific slider rule */
-    /* body.is-mobile input[type="range"] {
-        height: 8px; 
-        margin-top: 10px; 
-        margin-bottom: 10px;
-        display: block; 
-    } */
-
-    html, body {
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        overflow-x: auto;
-    }
-}
-
