@@ -776,7 +776,6 @@ input.slider-value,
 .section,
 .slider-container {
     position: relative;
-    z-index: 1;
 }
 
 /* Give tooltips highest z-index */
