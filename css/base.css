@@ -877,14 +877,9 @@ h2.calculator-title {
 
 /* Media Query for Mobile/Tablet Responsive Adjustments */
 @media only screen and (max-width: 1024px) {
-    /* Remove the previous rule targeting individual plots */
-    /* #continuous-container .plots-stack .plot {
-        height: auto;
-        min-height: 300px; 
-    } */
 
-    /* Allow the main stack of plots in continuous view to size automatically */
-    #continuous-container .plots-stack {
+    /* Allow the secondary container in continuous view to size automatically */
+    #continuous-container .container.secondary {
         height: auto;
         min-height: 500px; /* Give it a reasonable minimum */
     }
