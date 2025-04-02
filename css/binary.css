@@ -30,7 +30,6 @@
 
 /* Binary-specific dashboard styles */
 #binary-container .dashboard {
-    padding: 20px40px;
     margin-top: 20px;
     overflow-x: auto;
 }
