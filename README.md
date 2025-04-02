@@ -52,7 +52,11 @@ To run the E2P Simulator on your local machine for development or testing purpos
 
 ## Testing
 
-Key functionalities can be verified by running automated tests written with Cypress (`custom-tests.cy.js`).
+Key functionalities can be verified by running automated tests written with Cypress, `custom-tests.cy.js`:
+
+   ```
+   npm run test:custom
+   ```
 
 ## Contributing
 
