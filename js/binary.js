@@ -54,7 +54,7 @@ function initializeBinary() {
         .attr("width", 300) // Increased width
         .attr("height", 40) // Increased height slightly
         .attr("x", width / 2 - 150) // Adjusted for centering
-        .attr("y", height - margin.bottom / 1.5) // Adjusted y slightly
+        .attr("y", height - margin.bottom / 2) // Adjusted y slightly
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")

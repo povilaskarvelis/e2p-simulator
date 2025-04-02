@@ -24,6 +24,30 @@ describe('E2P Simulator - Interactive Testing', () => {
     cy.get('#pr-plot').should('be.visible');
   });
 
+  it('updates numeric inputs when sliders change in binary mode', () => {
+    // Test that moving each slider updates its corresponding number input
+
+    // Cohen's d slider
+    cy.get('#difference-slider').invoke('val', 0.8).trigger('input');
+    checkNumericValue('#true-difference-number-bin', '0.8'); 
+    
+    // Base Rate slider
+    cy.get('#base-rate-slider').invoke('val', 35.0).trigger('input');
+    checkNumericValue('#base-rate-number', '35.0');
+
+    // ICC1 slider
+    cy.get('#icc1-slider').invoke('val', 0.75).trigger('input');
+    checkNumericValue('#icc1-number', '0.75');
+
+    // ICC2 slider
+    cy.get('#icc2-slider').invoke('val', 0.55).trigger('input');
+    checkNumericValue('#icc2-number', '0.55');
+
+    // Kappa slider
+    cy.get('#kappa-slider').invoke('val', 0.65).trigger('input');
+    checkNumericValue('#kappa-number', '0.65');
+  });  
+
   it('correctly calculates true effect size metrics from Cohens d in binary mode', () => {
     // Ensure we're in binary mode
     cy.get('#binary-button').click();
@@ -138,33 +162,83 @@ describe('E2P Simulator - Interactive Testing', () => {
 
   it('updates plots when reliability values change', () => {
     // Test that changing reliability values affects the visualizations
-    
-    // Change ICC1 value
+
+    // Store initial state of plots
+    let initialOverlapPath, initialRocAucText, initialPrAucText;
+
+    cy.get('#overlap-plot .distribution').eq(1) // Get the second distribution path
+      .should('have.attr', 'd').then(d => { initialOverlapPath = d; });
+
+    cy.get('#roc-plot').then($div => { 
+      initialRocAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+    });
+
+    cy.get('#pr-plot').then($div => {
+      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+    });
+
+    // Change ICC1 value and check for plot changes
     cy.get('#icc1-slider').invoke('val', 0.80).trigger('input');
     checkNumericValue('#icc1-number', '0.80');
+
+    cy.get('#overlap-plot .distribution').eq(1)
+      .should('have.attr', 'd').and('not.equal', initialOverlapPath);
+      
+    cy.get('#roc-plot').then($div => {
+      const newRocAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+      expect(newRocAucText).to.not.equal(initialRocAucText);
+    });
     
-    // Change ICC2 value
+    // Store state again before changing ICC2
+    cy.get('#overlap-plot .distribution').eq(1)
+      .should('have.attr', 'd').then(d => { initialOverlapPath = d; });
+    cy.get('#pr-plot').then($div => {
+      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+    });
+
+    // Change ICC2 value and check PR plot change
     cy.get('#icc2-slider').invoke('val', 0.70).trigger('input');
     checkNumericValue('#icc2-number', '0.70');
-    
-    // We should also verify that plots update, but the exact verification
-    // depends on how your visualization is implemented
-    // For now, we'll just check that the plot elements remain visible
-    cy.get('#overlap-plot').should('be.visible');
-    cy.get('#roc-plot').should('be.visible');
-    cy.get('#pr-plot').should('be.visible');
+
+    cy.get('#overlap-plot .distribution').eq(1)
+      .should('have.attr', 'd').and('not.equal', initialOverlapPath);
+      
+    cy.get('#pr-plot').then($div => {
+      const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+      expect(newPrAucText).to.not.equal(initialPrAucText);
+    });
+
+    // --- Optional: Add similar check for Kappa slider --- 
+
   });
 
-  it('handles base rate changes', () => {
+  it('handles base rate changes and updates plots', () => {
     // Test that changing the base rate updates the visualizations
+
+    // Store initial state of plots (PR plot is sensitive to base rate)
+    let initialOverlapPath, initialPrAucText;
+
+    cy.get('#overlap-plot .distribution').eq(1)
+      .should('have.attr', 'd').then(d => { initialOverlapPath = d; });
+
+    cy.get('#pr-plot').then($div => {
+      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+    });
     
+    // Change Base Rate value
     cy.get('#base-rate-slider').invoke('val', 25.0).trigger('input');
     checkNumericValue('#base-rate-number', '25.0');
     
-    // Again, we'd verify plot updates if we knew exactly how to check them
-    cy.get('#overlap-plot').should('be.visible');
-    cy.get('#roc-plot').should('be.visible');
-    cy.get('#pr-plot').should('be.visible');
+    // Check if plot attributes have changed
+    cy.get('#overlap-plot .distribution').eq(1)
+      .should('have.attr', 'd').and('not.equal', initialOverlapPath);
+
+    cy.get('#pr-plot').then($div => {
+      const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
+      expect(newPrAucText).to.not.equal(initialPrAucText);
+    });
+
+    // ROC plot AUC is generally insensitive to base rate, so we don't check it here.
   });
 
   it('toggles between binary and continuous modes', () => {
@@ -200,4 +274,5 @@ describe('E2P Simulator - Interactive Testing', () => {
     cy.get('#roc-plot-cont', { timeout: 10000 }).should('be.visible');
     cy.get('#pr-plot-cont', { timeout: 10000 }).should('be.visible');
   });
+
 }); 
