@@ -173,17 +173,4 @@
     #continuous-container .main-container {
         min-height: 740px;
     }
-
-    /* Remove the mobile-specific slider rule */
-    /* body.is-mobile input[type="range"] {
-        height: 8px; 
-        margin-top: 10px; 
-        margin-bottom: 10px;
-        display: block; 
-    } */
-
-    html, body {
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        overflow-x: auto;
-    }
 }
