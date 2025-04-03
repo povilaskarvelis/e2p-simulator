@@ -46,9 +46,6 @@ In biomedical and behavioral sciences, the focus on statistical significance, wh
 
 The E2P Simulator addressess these challenges by providing an interactive platform where researchers can explore the relationships among all of these factors. Similar to G*Power [@faul2007g], which has become a staple in study planning by helping researchers perform power analysis and explore relationships between sample size and significance levels, the E2P Simulator aims to fill the gap and provide an essential tool for performing predictive utility analysis. By making the relationships between effect sizes, reliability, base rates, and predictive metrics explicit, the E2P Simulator enables researchers to interpret findings more accurately, design more impactful studies, and communicate results more clearly to a broader audience.
 
-
-
-
 # Implementation
 
 The E2P Simulator is implemented using HTML, CSS, and JavaScript. The tool leverages several open-source libraries:
@@ -58,7 +55,7 @@ The E2P Simulator is implemented using HTML, CSS, and JavaScript. The tool lever
 - Chart.js for additional charting capabilities [@chartjs]
 - MathJax.js for rendering mathematical expressions [@mathjax]
 
-The application is designed to be accessible without installation, running entirely on the web. This implementation ensures broad accessibility across different operating systems and devices. Alternatively, the tool can also be run on a local node.
+The application is designed to be accessible without installation, running entirely on the web (e2p-simulator.com). This implementation ensures broad accessibility across different operating systems and devices. Alternatively, the tool can also be run on a local node. The instructions and examples of usage are included in the tool on the Get Started page.
 
 # Acknowledgements
 
