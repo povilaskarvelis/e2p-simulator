@@ -26,9 +26,9 @@ bibliography: paper.bib
 
 # Summary
 
-The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC) while accounting for measurement reliability and outcome base rates (Fig. 1).
+The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC) while accounting for measurement reliability and outcome base rates (Fig. \ref{fig:interface}).
 
-![The E2P Simulator interface showing the relationship between effect size (Cohen's d) and predictive metrics. The left panel allows users to adjust parameters such as effect size, reliability, and base rate. The middle panel displays the resulting distributions with the adjustable threshold. The panel on the right displays Receiver Operating Charactersitic (ROC) and Precision-Recall (PR) curves with corresponding Area Under the Curve (AUC) metrics. The panel at the bottom displays the most common predictive metrics.](interface_paper.png)
+![The E2P Simulator interface showing the relationship between effect size (Cohen's d and alternative effect size metrics) and predictive metrics. The left panel allows users to adjust parameters such as effect size, reliability, and base rate. The middle panel displays the resulting distributions with the adjustable threshold. The panel on the right displays Receiver Operating Charactersitic (ROC) and Precision-Recall (PR) curves with corresponding Area Under the Curve (AUC) metrics. The panel at the bottom displays the most common predictive metrics.\label{fig:interface}](interface_paper.png)
 
 The E2P Simulator has several potential applications:
 
