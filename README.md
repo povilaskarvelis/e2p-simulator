@@ -1,7 +1,7 @@
 # E2P Simulator
 [![DOI](https://zenodo.org/badge/934366440.svg)](https://doi.org/10.5281/zenodo.15127945)
 
-The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate statistical effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC), while accounting for crucial factors like measurement reliability and outcome base rates.
+The E2P Simulator (Effect-to-Prediction Simulator) is an interactive web-based tool designed to help researchers translate effect sizes into predictive utility. It visually and quantitatively demonstrates the relationship between commonly reported statistical metrics (such as Cohen's d and Pearson's r) and predictive metrics (such as AUC and PR-AUC) while accounting for measurement reliability and outcome base rates.
 
 The E2P Simulator has several potential applications:
 
