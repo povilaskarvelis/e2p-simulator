@@ -68,7 +68,7 @@ function initializeContinuous() {
         const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
         // Corrected numPoints logic from previous user interaction if needed
         const numPoints = preciseCheckbox && preciseCheckbox.checked ? 200000 : 50000; 
-        const numPlotPoints = 5000; // Keep plot points lower for performance
+        const numPlotPoints = 4000; // Keep plot points lower for performance
         const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
         const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
 
@@ -881,13 +881,21 @@ function initializeContinuous() {
         const reliabilityYSlider = document.getElementById("reliability-y-slider-cont");
         const reliabilityYInput = document.getElementById("reliability-y-number-cont");
 
-        reliabilityXSlider.addEventListener("input", updatePlots);
+        reliabilityXSlider.addEventListener("input", (e) => {
+            const value = parseFloat(e.target.value);
+            reliabilityXInput.value = value.toFixed(2);
+            updatePlots();
+        });
         reliabilityXInput.addEventListener("change", () => {
             reliabilityXSlider.value = reliabilityXInput.value;
             updatePlots();
         });
 
-        reliabilityYSlider.addEventListener("input", updatePlots);
+        reliabilityYSlider.addEventListener("input", (e) => {
+            const value = parseFloat(e.target.value);
+            reliabilityYInput.value = value.toFixed(2);
+            updatePlots();
+        });
         reliabilityYInput.addEventListener("change", () => {
             reliabilityYSlider.value = reliabilityYInput.value;
             updatePlots();

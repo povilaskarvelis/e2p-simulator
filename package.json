@@ -6,8 +6,10 @@
     "start": "http-server -p 8000 -c-1",
     "test": "cypress run",
     "test:open": "cypress open",
-    "test:custom": "cypress run --spec cypress/e2e/custom-tests.cy.js",
-    "test:custom:open": "cypress open --e2e --spec cypress/e2e/custom-tests.cy.js"
+    "test:binary": "cypress run --spec cypress/e2e/binary-tests.cy.js",
+    "test:binary:open": "cypress open --e2e",
+    "test:continuous": "cypress run --spec cypress/e2e/continuous-tests.cy.js",
+    "test:continuous:open": "cypress open --e2e"
   },
   "devDependencies": {
     "cypress": "^14.2.1",
