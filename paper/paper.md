@@ -56,7 +56,7 @@ The E2P Simulator is implemented using HTML, CSS, and JavaScript. The tool lever
 - Chart.js for additional charting capabilities [@chartjs]
 - MathJax.js for rendering mathematical expressions [@mathjax]
 
-The application is designed to be accessible without installation, running entirely on the web (e2p-simulator.com). This implementation ensures broad accessibility across different operating systems and devices. Alternatively, the tool can also be run on a local node. The instructions and examples of usage are included in the tool on the Get Started page.
+The application is designed to be accessible without installation, running entirely on the web ([www.e2p-simulator.com](https://www.e2p-simulator.com)). This implementation ensures broad accessibility across different operating systems and devices. Alternatively, the tool can also be run on a local node. The instructions and examples of usage are included in the tool on the Get Started page.
 
 # Acknowledgements
 
