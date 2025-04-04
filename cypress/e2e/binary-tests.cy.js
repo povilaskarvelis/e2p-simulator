@@ -456,23 +456,21 @@ describe('E2P Simulator - Binary Mode Testing', () => {
 
   });
 
-  it('toggles between binary and continuous modes', () => {
-    // Test mode switching functionality
+  it('updates numeric inputs of Mahalanobis D calculator when sliders change', () => {
+    // Test that moving each slider updates its corresponding number input
+
+    // Cohen's d slider
+    cy.get('#effectSize-slider').invoke('val', 0.8).trigger('input');
+    checkNumericValue('#effectSize', '0.8'); 
     
-    // App starts in binary mode, check that it's active
-    cy.get('#binary-button').should('have.class', 'active');
-    cy.get('#binary-container').should('be.visible');
-    
-    // Switch to continuous mode
-    cy.get('#continuous-button').click();
-    
-    // Check that continuous mode is now active
-    cy.get('#continuous-button').should('have.class', 'active');
-    cy.get('#binary-button').should('not.have.class', 'active');
-    
-    // Check that the continuous container is visible
-    cy.get('#continuous-container').should('be.visible');
-    
-  });
+    // Collinearity slider
+    cy.get('#correlation-slider').invoke('val', 0.4).trigger('input');
+    checkNumericValue('#correlation', '0.4');
+
+    // Predictors slider
+    cy.get('#numVariables-slider').invoke('val', 15).trigger('input');
+    checkNumericValue('#numVariables', '15');
+
+  });  
 
 }); 

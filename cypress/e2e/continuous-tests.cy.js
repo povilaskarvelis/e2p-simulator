@@ -350,4 +350,25 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     });
   });
 
+  
+  it('updates numeric inputs of Multivariate R2 calculator when sliders change', () => {
+
+    // Switch to continuous mode
+    cy.get('#continuous-button').click();
+
+    // Cohen's d slider
+    cy.get('#predictor-correlation-slider').invoke('val', 0.8).trigger('input');
+    checkNumericValue('#predictor-correlation', '0.8'); 
+    
+    // Collinearity slider
+    cy.get('#collinearity-slider').invoke('val', 0.4).trigger('input');
+    checkNumericValue('#collinearity', '0.4');
+
+    // Predictors slider
+    cy.get('#num-predictors-r2-slider').invoke('val', 15).trigger('input');
+    checkNumericValue('#num-predictors-r2', '15');
+
+  });  
+
+
 }); 
