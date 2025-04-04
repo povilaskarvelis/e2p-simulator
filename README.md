@@ -57,14 +57,12 @@ Key functionalities can be verified by running end-to-end automated tests writte
    ```
    npm run test:binary 
    npm run test:continuous
-
    ```
 
 The tests can also be run by opening the user interface and navigating to the tests:
 
    ```
    npm run test:open
-
    ```
 
 ## Contributing

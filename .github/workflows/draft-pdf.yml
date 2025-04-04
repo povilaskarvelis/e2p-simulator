@@ -1,0 +1,29 @@
+name: Draft PDF
+
+on:
+  push:
+    paths:
+      - paper/** # Monitor all files in the paper directory
+      - .github/workflows/draft-pdf.yml
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    name: Paper Draft
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build draft PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss # Change to 'jose' if needed
+          # This should be the path to the paper within your repo.
+          paper-path: paper/paper.md # Point to paper.md inside the paper directory
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper # Name of the artifact zip file
+          # This is the output path where the PDF is generated.
+          path: paper/paper.pdf # Point to paper.pdf inside the paper directory 
