@@ -16,6 +16,7 @@
     flex: 1;
 }
 
+/* Plots stack container */
 #continuous-container .plots-stack {
     display: flex;
     flex-direction: column;
@@ -27,6 +28,7 @@
     overflow: hidden;
 }
 
+/* Plot type containers */
 #continuous-container .scatter-plots,
 #continuous-container .distribution-plots {
     width: 100%;
@@ -44,12 +46,14 @@
     min-height: 300px;
 }
 
+/* Results plot containers */
 #continuous-container .results-container .plot-container {
     height: 100%;
     min-height: 400px;
     margin-bottom: 10px;
 }
 
+/* Half-sized plot containers */
 #continuous-container .results-container .half-plot {
     height: calc(50% - 10px);
     min-height: 150px;
@@ -77,6 +81,7 @@
     z-index: 5;
 }
 
+/* Dashboard metrics container */
 #continuous-container .dashboard-metrics {
     display: flex;
     flex-direction: row;
@@ -90,6 +95,7 @@
     padding: 0;
 }
 
+/* Dashboard paragraph styling */
 #continuous-container .dashboard p {
     margin: 8px 0;
     font-size: 1.2rem;
@@ -100,6 +106,7 @@
     line-height: 1.3;
 }
 
+/* Dashboard span styling */
 #continuous-container .dashboard span {
     font-weight: bold;
 }
@@ -112,14 +119,15 @@
     margin-top: 13px;
 }
 
+/* Toggle label styling */
 .precise-toggle-label {
     margin-right: 10px;
     font-size: 90%;
-    /* Inherit other styles from .slider-label if needed, or define here */
-    color: #333; /* Example */
+    color: #333;
     cursor: default;
 }
 
+/* Toggle switch container */
 .toggle-switch {
     position: relative;
     display: inline-block;
@@ -127,12 +135,14 @@
     height: 20px;
 }
 
+/* Hide default checkbox */
 .toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
+/* Toggle slider background */
 .toggle-slider {
     position: absolute;
     cursor: pointer;
@@ -145,6 +155,7 @@
     transition: .4s;
 }
 
+/* Toggle slider knob */
 .toggle-knob {
     position: absolute;
     content: '';
@@ -162,13 +173,13 @@
     background-color: black; /* Black background when checked */
 }
 
+/* Checked state knob position */
 .toggle-switch input:checked + .toggle-slider + .toggle-knob {
     transform: translateX(20px); /* Move knob */
 }
 
 /* Media Query for Mobile/Tablet Responsive Adjustments */
 @media only screen and (max-width: 1024px) {
- 
     /* Slightly increase height for continuous container on mobile */
     #continuous-container .main-container {
         min-height: 740px;
