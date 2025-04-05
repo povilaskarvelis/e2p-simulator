@@ -882,6 +882,13 @@ function initializeBinary() {
         
         // Initialize with default values
         updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
+        
+        // Initialize Mahalanobis calculator
+        if (typeof window.initializeMahalanobis === 'function') {
+            window.initializeMahalanobis();
+        } else {
+            console.warn("Mahalanobis calculator initialization function not found");
+        }
     } catch (error) {
         console.error("Error initializing binary module:", error);
     }

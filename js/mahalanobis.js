@@ -1,3 +1,4 @@
+(function() {
 // Change to module-specific names to avoid conflict
 const mahalanobisWidth = 600;
 const mahalanobisHeight = 400;
@@ -469,3 +470,4 @@ function ensureLegendContainer() {
     }
     return legendContainer;
 }
+})();
