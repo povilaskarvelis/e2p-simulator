@@ -21,7 +21,7 @@ This tool has been designed with biomedical and behavioral sciences in mind, par
 
 If you use this simulator in your research, please cite it as:
 
-Povilas Karvelis. (2025). povilaskarvelis/e2p-simulator: E2P Simulator v1.0.0 (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.15127945
+Povilas Karvelis. (2025). povilaskarvelis/e2p-simulator: E2P Simulator v1.0.1 (v1.0.1). Zenodo. https://doi.org/10.5281/zenodo.15127945
 
 ## Running the E2P Simulator Locally
 
