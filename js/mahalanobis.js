@@ -254,10 +254,11 @@ function initializeChart() {
         dChart = null;
     }
     
-    // Set up initial chart with just the threshold line
     const neededD = parseFloat(document.getElementById("neededD").value);
     const numVariables = parseInt(document.getElementById("numVariables").value);
-    const ctx = document.getElementById('dPlot').getContext('2d');
+    const canvas = document.getElementById('dPlot');
+    const ctx = canvas.getContext('2d');
+    const dPlotWrapper = document.getElementById('dPlotWrapper');
     
     // Get initial parameter values
     const effectSize = parseFloat(document.getElementById("effectSize").value);
@@ -285,7 +286,7 @@ function initializeChart() {
         fill: false
     };
     
-    // Initialize chart with threshold first, then active curve
+    // Initialize chart
     dChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -296,11 +297,7 @@ function initializeChart() {
             responsive: true,
             maintainAspectRatio: false,
             animation: false,
-            plugins: {
-                legend: {
-                    display: false // Hide the default legend
-                }
-            },
+            plugins: { legend: { display: false } },
             scales: {
                 x: {
                     min: 1,
@@ -343,19 +340,25 @@ function initializeChart() {
         plugins: [window.customLegendPlugin]
     });
     
-    // Create a container for our custom legend
+    // --- Setup Flex container --- 
     const chartContainer = document.getElementById('chartContainer');
-    
-    // Check if legend container already exists
+    chartContainer.style.display = 'flex';
+    chartContainer.style.flexDirection = 'column';
+    chartContainer.style.marginBottom = '0'; 
+    chartContainer.style.paddingBottom = '0'; 
+
+    // --- Handle legend --- 
     let legendContainer = chartContainer.querySelector('.chart-legend');
     if (!legendContainer) {
-        // Only create a new legend container if one doesn't exist
         legendContainer = document.createElement('div');
         legendContainer.className = 'chart-legend';
         legendContainer.style.textAlign = 'center';
         legendContainer.style.marginTop = '10px';
-        chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
+        chartContainer.insertBefore(legendContainer, dPlotWrapper); // Insert before wrapper
     }
+    legendContainer.style.flexShrink = '0'; // Legend doesn't shrink
+    
+    // --- Wrapper and Canvas are styled via HTML --- 
 }
 
 function updateActiveCurve(xValues, yValues) {

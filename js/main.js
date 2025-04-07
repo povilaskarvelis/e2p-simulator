@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Set binary mode parameters
                 if (params.baseRate) {
-                    document.getElementById('base-rate-number').value = parseFloat(params.baseRate) * 100;
-                    document.getElementById('base-rate-slider').value = parseFloat(params.baseRate) * 100;
+                    document.getElementById('base-rate-number').value = parseFloat(params.baseRate);
+                    document.getElementById('base-rate-slider').value = parseFloat(params.baseRate);
                 }
                 
                 if (params.groupingReliability) {
@@ -70,6 +70,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Trigger update to recalculate all metrics
                     document.getElementById('difference-slider').dispatchEvent(new Event('input'));
                 }
+
+                // Pass initial threshold if provided
+                const initialThreshold = params.thresholdValue ? parseFloat(params.thresholdValue) : undefined;
+                // (Re)Initialize binary with potentially new threshold
+                initializeBinary(initialThreshold);
+
             } else if (params.mode === 'continuous') {
                 // Show continuous mode
                 continuousButtons.forEach(btn => btn.classList.add('active'));
@@ -95,8 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (params.baseRate) {
-                    document.getElementById('base-rate-number-cont').value = parseFloat(params.baseRate) * 100;
-                    document.getElementById('base-rate-slider-cont').value = parseFloat(params.baseRate) * 100;
+                    document.getElementById('base-rate-number-cont').value = parseFloat(params.baseRate);
+                    document.getElementById('base-rate-slider-cont').value = parseFloat(params.baseRate);
                 }
                 
                 if (params.effectSizeR) {

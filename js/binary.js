@@ -866,31 +866,27 @@ function cleanupBinary() {
     currentView = "observed";
 }
 
-// Main initialization function
-function initializeBinary() {
-    try {
-        console.log("Initializing binary version");
-        
-        // Clean up any existing state
-        cleanupBinary();
-        
-        // Initialize the SVG and scales
-        initializeSVG();
-        
-        // Set up event listeners
-        setupEventListeners();
-        
-        // Initialize with default values
-        updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
-        
-        // Initialize Mahalanobis calculator
-        if (typeof window.initializeMahalanobis === 'function') {
-            window.initializeMahalanobis();
-        } else {
-            console.warn("Mahalanobis calculator initialization function not found");
-        }
-    } catch (error) {
-        console.error("Error initializing binary module:", error);
+// Initialize everything for the binary version
+function initializeBinary(initialThreshold) {
+    // Set initial threshold if provided via URL param
+    if (initialThreshold !== undefined && !isNaN(initialThreshold)) {
+        thresholdValue = initialThreshold;
+    }
+
+    // Setup plot dimensions and scales
+    initializeSVG();
+
+    // Add event listeners
+    setupEventListeners();
+
+    // Perform initial plot drawing and metric calculation
+    updatePlots(); 
+    
+    // Initialize Mahalanobis D Calculator related elements
+    if (typeof initializeMahalanobis === 'function') {
+        initializeMahalanobis(); 
+    } else {
+        console.warn('initializeMahalanobis function not found.');
     }
 }
 

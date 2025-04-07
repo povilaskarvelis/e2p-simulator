@@ -4,9 +4,19 @@ const customLegendPlugin = {
     afterRender: (chart) => {
         // Get the legend elements
         const legendItems = chart.legend.legendItems;
-        const legendContainer = chart.canvas.parentNode.querySelector('.chart-legend');
+        // Find the container relative to the chart's main container, not just canvas parent
+        const chartContainerElement = chart.canvas.closest('[id$="Container"]'); // Find closest container ending with 'Container'
+        if (!chartContainerElement) {
+            console.error('Custom Legend Plugin: Could not find parent container (e.g., #chartContainer)');
+            return;
+        }
+        const legendContainer = chartContainerElement.querySelector('.chart-legend');
         
-        if (!legendContainer) return;
+        if (!legendContainer) {
+            // Optional: Log if legend container itself is missing, though handled above usually
+            // console.warn('Custom Legend Plugin: Legend container (.chart-legend) not found within', chartContainerElement);
+            return;
+        }
         
         // Clear the existing legend
         legendContainer.innerHTML = '';
@@ -63,6 +73,33 @@ const customLegendPlugin = {
             legendItem.appendChild(marker);
             legendItem.appendChild(text);
             legendContainer.appendChild(legendItem);
+        });
+
+        // --- Manual Aspect Ratio Enforcement --- 
+        // Find the wrapper div for the canvas
+        const wrapper = chart.canvas.parentNode;
+        // Make selector more general to match dPlotWrapper or r2PlotWrapper
+        if (wrapper && wrapper.id.endsWith('PlotWrapper')) { 
+            const aspectRatio = 2; // Define desired aspect ratio (width / height)
+            const newWidth = wrapper.offsetWidth; // Get current width after layout
+            const newHeight = newWidth / aspectRatio; // Calculate required height
+            
+            // Set the wrapper height explicitly
+            wrapper.style.height = `${newHeight}px`;
+        }
+
+        // Explicitly tell Chart.js to resize within the new dimensions
+        // Use requestAnimationFrame to run just before the next repaint
+        requestAnimationFrame(() => {
+            // Only resize if the chart is still attached to the DOM and not destroyed
+            // (Chart.js might set canvas to null on destroy)
+            if (chart.canvas && chart.attached) {
+                try {
+                    chart.resize();
+                } catch (e) {
+                    console.error("Error during chart.resize within requestAnimationFrame:", e, chart);
+                }
+            }
         });
     }
 };
