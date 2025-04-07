@@ -879,6 +879,10 @@ function initializeBinary(initialThreshold) {
     // Add event listeners
     setupEventListeners();
 
+    // Explicitly update metrics based on the slider's default value on initial load
+    const initialD = parseFloat(document.getElementById('difference-slider').value);
+    updateMetricsFromD(initialD); 
+
     // Perform initial plot drawing and metric calculation
     updatePlots(); 
     
