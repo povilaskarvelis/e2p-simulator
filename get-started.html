@@ -169,7 +169,7 @@
         
         To further clarify how the tool can be used and to demonstrate its utility we provide some specific examples.
 
-        <h3>Example 1: Predicting Depression Diagnosis</h3>
+        <h3>Example 1: Diagnostic Prediction</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
         <ol>
             <li>In the Binary outcome mode:
@@ -192,7 +192,7 @@
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=8&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker'">Explore this example yourself →</button>
         
 
-        <h3>Example 2: Predicting Antidepressant Response</h3>
+        <h3>Example 2: Treatment Response Prediction</h3>
         <p> Can we predict who will respond to antidepressant treatment using a cognitive biomarker?</p>
         <ol>
             <li>Select Continuous outcome mode:</li>
@@ -210,7 +210,7 @@
 
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.6&outcomeReliability=0.94&effectSizeR=0.6&baseRate=15&label1=Non-responders&label2=Responders&xaxisLabel=Cognitive%20marker&yaxisScatterLabel=Treatment%20response'">Explore this example yourself →</button>
 
-        <h3>Example 3: Predicting Suicide Attempts</h3>
+        <h3>Example 3: Risk Prediction</h3>
         <p> Can we predict who will attempt suicide using a combination of risk factors?</p> 
             
         <p>Here we will rely motly on <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>, who analyzed the data of 108,705 adults from 21 countries, and using a logistic regression model found that combining a range of risk factors (socio-demographics, parent psychopathology, childhood adversities, DSM-IV disorders, and history of suicidal behavior) led to AUC = 0.74-0.8 discrimination performance between those who did and did not attempt suicide. </p>
@@ -242,7 +242,7 @@
             <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 90%;">
         </div>
         
-        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
+        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
         
         <h3>Key Metrics for Different Contexts</h3>
         <p>Depending on your research context, certain metrics may be more relevant than others:</p>
