@@ -84,12 +84,12 @@
     <h1>Getting Started with E2P Simulator</h1>
 
     <div class="description">
-        <p>Welcome to E2P Simulator! This guide will help you understand what it does, why it is needed, and how to use it.</p>
+        <p>Welcome to E2P Simulator! This guide will help you understand what it does, <br> why it is needed, and how to use it.</p>
     </div>
 
     <div class="guide-section">
         <h2>What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r) and their predictive utility (e.g., AUC, PR-AUC, MCC) while accounting for real-world factors like measurement reliability and outcome base rates.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r) and their predictive utility (e.g., AUC, PR-AUC, MCC), while accounting for measurement reliability and outcome base rates.</p>
 
         <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how effect sizes will translate into real-world prediction or what effect sizes are needed to achieve a desired predictive performance. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
@@ -110,37 +110,37 @@
         <ul>
             <li><strong>Overemphasis on statistical significance:</strong> Most research continues to optimize for statistical significance (p-values) without optimizing for practical significance (effect sizes).</li>
             <li><strong>Difficulties interpreting effect sizes:</strong> The interpretation of effect sizes, which are critical for gauging real-world utility, is often reduced to arbitrary cutoffs (small/medium/large) without providing any clear sense of their practical utility.</li>
-            <li><strong>Overlooked measurement reliability:</strong> Measurement noise attenuates observed effect sizes and weakens predictive power, yet it is rarely incorporated into study design or interpretation.</li>
+            <li><strong>Overlooked measurement reliability:</strong> Measurement noise attenuates observed effect sizes and weakens predictive power, yet it is rarely accounted for in study design or interpretation.</li>
             <li><strong>Neglected outcome base rates:</strong> Low-prevalence events drastically limit predictive performance in real-world settings, but are often not considered when interpreting findings.</li>
         </ul>
 
-        <p>Collectively, these issues undermine the quality and impact of academic research, resulting in an abundance of statistically significant but practically negligible findings. Conflating statistical significance with practical significance, researchers develop unrealistic expectations about the potential impact of their findings, leading to inefficient study planning, resource misallocation, and considerable waste of time and funding. For example, collecting large datasets or building complex predictive models is pointless if the effect sizes of individual predictors are small (which is usually the case).</p>
+        <p>Together, these issues undermine the quality and impact of academic research, resulting in an abundance of statistically significant but practically negligible findings. Conflating statistical significance with practical significance, researchers develop unrealistic expectations about the potential impact of their findings, leading to inefficient study planning, resource misallocation, and considerable waste of time and funding. For example, collecting large datasets or building complex predictive models is pointless if the effect sizes of individual predictors are known to be small (which is usually the case).</p>
 
-        <p>E2P Simulator is designed to address these fundamental challenges by placing effect sizes, measurement reliability, and outcome base rates at the center of study planning and interpretation. It helps researchers to understand how these factors jointly shape predictive utility and to make more informed decisions about their studies.</p>
+        <p>E2P Simulator is designed to address these fundamental challenges by placing effect sizes, measurement reliability, and outcome base rates at the center of study planning and interpretation. It helps researchers understand how these factors jointly shape predictive utility, and can guides them in making more informed decisions about their studies.</p>
 
     <div class="guide-section">
         <h2>How to use E2P Simulator</h2>
 
-        <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting parameters like effect sizes, measurement reliability, base rates, and decision threshold, and immediately see how these changes impact predictive performance through various visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
+        <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting effect sizes, measurement reliability, base rates, and decision threshold, and immediately see how these changes impact predictive performance through various visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
   
         <h3>Binary vs. Continuous Outcomes</h3>
         <p>E2P Simulator provides two analysis modes that cover the two most common research scenarios:</p>
 
         <ul>
-            <li><strong>Binary Mode</strong>: Use this mode for analyzing dichotomous outcomes like diagnostic categories (e.g., cases vs. controls) or discrete states (e.g., success vs. failure). All metric calculations and conversions in this mode are completely analytical and follow the formulas provided on the page.</li>
+            <li><strong>Binary Mode</strong>: Considers dichotomous outcomes such as diagnostic categories (e.g., cases vs. controls) or discrete states (e.g., success vs. failure). All metric calculations and conversions in this mode are completely analytical and follow the formulas provided on the page.</li>
             
-            <li><strong>Continuous Mode</strong>: Use this mode for analyzing continuous measurements like symptom severity or performance scores that may need to be categorized (e.g., responders vs. non-responders or performers vs. non-performers) for practical decisions. This mode is based on actual data simulations and the affects on all the metrics are calculated from the data itself.</li>
+            <li><strong>Continuous Mode</strong>: Considers continuous measurements such as symptom severity or performance scores that may need to be categorized (e.g., responders vs. non-responders or performers vs. non-performers) for practical decisions. This mode is based on actual data simulations rather than analytical solutions, hence it may be slower to react.</li>
         </ul>
         
         <h3>Measurement Reliability and True vs. Observed Effects</h3>
-        <p>Measurement reliability attenuates the observed effect sizes, and in turn attenuates the predictive performance. The simulator allows you to specify reliability using appropriate metrics - the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability).</p>
+        <p>Measurement reliability attenuates observed effect sizes, and in turn attenuates predictive performance. The simulator allows you to specify reliability using the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability).</p>
        
         <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
         <h3>Base Rates</h3>
-        <p>The base rate refers to the prevalence of the outcome in the studied population (rather than the sample used to calculate the effect size). It is important to make sure that the effect size in question and the base rate correspond to the same population. For example, if the effect size characterizes the differences between some disease/disorder group and a healthy control group, the relevant base rate is the prevalence of the disease/disorder in the general population. In a different scenario, if we have identified a high-risk group, and want to use the disease/disorder prevalence within this group, then we need to know the effect size comparing disease/disorder vs. the rest of the high-risk group, as it may not be the same as when comparing with healthy controls.</p>    
+        <p>The base rate refers to how common an outcome is within a specific population. For instance, if an effect size measures the difference between a group with a disorder and a healthy control group, the base rate would be the disorder's prevalence in the general population. However, if you're focusing on a pre-identified high-risk group, the relevant base rate becomes the disorder's prevalence <em>within this specific high-risk cohort</em>. In Bayesian statistics, this base rate is analogous to the prior probability of the outcome, established before considering any particular predictor.</p>
             
-        <p>The base rate primarily affects the tradeoff between precision and recall, which is reflected in PR-AUC, MCC, and F-1 score (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
+        <p>The base rate directly affects PPV and NVP, and indirectly the metrics that depend on it: PR-AUC, MCC, and F-1 score (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
 
         <h3>Multivariate Effects Calculators</h3>
         <p>Both binary and continuous outcomes analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
@@ -166,13 +166,41 @@
         <ul>
             <li><strong>Average effects and correlations</strong>: The calculators use single values to represent the average effect size across predictors and average correlation among them, which can provide useful approximations even when individual predictors vary in strength</li>
             <li><strong>Linear effects</strong>: The formulas assume predictors contribute additively without interactions (where one predictor's effect depends on another). However, research shows that in clinical prediction, complex non-linear models generally do not outperform simple linear logistic regression (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0895435618310813" target="_blank">Christodoulou et al., 2019</a>)</li>
-            <li><strong>Normality</strong>: Variables are assumed to be normally distributed</li>
+            <li><strong>Normality</strong>: The underlying variables are assumed to be normally distributed. This is consistent with the assumptions of input metrics like Cohen's d and Pearson's r, although in practice these are often computed despite normality violations.</li>
         </ul>
         
         <p>Despite these limitations, these calculators serve as valuable tools for building intuition about how multiple predictors combine to achieve stronger effects. Even though real-world predictors will vary in their individual strengths and collinearity, the overall patterns demonstrated (such as diminishing returns and the impact of shared variance) remain informative for understanding multivariate relationships.</p>
     </div>
 
     <div class="guide-section">
+        <h2 id="understanding-metrics">Understanding Predictive Metrics</h2>
+        
+        <h3>Classification Outcomes and Metrics</h3>
+        <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
+        
+        <div id="predictive-metrics-diagram" style="text-align: center; margin: 20px 0;">
+            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 90%;">
+        </div>
+        
+        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
+        
+        <h3>Key Metrics for Different Contexts</h3>
+        <p>Depending on your research context, certain metrics may be more relevant than others:</p>
+        <ul>
+            <li><strong>When false negatives are costly</strong> (e.g., missing a disease diagnosis): Focus on Sensitivity/Recall. In clinical settings where missing a diagnosis could be life-threatening, maximizing Sensitivity ensures fewer cases are missed, even if it means more false alarms.</li>
+            <li><strong>When false positives are costly</strong> (e.g., unnecessary treatments): Focus on Specificity. When treatments have significant side effects or costs, high Specificity ensures fewer healthy individuals receive unnecessary interventions.</li>
+            <li><strong>When dealing with low base rate</strong>: Focus on Precision (PPV), NPV, F1 score, MCC, and PR-AUC. These metrics are sensitive to the base rate and thus provide a more accurate assessment of how a predictor would perform in the real world.</li>
+        </ul>
+        
+        <h3>Threshold-Independent Metrics</h3>
+        <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
+        <ul>
+            <li><strong>AUC (Area Under the ROC Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
+            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and Recall (Sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects Precision. A larger PR-AUC means the model can achieve high Precision without sacrificing Recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
+        </ul>
+       </div>
+
+       <div class="guide-section">
         <h2>Quick Start Examples</h2>
         
         To further clarify how the tool can be used and to demonstrate its utility we provide some specific examples.
@@ -221,7 +249,7 @@
         <h3>Example 3: Risk Prediction</h3>
         <p> Can we predict who will attempt suicide using a combination of risk factors?</p> 
             
-        <p>Here we will rely motly on <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>, who analyzed the data of 108,705 adults from 21 countries, and using a logistic regression model found that combining a range of risk factors (socio-demographics, parent psychopathology, childhood adversities, DSM-IV disorders, and history of suicidal behavior) led to AUC = 0.74-0.8 discrimination performance between those who did and did not attempt suicide. </p>
+        <p>Here we will rely mostly on <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>, who analyzed the data of 108,705 adults from 21 countries, and using a logistic regression model found that combining a range of risk factors (socio-demographics, parent psychopathology, childhood adversities, DSM-IV disorders, and history of suicidal behavior) led to AUC = 0.74-0.8 discrimination performance between those who did and did not attempt suicide. </p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
@@ -240,33 +268,6 @@
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.3&groupingReliability=0.8&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=1.35&label1=Controls&label2=Suicide%20attempters&xaxisLabel=Predictor&thresholdValue=3.1'">Explore this example yourself →</button>
    
     </div>
-    <div class="guide-section">
-        <h2 id="understanding-metrics">Understanding Predictive Metrics</h2>
-        
-        <h3>Classification Outcomes and Metrics</h3>
-        <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
-        
-        <div id="predictive-metrics-diagram" style="text-align: center; margin: 20px 0;">
-            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 90%;">
-        </div>
-        
-        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
-        
-        <h3>Key Metrics for Different Contexts</h3>
-        <p>Depending on your research context, certain metrics may be more relevant than others:</p>
-        <ul>
-            <li><strong>When false negatives are costly</strong> (e.g., missing a disease diagnosis): Focus on Sensitivity/Recall. In clinical settings where missing a diagnosis could be life-threatening, maximizing Sensitivity ensures fewer cases are missed, even if it means more false alarms.</li>
-            <li><strong>When false positives are costly</strong> (e.g., unnecessary treatments): Focus on Specificity. When treatments have significant side effects or costs, high Specificity ensures fewer healthy individuals receive unnecessary interventions.</li>
-            <li><strong>When dealing with low base rate</strong>: Focus on Precision (PPV), NPV, F1 score, MCC, and PR-AUC. These metrics are sensitive to the base rate and thus provide a more accurate assessment of the model's performance in the real world.</li>
-        </ul>
-        
-        <h3>Threshold-Independent Metrics</h3>
-        <p>Some metrics evaluate performance across all possible thresholds and, as such, can serve as a better summary of the overall model performance. These include:</p>
-        <ul>
-            <li><strong>AUC (Area Under the ROC Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
-            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and Recall (Sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects Precision. A larger PR-AUC means the model can achieve high Precision without sacrificing Recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
-        </ul>
-       </div>
 
     <div class="guide-section">
         <h2>Feedback and Contributions</h2>
