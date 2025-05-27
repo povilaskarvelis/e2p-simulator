@@ -7,7 +7,7 @@ E2P Simulator has several applications:
 
 1. **Interpretation of findings**: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and ground the interpretation of their findings in terms of predictive value in specific contexts.
 
-2. **Research planning**: Being able to easily derive what effect sizes are needed to achieve the desired predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.
+2. **Research planning**: Being able to easily derive what effect sizes are needed to achieve a desired predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.
 
 3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping students and researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world impact.
 
