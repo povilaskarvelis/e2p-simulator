@@ -213,7 +213,7 @@
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set base rate to 8% (the prevalence of depression in the population; <a href="https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/bjc.12333" target="_blank">Shorey et al., 2021</a>)</li>
+                    <li>Set base rate to 8% (the prevalence of depression in the population; <a href="https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>)</li>
                     <li>Set the grouping reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.6 (an average reliability for cognitive measures; <a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
                     <li>Set the observed effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice)</li>
@@ -232,22 +232,22 @@
         
 
         <h3>Example 2: Treatment Response Prediction</h3>
-        <p> Can we predict who will respond to antidepressant treatment using a cognitive biomarker?</p>
+        <p> Can we predict who will respond to antidepressant treatment using task-based brain activity measures?</p>
         <ol>
             <li>Select Continuous outcome mode:</li>
                 <ul>
                     <li>Set base rate to 15% (the rate of response to antidepressant treatment beyond placebo; <a href="https://www.bmj.com/content/378/bmj-2021-067606" target="_blank">Stone et al., 2022</a>)</li>
-                    <li>Set predictor reliability to 0.6 (an average reliability for cognitive measures; <a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
-                    <li>Set outcome reliability to 0.94 (Hamilton Depression Rating Scale (HAMD)) reliability; <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">Trajković et al., 2011</a>)</li>
+                    <li>Set predictor reliability to 0.4 (an average reliability for task-fMRI measures; <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">Elliott et al., 2020</a>)</li>
+                    <li>Set outcome reliability to 0.94 (Hamilton Depression Rating Scale (HAMD) reliability; <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">Trajković et al., 2011</a>)</li>
                     <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://direct.mit.edu/netn/article/6/4/1066/109196/Computational-approaches-to-treatment-response" target="_blank">Karvelis et al., 2022</a>)</li>
                 </ul>
 
-            <li>This will yield AUC = 0.73 and PR-AUC = 0.32, indicating rather modest predictive performance, as shown by the low PR-AUC. Note that the limiting factor in this scenario is not so much the reliability but the effect size.</li>
+            <li>This will yield AUC = 0.73 and PR-AUC = 0.33, indicating rather modest predictive performance, as shown by the low PR-AUC. Improving measurement reliability could improve the performance up to AUC = 0.87 and PR-AUC = 0.57.</li>
 
             <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires r = 0.9 (R² = 0.81). These are rather extremely ambitious values (requiring to explain 81% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the nature of binary decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.6&outcomeReliability=0.94&effectSizeR=0.6&baseRate=15&label1=Non-responders&label2=Responders&xaxisLabel=Cognitive%20marker&yaxisScatterLabel=Treatment%20response'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=15&label1=Non-responders&label2=Responders&xaxisLabel=Cognitive%20marker&yaxisScatterLabel=Treatment%20response'">Explore this example yourself →</button>
 
         <h3>Example 3: Risk Prediction</h3>
         <p> Can we predict who will attempt suicide using a combination of risk factors?</p> 
@@ -276,7 +276,7 @@
         <h2>Feedback and Contributions</h2>
         <p>E2P Simulator is an open-source project - feedback, bug reports, and suggestions for improvement are welcome. The easiest way to do so is through the <a href="https://github.com/povilaskarvelis/e2p-simulator/issues" target="_blank">GitHub Issues page</a>.</p>
         <p>You can view the source code, track development, and contribute directly at the <a href="https://github.com/povilaskarvelis/e2p-simulator" target="_blank">project's GitHub repository</a>.</p>
-        <p>For other inquiries, you can find contact information on my <a href="https://povilaskarvelis.github.io/" target="_blank">personal website</a>.</p>
+        <p>For other inquiries, you can find my contact information <a href="https://povilaskarvelis.github.io/" target="_blank">here</a>.</p>
     </div>
 
     <!-- Footer -->
