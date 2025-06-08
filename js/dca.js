@@ -56,8 +56,8 @@ const DCAModule = {
                 treatNoneBenefits.push(0); // Treat none = 0
             }
             
-            // Calculate A-NBC (Area Under Net Benefit Curve) using trapezoidal integration
-            let anbc = 0;
+            // Calculate Delta A-NBC (improvement over best simple strategy)
+            let deltaANBC = 0;
             const rangeStart = instance.thresholdMin;
             const rangeEnd = instance.thresholdMax;
             
@@ -69,24 +69,50 @@ const DCAModule = {
                 if (pt1 >= rangeStart && pt2 <= rangeEnd) {
                     const nb1 = netBenefits[i-1];
                     const nb2 = netBenefits[i];
-                    anbc += (pt2 - pt1) * (nb1 + nb2) / 2; // Trapezoidal rule
+                    const ta1 = treatAllBenefits[i-1];
+                    const ta2 = treatAllBenefits[i];
+                    
+                    // Treat none benefit is always 0
+                    const tn1 = 0;
+                    const tn2 = 0;
+                    
+                    // Find the best simple strategy at each point
+                    const bestSimple1 = Math.max(ta1, tn1); // max(treat all, treat none)
+                    const bestSimple2 = Math.max(ta2, tn2);
+                    
+                    // Calculate improvement over best simple strategy
+                    const improvement1 = nb1 - bestSimple1;
+                    const improvement2 = nb2 - bestSimple2;
+                    
+                    // Integrate the improvement (can be negative)
+                    deltaANBC += (pt2 - pt1) * (improvement1 + improvement2) / 2; // Trapezoidal rule
                 }
             }
             
-            // Create separate shaded areas for positive net benefits
+            // Create separate shaded areas for different strategies
             const positiveX = [];
             const positiveY = [];
+            const positiveBaseline = []; // For bounding the positive area
+            const treatAllShadedX = [];
+            const treatAllShadedY = [];
             
             for (let i = 0; i < thresholdProbs.length; i++) {
                 const pt = thresholdProbs[i];
                 if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
                     const netBenefit = netBenefits[i];
+                    const treatAllBenefit = treatAllBenefits[i];
                     
-                    if (netBenefit >= 0) {
+                    // Only include in positive area when model is better than both 0 and treat all
+                    if (netBenefit >= 0 && netBenefit >= treatAllBenefit) {
                         positiveX.push(pt);
                         positiveY.push(netBenefit);
+                        // Use the higher of 0 or treat all as the baseline
+                        positiveBaseline.push(Math.max(0, treatAllBenefit));
                     }
-                    // Note: we don't use negativeX/Y here anymore since we handle it separately below
+                    
+                    // Collect treat all points for shading
+                    treatAllShadedX.push(pt);
+                    treatAllShadedY.push(treatAllBenefit);
                 }
             }
             
@@ -96,21 +122,54 @@ const DCAModule = {
                 y: netBenefits,
                 type: "scatter",
                 mode: "lines",
-                name: "Model",
+                name: "Predictor",
                 line: { color: "black", width: 2 },
+                showlegend: true,
             };
             
-            // Positive shaded area (blue) - always bounded by y=0 at bottom
-            const positiveArea = {
-                x: positiveX,
-                y: positiveY,
+            // Treat all shaded area (gray) - reference strategy
+            const treatAllArea = {
+                x: treatAllShadedX,
+                y: treatAllShadedY,
                 type: "scatter",
                 mode: "none",
                 fill: "tozeroy",
-                fillcolor: "rgba(46, 134, 171, 0.3)",
-                name: "Positive Net Benefit",
+                fillcolor: "rgba(128, 128, 128, 0.2)", // Light gray
+                name: "Treat All Net Benefit",
                 showlegend: false,
             };
+            
+            // Positive shaded area (blue) - bounded by max(0, treat all) at bottom
+            let positiveArea = null;
+            if (positiveX.length > 0) {
+                // Create area bounded by the model curve on top and max(0, treat all) on bottom
+                const positiveXCombined = [...positiveX, ...positiveX.slice().reverse()];
+                const positiveYCombined = [...positiveY, ...positiveBaseline.slice().reverse()];
+                
+                positiveArea = {
+                    x: positiveXCombined,
+                    y: positiveYCombined,
+                    type: "scatter",
+                    mode: "none",
+                    fill: "toself",
+                    fillcolor: "rgba(46, 134, 171, 0.3)",
+                    name: "Positive Net Benefit",
+                    showlegend: false,
+                    line: { color: "transparent" }
+                };
+            } else {
+                // No positive values - empty trace
+                positiveArea = {
+                    x: [],
+                    y: [],
+                    type: "scatter",
+                    mode: "none",
+                    fill: "tozeroy",
+                    fillcolor: "rgba(46, 134, 171, 0.3)",
+                    name: "Positive Net Benefit",
+                    showlegend: false,
+                };
+            }
             
             // Negative shaded area (red) - represents negative contribution to A-NBC integral
             // This should be the area between the curve and y=0 when the curve is negative
@@ -158,13 +217,66 @@ const DCAModule = {
                 };
             }
             
+            // Suboptimal area (red) - where model is positive but treat all is better
+            // This represents negative contribution to Delta A-NBC when treat all outperforms model
+            const suboptimalX = [];
+            const suboptimalY = [];
+            const suboptimalBaseline = [];
+            
+            // Collect points where model is positive but worse than treat all
+            for (let i = 0; i < thresholdProbs.length; i++) {
+                const pt = thresholdProbs[i];
+                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
+                    const netBenefit = netBenefits[i];
+                    const treatAllBenefit = treatAllBenefits[i];
+                    
+                    if (netBenefit >= 0 && netBenefit < treatAllBenefit) {
+                        suboptimalX.push(pt);
+                        suboptimalY.push(netBenefit);
+                        suboptimalBaseline.push(treatAllBenefit);
+                    }
+                }
+            }
+            
+            let suboptimalArea = null;
+            if (suboptimalX.length > 0) {
+                // Create area bounded by treat all curve on top and model curve on bottom
+                const suboptimalXCombined = [...suboptimalX, ...suboptimalX.slice().reverse()];
+                const suboptimalYCombined = [...suboptimalBaseline, ...suboptimalY.slice().reverse()];
+                
+                suboptimalArea = {
+                    x: suboptimalXCombined,
+                    y: suboptimalYCombined,
+                    type: "scatter",
+                    mode: "none",
+                    fill: "toself",
+                    fillcolor: "rgba(231, 76, 60, 0.3)",
+                    name: "Suboptimal Net Benefit",
+                    showlegend: false,
+                    line: { color: "transparent" }
+                };
+            } else {
+                // No suboptimal values - empty trace
+                suboptimalArea = {
+                    x: [],
+                    y: [],
+                    type: "scatter",
+                    mode: "none",
+                    fill: "tozeroy",
+                    fillcolor: "rgba(231, 76, 60, 0.3)",
+                    name: "Suboptimal Net Benefit",
+                    showlegend: false,
+                };
+            }
+            
             const treatAllTrace = {
                 x: thresholdProbs,
                 y: treatAllBenefits,
                 type: "scatter",
                 mode: "lines",
-                name: "Treat All",
+                name: "Treat all",
                 line: { color: "#666666", dash: "dash" },
+                showlegend: true,
             };
             
             const treatNoneTrace = {
@@ -172,8 +284,30 @@ const DCAModule = {
                 y: treatNoneBenefits,
                 type: "scatter",
                 mode: "lines",
-                name: "Treat None",
+                name: "Treat none",
                 line: { color: "#999999", dash: "dot" },
+                showlegend: true,
+            };
+            
+            // Legend entries for shaded areas (invisible traces just for legend)
+            const blueLegendTrace = {
+                x: [null],
+                y: [null],
+                type: "scatter",
+                mode: "markers",
+                marker: { color: "rgba(46, 134, 171, 0.6)", size: 12, symbol: "square" },
+                name: "Predictor better than treat all/none",
+                showlegend: true,
+            };
+            
+            const redLegendTrace = {
+                x: [null],
+                y: [null],
+                type: "scatter",
+                mode: "markers",
+                marker: { color: "rgba(231, 76, 60, 0.6)", size: 12, symbol: "square" },
+                name: "Predictor worse than treat all/none",
+                showlegend: true,
             };
             
             // Calculate dynamic y-axis minimum based on negative values
@@ -182,20 +316,19 @@ const DCAModule = {
             
             const dcaLayout = {
                 xaxis: { 
-                    title: "Threshold Probability", 
+                    title: "Threshold probability", 
                     range: [0, 1], 
                     showgrid: false,
-                    showline: true,
-                    linecolor: "black",
-                    linewidth: 1,
+                    showline: false,
                     titlefont: { size: 15 },
                     tickformat: ".1f",
                     dtick: 0.2
                 },
                 yaxis: { 
-                    title: "Net Benefit", 
+                    title: "Net benefit", 
                     range: [yAxisMin, Math.max(...netBenefits, ...treatAllBenefits, baseRate, 0.1) * 1.1], 
                     showgrid: false, 
+                    zeroline: false,
                     titlefont: { size: 15 }
                 },
                 showlegend: false,
@@ -206,7 +339,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                    text: `A-NBC:<br>${anbc.toFixed(3)}`,
+                    text: `ΔA-NBC:<br>${deltaANBC.toFixed(3)}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right",
@@ -221,12 +354,20 @@ const DCAModule = {
             };
             
             if (!instance.initialized) {
-                Plotly.newPlot(instance.plotSelector, [treatNoneTrace, treatAllTrace, negativeArea, positiveArea, dcaTrace], dcaLayout, config);
+                Plotly.newPlot(instance.plotSelector, [treatNoneTrace, treatAllTrace, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaTrace, blueLegendTrace, redLegendTrace], dcaLayout, config);
                 instance.initialized = true;
                 // Add threshold bars after initial plot
                 this.addThresholdBars(instanceId);
+                
+                // Add click event listener to navigate to get-started.html DCA section
+                document.getElementById(instance.plotSelector).addEventListener('click', (e) => {
+                    // Only trigger if not clicking on threshold bars
+                    if (!e.target.closest('.dca-threshold-overlay')) {
+                        window.open('get-started.html#dca-analysis', '_blank');
+                    }
+                });
             } else {
-                Plotly.react(instance.plotSelector, [treatNoneTrace, treatAllTrace, negativeArea, positiveArea, dcaTrace], dcaLayout, config);
+                Plotly.react(instance.plotSelector, [treatNoneTrace, treatAllTrace, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaTrace, blueLegendTrace, redLegendTrace], dcaLayout, config);
                 // Update threshold bars position
                 this.updateThresholdBars(instanceId);
             }
@@ -400,29 +541,45 @@ const DCAModule = {
             const dcaPlotElement = document.getElementById(instance.plotSelector);
             if (!dcaPlotElement || !dcaPlotElement.data) return;
             
-            // Trace indices: 0=treatNone, 1=treatAll, 2=negativeArea, 3=positiveArea, 4=dcaCurve
-            const negativeAreaIndex = 2;
-            const positiveAreaIndex = 3;
-            const mainCurveIndex = 4;
+            // Trace indices: 0=treatNone, 1=treatAll, 2=treatAllArea, 3=negativeArea, 4=suboptimalArea, 5=positiveArea, 6=dcaCurve
+            const negativeAreaIndex = 3;
+            const suboptimalAreaIndex = 4;
+            const positiveAreaIndex = 5;
+            const mainCurveIndex = 6;
             
             if (dcaPlotElement.data.length <= mainCurveIndex) return;
             
             const thresholdProbs = dcaPlotElement.data[mainCurveIndex].x;
             const netBenefits = dcaPlotElement.data[mainCurveIndex].y;
             
-            // Create separate shaded areas for positive and negative net benefits
+            // Get treat all data from the plot
+            const treatAllData = dcaPlotElement.data[1]; // Index 1 is treat all trace
+            const treatAllBenefits = treatAllData.y;
+            
+            // Create separate shaded areas for different strategies
             const positiveX = [];
             const positiveY = [];
+            const positiveBaseline = []; // For bounding the positive area
+            const treatAllShadedX = [];
+            const treatAllShadedY = [];
             
             for (let i = 0; i < thresholdProbs.length; i++) {
                 const pt = thresholdProbs[i];
                 if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
                     const netBenefit = netBenefits[i];
+                    const treatAllBenefit = treatAllBenefits[i];
                     
-                    if (netBenefit >= 0) {
+                    // Only include in positive area when model is better than both 0 and treat all
+                    if (netBenefit >= 0 && netBenefit >= treatAllBenefit) {
                         positiveX.push(pt);
                         positiveY.push(netBenefit);
+                        // Use the higher of 0 or treat all as the baseline
+                        positiveBaseline.push(Math.max(0, treatAllBenefit));
                     }
+                    
+                    // Collect treat all points for shading
+                    treatAllShadedX.push(pt);
+                    treatAllShadedY.push(treatAllBenefit);
                 }
             }
             
@@ -442,8 +599,29 @@ const DCAModule = {
                 }
             }
             
-            // Recalculate A-NBC for the new threshold range
-            let anbc = 0;
+            // Create suboptimal area data - where model is positive but treat all is better
+            const suboptimalX = [];
+            const suboptimalY = [];
+            const suboptimalBaseline = [];
+            
+            // Collect points where model is positive but worse than treat all
+            for (let i = 0; i < thresholdProbs.length; i++) {
+                const pt = thresholdProbs[i];
+                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
+                    const netBenefit = netBenefits[i];
+                    const treatAllBenefit = treatAllBenefits[i];
+                    
+                    if (netBenefit >= 0 && netBenefit < treatAllBenefit) {
+                        suboptimalX.push(pt);
+                        suboptimalY.push(netBenefit);
+                        suboptimalBaseline.push(treatAllBenefit);
+                    }
+                }
+            }
+            
+            // Recalculate Delta A-NBC for the new threshold range (improvement over best simple strategy)
+            let deltaANBC = 0;
+            
             for (let i = 1; i < thresholdProbs.length; i++) {
                 const pt1 = thresholdProbs[i-1];
                 const pt2 = thresholdProbs[i];
@@ -452,7 +630,23 @@ const DCAModule = {
                 if (pt1 >= instance.thresholdMin && pt2 <= instance.thresholdMax) {
                     const nb1 = netBenefits[i-1];
                     const nb2 = netBenefits[i];
-                    anbc += (pt2 - pt1) * (nb1 + nb2) / 2; // Trapezoidal rule
+                    const ta1 = treatAllBenefits[i-1];
+                    const ta2 = treatAllBenefits[i];
+                    
+                    // Treat none benefit is always 0
+                    const tn1 = 0;
+                    const tn2 = 0;
+                    
+                    // Find the best simple strategy at each point
+                    const bestSimple1 = Math.max(ta1, tn1); // max(treat all, treat none)
+                    const bestSimple2 = Math.max(ta2, tn2);
+                    
+                    // Calculate improvement over best simple strategy
+                    const improvement1 = nb1 - bestSimple1;
+                    const improvement2 = nb2 - bestSimple2;
+                    
+                    // Integrate the improvement (can be negative)
+                    deltaANBC += (pt2 - pt1) * (improvement1 + improvement2) / 2; // Trapezoidal rule
                 }
             }
             
@@ -460,16 +654,59 @@ const DCAModule = {
             const negativeRegionMin = finalNegativeY.length > 0 ? Math.min(...finalNegativeY) : 0;
             const yAxisMin = Math.min(-0.05, negativeRegionMin * 1.1); // Expand below -0.05 if needed
             
-            // Update both shaded area traces
+            // Update all shaded area traces
+            // Note: trace order is [treatNone, treatAll, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaCurve]
+            const treatAllAreaIndex = 2;
+            
+            Plotly.restyle(instance.plotSelector, {
+                x: [treatAllShadedX],
+                y: [treatAllShadedY]
+            }, treatAllAreaIndex);
+            
             Plotly.restyle(instance.plotSelector, {
                 x: [finalNegativeX],
                 y: [finalNegativeY]
             }, negativeAreaIndex);
             
-            Plotly.restyle(instance.plotSelector, {
-                x: [positiveX],
-                y: [positiveY]
-            }, positiveAreaIndex);
+            // Update suboptimal area with bounded fill
+            if (suboptimalX.length > 0) {
+                const suboptimalXCombined = [...suboptimalX, ...suboptimalX.slice().reverse()];
+                const suboptimalYCombined = [...suboptimalBaseline, ...suboptimalY.slice().reverse()];
+                
+                Plotly.restyle(instance.plotSelector, {
+                    x: [suboptimalXCombined],
+                    y: [suboptimalYCombined],
+                    fill: ['toself'],
+                    fillcolor: ['rgba(231, 76, 60, 0.3)'],
+                    'line.color': ['transparent']
+                }, suboptimalAreaIndex);
+            } else {
+                // No suboptimal values - empty area
+                Plotly.restyle(instance.plotSelector, {
+                    x: [[]],
+                    y: [[]]
+                }, suboptimalAreaIndex);
+            }
+            
+            // Update positive area with bounded fill (similar to initial plot logic)
+            if (positiveX.length > 0) {
+                const positiveXCombined = [...positiveX, ...positiveX.slice().reverse()];
+                const positiveYCombined = [...positiveY, ...positiveBaseline.slice().reverse()];
+                
+                Plotly.restyle(instance.plotSelector, {
+                    x: [positiveXCombined],
+                    y: [positiveYCombined],
+                    fill: ['toself'],
+                    fillcolor: ['rgba(46, 134, 171, 0.3)'],
+                    'line.color': ['transparent']
+                }, positiveAreaIndex);
+            } else {
+                // No positive values - empty area
+                Plotly.restyle(instance.plotSelector, {
+                    x: [[]],
+                    y: [[]]
+                }, positiveAreaIndex);
+            }
             
             // Update y-axis range and A-NBC annotation
             const currentLayout = dcaPlotElement.layout;
@@ -477,7 +714,7 @@ const DCAModule = {
             
             Plotly.relayout(instance.plotSelector, {
                 'yaxis.range': [yAxisMin, currentYMax],
-                'annotations[0].text': `A-NBC:<br>${anbc.toFixed(3)}`
+                'annotations[0].text': `ΔA-NBC:<br>${deltaANBC.toFixed(3)}`
             });
             
         } catch (error) {
