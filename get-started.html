@@ -201,6 +201,43 @@
             <li><strong>AUC (Area Under the ROC Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
             <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and Recall (Sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects Precision. A larger PR-AUC means the model can achieve high Precision without sacrificing Recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
         </ul>
+        
+        <h3>Decision Curve Analysis (DCA)</h3>
+        <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the clinical utility of a predictive model by plotting net benefit across different threshold probabilities. Unlike ROC and PR curves that focus on discrimination, DCA incorporates the relative costs of false positives and false negatives, helping determine whether using a prediction model to guide treatment decisions provides more benefit than simple strategies.</p>
+        
+        <div id="dca-diagram" style="text-align: center; margin: 20px 0;">
+            <img src="images/dca_example.png" alt="Decision Curve Analysis example showing net benefit curves for different strategies" class="screenshot" style="max-width: 90%;">
+        </div>
+        
+        <p>A DCA plot typically includes three key curves:</p>
+        <ul>
+            <li><strong>Model Curve</strong>: Shows the net benefit of using your predictive model at different threshold probabilities. The curve's height indicates how much benefit the model provides compared to treating no one.</li>
+            <li><strong>Treat All</strong>: Represents the strategy of treating everyone regardless of their predicted risk. This strategy maximizes sensitivity (no false negatives) but results in many unnecessary treatments (false positives).</li>
+            <li><strong>Treat None</strong>: Represents the strategy of treating no one, which always yields zero net benefit but avoids all treatment-related harms.</li>
+        </ul>
+        
+        <p>The <strong>net benefit</strong> formula accounts for both the benefits of true positives and the costs of false positives:</p>
+        <div style="text-align: center; margin: 15px 0;">
+            \[NB = \frac{TP}{N} - \frac{FP}{N} \times \frac{P_t}{1-P_t}\]
+        </div>
+        <p>Where P<sub>t</sub> is the threshold probability, representing the odds at which a patient would be willing to accept treatment. In practical terms, P<sub>t</sub> reflects how many unnecessary interventions one is willing to accept to prevent one adverse outcome. The ratio P<sub>t</sub>/(1-P<sub>t</sub>) captures the relative weighting of false positives compared to true positives.</p>
+        
+        <p><strong>A-NBC (Area Under the Net Benefit Curve)</strong> summarizes the overall clinical utility of a model across a range of threshold probabilities (<a href="https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-016-0336-x" target="_blank">Talluri & Shete, 2016</a>). It is calculated using trapezoidal integration:</p>
+        <div style="text-align: center; margin: 15px 0;">
+            \[A\text{-}NBC = \int_{P_{t1}}^{P_{t2}} NB(P_t) \, dP_t\]
+        </div>
+        <p>Where the integration is performed over a clinically relevant range of threshold probabilities (adjustable using the movable gray bars in the simulator). A larger A-NBC indicates greater overall clinical utility within that range.</p>
+        
+        <p>DCA is particularly valuable because it:</p>
+        <ul>
+            <li>Incorporates clinical context through threshold probabilities that reflect real decision-making scenarios</li>
+            <li>Accounts for the relative costs of different types of errors (false positives vs. false negatives)</li>
+            <li>Provides actionable insights about when a model should or should not be used clinically</li>
+            <li>Facilitates comparison between different models or strategies across various clinical contexts</li>
+        </ul>
+
+        <p>For more information about DCA, visit <a href="https://mskcc-epi-bio.github.io/decisioncurveanalysis" target="_blank">mskcc-epi-bio.github.io/decisioncurveanalysis/</a>.</p>
+
        </div>
 
        <div class="guide-section">
@@ -228,7 +265,7 @@
 
         </ol>
         
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=8&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=8&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=1.7'">Explore this example yourself →</button>
         
 
         <h3>Example 2: Treatment Response Prediction</h3>

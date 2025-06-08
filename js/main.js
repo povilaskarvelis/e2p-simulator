@@ -133,6 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the binary version by default
     initializeBinary();
     
+
+    
     // Add click handler to all binary buttons
     binaryButtons.forEach(button => {
         button.addEventListener('click', function() {

@@ -182,6 +182,14 @@ h1 {
     min-height: 150px;
 }
 
+/* Third-height plot container */
+.third-plot {
+    flex: 1;
+    min-width: 0;
+    min-height: 120px;
+    height: 0; /* Force flexbox to distribute space equally */
+}
+
 /* ==========================================================================
    Dashboard Styles
    ========================================================================== */
@@ -434,7 +442,8 @@ input.slider-value,
    Calculator Container Styles
    ========================================================================== */
 .mahalanobis-container,
-.r-squared-container {
+.r-squared-container,
+.dca-container {
     display: flex;
     justify-content: space-between;
     gap: 20px;
@@ -470,7 +479,8 @@ input.slider-value,
 
 /* Calculator section layout */
 .mahalanobis-container .section:last-child,
-.r-squared-container .section:last-child {
+.r-squared-container .section:last-child,
+.dca-container .section:last-child {
     flex: 2 1 600px;
     width: 100%;
     min-width: 300px;
@@ -490,7 +500,8 @@ input.slider-value,
 
 /* Calculator Plot Container */
 #chartContainer,
-#r2PlotContainer {
+#r2PlotContainer,
+#dcaPlotContainer {
     height: 100%;
     max-height: 500px;
     width: 100%;
@@ -499,7 +510,8 @@ input.slider-value,
 }
 
 #dPlot,
-#r2Plot {
+#r2Plot,
+#dcaPlot {
     width: 100% !important;
     height: 100% !important;
     max-height: 1000px;
@@ -564,6 +576,7 @@ input.slider-value,
 
 .mahalanobis-container button,
 .r-squared-container button,
+.dca-container button,
 .example-button {
     background-color: #222222;
     color: white;
@@ -579,25 +592,29 @@ input.slider-value,
 
 .mahalanobis-container button:hover,
 .r-squared-container button:hover,
+.dca-container button:hover,
 .example-button:hover {
     background-color: #666;
 }
 
 #reset-mahalanobis,
-#reset-r2 {
+#reset-r2,
+#reset-dca {
     background-color: white;
     color: #444;
     border: 1px solid #ccc;
 }
 
 #reset-mahalanobis:hover,
-#reset-r2:hover {
+#reset-r2:hover,
+#reset-dca:hover {
     background-color: #f5f5f5;
 }
 
 /* Add a container for the buttons to ensure they take up the full width */
 .mahalanobis-container .form-container > div:last-child,
-.r-squared-container .form-container > div:last-child {
+.r-squared-container .form-container > div:last-child,
+.dca-container .form-container > div:last-child {
     display: flex;
     gap: 15px;
     width: 100%;
@@ -606,7 +623,8 @@ input.slider-value,
 
 /* Ensure the buttons are equal width */
 .mahalanobis-container .form-container > div:last-child button,
-.r-squared-container .form-container > div:last-child button {
+.r-squared-container .form-container > div:last-child button,
+.dca-container .form-container > div:last-child button {
     flex: 1;
 }
 

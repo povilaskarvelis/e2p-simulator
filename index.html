@@ -212,11 +212,12 @@
                 <div id="overlap-plot" class="plot"></div>
             </div>
 
-            <!-- Plot 2: ROC curve -->
+            <!-- Plot 2: ROC, PR, and DCA curves -->
             <div class="roc-pr-section">
                 <div class="plot-container">
-                    <div id="roc-plot" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
-                    <div id="pr-plot" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                    <div id="roc-plot" class="third-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
+                    <div id="pr-plot" class="third-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                    <div id="dca-plot" class="third-plot" data-tooltip="Decision Curve Analysis"></div>
                 </div>
             </div>
         </div>
@@ -515,8 +516,9 @@
             <!-- Column 3: ROC and Dashboard -->
             <div class="roc-pr-section">
                 <div class="plot-container">
-                    <div id="roc-plot-cont" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
-                    <div id="pr-plot-cont" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                    <div id="roc-plot-cont" class="third-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
+                    <div id="pr-plot-cont" class="third-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                    <div id="dca-plot-cont" class="third-plot" data-tooltip="Decision Curve Analysis (DCA)"></div>
                 </div>
             </div>
         </div>
@@ -658,7 +660,7 @@
                 </div>
             </div>
         </div> 
-    </div> 
+    </div>
     
     <!-- Footer Scripts -->
     <!-- Load shared plugins -->
@@ -673,6 +675,7 @@
     <script src="js/mahalanobis.js"></script>
     <!-- Add this before the closing body tag -->
     <script src="js/r-squared.js"></script>
+
 
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #eee;">
