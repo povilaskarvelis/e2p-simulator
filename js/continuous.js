@@ -689,7 +689,7 @@ function plotROC() {
             y: 0.05,
             xref: "paper",
             yref: "paper",
-            text: `AUC: ${auc.toFixed(2)}`,
+            text: `ROC-AUC: ${auc.toFixed(2)}`,
             showarrow: false,
             font: { size: 16, color: "black", weight: "bold" },
             align: "right",

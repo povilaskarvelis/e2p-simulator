@@ -203,21 +203,19 @@
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
         <ul>
-            <li><strong>AUC (Area Under the ROC Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
+            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
             <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and Recall (Sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects Precision. A larger PR-AUC means the model can achieve high Precision without sacrificing Recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
         </ul>
         
-        <p>Both AUC and PR-AUC are calculated using numerical integration methods. For a set of thresholds with corresponding sensitivity and specificity values, the AUC is computed using the trapezoidal rule:</p>
+        <p>Both ROC-AUC and PR-AUC represent areas under their respective curves and are mathematically expressed as integrals:</p>
         <div style="text-align: center; margin: 15px 0;">
-            \[AUC = \sum_{i=1}^{n-1} \frac{1}{2}(TPR_{i+1} + TPR_i)(FPR_{i+1} - FPR_i)\]
+            \[ROC\text{-}AUC = \int_0^1 TPR(FPR) \, d(FPR)\]
         </div>
-        <p>Where TPR is the True Positive Rate (Sensitivity) and FPR is the False Positive Rate (1-Specificity).</p>
-        
-        <p>Similarly, PR-AUC is calculated by integrating over the precision-recall space:</p>
+    
         <div style="text-align: center; margin: 15px 0;">
-            \[PR\text{-}AUC = \sum_{i=1}^{n-1} \frac{1}{2}(P_{i+1} + P_i)(R_{i+1} - R_i)\]
+            \[PR\text{-}AUC = \int_0^1 P(R) \, dR\]
         </div>
-        <p>Where P is Precision (PPV) and R is Recall (Sensitivity). The image shows examples of both curves with their respective calculated areas highlighted.</p>
+        <p>Where P is Precision (PPV) and R is Recall (Sensitivity). These integrals are computed using trapezoidal numerical integration.</p>
         
         <h3 id="dca-analysis">Decision Curve Analysis (DCA)</h3>
         <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the clinical utility of a predictive model or a single predictor by plotting net benefit across different threshold probabilities. Unlike ROC and PR curves that focus on discrimination, DCA incorporates the relative costs of false positives and false negatives, helping determine whether using a prediction model to guide treatment decisions provides more benefit than simple strategies.</p>
