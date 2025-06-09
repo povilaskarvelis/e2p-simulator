@@ -42,36 +42,65 @@
 #continuous-container .results-container {
     width: 100%;
     flex: 1 1 300px;
-    overflow: hidden;
+    overflow: visible;
     min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 /* Results plot containers */
 #continuous-container .results-container .plot-container {
     height: 100%;
-    min-height: 400px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+}
+
+/* ROC-PR section within results container */
+#continuous-container .results-container .roc-pr-section {
+    flex: 2;
+    height: auto;
+    margin-bottom: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* DCA section within results container */
+#continuous-container .results-container .dca-section {
+    flex: 1;
+    height: auto;
+    margin-bottom: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
 /* Half-sized plot containers */
 #continuous-container .results-container .half-plot {
-    height: calc(50% - 10px);
-    min-height: 150px;
+    height: calc(50% - 5px);
+    min-height: 120px;
+}
+
+/* Full-sized plot containers */
+#continuous-container .results-container .full-plot {
+    height: 100%;
+    min-height: 100px;
 }
 
 /* Continuous-specific plot containers */
 #roc-plot-cont,
-#pr-plot-cont,
+#pr-plot-cont {
+    flex: 1;
+    min-width: 0;
+    min-height: 120px;
+}
+
 #dca-plot-cont {
     flex: 1;
     min-width: 0;
-    min-height: 170px;
-}
-
-/* Third-sized plot containers for continuous */
-#continuous-container .results-container .third-plot {
-    height: calc(33.33% - 10px);
-    min-height: 120px;
+    min-height: 100px;
 }
 
 /* Dashboard styles */

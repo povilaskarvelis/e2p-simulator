@@ -212,12 +212,19 @@
                 <div id="overlap-plot" class="plot"></div>
             </div>
 
-            <!-- Plot 2: ROC, PR, and DCA curves -->
-            <div class="roc-pr-section">
-                <div class="plot-container">
-                    <div id="roc-plot" class="third-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
-                    <div id="pr-plot" class="third-plot" data-tooltip="Precision-Recall (PR) curve"></div>
-                    <div id="dca-plot" class="third-plot" data-tooltip="Decision Curve Analysis"></div>
+            <!-- Plot 2: ROC, PR and DCA curves -->
+            <div class="results-container">
+                <div class="roc-pr-section">
+                    <div class="plot-container">
+                        <div id="roc-plot" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
+                        <div id="pr-plot" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                    </div>
+                </div>
+                
+                <div class="dca-section">
+                    <div class="plot-container">
+                        <div id="dca-plot" class="full-plot" data-tooltip="Decision curve analysis (DCA)"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -513,12 +520,19 @@
                 </div>
             </div>
 
-            <!-- Column 3: ROC and Dashboard -->
-            <div class="roc-pr-section">
-                <div class="plot-container">
-                    <div id="roc-plot-cont" class="third-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
-                    <div id="pr-plot-cont" class="third-plot" data-tooltip="Precision-Recall (PR) curve"></div>
-                    <div id="dca-plot-cont" class="third-plot" data-tooltip="Decision Curve Analysis (DCA)"></div>
+            <!-- Column 3: ROC, PR and DCA -->
+            <div class="results-container">
+                <div class="roc-pr-section">
+                    <div class="plot-container">
+                        <div id="roc-plot-cont" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
+                        <div id="pr-plot-cont" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                    </div>
+                </div>
+                
+                <div class="dca-section">
+                    <div class="plot-container">
+                        <div id="dca-plot-cont" class="full-plot" data-tooltip="Decision curve analysis (DCA)"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -684,7 +698,8 @@
         <p style="color: #666; font-size: 0.9em;">
             E2P Simulator is open source software. 
             <a href="https://github.com/povilaskarvelis/e2p-simulator" style="color: #0366d6; text-decoration: none;">View on GitHub</a> | 
-            <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" style="color: #0366d6; text-decoration: none;">MIT License</a>
+            <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" style="color: #0366d6; text-decoration: none;">MIT License</a> | 
+            <span id="version-info">Version: <span id="version-number">Loading...</span></span>
         </p>
         <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
             Developed by <a href="https://povilaskarvelis.github.io/" style="color: #0366d6; text-decoration: none;" target="_blank">Povilas Karvelis</a>

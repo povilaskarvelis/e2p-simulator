@@ -326,7 +326,7 @@ const DCAModule = {
                 },
                 yaxis: { 
                     title: "Net benefit", 
-                    range: [yAxisMin, Math.max(...netBenefits, ...treatAllBenefits, baseRate, 0.1) * 1.1], 
+                    range: [yAxisMin, Math.max(...netBenefits, ...treatAllBenefits, baseRate, 0.01) * 1.1], 
                     showgrid: false, 
                     zeroline: false,
                     titlefont: { size: 15 }

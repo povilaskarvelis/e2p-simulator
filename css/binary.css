@@ -23,11 +23,42 @@
     min-height: 300px;
 }
 
-/* ROC, PR, and DCA curve plot containers */
-#roc-plot, #pr-plot, #dca-plot {
+/* Results container for binary version */
+#binary-container .results-container {
+    flex: 1 1 300px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+/* ROC-PR section within results container */
+#binary-container .results-container .roc-pr-section {
+    flex: 2;
+    height: auto;
+    margin-bottom: 0;
+}
+
+/* DCA section within results container */
+#binary-container .results-container .dca-section {
+    flex: 1;
+    height: auto;
+    margin-bottom: 0;
+}
+
+/* ROC and PR curve plot containers */
+#roc-plot, #pr-plot {
     flex: 1;
     min-width: 0;
-    min-height: 150px;
+    min-height: 120px;
+}
+
+/* DCA curve plot container */
+#dca-plot {
+    flex: 1;
+    min-width: 0;
+    min-height: 100px;
 }
 
 /* Binary-specific dashboard styles */
