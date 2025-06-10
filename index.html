@@ -223,21 +223,27 @@
             <div class="results-container">
                 <div class="roc-pr-section">
                     <div class="plot-container">
-                        <div id="roc-plot" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
-                        <div id="pr-plot" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                        <a href="get-started.html#roc-curves" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
+                            <div id="roc-plot" style="height: 100%; width: 100%;"></div>
+                        </a>
+                        <a href="get-started.html#precision-recall" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
+                            <div id="pr-plot" style="height: 100%; width: 100%;"></div>
+                        </a>
                     </div>
                 </div>
                 
                 <div class="dca-section">
                     <div class="plot-container">
-                        <div id="dca-plot" class="full-plot" data-tooltip="Decision curve analysis (DCA)"></div>
+                        <a href="get-started.html#dca-analysis" class="full-plot" style="text-decoration: none; color: inherit;" target="_blank">
+                            <div id="dca-plot" style="height: 100%; width: 100%;" data-tooltip="Decision curve analysis (DCA)"></div>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Results dashboard -->
-        <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;">
+        <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
             <div id="dashboard" class="dashboard">
                 <div class="dashboard-metrics">
                     <p style="display: none;">AUC: <span id="auc-value">0.00</span></p>
@@ -257,7 +263,7 @@
         <div class="equations-container">
             <!-- Reliability attenuation -->
             <div class="equation-box wide">
-                <a href="https://osf.io/preprints/psyarxiv/z4yqe_v4" style="text-decoration: none; color: inherit;">
+                <a href="https://osf.io/preprints/psyarxiv/z4yqe_v4" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">Cohen's d attenuation by reliability</p>
                     <div class="equation-content">
                         \[d_{obs} = d_{true} \sqrt{\frac{2ICC_1ICC_2}{ICC_1+ICC_2}\sin\left(\frac{\pi}{2}\kappa\right)}\]
@@ -267,7 +273,7 @@
             
             <!-- d to Log Odds Ratio -->
             <div class="equation-box">
-                <a href="https://psycnet.apa.org/buy/2003-10163-006" style="text-decoration: none; color: inherit;">
+                <a href="https://psycnet.apa.org/buy/2003-10163-006" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">d to Log Odds Ratio</p>
                     <div class="equation-content">
                         \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
@@ -277,7 +283,7 @@
             
             <!-- d to AUC -->
             <div class="equation-box">
-                <a href="https://psycnet.apa.org/record/2008-02525-002" style="text-decoration: none; color: inherit;">
+                <a href="https://psycnet.apa.org/record/2008-02525-002" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">d to AUC</p>
                     <div class="equation-content">
                         \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
@@ -287,7 +293,7 @@
             
             <!-- d to Point-biserial r -->
             <div class="equation-box">
-                <a href="https://psycnet.apa.org/record/2006-22258-004" style="text-decoration: none; color: inherit;">
+                <a href="https://psycnet.apa.org/record/2006-22258-004" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">d to Point-biserial r</p>
                     <div class="equation-content">
                         \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{p(1-p)}}}\]
@@ -297,7 +303,7 @@
             
             <!-- d to Eta squared -->
             <div class="equation-box">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;">
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">d to Eta squared</p>
                     <div class="equation-content">
                         \[\eta^2 = \frac{d^2}{d^2 + \frac{1}{p(1-p)}}\]
@@ -537,21 +543,27 @@
             <div class="results-container">
                 <div class="roc-pr-section">
                     <div class="plot-container">
-                        <div id="roc-plot-cont" class="half-plot" data-tooltip="Receiver operating characteristic (ROC) curve"></div>
-                        <div id="pr-plot-cont" class="half-plot" data-tooltip="Precision-Recall (PR) curve"></div>
+                        <a href="get-started.html#roc-curves" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
+                            <div id="roc-plot-cont" style="height: 100%; width: 100%;"></div>
+                        </a>
+                        <a href="get-started.html#precision-recall" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
+                            <div id="pr-plot-cont" style="height: 100%; width: 100%;"></div>
+                        </a>
                     </div>
                 </div>
                 
                 <div class="dca-section">
                     <div class="plot-container">
-                        <div id="dca-plot-cont" class="full-plot" data-tooltip="Decision curve analysis (DCA)"></div>
+                        <a href="get-started.html#dca-analysis" class="full-plot" style="text-decoration: none; color: inherit;" target="_blank">
+                            <div id="dca-plot-cont" style="height: 100%; width: 100%;" data-tooltip="Decision curve analysis (DCA)"></div>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Results dashboard -->
-        <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;">
+        <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
                     <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
@@ -571,7 +583,7 @@
         <div class="equations-container">
             <!-- Reliability attenuation -->
             <div class="equation-box wider">
-                <a href="https://psycnet.apa.org/record/2006-10257-005" style="text-decoration: none; color: inherit;">
+                <a href="https://psycnet.apa.org/record/2006-10257-005" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">Reliability attenuation of Pearson's r</p>
                     <div class="equation-content">
                         \[r_{obs} = r_{true} \sqrt{ICC_x \cdot ICC_y}\]
@@ -581,7 +593,7 @@
             
             <!-- Cohen's d -->
             <div class="equation-box wider">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;">
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">Cohen's d</p>
                     <div class="equation-content">
                         \[d = \frac{\mu_2 - \mu_1}{\sqrt{\frac{(n_1-1)\sigma_1^2 + (n_2-1)\sigma_2^2}{n_1+n_2-2}}}\]
@@ -591,7 +603,7 @@
             
             <!-- Cohen's d* -->
             <div class="equation-box">
-                <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" style="text-decoration: none; color: inherit;">
+                <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">Cohen's d*</p>
                     <div class="equation-content">
                         \[d^* = \frac{\mu_2 - \mu_1}{\sqrt{\frac{\sigma_1^2 + \sigma_2^2}{2}}}\]
@@ -601,7 +613,7 @@
 
             <!-- r to rank-biserial r -->
             <div class="equation-box">
-                <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" style="text-decoration: none; color: inherit;">
+                <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">Rank-biserial correlation</p>
                     <div class="equation-content">
                         \[r_{rb} = \frac{2(\bar{Y}_1 - \bar{Y}_0)}{n}\]
@@ -611,7 +623,7 @@
             
             <!-- Glass's delta -->
             <div class="equation-box">
-                <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" style="text-decoration: none; color: inherit;">
+                <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">Glass's Δ</p>
                     <div class="equation-content">
                         \[\Delta = \frac{\mu_2 - \mu_1}{\sigma_1}\]

@@ -375,14 +375,6 @@ const DCAModule = {
                 instance.initialized = true;
                 // Add threshold bars after initial plot
                 this.addThresholdBars(instanceId);
-                
-                // Add click event listener to navigate to get-started.html DCA section
-                document.getElementById(instance.plotSelector).addEventListener('click', (e) => {
-                    // Only trigger if not clicking on threshold bars
-                    if (!e.target.closest('.dca-threshold-overlay')) {
-                        window.open('get-started.html#dca-analysis', '_blank');
-                    }
-                });
             } else {
                 Plotly.react(instance.plotSelector, [treatNoneTrace, treatAllTrace, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaTrace, blueLegendTrace, redLegendTrace], dcaLayout, config);
                 // Update threshold bars position
@@ -513,8 +505,28 @@ const DCAModule = {
             group.addEventListener('mousedown', (e) => {
                 isDragging = true;
                 e.preventDefault();
+                e.stopPropagation(); // Prevent the link click
                 // Show SVG tooltip
                 this.showSVGTooltip(tooltipGroup, tooltipBg, tooltipText, thresholdValue, type, xPos, yStart);
+            });
+            
+            // Prevent any clicks on threshold bars from bubbling up to the link
+            group.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            // Handle mouseup on the threshold group to stop dragging
+            group.addEventListener('mouseup', (e) => {
+                if (isDragging) {
+                    isDragging = false;
+                    // Hide SVG tooltip
+                    tooltipGroup.style.display = 'none';
+                    // Trigger callback if provided
+                    instance.onThresholdChange(instance.thresholdMin, instance.thresholdMax);
+                    console.log(`DCA range: ${instance.thresholdMin.toFixed(3)} - ${instance.thresholdMax.toFixed(3)}`);
+                }
+                e.stopPropagation(); // Prevent link navigation
             });
             
             document.addEventListener('mousemove', (e) => {
@@ -548,6 +560,7 @@ const DCAModule = {
                 this.updateShadedArea(instanceId);
             });
             
+            // Backup document mouseup handler in case group mouseup doesn't fire
             document.addEventListener('mouseup', () => {
                 if (isDragging) {
                     isDragging = false;
