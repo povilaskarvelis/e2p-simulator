@@ -127,8 +127,8 @@
                         <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="1.0" style="width: 100%; margin-bottom: 10px;">
                         
                         <!-- Continuous Metrics -->
-                        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
-                            <div class="metrics-header">
+                        <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 30px;">
+                            <div class="metrics-header" style="margin-bottom: 8px;">
                                 <span></span>
                                 <span>True</span>
                                 <span>Obs.</span>
@@ -137,61 +137,68 @@
                             <!-- Cohen's d -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Standardized mean difference between groups">Cohen's d</span>
-                                <input type="number" id="true-difference-number-bin" min="0" max="5" step="0.01" value="1">
-                                <input type="number" id="observed-difference-number-bin" min="0" max="5" step="0.01" value="1" readonly>
+                                <input type="number" id="true-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1">
+                                <input type="number" id="observed-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1" readonly>
+                            </div>
+
+                            <!-- Cohen's U3 -->
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
+                                <input type="number" id="true-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84">
+                                <input type="number" id="observed-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84" readonly>
                             </div>
 
                             <!-- Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Ratio of odds of being in group 1 vs group 2">Odds Ratio</span>
-                                <input type="number" id="true-odds-ratio-bin" min="1" max = "8681" step="0.5" value="1">
-                                <input type="number" id="observed-odds-ratio-bin" readonly>
+                                <input type="number" id="true-odds-ratio-bin" class="metrics-input" min="1" max = "8681" step="0.5" value="1">
+                                <input type="number" id="observed-odds-ratio-bin" class="metrics-input" readonly>
                             </div>
 
                             <!-- Log Odds Ratio -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
-                                <input type="number" id="true-log-odds-ratio-bin" max = "9.07"step="0.05" value="0">
-                                <input type="number" id="observed-log-odds-ratio-bin" readonly>
+                                <input type="number" id="true-log-odds-ratio-bin" class="metrics-input" max = "9.07"step="0.05" value="0">
+                                <input type="number" id="observed-log-odds-ratio-bin" class="metrics-input" readonly>
                             </div>
 
                             <!-- Point-biserial r -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and a binary variable">Point-biserial r</span>
-                                <input type="number" id="true-pb-r-bin" min="0" max="0.93" step="0.01" value="0">
-                                <input type="number" id="observed-pb-r-bin" min="0" max="0.93" step="0.01" value="0" readonly>
+                                <input type="number" id="true-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0">
+                                <input type="number" id="observed-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0" readonly>
                             </div>
 
                             <!-- Eta squared -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Eta squared: proportion of variance explained by group membership">η²</span>
-                                <input type="number" id="true-eta-squared-bin" min="0" max="0.86" step="0.01" value="0">
-                                <input type="number" id="observed-eta-squared-bin" min="0" max="1" step="0.01" value="0" readonly>
+                                <input type="number" id="true-eta-squared-bin" class="metrics-input" min="0" max="0.86" step="0.01" value="0">
+                                <input type="number" id="observed-eta-squared-bin" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Reliability Controls -->
-                    <div style="margin-top: 20px; margin-bottom: 20px;">
+                    <div style="margin-top: 20px; margin-bottom: 15px;">
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Group 1 reliability, ICC<sub>1</sub></span>
-                            <input type="number" id="icc1-number" min="0" max="1" step="0.01" value="0.5">
+                            <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Group 2 Reliability -->
                         <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Group 2 reliability, ICC<sub>2</sub></span>
-                            <input type="number" id="icc2-number" min="0" max="1" step="0.01" value="0.5">
+                            <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Classification Reliability -->
                         <input type="range" id="kappa-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                             <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Grouping reliability, <i>&kappa;</i></span>
-                            <input type="number" id="kappa-number" min="0" max="1" step="0.01" value="0.5">
+                            <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                     </div>
 
@@ -200,7 +207,7 @@
                         <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                             <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
-                            <input type="number" id="base-rate-number" min="0" max="100" step="0.1" value="50">
+                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0" max="100" step="0.1" value="50">
                         </div>
                     </div>
                 </div>
@@ -396,8 +403,8 @@
                     <input type="range" id="effect-slider-cont" min="0" max="1" step="0.01" value="0.50" style="width: 100%; margin-bottom: 10px;">
 
                     <!-- Continuous Metrics -->
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-                        <div class="metrics-header">
+                    <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 20px;">
+                        <div class="metrics-header" style="margin-bottom: 8px;">
                             <span></span>
                             <span>True</span>
                             <span>Obs.</span>
@@ -406,15 +413,15 @@
                         <!-- Pearson's r -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Linear correlation between predictor and outcome">Pearson's r</span>
-                            <input type="number" id="true-pearson-r-cont" min="0" max="1" step="0.01" value="0.50">
-                            <input type="number" id="observed-pearson-r-cont" min="0" max="1" step="0.01" value="0.50" readonly>
+                            <input type="number" id="true-pearson-r-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.50">
+                            <input type="number" id="observed-pearson-r-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.50" readonly>
                         </div>
 
                         <!-- R² -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Proportion of variance in outcome explained by predictor">R²</span>
-                            <input type="number" id="true-R-squared-cont" min="0" max="1" step="0.01" value="0">
-                            <input type="number" id="observed-R-squared-cont" min="0" max="1" step="0.01" value="0" readonly>
+                            <input type="number" id="true-R-squared-cont" class="metrics-input" min="0" max="1" step="0.01" value="0">
+                            <input type="number" id="observed-R-squared-cont" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
                         </div>
                     </div>
 
@@ -422,28 +429,28 @@
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                         <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>x</sub></span>
-                        <input type="number" id="reliability-x-number-cont" min="0" max="1" step="0.01" value="0.5">
+                        <input type="number" id="reliability-x-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                         <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
-                        <input type="number" id="reliability-y-number-cont" min="0" max="1" step="0.01" value="0.5">
+                        <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
 
                     <!-- Base rate -->
                     <div style="margin-top: 10px; margin-bottom: 20px;">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                             <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
-                            <input type="number" id="base-rate-number-cont" min="0.1" max="99.9" step="0.1" value="50">
+                            <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
                         </div>
                     </div>
                     
                     <!-- Binary Metrics -->
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
-                        <div class="metrics-header">
+                    <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 15px;">
+                        <div class="metrics-header" style="margin-bottom: 8px;">
                             <span></span>
                             <span>True</span>
                             <span>Obs.</span>
@@ -451,45 +458,51 @@
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Standardized mean difference between groups (using pooled standard deviation)">Cohen's d</span>
-                            <input type="number" id="true-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" readonly>
-                            <input type="number" id="observed-cohens-d-cont" min="0" max="5" step="0.01" value="0.50" readonly>
+                            <input type="number" id="true-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                            <input type="number" id="observed-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances (using non-pooled standard deviation)">Cohen's d*</span>
-                            <input type="number" id="true-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" readonly>
-                            <input type="number" id="observed-cohens-da-cont" min="0" max="5" step="0.01" value="0.50" readonly>
+                            <input type="number" id="true-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                            <input type="number" id="observed-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
+                            <input type="number" id="true-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
+                            <input type="number" id="observed-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
                         </div>
                         
                         <!-- Point-biserial r -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and binary group membership">Point-biserial r</span>
-                            <input type="number" id="true-pb-r-cont" min="0" max="0.93" step="0.01" value="0.00" readonly>
-                            <input type="number" id="observed-pb-r-cont" min="0" max="0.93" step="0.01" value="0.00" readonly>
+                            <input type="number" id="true-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
+                            <input type="number" id="observed-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r</span>
-                            <input type="number" id="true-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" readonly>
-                            <input type="number" id="observed-rank-biserial-cont" min="-1" max="1" step="0.01" value="0.00" readonly>
+                            <input type="number" id="true-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
+                            <input type="number" id="observed-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Mean difference divided by standard deviation of group 1">Glass's &Delta;</span>
-                            <input type="number" id="true-glass-d-cont" min="0" max="5" step="0.01" value="0.00" readonly>
-                            <input type="number" id="observed-glass-d-cont" min="0" max="5" step="0.01" value="0.00" readonly>
+                            <input type="number" id="true-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
+                            <input type="number" id="observed-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
-                            <input type="number" id="true-odds-ratio-cont" min="1" step="1" value="1" readonly>
-                            <input type="number" id="observed-odds-ratio-cont" min="1" step="1" value="1" readonly>
+                            <input type="number" id="true-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
+                            <input type="number" id="observed-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
-                            <input type="number" id="true-log-odds-ratio-cont" step="0.05" value="0" readonly>
-                            <input type="number" id="observed-log-odds-ratio-cont" step="0.05" value="0" readonly>
+                            <input type="number" id="true-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
+                            <input type="number" id="observed-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
                         </div>
                     </div>
                     

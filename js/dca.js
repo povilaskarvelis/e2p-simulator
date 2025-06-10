@@ -9,7 +9,7 @@ const DCAModule = {
         this.instances.set(instanceId, {
             plotSelector: config.plotSelector,
             thresholdMin: config.thresholdMin || 0.05,
-            thresholdMax: config.thresholdMax || 0.25,
+            thresholdMax: config.thresholdMax || 0.30,
             initialized: false,
             onThresholdChange: config.onThresholdChange || (() => {})
         });
@@ -21,6 +21,23 @@ const DCAModule = {
         if (!instance) {
             console.error(`DCA instance ${instanceId} not found`);
             return;
+        }
+        
+        // Disable the default tooltip for DCA plots and ensure overflow is allowed
+        const plotElement = document.getElementById(instance.plotSelector);
+        if (plotElement && plotElement.hasAttribute('data-tooltip')) {
+            plotElement.removeAttribute('data-tooltip');
+        }
+        
+        // Ensure parent containers allow overflow for tooltips
+        if (plotElement) {
+            plotElement.style.overflow = 'visible';
+            // Also check parent containers that might clip the tooltip
+            let parent = plotElement.parentElement;
+            while (parent && parent.classList && (parent.classList.contains('dca-section') || parent.classList.contains('results-container') || parent.classList.contains('plot-container'))) {
+                parent.style.overflow = 'visible';
+                parent = parent.parentElement;
+            }
         }
         
         try {
@@ -401,7 +418,9 @@ const DCAModule = {
                 dcaSvg.style.width = '100%';
                 dcaSvg.style.height = '100%';
                 dcaSvg.style.pointerEvents = 'none';
+                dcaSvg.style.overflow = 'visible'; // Allow overflow for tooltips
                 dcaPlotElement.style.position = 'relative';
+                dcaPlotElement.style.overflow = 'visible'; // Allow overflow on plot element
                 dcaPlotElement.appendChild(dcaSvg);
                 
                 // Create SVG element
@@ -409,6 +428,7 @@ const DCAModule = {
                 svg.style.width = '100%';
                 svg.style.height = '100%';
                 svg.style.position = 'absolute';
+                svg.style.overflow = 'visible'; // Allow SVG content to overflow
                 dcaSvg.appendChild(svg);
                 
                 // Add threshold bars
@@ -460,8 +480,31 @@ const DCAModule = {
             hitbox.setAttribute('height', yEnd - yStart);
             hitbox.setAttribute('fill', 'transparent');
             
+            // Create SVG tooltip elements
+            const tooltipGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            tooltipGroup.setAttribute('class', `dca-tooltip-${type}`);
+            tooltipGroup.style.display = 'none';
+            
+            // Tooltip background
+            const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            tooltipBg.setAttribute('fill', 'rgba(0, 0, 0, 0.8)');
+            tooltipBg.setAttribute('rx', '4');
+            tooltipBg.setAttribute('ry', '4');
+            
+            // Tooltip text
+            const tooltipText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            tooltipText.setAttribute('fill', 'white');
+            tooltipText.setAttribute('font-family', 'Arial, sans-serif');
+            tooltipText.setAttribute('font-size', '12');
+            tooltipText.setAttribute('text-anchor', 'middle');
+            tooltipText.setAttribute('dominant-baseline', 'middle');
+            
+            tooltipGroup.appendChild(tooltipBg);
+            tooltipGroup.appendChild(tooltipText);
+            
             group.appendChild(line);
             group.appendChild(hitbox);
+            group.appendChild(tooltipGroup);
             svg.appendChild(group);
             
             // Add drag behavior
@@ -470,6 +513,8 @@ const DCAModule = {
             group.addEventListener('mousedown', (e) => {
                 isDragging = true;
                 e.preventDefault();
+                // Show SVG tooltip
+                this.showSVGTooltip(tooltipGroup, tooltipBg, tooltipText, thresholdValue, type, xPos, yStart);
             });
             
             document.addEventListener('mousemove', (e) => {
@@ -496,6 +541,9 @@ const DCAModule = {
                 line.setAttribute('x2', newXPos);
                 hitbox.setAttribute('x', newXPos - 10);
                 
+                // Update tooltip position and value
+                this.updateSVGTooltip(tooltipGroup, tooltipBg, tooltipText, constrainedThreshold, type, newXPos, yStart);
+                
                 // Update shaded area in real time
                 this.updateShadedArea(instanceId);
             });
@@ -503,6 +551,8 @@ const DCAModule = {
             document.addEventListener('mouseup', () => {
                 if (isDragging) {
                     isDragging = false;
+                    // Hide SVG tooltip
+                    tooltipGroup.style.display = 'none';
                     // Trigger callback if provided
                     instance.onThresholdChange(instance.thresholdMin, instance.thresholdMax);
                     console.log(`DCA range: ${instance.thresholdMin.toFixed(3)} - ${instance.thresholdMax.toFixed(3)}`);
@@ -532,6 +582,63 @@ const DCAModule = {
         }
     },
     
+    // Show SVG tooltip
+    showSVGTooltip: function(tooltipGroup, tooltipBg, tooltipText, value, type, barX, barY) {
+        const label = type === 'min' ? 'Min' : 'Max';
+        const text = `${label}: ${value.toFixed(3)}`;
+        
+        // Update text content
+        tooltipText.textContent = text;
+        
+        // Position tooltip above the threshold bar
+        const tooltipX = barX;
+        const tooltipY = barY - 25;
+        
+        // Get text dimensions for background sizing
+        const textBBox = tooltipText.getBBox ? tooltipText.getBBox() : { width: text.length * 7, height: 12 };
+        const padding = 6;
+        
+        // Position and size the background
+        tooltipBg.setAttribute('x', tooltipX - textBBox.width/2 - padding);
+        tooltipBg.setAttribute('y', tooltipY - textBBox.height/2 - padding);
+        tooltipBg.setAttribute('width', textBBox.width + padding * 2);
+        tooltipBg.setAttribute('height', textBBox.height + padding * 2);
+        
+        // Position the text
+        tooltipText.setAttribute('x', tooltipX);
+        tooltipText.setAttribute('y', tooltipY);
+        
+        // Show the tooltip
+        tooltipGroup.style.display = 'block';
+    },
+    
+    // Update SVG tooltip
+    updateSVGTooltip: function(tooltipGroup, tooltipBg, tooltipText, value, type, barX, barY) {
+        const label = type === 'min' ? 'Min' : 'Max';
+        const text = `${label}: ${value.toFixed(3)}`;
+        
+        // Update text content
+        tooltipText.textContent = text;
+        
+        // Position tooltip above the threshold bar
+        const tooltipX = barX;
+        const tooltipY = barY - 25;
+        
+        // Get text dimensions for background sizing
+        const textBBox = tooltipText.getBBox ? tooltipText.getBBox() : { width: text.length * 7, height: 12 };
+        const padding = 6;
+        
+        // Position and size the background
+        tooltipBg.setAttribute('x', tooltipX - textBBox.width/2 - padding);
+        tooltipBg.setAttribute('y', tooltipY - textBBox.height/2 - padding);
+        tooltipBg.setAttribute('width', textBBox.width + padding * 2);
+        tooltipBg.setAttribute('height', textBBox.height + padding * 2);
+        
+        // Position the text
+        tooltipText.setAttribute('x', tooltipX);
+        tooltipText.setAttribute('y', tooltipY);
+    },
+
     // Update shaded areas in real time
     updateShadedArea: function(instanceId) {
         const instance = this.instances.get(instanceId);
@@ -726,7 +833,8 @@ const DCAModule = {
     cleanup: function(instanceId) {
         const instance = this.instances.get(instanceId);
         if (instance) {
-            if (document.getElementById(instance.plotSelector)) {
+            const plotElement = document.getElementById(instance.plotSelector);
+            if (plotElement) {
                 Plotly.purge(instance.plotSelector);
             }
             this.instances.delete(instanceId);

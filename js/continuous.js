@@ -104,11 +104,15 @@ function computeEffectSizeMetrics(tealX, grayX) {
     const da = (meanTeal - meanGray) / nonpooledSD;
     const glassD = (meanTeal - meanGray) / Math.sqrt(varianceGray);
 
+    // Cohen's U3 = proportion of Group 2 that exceeds the median of Group 1
+    const cohensU3 = StatUtils.normalCDF(da, 0, 1); // Using da (non-pooled) for consistency
+
     return {
         d,
         rankBiserial,
         da, 
         glassD,
+        cohensU3,
         meanTeal,
         meanGray,
         varianceTeal,
@@ -343,6 +347,7 @@ function drawDistributions(tealX, grayX, type) {
     const metrics = { 
         d: esMetrics.d, 
         da: esMetrics.da, 
+        cohensU3: esMetrics.cohensU3,
         meanTeal: esMetrics.meanTeal, 
         meanGray: esMetrics.meanGray, 
         varianceTeal: esMetrics.varianceTeal, 
@@ -536,7 +541,7 @@ function drawThreshold(metrics, type) {
 
     const thresholdGroup = svg.append("g") // Append to the existing SVG
         .attr("class", "threshold-group")
-        .style("cursor", "pointer")
+        .style("cursor", "ew-resize")
         .call(d3.drag()
             .on("start", function (event) {
                 offsetX = xScale(thresholdValue) - event.x;
@@ -778,7 +783,7 @@ function plotROC() {
 
 
 function updateMetricsFromD(metrics, type) {
-    const { d, da } = metrics;
+    const { d, da, cohensU3 } = metrics;
     
     // Calculate metrics from actual data
     // For AUC, we'll use the actual data points in plotROC
@@ -792,6 +797,7 @@ function updateMetricsFromD(metrics, type) {
     
     document.getElementById(`${type}-cohens-d-cont`).value = d.toFixed(2);
     document.getElementById(`${type}-cohens-da-cont`).value = da.toFixed(2);
+    document.getElementById(`${type}-cohens-u3-cont`).value = cohensU3.toFixed(2);
     document.getElementById(`${type}-odds-ratio-cont`).value = oddsRatio.toFixed(2);
     document.getElementById(`${type}-log-odds-ratio-cont`).value = logOddsRatio.toFixed(2);
     document.getElementById(`${type}-pb-r-cont`).value = pbR.toFixed(2);
@@ -849,6 +855,9 @@ function initializePlots() {
     const observedButton = document.getElementById("observed-button-cont");
     observedButton.classList.add("active");
     trueButton.classList.remove("active");
+    
+    // Set initial highlighting based on current view
+    updateMetricsHighlighting(currentView);
 
     // Show/hide plots based on the default selection (e.g., observed by default)
     document.getElementById(SELECTORS.scatterPlotTrue).style.display = "none";
@@ -861,6 +870,23 @@ function initializePlots() {
 
     // Call updatePlots to render the initial plots and threshold
     updatePlots();
+}
+
+// Update highlighting of metric input columns
+function updateMetricsHighlighting(view) {
+    const metricsInputs = document.querySelectorAll('.metrics-input');
+    
+    metricsInputs.forEach(input => {
+        // Remove existing highlighting classes
+        input.classList.remove('selected-true', 'selected-observed');
+        
+        // Add highlighting based on current view and input ID
+        if (view === "true" && input.id.includes("true-")) {
+            input.classList.add('selected-true');
+        } else if (view === "observed" && input.id.includes("observed-")) {
+            input.classList.add('selected-observed');
+        }
+    });
 }
 
 // Event listener setup
@@ -947,6 +973,7 @@ function setupEventListeners() {
         currentView = "true";
         trueButton.classList.add("active");
         observedButton.classList.remove("active");
+        updateMetricsHighlighting("true");
         currentLabeledData = trueLabeledData; // Switch data source
         togglePlotVisibility(); // Handles scatter/distribution visibility
         plotROC(); // Update ROC/PR plot with current data & threshold
@@ -957,6 +984,7 @@ function setupEventListeners() {
         currentView = "observed";
         observedButton.classList.add("active");
         trueButton.classList.remove("active");
+        updateMetricsHighlighting("observed");
         currentLabeledData = observedLabeledData; // Switch data source
         togglePlotVisibility(); // Handles scatter/distribution visibility
         plotROC(); // Update ROC/PR plot with current data & threshold
@@ -964,17 +992,23 @@ function setupEventListeners() {
 }
 
 // Main initialization function - Now much smaller and focused on orchestration
-function initializeContinuous() {
+function initializeContinuous(initialThreshold) {
     console.log("Initializing continuous version");
     
     // Clean up any existing state
     cleanupContinuous();
     
+    // Set initial threshold if provided (after cleanup which resets it to 0)
+    if (initialThreshold !== undefined) {
+        thresholdValue = initialThreshold;
+        console.log(`Setting threshold to ${initialThreshold}`);
+    }
+    
     // Initialize DCA module if available
     if (typeof DCAModule !== 'undefined') {
         DCAModule.init('continuous', {
             plotSelector: SELECTORS.dcaPlot,
-            thresholdRange: { min: 0.05, max: 0.25 },
+            thresholdRange: { min: 0.05, max: 0.30 },
             onThresholdChange: (min, max) => {
                 console.log(`DCA continuous range: ${min.toFixed(3)} - ${max.toFixed(3)}`);
             }
@@ -997,7 +1031,15 @@ function initializeContinuous() {
     initializePlots();
 }
 
+// Function to update threshold value and redraw
+function updateThreshold(newThreshold) {
+    thresholdValue = newThreshold;
+    // Redraw plots to reflect the new threshold
+    updatePlots();
+}
+
 // Export for main.js
 window.initializeContinuous = initializeContinuous;
 window.cleanupContinuous = cleanupContinuous;
+window.updateThreshold = updateThreshold;
 })();

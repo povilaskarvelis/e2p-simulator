@@ -78,3 +78,23 @@
 #binary-container .dashboard span {
     font-weight: bold;
 }
+
+/* Highlighting for selected metric columns */
+.metrics-input.selected-true {
+    background-color: #444444;
+    color: white;
+    border: 1px solid #444444;
+}
+
+.metrics-input.selected-observed {
+    background-color: #444444;
+    color: white;
+    border: 1px solid #444444;
+}
+
+/* Permanent highlighting for global parameters */
+.metrics-input.permanent-highlight {
+    background-color: #444444 !important;
+    color: white !important;
+    border: 1px solid #444444 !important;
+}

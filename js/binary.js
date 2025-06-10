@@ -149,6 +149,8 @@ function drawDistributions(d) {
             .attr("opacity", 0.3)
             .attr("d", area);
 
+
+
         // Update legend
         const urlParams = parseURLParams(); // Get URL params
         const label1 = urlParams.label1 || "Group 1"; // Default if not provided
@@ -206,7 +208,7 @@ function drawThreshold(d) {
         const groupEnter = thresholdGroup.enter()
             .append("g")
             .attr("class", "threshold-group")
-            .style("cursor", "pointer");
+            .style("cursor", "ew-resize");
 
         // Merge enter and update selections
         const thresholdMerge = groupEnter.merge(thresholdGroup);
@@ -573,12 +575,14 @@ function updateMetricsFromD(d) {
         const trueLogOddsRatio = StatUtils.dToLogOddsRatio(d);
         const trueR = StatUtils.dToR(d, baseRate);
         const trueEtaSquared = trueR ** 2;
+        const trueCohensU3 = StatUtils.normalCDF(d, 0, 1); // U3 = Φ(d)
 
         // Calculate values for observed d
         const obsOddsRatio = StatUtils.dToOddsRatio(dObs);
         const obsLogOddsRatio = StatUtils.dToLogOddsRatio(dObs);
         const obsR = StatUtils.dToR(dObs, baseRate);
         const obsEtaSquared = obsR ** 2;
+        const obsCohensU3 = StatUtils.normalCDF(dObs, 0, 1); // U3 = Φ(d)
 
         // Update all inputs
         document.getElementById("true-difference-number-bin").value = d.toFixed(2);
@@ -590,12 +594,14 @@ function updateMetricsFromD(d) {
         document.getElementById("true-log-odds-ratio-bin").value = trueLogOddsRatio.toFixed(2);
         document.getElementById("true-pb-r-bin").value = trueR.toFixed(2);
         document.getElementById("true-eta-squared-bin").value = trueEtaSquared.toFixed(2);
+        document.getElementById("true-cohens-u3-bin").value = trueCohensU3.toFixed(2);
 
         // Update observed metrics
         document.getElementById("observed-odds-ratio-bin").value = obsOddsRatio.toFixed(2);
         document.getElementById("observed-log-odds-ratio-bin").value = obsLogOddsRatio.toFixed(2);
         document.getElementById("observed-pb-r-bin").value = obsR.toFixed(2);
         document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
+        document.getElementById("observed-cohens-u3-bin").value = obsCohensU3.toFixed(2);
         
         // Update plots
         updatePlots();
@@ -637,6 +643,18 @@ function updateMetricsFromR(r) {
     }
 }
 
+function updateMetricsFromCohensU3(u3) {
+    try {
+        u3 = parseFloat(u3);
+        if (isNaN(u3) || u3 >= 1 || u3 <= 0) return;
+        // Convert U3 to Cohen's d using inverse normal CDF
+        const d = inverseNormalCDF(u3);
+        updateMetricsFromD(d);
+    } catch (error) {
+        console.error("Error updating metrics from Cohen's U3:", error);
+    }
+}
+
 // Function to update plots and metrics based on current state
 function updatePlots() {
     try {
@@ -659,6 +677,23 @@ function updatePlots() {
 }
 
 // Setup event listeners for controls
+// Update highlighting of metric input columns
+function updateMetricsHighlighting(view) {
+    const metricsInputs = document.querySelectorAll('.metrics-input');
+    
+    metricsInputs.forEach(input => {
+        // Remove existing highlighting classes
+        input.classList.remove('selected-true', 'selected-observed');
+        
+        // Add highlighting based on current view and input ID
+        if (view === "true" && input.id.includes("true-")) {
+            input.classList.add('selected-true');
+        } else if (view === "observed" && input.id.includes("observed-")) {
+            input.classList.add('selected-observed');
+        }
+    });
+}
+
 function setupEventListeners() {
     try {
         // Toggle buttons
@@ -669,6 +704,7 @@ function setupEventListeners() {
             currentView = "true";
             trueButton.classList.add("active");
             observedButton.classList.remove("active");
+            updateMetricsHighlighting("true");
             updatePlots();
         });
 
@@ -676,6 +712,7 @@ function setupEventListeners() {
             currentView = "observed";
             observedButton.classList.add("active");
             trueButton.classList.remove("active");
+            updateMetricsHighlighting("observed");
             updatePlots();
         });
 
@@ -693,7 +730,8 @@ function setupEventListeners() {
             oddsRatio: document.getElementById("true-odds-ratio-bin"),
             logOddsRatio: document.getElementById("true-log-odds-ratio-bin"),
             pbr: document.getElementById("true-pb-r-bin"),
-            etaSquared: document.getElementById("true-eta-squared-bin")
+            etaSquared: document.getElementById("true-eta-squared-bin"),
+            cohensU3: document.getElementById("true-cohens-u3-bin")
         };
 
         // Reliability controls
@@ -762,6 +800,10 @@ function setupEventListeners() {
         trueMetricInputs.etaSquared.addEventListener("change", () => {
             const r = Math.sqrt(parseFloat(trueMetricInputs.etaSquared.value));
             updateMetricsFromR(r);
+        });
+
+        trueMetricInputs.cohensU3.addEventListener("change", () => {
+            updateMetricsFromCohensU3(trueMetricInputs.cohensU3.value);
         });
 
         // Base rate slider and input
@@ -931,7 +973,7 @@ function initializeBinary(initialThreshold) {
         DCAModule.init('binary', {
             plotSelector: SELECTORS.dcaPlot,
             thresholdMin: 0.05,
-            thresholdMax: 0.25,
+            thresholdMax: 0.30,
             onThresholdChange: (min, max) => {
                 console.log(`DCA threshold range updated: ${min.toFixed(3)} - ${max.toFixed(3)}`);
             }
@@ -943,6 +985,9 @@ function initializeBinary(initialThreshold) {
 
     // Add event listeners
     setupEventListeners();
+
+    // Set initial highlighting based on current view (observed by default)
+    updateMetricsHighlighting(currentView);
 
     // Explicitly update metrics based on the slider's default value on initial load
     const initialD = parseFloat(document.getElementById('difference-slider').value);

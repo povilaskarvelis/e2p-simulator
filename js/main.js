@@ -83,10 +83,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 binaryContainer.style.display = 'none';
                 continuousContainer.style.display = 'block';
                 
+                // Pass initial threshold if provided
+                const initialThreshold = params.thresholdValue ? parseFloat(params.thresholdValue) : undefined;
+                
                 // Initialize continuous version if needed
                 if (!continuousInitialized) {
-                    initializeContinuous();
+                    initializeContinuous(initialThreshold);
                     continuousInitialized = true;
+                } else if (initialThreshold !== undefined) {
+                    // If already initialized but we have a new threshold, update it
+                    if (typeof window.updateThreshold === 'function') {
+                        window.updateThreshold(initialThreshold);
+                    }
                 }
                 
                 // Set continuous mode parameters
@@ -161,7 +169,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize continuous version if not already done
             if (!continuousInitialized) {
-                initializeContinuous();
+                // Check for URL threshold parameter
+                const urlParams = parseURLParams();
+                const initialThreshold = urlParams.thresholdValue ? parseFloat(urlParams.thresholdValue) : undefined;
+                initializeContinuous(initialThreshold);
                 continuousInitialized = true;
             }
         });
