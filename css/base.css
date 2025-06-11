@@ -946,3 +946,18 @@ input[type="range"]::-webkit-slider-thumb {
 .github-link:hover .github-logo {
     fill: #0366d6; /* GitHub blue on hover */
 }
+
+/* Highlighting for True/Observed column labels */
+.metrics-header span.selected-true {
+    background-color: #333333;
+    color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.metrics-header span.selected-observed {
+    background-color: #333333;
+    color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
