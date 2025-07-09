@@ -5,13 +5,13 @@ E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactive
 
 E2P Simulator has several applications:
 
-1. **Interpretation of findings**: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and ground the interpretation of their findings in terms of predictive value in specific contexts.
+1. **Interpretation of findings**: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and flawed prediction performance metrics (such as Accuracy or AUC) by grounding their interpretation in estimated real-world predictive utility.
 
-2. **Research planning**: Being able to easily derive what effect sizes are needed to achieve a desired predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.
+2. **Research planning**: Being able to easily derive what effect sizes and predictive performance are needed to achieve a desired real-world predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.
 
-3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping students and researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world impact.
+3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world utility.
 
-This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research and precision medicine/psychiatry. However, it may be just as useful for any area of research that focuses on personalization of interventions, such as within education and sports sciences.
+This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research and precision medicine/psychiatry. However, it may be just as useful for any area of research that focuses on individual differences and personalization of interventions, such as within education and sports sciences.
 
 **Try it out**: [https://www.e2p-simulator.com](https://www.e2p-simulator.com)
 
