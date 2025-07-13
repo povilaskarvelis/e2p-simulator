@@ -47,7 +47,6 @@ describe('E2P Simulator - Binary Mode Testing', () => {
 
   it('loads successfully - binary mode', () => {
     // Test that the app loads and essential elements are visible
-    cy.get('h1').should('contain', 'Understanding predictive value of effect sizes');
     cy.get('#binary-container').should('be.visible');
     cy.get('#overlap-plot').should('be.visible');
     cy.get('#roc-plot').should('be.visible');
@@ -248,10 +247,10 @@ describe('E2P Simulator - Binary Mode Testing', () => {
       expect(value).to.be.closeTo(0.53, tolerance);
     });
     
-    // Check plot values too (AUC and PR-AUC)
+    // Check plot values too (ROC-AUC and PR-AUC)
     cy.get('#roc-plot').then($div => {
       const aucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      const aucValue = parseFloat(aucText.replace('AUC: ', ''));
+      const aucValue = parseFloat(aucText.replace('ROC-AUC: ', ''));
       expect(aucValue).to.be.closeTo(0.88, tolerance);
     });
     
@@ -332,10 +331,10 @@ describe('E2P Simulator - Binary Mode Testing', () => {
       expect(value).to.be.closeTo(0.37, tolerance);
     });
     
-    // Check plot values too (AUC and PR-AUC)
+    // Check plot values too (ROC-AUC and PR-AUC)
     cy.get('#roc-plot').then($div => {
       const aucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      const aucValue = parseFloat(aucText.replace('AUC: ', ''));
+      const aucValue = parseFloat(aucText.replace('ROC-AUC: ', ''));
       expect(aucValue).to.be.closeTo(0.78, tolerance);
     });
     

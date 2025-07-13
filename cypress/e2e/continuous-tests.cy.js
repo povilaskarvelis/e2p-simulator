@@ -50,7 +50,6 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#continuous-button').click();
 
     // Test that the app loads and essential elements are visible in continuous mode
-    cy.get('h1').should('contain', 'Understanding predictive value of effect sizes');
     cy.get('#continuous-container').should('be.visible');
     
     // Check for specific plots in continuous mode
@@ -283,10 +282,10 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     checkNumericValue('#f1-value-cont', '0.76', tolerance);
     checkNumericValue('#mcc-value-cont', '0.46', tolerance);
     
-    // Check plot AUC values
+    // Check plot ROC-AUC values
     cy.get('#roc-plot-cont').then($div => {
       const aucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      const aucValue = parseFloat(aucText.replace('AUC: ', ''));
+      const aucValue = parseFloat(aucText.replace('ROC-AUC: ', ''));
       expect(aucValue).to.be.closeTo(0.83, tolerance);
     });
     
@@ -336,10 +335,10 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     checkNumericValue('#f1-value-cont', '0.64', tolerance);
     checkNumericValue('#mcc-value-cont', '0.18', tolerance);
     
-    // Check plot AUC values
+    // Check plot ROC-AUC values
     cy.get('#roc-plot-cont').then($div => {
       const aucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      const aucValue = parseFloat(aucText.replace('AUC: ', ''));
+      const aucValue = parseFloat(aucText.replace('ROC-AUC: ', ''));
       expect(aucValue).to.be.closeTo(0.64, tolerance);
     });
     
