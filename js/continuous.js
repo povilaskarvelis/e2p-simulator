@@ -52,7 +52,7 @@ function generateLabeledData(r) {
     // Check the state of the precise estimates checkbox
     const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
     // Corrected numPoints logic from previous user interaction if needed
-    const numPoints = preciseCheckbox && preciseCheckbox.checked ? 200000 : 50000; 
+    const numPoints = preciseCheckbox && preciseCheckbox.checked ? 400000 : 50000; 
     const numPlotPoints = 4000; // Keep plot points lower for performance
     const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
     const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;

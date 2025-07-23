@@ -92,14 +92,14 @@
 
     <div class="guide-section">
         <h2>What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, MCC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, MCC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.</p>
 
         <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how research findings will translate into real-world prediction or what effect sizes/predictive performance is needed to achieve a desired level of predictive and clinical utility. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
         <p>E2P Simulator has several key applications:</p>
         
         <ul>
-            <li><strong>Interpretation of findings</strong>: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and flawed prediction performance metrics (such as Accuracy or AUC) by grounding their interpretation in estimated real-world predictive utility.</li>
+            <li><strong>Interpretation of findings</strong>: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and misleading predictive metrics by grounding their interpretation in estimated real-world predictive utility.</li>
             <li><strong>Research planning</strong>: Being able to easily derive what effect sizes and predictive performance are needed to achieve a desired real-world predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.</li>
             <li><strong>Education</strong>: The simulator's interactive design makes it a valuable teaching tool, helping researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world utility.</li>
         </ul>
@@ -209,7 +209,7 @@
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
         <ul>
-            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
+            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An ROC-AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
             <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and Recall (Sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects Precision. A larger PR-AUC means the model can achieve high Precision without sacrificing Recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
         </ul>
         
@@ -232,7 +232,7 @@
         
         <p>A DCA plot typically includes three key curves:</p>
         <ul>
-            <li><strong>Predictor Curve</strong>: Shows the net benefit of using the at different threshold probabilities. The curve's height indicates how much benefit the predictor provides compared to treating no one.</li>
+            <li><strong>Predictor Curve</strong>: Shows the net benefit of using the predictor at different threshold probabilities. The curve's height indicates how much benefit the predictor provides compared to treating no one.</li>
             <li><strong>Treat All</strong>: Represents the strategy of treating everyone regardless of their predicted risk. This strategy maximizes sensitivity (no false negatives) but results in many unnecessary treatments (false positives).</li>
             <li><strong>Treat None</strong>: Represents the strategy of treating no one, which always yields zero net benefit but avoids all treatment-related harms.</li>
         </ul>
@@ -323,23 +323,23 @@
         <h3>Example 3: Risk Prediction</h3>
         <p> Can we predict who will attempt suicide using a combination of risk factors?</p> 
             
-        <p>Here we will rely mostly on <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>, who analyzed the data of 108,705 adults from 21 countries, and using a logistic regression model found that combining a range of risk factors (socio-demographics, parent psychopathology, childhood adversities, DSM-IV disorders, and history of suicidal behavior) led to AUC = 0.74-0.8 discrimination performance between those who did and did not attempt suicide. </p>
+        <p> Most suicide prediction models (which include a variety of risk factors such as psychopathology, history of suicidal behavior, socio-demographics, etc.) achieve ROC-AUC &gt; 0.7, with a handful exceeding ROC-AUC = 0.9 for predicting suicide attempts (<a href="https://doi.org/10.1038/s41398-024-02852-9" target="_blank">Pigoni et al., 2024</a>). Let's ignore potential overfitting concerns and consider how ROC-AUC = 0.9 would translate to real-world predictive utility.</p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
                     <li>Set base rate to 0.3% (the 12-month prevalence of suicide attempts; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>)</li>
                     <li>Set the grouping reliability to 0.8 (<a href="https://cssrs.columbia.edu/wp-content/uploads/CSSRS_Supporting-Evidence_Book_2022.pdf" target="_blank">The Columbia Suicide Severity Rating Scale (C-SSRS) supporting evidence</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.8 (a rough estimate for the average reliability across the risk factors) </li>
-                    <li>Set the observed effect size to d = 1.18, which corresponds to AUC = 0.8</li>
+                    <li>Set the observed effect size to d = 2.04, which corresponds to AUC = 0.9</li>
                 </ul>
             </li>
 
-            <li>This will yield PR-AUC = 0.02, indicating extremely abysmal predictive performance, meaning that depending on where we place the threshold, we would either predict a lot of false positives (low precision, high recall) or a lot of false negatives (high precision, low recall). When the threshold is set to maximize the F1 score (0.06), we get precision = 0.06 and recall = 0.06. Which means that we would miss 94% of actual attempters and 94% of the predicted attempters would not attempt suicide. Not surprisingly, this gives us extremely low clinical utility (ΔA-NBC = 0.000).</li>
+            <li>This will yield PR-AUC = 0.08, indicating extremely abysmal predictive performance, meaning that depending on where we place the threshold, we would either predict a lot of false positives (low precision, high recall) or a lot of false negatives (high precision, low recall). When the threshold is set to maximize the F1 score (0.15), we get precision = 0.15 and recall = 0.15. Which means that we would miss 85% of actual attempters and 85% of the predicted attempters would not attempt suicide. Not surprisingly, this gives us extremely low clinical utility (ΔA-NBC = 0.000).</li>
 
             <li>Considering that we are serious about precision psychiatry and want to aim for PR-AUC of 0.8, we will find it requires observed d = 3.76, which means we have a very long way to go. Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.3&groupingReliability=0.8&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=1.35&label1=Controls&label2=Suicide%20attempters&xaxisLabel=Predictor&thresholdValue=3.1'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.3&groupingReliability=0.8&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=2.04&label1=Controls&label2=Suicide%20attempters&xaxisLabel=Predictor&thresholdValue=3.13'">Explore this example yourself →</button>
    
     </div>
 

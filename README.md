@@ -5,7 +5,7 @@ E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactive
 
 E2P Simulator has several applications:
 
-1. **Interpretation of findings**: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and flawed prediction performance metrics (such as Accuracy or AUC) by grounding their interpretation in estimated real-world predictive utility.
+1. **Interpretation of findings**: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and misleading predictive metrics by grounding their interpretation in estimated real-world predictive utility.
 
 2. **Research planning**: Being able to easily derive what effect sizes and predictive performance are needed to achieve a desired real-world predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.
 
