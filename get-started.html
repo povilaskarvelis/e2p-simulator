@@ -239,18 +239,18 @@
         
         <p>The <strong>net benefit</strong> formula accounts for both the benefits of true positives and the costs of false positives:</p>
         <div style="text-align: center; margin: 15px 0;">
-            \[NB = \frac{TP}{N} - \frac{FP}{N} \times \frac{P_t}{1-P_t}\]
+            \[NB = \frac{TP}{N_{total}} - \frac{FP}{N_{total}} \times \frac{p_t}{1-p_t}\]
         </div>
-        <p>Where P<sub>t</sub> is the threshold probability, representing the odds at which a patient would be willing to accept treatment. In practical terms, P<sub>t</sub> reflects how many unnecessary interventions one is willing to accept to prevent one adverse outcome. The ratio P<sub>t</sub>/(1-P<sub>t</sub>) in the net benefit formula captures the relative weighting of false positives compared to true positives. P<sub>t</sub> itself can be calculated as:</p>
+        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability, representing the odds at which a patient would be willing to accept treatment. In practical terms, p<sub>t</sub> reflects how many unnecessary interventions one is willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures the relative weighting of false positives compared to true positives. p<sub>t</sub> itself can be calculated as:</p>
 
         <div style="text-align: center; margin: 15px 0;">
-            \[P_t = \frac{C_{FP}}{C_{FP} + C_{FN}}\]
+            \[p_t = \frac{C_{FP}}{C_{FP} + C_{FN}}\]
         </div>
-        <p>Where C<sub>FP</sub> is the cost of a false positive (unnecessary treatment) and C<sub>FN</sub> is the cost of a false negative (missed case). P<sub>t</sub> can also be estimated through clinician surveys, patient preferences, or clinical guidelines. The simulator allows you to explore a range of P<sub>t</sub> values to identify when your predictor provides meaningful clinical benefit.</p>
+        <p>Where C<sub>FP</sub> is the cost of a false positive (unnecessary treatment) and C<sub>FN</sub> is the cost of a false negative (missed case). p<sub>t</sub> can also be estimated through clinician surveys, patient preferences, or clinical guidelines. The simulator allows you to explore a range of p<sub>t</sub> values to identify when your predictor provides meaningful clinical benefit.</p>
         
         <p><strong>A-NBC (Area Under the Net Benefit Curve)</strong> summarizes the overall clinical utility of a model across a range of threshold probabilities (<a href="https://bmcmedinformdecismak.biomedcentral.com/articles/10.1186/s12911-016-0336-x" target="_blank">Talluri & Shete, 2016</a>). It is calculated using trapezoidal integration:</p>
         <div style="text-align: center; margin: 15px 0;">
-            \[A\text{-}NBC = \int_{P_{t1}}^{P_{t2}} NB(P_t) \, dP_t\]
+            \[A\text{-}NBC = \int_{p_{t1}}^{p_{t2}} NB(p_t) \, dp_t\]
         </div>
         <p>Where the integration is performed over a clinically relevant range of threshold probabilities (adjustable using the movable gray bars in the simulator). A larger A-NBC indicates greater overall clinical utility within that range.</p>
         
