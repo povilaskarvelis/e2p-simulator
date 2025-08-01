@@ -114,7 +114,7 @@
             <li><strong>Overemphasis on statistical significance:</strong> Most research continues to optimize for statistical significance (p-values) without optimizing for practical significance (effect sizes).</li>
             <li><strong>Difficulty interpreting effect sizes:</strong> The interpretation of effect sizes, which are critical for gauging real-world utility, is often reduced to arbitrary cutoffs (small/medium/large) without conveying their practical utility.</li>
             <li><strong>Overlooked measurement reliability:</strong> Measurement noise attenuates both effect sizes and predictive performance, yet it is rarely accounted for in study design or interpretation of findings.</li>
-            <li><strong>Neglected outcome base rates:</strong> Low-prevalence events drastically limit predictive performance in real-world settings, but are rarely considered when evaluating the translational potential of prediction models.</li>
+            <li><strong>Neglected outcome base rates:</strong> Low prevalence of outcomes can drastically limit predictive performance in real-world settings, but is rarely accounted for when evaluating the translational potential of prediction models.</li>
         </ul>
 
         <p>Together, these issues undermine the quality and impact of academic research, because routinely reported metrics do not reflect real-world utility. Whether researchers focus on achieving statistical significance of individual predictors or optimizing model performance metrics like accuracy and ROC-AUC, both approaches often lead to unrealistic expectations about practical impact. In turn, this results in inefficient study planning, resource misallocation, and considerable waste of time and funding.</p>
@@ -142,43 +142,32 @@
         </ul>
         
         <h3>Measurement Reliability and True vs. Observed Effects</h3>
-        <p>Measurement reliability attenuates observed effect sizes, and in turn attenuates predictive performance. The simulator allows you to specify reliability using the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability).</p>
+        <p>Measurement reliability attenuates observed effect sizes, which in turn reduces predictive performance. The simulator allows you to specify reliability using the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability); see <a href="https://osf.io/preprints/psyarxiv/z4yqe_v4" target="_blank">Karvelis & Diaconescu, 2025</a> for more details on how reliability attenuates individual and group differences.</p>
        
         <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
         <h3>Base Rates</h3>
-        <p>The base rate refers to how common an outcome is within a specific population. For instance, if an effect size measures the difference between a group with a disorder and a healthy control group, the base rate would be the disorder's prevalence in the general population. However, if you're focusing on a pre-identified high-risk group, the relevant base rate becomes the disorder's prevalence <em>within this specific high-risk cohort</em>. In Bayesian statistics, this base rate is analogous to the prior probability of the outcome, established before considering any particular predictor.</p>
+        <p>Base rate (or prevalence) refers to the proportion of individuals in the population who have the outcome of interest before considering any predictors or test results (in Bayesian terms, this is the prior probability of the outcome). To estimate real-world predictive utility, the base rate should be set to reflect the population where your predictor or model will actually be used — not the composition of your study sample. This distinction is crucial because research studies often use case-control designs with balanced sampling (e.g., 50% cases, 50% controls) that do not reflect real-world prevalence. This is one of the most commonly overlooked problems in evaluating prediction models (<a href="https://link.springer.com/chapter/10.1007/978-3-030-50423-6_6" target="_blank">Barbec et al., 2020</a>), as the base rate directly affects multiple metrics used for model evaluation (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
             
-        <p>The base rate directly affects PPV and NVP, and indirectly the metrics that depend on it: PR-AUC, MCC, and F-1 score (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
+        <p>For instance, if you are developing a model for a rare disorder that affects 2% of the general population, the base rate should be set to 2%, even if your training dataset contains equal numbers of cases and controls. However, if your model will be used in a pre-screened high-risk population where the disorder prevalence is 20%, then 20% becomes the relevant base rate (however, in this scenario, the effect size should also reflect the difference between cases and high-risk controls rather than general population controls).</p>        
 
-        <h3>Multivariate Effects Calculators</h3>
-        <p>Both binary and continuous outcomes analysis modes include calculators that help explore how multiple predictors can be combined to achieve stronger effects:</p>
-        
-        <ul>
-            <li><strong>Mahalanobis D Calculator</strong> (Binary mode)</li>
-            <li><strong>Multivariate R² Calculator</strong> (Continuous mode)</li>
-        </ul>
-        
-        <p>The calculators can help approximate the expected performance of multivariate models without having to train the full models and thus help with research planning and model development. More specifically, they illustrate:</p>
-        
-        <ul>
-            <li>How the number of predictors affects combined effect size</li>
-            <li>The diminishing returns of adding more predictors</li>
-            <li>How collinearity (correlation among predictors) reduces their combined effectiveness</li>
-            <li>The trade-offs between using fewer strong predictors versus more moderate ones</li>
-        </ul>     
+        <h3>Multivariable Simulators</h3>
 
-        <h4>Calculator Assumptions and Limitations</h4>
-        <p>Both calculators correspond to fundamental predictive models in statistics: the Mahalanobis D Calculator approximates Linear Discriminant Analysis and logistic regression, while the Multivariate R² Calculator aligns with multiple linear regression.</p>
+        <p>Both binary and continuous outcomes analysis modes include simulators that help estimate how many predictors need to be combined to achieve a desired level of real-world predictive utility. The main metric for this is PR-AUC, as it accounts for the base rate and is threshold-independent. For binary classification, the simulator also displays Mahalanobis D, a multivariate generalization of Cohen's d. For continuous outcomes, the simulator displays variance explained R².</p>
         
-        <p>Like the statistical methods they approximate, the calculators operate under several simplifying assumptions:</p>
+        <p>The multivariable simulators can help approximate the expected performance of multivariate models without having to train the full models and thus help with research planning and model development. For example, they can help estimate the required number and quality of predictors for a new study before any data has been collected. They also help gain intuition about how multicollinearity undermines predictive performance and leads to diminishing returns when adding more predictors.</p>
+
+        <h4>Assumptions and Limitations</h4>
+        
+        <p> The multivariable simulators are based on several simplifying assumptions:</p>
         <ul>
-            <li><strong>Average effects and correlations</strong>: The calculators use single values to represent the average effect size across predictors and average correlation among them, which can provide useful approximations even when individual predictors vary in strength</li>
-            <li><strong>Linear effects</strong>: The formulas assume predictors contribute additively without interactions (where one predictor's effect depends on another). However, research shows that in clinical prediction, complex non-linear models generally do not outperform simple linear logistic regression (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0895435618310813" target="_blank">Christodoulou et al., 2019</a>)</li>
+            <li><strong>Average effects and correlations</strong>: The simulators use single values to represent the average effect size across predictors and average correlation among them, which can provide useful approximations even when individual predictors vary in strength</li>
+            <li><strong>Linear effects</strong>: The formulas assume predictors contribute additively without interactions (where one predictor's effect depends on another). This assumption is supported by research showing that in clinical prediction, complex non-linear models generally do not outperform simple linear logistic regression (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0895435618310813" target="_blank">Christodoulou et al., 2019</a>). In general, more complex machine learning models excel at capturing non-linear relationships that we expect to see in the real world, but they also require more data and are more prone to overfitting.</li>
             <li><strong>Normality</strong>: The underlying variables are assumed to be normally distributed. This is consistent with the assumptions of input metrics like Cohen's d and Pearson's r, although in practice these are often computed despite normality violations.</li>
         </ul>
         
-        <p>Despite these limitations, these calculators serve as valuable tools for building intuition about how multiple predictors combine to achieve stronger effects. Even though real-world predictors will vary in their individual strengths and collinearity, the overall patterns demonstrated (such as diminishing returns and the impact of shared variance) remain informative for understanding multivariate relationships.</p>
+        <p>Even though real-world predictors will often not be normally distributed and will vary in their individual strengths and collinearity, the general trends (such as diminishing returns and the impact of shared variance among the predictors) remain informative for understanding multivariate relationships and estimating expected model performance.</p>
+
     </div>
 
     <div class="guide-section">

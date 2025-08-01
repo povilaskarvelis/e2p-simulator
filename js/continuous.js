@@ -642,10 +642,33 @@ function plotROC() {
         auc += (FPR[i-1] - FPR[i]) * (TPR[i] + TPR[i-1]) / 2;  // Reversed the order of FPR difference
     }
 
-    // Calculate PR-AUC using trapezoidal rule
+    // Calculate PR-AUC using trapezoidal rule with proper boundary handling
+    // Add boundary points and sort by recall for proper integration
+    const baseRate = currentLabeledData.filter(d => d.trueClass === 1).length / currentLabeledData.length;
+    
+    // Create array of recall-precision pairs
+    let prPoints = recall.map((r, i) => ({ recall: r, precision: precision[i] }));
+    
+    // Add crucial boundary points
+    prPoints.push({ recall: 0, precision: 1.0 });  // At highest threshold
+    prPoints.push({ recall: 1.0, precision: baseRate });  // At lowest threshold
+    
+    // Remove duplicates and sort by recall
+    const uniquePrPoints = [];
+    const seenRecalls = new Set();
+    for (const point of prPoints.sort((a, b) => a.recall - b.recall)) {
+        if (!seenRecalls.has(point.recall)) {
+            uniquePrPoints.push(point);
+            seenRecalls.add(point.recall);
+        }
+    }
+    
+    // Calculate PR-AUC with proper integration direction
     let prauc = 0;
-    for (let i = 1; i < recall.length; i++) {
-        prauc += (recall[i-1] - recall[i]) * (precision[i] + precision[i-1]) / 2;  // Also fix PR-AUC calculation
+    for (let i = 1; i < uniquePrPoints.length; i++) {
+        const deltaRecall = uniquePrPoints[i].recall - uniquePrPoints[i-1].recall;
+        const avgPrecision = (uniquePrPoints[i].precision + uniquePrPoints[i-1].precision) / 2;
+        prauc += deltaRecall * avgPrecision;
     }
 
     // Get metrics at current threshold using currentLabeledData

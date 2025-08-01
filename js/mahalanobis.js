@@ -1,476 +1,323 @@
 (function() {
-// Change to module-specific names to avoid conflict
-const mahalanobisWidth = 600;
-const mahalanobisHeight = 400;
-const mahalanobisMargin = { top: 20, right: 30, bottom: 40, left: 50 };
-
-// Clinical utility threshold (can be made adjustable later)
-const CLINICAL_UTILITY_THRESHOLD = 2.5;
-
 // Global variables to track datasets and colors
-let datasets = [];
+    let dDatasets = [], prAucDatasets = [];
 const colors = [
-    '#008080', // Teal (keep this as primary)
-    '#E63946', // Bright Red
-    '#1E88E5', // Bright Blue
-    '#FFA726', // Bright Orange
-    '#9C27B0', // Bright Purple
-    '#00A896', // Bright Teal
-    '#26A69A', // Medium Teal
-    '#7B1FA2'  // Deep Purple
-];
+        '#008080', '#E63946', '#FFA726', '#1E88E5', 
+        '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'
+    ];
+    let nextColorIndex = 0;
 
-// Track active curve and datasets
-let activeCurve = null;
-let dChart = null;
-let nextColorIndex = 0; // Track which color to use next
+    // Track active curves and chart instances
+    let dActiveCurve, prAucActiveCurve;
+    let dChart = null, prAucChart = null;
 
-function initializeMahalanobisPlot() {
-    // Create SVG container
-    const svg = d3.select("#mahalanobis-plot")
-        .append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .attr("viewBox", `0 0 ${mahalanobisWidth} ${mahalanobisHeight}`)
-        .attr("preserveAspectRatio", "xMidYMid meet");
+    function initializeMahalanobis() {
+        const chartContainer = document.getElementById('chartContainer');
+        chartContainer.style.display = 'flex';
+        chartContainer.style.flexDirection = 'column';
+        chartContainer.style.gap = '20px';
+        
+        let legendContainer = chartContainer.querySelector('.chart-legend');
+        if (!legendContainer) {
+            legendContainer = document.createElement('div');
+            legendContainer.className = 'chart-legend';
+            legendContainer.style.textAlign = 'center';
+            legendContainer.style.marginTop = '10px';
+            chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
+        }
+        
+        initializeDChart();
+        initializePrAucChart();
+        setupInputListeners();
+        updatePlot();
+    }
 
-    // Add axes
-    const xScale = d3.scaleLinear()
-        .domain([0, 10])  // Number of features
-        .range([mahalanobisMargin.left, mahalanobisWidth - mahalanobisMargin.right]);
-
-    const yScale = d3.scaleLinear()
-        .domain([0, 5])   // Mahalanobis distance
-        .range([mahalanobisHeight - mahalanobisMargin.bottom, mahalanobisMargin.top]);
-
-    // Add X axis
-    svg.append("g")
-        .attr("transform", `translate(0,${mahalanobisHeight - mahalanobisMargin.bottom})`)
-        .call(d3.axisBottom(xScale))
-        .append("text")
-        .attr("x", mahalanobisWidth / 2)
-        .attr("y", 35)
-        .attr("fill", "black")
-        .text("Number of Features");
-
-    // Add Y axis
-    svg.append("g")
-        .attr("transform", `translate(${mahalanobisMargin.left},0)`)
-        .call(d3.axisLeft(yScale))
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -35)
-        .attr("x", -(mahalanobisHeight / 2))
-        .attr("fill", "black")
-        .text("Combined Effect Size (Mahalanobis D)");
-
-    // Add clinical utility threshold line
-    svg.append("line")
-        .attr("class", "threshold-line")
-        .attr("x1", mahalanobisMargin.left)
-        .attr("x2", mahalanobisWidth - mahalanobisMargin.right)
-        .attr("y1", yScale(CLINICAL_UTILITY_THRESHOLD))
-        .attr("y2", yScale(CLINICAL_UTILITY_THRESHOLD))
-        .style("stroke", "red")
-        .style("stroke-dasharray", "4,4");
-
-    // Add threshold label
-    svg.append("text")
-        .attr("class", "threshold-label")
-        .attr("x", mahalanobisWidth - mahalanobisMargin.right)
-        .attr("y", yScale(CLINICAL_UTILITY_THRESHOLD) - 5)
-        .attr("text-anchor", "end")
-        .style("fill", "red")
-        .text("Clinical Utility Threshold");
-
-    return { svg, xScale, yScale };
-}
-
-function updateMahalanobisPlot(features, plotElements) {
-    const { svg, xScale, yScale } = plotElements;
-
-    // Calculate cumulative Mahalanobis distance at each step
-    const cumulativeD = features.reduce((acc, d) => {
-        const lastD = acc.length > 0 ? acc[acc.length - 1] : 0;
-        acc.push(Math.sqrt(d * d + lastD * lastD));
-        return acc;
-    }, []);
-
-    // Create line generator
-    const line = d3.line()
-        .x((d, i) => xScale(i + 1))
-        .y(d => yScale(d));
-
-    // Update or create path
-    const path = svg.selectAll(".mahalanobis-line")
-        .data([cumulativeD]);
-
-    path.enter()
-        .append("path")
-        .attr("class", "mahalanobis-line")
-        .merge(path)
-        .attr("d", line)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 2);
-
-    // Update or create points
-    const points = svg.selectAll(".feature-point")
-        .data(cumulativeD);
-
-    points.enter()
-        .append("circle")
-        .attr("class", "feature-point")
-        .merge(points)
-        .attr("cx", (d, i) => xScale(i + 1))
-        .attr("cy", d => yScale(d))
-        .attr("r", 5)
-        .attr("fill", "steelblue");
-
-    points.exit().remove();
-
-    // Update required features text
-    const featuresNeeded = Math.ceil(
-        (CLINICAL_UTILITY_THRESHOLD * CLINICAL_UTILITY_THRESHOLD) / 
-        (features[0] * features[0])
-    );
-
-    d3.select("#features-needed")
-        .text(featuresNeeded);
-
-    d3.select("#mahalanobis-d")
-        .text(cumulativeD[cumulativeD.length - 1].toFixed(2));
-}
-
-// Initialize with current effect size when binary version loads
-function initializeMahalanobisSection() {
-    const plotElements = initializeMahalanobisPlot();
-    const currentD = parseFloat(document.getElementById("true-difference-number-bin").value);
-    updateMahalanobisPlot([currentD], plotElements);
-    return plotElements;
-}
-
-// Export for use in main.js
-window.initializeMahalanobisSection = initializeMahalanobisSection;
-window.updateMahalanobisPlot = updateMahalanobisPlot;
-
-function initializeMahalanobis() {
-    // Initialize the chart
-    initializeChart();
-
-    // Set up event listeners
-    const setupInputPair = (sliderId, inputId, callback = updatePlot) => {
+    function setupInputListeners() {
+        const setupInputPair = (sliderId, inputId) => {
         const slider = document.getElementById(sliderId);
         const input = document.getElementById(inputId);
+            if (!slider || !input) return;
         
-        slider.addEventListener('input', () => {
+            const update = () => {
             input.value = slider.value;
-            callback();
-        });
+                updatePlot();
+            };
+            slider.addEventListener('input', update);
         
-        input.addEventListener('input', () => {
+            const inputUpdate = () => {
             slider.value = input.value;
-            callback();
+                updatePlot();
+            };
+            input.addEventListener('input', inputUpdate);
+        };
+
+        ['targetD-slider', 'mahalanobis-base-rate-slider', 'effectSize-slider', 'correlation-slider', 'numVariables-slider'].forEach(id => {
+            const idRoot = id.replace('-slider', '');
+            setupInputPair(id, idRoot);
         });
-    };
-    
-    setupInputPair('effectSize-slider', 'effectSize');
-    setupInputPair('correlation-slider', 'correlation');
-    setupInputPair('numVariables-slider', 'numVariables');
-    
-    // Record button saves the current curve
+
     document.getElementById('record-mahalanobis').addEventListener('click', recordCurrentCurve);
     document.getElementById('reset-mahalanobis').addEventListener('click', resetChart);
-    document.getElementById('neededD').addEventListener('input', updatePlot);
+    }
 
-    // Initial plot
-    updatePlot();
-}
+    function initializeDChart() {
+        if (dChart) dChart.destroy();
+        const ctx = document.getElementById('dPlot').getContext('2d');
+        dActiveCurve = createActiveCurveDataset();
+        dChart = new Chart(ctx, createChartConfig(dActiveCurve, 'Mahalanobis D', 'Target D', false, true, 0, parseFloat(document.getElementById("targetD").value) * 1.3));
+    }
 
-function updatePlot() {
-    // Get inputs
-    const neededD = parseFloat(document.getElementById('neededD').value);
-    const effectSize = parseFloat(document.getElementById('effectSize').value);
-    const correlation = parseFloat(document.getElementById('correlation').value);
-    const numVariables = parseInt(document.getElementById('numVariables').value);
-    
-    // Calculate formula
-    let xValues = [];
-    let yValues = [];
-    
-    for (let i = 1; i <= numVariables; i++) {
-        xValues.push(i);
-        const d = computeMahalanobisD(i, effectSize, correlation);
-        yValues.push(d);
+    function initializePrAucChart() {
+        if (prAucChart) prAucChart.destroy();
+        const ctx = document.getElementById('prAucPlot').getContext('2d');
+        prAucActiveCurve = createActiveCurveDataset();
+        prAucChart = new Chart(ctx, createChartConfig(prAucActiveCurve, 'PR-AUC', 'Target PR-AUC', true, false, 0, 1));
+    }
+
+    function createChartConfig(activeCurve, yLabel, thresholdLabel, showXLabel, useLegendPlugin, yMin = 0, yMax = undefined) {
+        const numVariables = parseInt(document.getElementById("numVariables").value);
+        const plugins = [targetLineLabelPlugin];
+        if (useLegendPlugin) {
+            plugins.push(window.customLegendPlugin);
+        }
+        const config = {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: numVariables }, (_, i) => i + 1),
+                datasets: [createThresholdDataset(thresholdLabel, yLabel === 'Mahalanobis D' ? parseFloat(document.getElementById("targetD").value) : parseFloat(document.getElementById("target-pr-auc").value)), activeCurve]
+            },
+            options: getChartOptions(yLabel, yMax, showXLabel),
+            plugins: plugins
+        };
+        return config;
     }
     
-    // Update x-axis scale to match the number of predictors
-    dChart.options.scales.x.max = numVariables;
-    dChart.data.labels = Array.from({ length: numVariables }, (_, i) => i + 1);
-    
-    // Update active curve without recording
-    updateActiveCurve(xValues, yValues);
-    
-    // Update the label with current parameters
-    updateActiveCurveLabel();
-}
-
-function recordCurrentCurve() {
-    // Get inputs
-    const neededD = parseFloat(document.getElementById('neededD').value);
-    const effectSize = parseFloat(document.getElementById('effectSize').value);
-    const correlation = parseFloat(document.getElementById('correlation').value);
-    const numVariables = parseInt(document.getElementById('numVariables').value);
-    
-    // Calculate formula
-    let xValues = [];
-    let yValues = [];
-    
-    for (let i = 1; i <= numVariables; i++) {
-        xValues.push(i);
-        const d = computeMahalanobisD(i, effectSize, correlation);
-        yValues.push(d);
-    }
-    
-    // Record the dataset
-    addDataset(xValues, yValues, neededD, effectSize, correlation, colors[nextColorIndex]);
-    
-    // Update color index for next curve
-    nextColorIndex = (nextColorIndex + 1) % colors.length;
-    
-    // Update active curve color to match the next color it will be saved as
-    activeCurve.borderColor = `${colors[nextColorIndex]}80`; // Add 50% transparency
-    dChart.update();
-}
-
-function initializeChart() {
-    // Reset datasets when initializing
-    datasets = [];
-    nextColorIndex = 0;
-    
-    // Destroy any existing chart instance
-    if (dChart) {
-        dChart.destroy();
-        dChart = null;
-    }
-    
-    const neededD = parseFloat(document.getElementById("neededD").value);
-    const numVariables = parseInt(document.getElementById("numVariables").value);
-    const canvas = document.getElementById('dPlot');
-    const ctx = canvas.getContext('2d');
-    const dPlotWrapper = document.getElementById('dPlotWrapper');
-    
-    // Get initial parameter values
+    function createActiveCurveDataset() {
     const effectSize = parseFloat(document.getElementById("effectSize").value);
     const correlation = parseFloat(document.getElementById("correlation").value);
-    
-    // Create a threshold dataset
-    const thresholdDataset = {
-        label: `Needed D = ${neededD}`,
-        data: Array(numVariables).fill(neededD),
+        return {
+            label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
+            data: [],
+            borderColor: colors[nextColorIndex],
+            pointBackgroundColor: colors[nextColorIndex],
+            borderWidth: 2,
+            pointRadius: 5,
+            pointStyle: 'circle',
+            fill: false,
+            isActive: true
+        };
+    }
+
+    function createThresholdDataset(label, value) {
+        const numVariables = parseInt(document.getElementById("numVariables").value);
+        return {
+            label: '',
+            annotationLabel: label,
+            data: Array(numVariables).fill(value),
         borderColor: '#000000',
         borderWidth: 3,
         borderDash: [8, 8],
         pointRadius: 0,
         fill: false
     };
-    
-    // Create an active curve dataset with parameters in the label
-    activeCurve = {
-        label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
-        data: [],
-        borderColor: `${colors[nextColorIndex]}80`, // Add 50% transparency with hex alpha
-        borderWidth: 3,
-        pointRadius: 5,
-        pointStyle: 'circle',
-        fill: false
+    }
+
+    function getChartOptions(yLabel, yMax, showXLabel = true) {
+    const yTicksConfig = {
+        font: { size: 14 }
     };
-    
-    // Initialize chart
-    dChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: Array.from({ length: numVariables }, (_, i) => i + 1),
-            datasets: [thresholdDataset, activeCurve]
-        },
-        options: {
+
+    if (yLabel === 'PR-AUC') {
+        yTicksConfig.stepSize = 0.2;
+    }
+
+    const xTicksConfig = { font: { size: 14 } };
+    if (!showXLabel) {
+        xTicksConfig.display = false;
+    }
+
+    return {
             responsive: true,
             maintainAspectRatio: false,
             animation: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: {
-                    min: 1,
-                    max: numVariables,
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    title: {
-                        display: true,
-                        text: 'Number of predictors',
-                        font: { size: 16 }
-                    },
-                    ticks: { font: { size: 12 } }
-                },
-                y: {
-                    min: 0,
-                    max: neededD * 1.3,
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    title: {
-                        display: true,
-                        text: 'Mahalanobis D',
-                        font: { size: 16 }
-                    },
-                    ticks: { 
-                        font: { size: 12 },
-                        callback: function(value, index, values) {
-                            if (index === values.length - 1) {
-                                return '';
-                            }
-                            return value;
+        plugins: { 
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        if (tooltipItems.length > 0) {
+                            const item = tooltipItems[0];
+                            if (item.dataset.annotationLabel) return ''; // No title for target line
+                            return `Predictors: ${item.label}`;
                         }
+                        return '';
+                    },
+                    label: function(context) {
+                        if (context.dataset.annotationLabel) return null; // No label for target line
+                        return `${yLabel}: ${context.formattedValue}`;
                     }
                 }
             }
         },
-        plugins: [window.customLegendPlugin]
-    });
-    
-    // --- Setup Flex container --- 
-    const chartContainer = document.getElementById('chartContainer');
-    chartContainer.style.display = 'flex';
-    chartContainer.style.flexDirection = 'column';
-    chartContainer.style.marginBottom = '0'; 
-    chartContainer.style.paddingBottom = '0'; 
+        scales: {
+            x: {
+                min: 1,
+                max: parseInt(document.getElementById("numVariables").value),
+                title: { display: showXLabel, text: 'Number of predictors', font: { size: 18 } },
+                ticks: xTicksConfig,
+                grid: { display: false, drawBorder: false }
+            },
+            y: {
+                min: 0,
+                max: yMax,
+                title: { display: true, text: yLabel, font: { size: 18 } },
+                ticks: yTicksConfig,
+                grid: { display: false, drawBorder: false }
+            }
+        }
+    };
+}
 
-    // --- Handle legend --- 
-    let legendContainer = chartContainer.querySelector('.chart-legend');
-    if (!legendContainer) {
-        legendContainer = document.createElement('div');
-        legendContainer.className = 'chart-legend';
-        legendContainer.style.textAlign = 'center';
-        legendContainer.style.marginTop = '10px';
-        chartContainer.insertBefore(legendContainer, dPlotWrapper); // Insert before wrapper
+    function updatePlot() {
+        if (!dActiveCurve) return;
+
+        const targetD = parseFloat(document.getElementById('targetD').value);
+        const baseRate = parseFloat(document.getElementById('mahalanobis-base-rate').value) / 100;
+        const effectSize = parseFloat(document.getElementById('effectSize').value);
+        const correlation = parseFloat(document.getElementById('correlation').value);
+        const numVariables = parseInt(document.getElementById('numVariables').value);
+
+        document.getElementById('target-pr-auc').value = StatUtils.dToPRAUC(targetD, baseRate).toFixed(2);
+        
+        let dValues = [], prAucValues = [];
+        for (let i = 1; i <= numVariables; i++) {
+            const d = computeMahalanobisD(i, effectSize, correlation);
+            dValues.push(d);
+            prAucValues.push(StatUtils.dToPRAUC(d, baseRate));
+        }
+
+        updateChart(dChart, dValues, targetD, 'Target D', numVariables);
+        updateChart(prAucChart, prAucValues, StatUtils.dToPRAUC(targetD, baseRate), 'Target PR-AUC', numVariables, 0, 1);
+        updateActiveCurveLabel();
     }
-    legendContainer.style.flexShrink = '0'; // Legend doesn't shrink
     
-    // --- Wrapper and Canvas are styled via HTML --- 
+    function updateChart(chart, data, threshold, thresholdLabel, numVariables, yMin = 0, yMax = undefined) {
+    chart.data.labels = Array.from({ length: numVariables }, (_, i) => i + 1);
+    chart.options.scales.x.max = numVariables;
+    
+    const activeCurve = chart.data.datasets[chart.data.datasets.length - 1];
+    activeCurve.data = data;
+    
+    const thresholdDataset = chart.data.datasets[0];
+    thresholdDataset.data = Array(numVariables).fill(threshold);
+    thresholdDataset.annotationLabel = `${thresholdLabel}: ${threshold.toFixed(2)}`;
+    
+    if(yMax === undefined) yMax = threshold * 1.3;
+    chart.options.scales.y.max = yMax;
+    
+    chart.update();
 }
 
-function updateActiveCurve(xValues, yValues) {
-    // Update the active curve data
-    activeCurve.data = yValues;
-    
-    // Update the needed D threshold
-    const neededD = parseFloat(document.getElementById("neededD").value);
-    const numVariables = parseInt(document.getElementById('numVariables').value);
-    
-    const thresholdDataset = dChart.data.datasets.find(ds => ds.label.startsWith('Needed D'));
-    thresholdDataset.data = Array(numVariables).fill(neededD);
-    thresholdDataset.label = `Needed D = ${neededD}`;
-    
-    // Update y-axis scale based on the new needed D value
-    dChart.options.scales.y.max = neededD * 1.3;
-    
-    // Update chart
-    dChart.update();
-}
+    const maxCurves = 4;
 
-function addDataset(xValues, yValues, neededD, effectSize, correlation, color) {
-    // Create a new dataset with the current parameters
+    function recordCurrentCurve() {
+        if (dDatasets.length >= maxCurves) return;
+
+        const { targetD, baseRate, effectSize, correlation, numVariables } = getInputs();
+        
+        let dValues = [], prAucValues = [];
+        for (let i = 1; i <= numVariables; i++) {
+            const d = computeMahalanobisD(i, effectSize, correlation);
+            dValues.push(d);
+            prAucValues.push(StatUtils.dToPRAUC(d, baseRate));
+        }
+
+        addDataset(dChart, dDatasets, dValues, effectSize, correlation, colors[nextColorIndex]);
+        addDataset(prAucChart, prAucDatasets, prAucValues, effectSize, correlation, colors[nextColorIndex]);
+
+        nextColorIndex = (nextColorIndex + 1) % colors.length;
+        
+        if (dDatasets.length < maxCurves) {
+            updateActiveCurveColor();
+            updateActiveCurveLabel();
+        } else {
+            dChart.data.datasets.pop();
+            prAucChart.data.datasets.pop();
+            dActiveCurve = null;
+            prAucActiveCurve = null;
+            dChart.update();
+            prAucChart.update();
+            document.getElementById('record-mahalanobis').disabled = true;
+        }
+    }
+
+    function addDataset(chart, datasets, data, effectSize, correlation, color) {
     const newDataset = {
         label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
-        data: yValues,
+            data: data,
         borderColor: color,
+        pointBackgroundColor: color,
         borderWidth: 2,
         pointRadius: 5,
         pointStyle: 'circle',
-        fill: false
+        fill: false,
+        isActive: false
     };
-    
-    // Add the new dataset to our collection
     datasets.push(newDataset);
-    
-    // Get the threshold dataset (first one)
-    const thresholdDataset = dChart.data.datasets[0];
-    
-    // Rebuild the datasets array with threshold first, then saved datasets, then active curve
-    dChart.data.datasets = [
-        thresholdDataset,
-        ...datasets,
-        activeCurve
-    ];
-    
-    // Update chart
-    dChart.update();
+        chart.data.datasets = [chart.data.datasets[0], ...datasets, chart.data.datasets[chart.data.datasets.length - 1]];
+        chart.update();
 }
 
 function resetChart() {
-    // Clear all datasets except active curve and threshold
-    datasets = [];
+        dDatasets = [];
+        prAucDatasets = [];
     nextColorIndex = 0;
     
-    // Update active curve color
-    activeCurve.borderColor = `${colors[nextColorIndex]}80`;
+        dActiveCurve = createActiveCurveDataset();
+        prAucActiveCurve = createActiveCurveDataset();
+        dChart.data.datasets = [dChart.data.datasets[0], dActiveCurve];
+        prAucChart.data.datasets = [prAucChart.data.datasets[0], prAucActiveCurve];
+        
+        document.getElementById('record-mahalanobis').disabled = false;
+        
+        updateActiveCurveColor();
+        updatePlot();
+    }
+
+    function updateActiveCurveColor() {
+        const solidColor = colors[nextColorIndex];
+        dActiveCurve.borderColor = solidColor;
+        dActiveCurve.pointBackgroundColor = solidColor;
+        prAucActiveCurve.borderColor = solidColor;
+        prAucActiveCurve.pointBackgroundColor = solidColor;
+        dChart.update();
+        prAucChart.update();
+    }
     
-    // Reset the chart
-    const neededD = parseFloat(document.getElementById("neededD").value);
-    const numVariables = parseInt(document.getElementById("numVariables").value);
+    function getInputs() {
+        return {
+            targetD: parseFloat(document.getElementById('targetD').value),
+            baseRate: parseFloat(document.getElementById('mahalanobis-base-rate').value) / 100,
+            effectSize: parseFloat(document.getElementById('effectSize').value),
+            correlation: parseFloat(document.getElementById('correlation').value),
+            numVariables: parseInt(document.getElementById('numVariables').value)
+        };
+    }
     
-    // Keep only the threshold and active curve in that order
-    dChart.data.datasets = [
-        {
-            label: `Needed D = ${neededD}`,
-            data: Array(numVariables).fill(neededD),
-            borderColor: '#000000',
-            borderWidth: 3,
-            borderDash: [8, 8],
-            pointRadius: 0,
-            fill: false
-        },
-        activeCurve
-    ];
-    
-    // Update chart
+    function updateActiveCurveLabel() {
+        if (!dActiveCurve) return;
+
+        const { effectSize, correlation } = getInputs();
+        const label = `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`;
+        dActiveCurve.label = label;
+        prAucActiveCurve.label = label;
     dChart.update();
+        prAucChart.update();
 }
 
-// Use simplified formula for when all predictors have same effect size and correlations
 function computeMahalanobisD(numVariables, effectSize, correlation) {
-    // For identical effect sizes and uniform correlations, we can use this formula:
     return effectSize * Math.sqrt(numVariables / (1 + (numVariables-1) * correlation));
 }
 
-// Function to update the active curve label with current parameters
-function updateActiveCurveLabel() {
-    const effectSize = parseFloat(document.getElementById("effectSize").value);
-    const correlation = parseFloat(document.getElementById("correlation").value);
-    
-    // Update the label with current parameters
-    activeCurve.label = `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`;
-    
-    // Update the chart to reflect the new label
-    dChart.update();
-}
-
-// Export for main.js
 window.initializeMahalanobis = initializeMahalanobis;
-
-// Function to ensure legend container exists
-function ensureLegendContainer() {
-    const chartContainer = document.getElementById('r2PlotContainer');
-    let legendContainer = chartContainer.querySelector('.chart-legend');
-    if (!legendContainer) {
-        legendContainer = document.createElement('div');
-        legendContainer.className = 'chart-legend';
-        legendContainer.style.marginBottom = '10px';
-        legendContainer.style.textAlign = 'center';
-        chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
-    }
-    return legendContainer;
-}
 })();

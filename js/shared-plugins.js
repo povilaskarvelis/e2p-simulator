@@ -1,3 +1,36 @@
+const targetLineLabelPlugin = {
+    id: 'targetLineLabel',
+    afterDraw: (chart) => {
+        const thresholdDataset = chart.data.datasets[0];
+        if (!thresholdDataset || !thresholdDataset.annotationLabel) {
+            return;
+        }
+
+        const ctx = chart.ctx;
+        const yAxis = chart.scales.y;
+        const xAxis = chart.scales.x;
+        
+        const thresholdValue = thresholdDataset.data[0];
+        if (thresholdValue === undefined || thresholdValue === null) return;
+        
+        const y = yAxis.getPixelForValue(thresholdValue);
+        if (y < yAxis.top || y > yAxis.bottom) return;
+
+        const x = xAxis.left + 5;
+
+        ctx.save();
+        ctx.font = '14px Arial';
+        ctx.fillStyle = thresholdDataset.borderColor || '#000000';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        
+        const labelText = thresholdDataset.annotationLabel;
+
+        ctx.fillText(labelText, x, y - 5);
+        ctx.restore();
+    }
+};
+
 // Shared Chart.js plugins
 const customLegendPlugin = {
     id: 'customLegend',
@@ -22,8 +55,20 @@ const customLegendPlugin = {
         legendContainer.innerHTML = '';
         
         // Create custom legend items
-        legendItems.forEach((item, index) => {
-            const dataset = chart.data.datasets[index];
+        chart.data.datasets.forEach((dataset, index) => {
+            if (!chart.isDatasetVisible(index) || !dataset.label || dataset.isActive) {
+                return;
+            }
+            
+            const item = {
+                text: dataset.label,
+                fillStyle: dataset.backgroundColor,
+                strokeStyle: dataset.borderColor,
+                lineWidth: dataset.borderWidth,
+                hidden: !chart.isDatasetVisible(index),
+                index: index
+            };
+
             const color = dataset.borderColor;
             const isDashed = dataset.borderDash && dataset.borderDash.length > 0;
             
@@ -37,32 +82,30 @@ const customLegendPlugin = {
             if (isDashed) {
                 // Create dashed line marker
                 marker.style.display = 'inline-block';
-                marker.style.width = '30px';
-                marker.style.height = '2px';
+                marker.style.width = '40px';
+                marker.style.height = '3px';
                 marker.style.backgroundColor = 'transparent';
-                marker.style.borderBottom = `2px dashed ${color}`;
-                marker.style.marginRight = '8px';
+                marker.style.borderBottom = `3px dashed ${color}`;
+                marker.style.marginRight = '10px';
             } else {
-                // Create line with hollow circle marker in the middle
+                // Create line with solid circle marker in the middle
                 marker.style.display = 'inline-block';
-                marker.style.width = '30px';
-                marker.style.height = '2px';
+                marker.style.width = '40px';
+                marker.style.height = '3px';
                 marker.style.backgroundColor = 'transparent';
-                marker.style.borderBottom = `2px solid ${color}`;
+                marker.style.borderBottom = `3px solid ${color}`;
                 marker.style.position = 'relative';
-                marker.style.marginRight = '8px';
+                marker.style.marginRight = '10px';
                 
                 const circle = document.createElement('span');
                 circle.style.width = '12px';
                 circle.style.height = '12px';
                 circle.style.borderRadius = '50%';
-                circle.style.backgroundColor = 'white';
-                circle.style.border = `3px solid ${color}`;
+                circle.style.backgroundColor = dataset.pointBackgroundColor || color;
                 circle.style.position = 'absolute';
                 circle.style.top = '-5px';
                 circle.style.left = '50%';
                 circle.style.transform = 'translateX(-50%)';
-                circle.style.boxSizing = 'border-box';
                 
                 marker.appendChild(circle);
             }
@@ -74,38 +117,12 @@ const customLegendPlugin = {
             legendItem.appendChild(text);
             legendContainer.appendChild(legendItem);
         });
-
-        // --- Manual Aspect Ratio Enforcement --- 
-        // Find the wrapper div for the canvas
-        const wrapper = chart.canvas.parentNode;
-        // Make selector more general to match dPlotWrapper or r2PlotWrapper
-        if (wrapper && wrapper.id.endsWith('PlotWrapper')) { 
-            const aspectRatio = 2; // Define desired aspect ratio (width / height)
-            const newWidth = wrapper.offsetWidth; // Get current width after layout
-            const newHeight = newWidth / aspectRatio; // Calculate required height
-            
-            // Set the wrapper height explicitly
-            wrapper.style.height = `${newHeight}px`;
-        }
-
-        // Explicitly tell Chart.js to resize within the new dimensions
-        // Use requestAnimationFrame to run just before the next repaint
-        requestAnimationFrame(() => {
-            // Only resize if the chart is still attached to the DOM and not destroyed
-            // (Chart.js might set canvas to null on destroy)
-            if (chart.canvas && chart.attached) {
-                try {
-                    chart.resize();
-                } catch (e) {
-                    console.error("Error during chart.resize within requestAnimationFrame:", e, chart);
-                }
-            }
-        });
     }
 };
 
 // Export the plugin
 window.customLegendPlugin = customLegendPlugin;
+window.targetLineLabelPlugin = targetLineLabelPlugin;
 
 // Tooltip positioning
 document.addEventListener('DOMContentLoaded', function() {
@@ -134,4 +151,4 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.setProperty('--tooltip-y', `${y}px`);
         });
     });
-}); 
+});

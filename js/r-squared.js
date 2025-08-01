@@ -1,325 +1,349 @@
 (function() {
-// Multivariate R² Calculator
-function initializeR2Calculator() {
-    // Initialize the chart
-    let r2Chart = null;
-    let datasets = [];
-    let activeCurve = null;
+    // --- State variables ---
+    let r2Chart = null, prAucChart = null;
+    let r2Datasets = [], prAucDatasets = [];
+    let r2ActiveCurve, prAucActiveCurve;
     let nextColorIndex = 0;
     
-    // Store initial values
+    const colors = ['#008080', '#E63946', '#FFA726', '#1E88E5', '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'];
+
     const initialValues = {
-        neededR2: 0.6,
+        targetR2: 0.8,
+        baseRate: 15,
         predictorCorrelation: 0.25,
-        collinearity: 0.1,
+        collinearity: 0.05,
         numPredictors: 20
     };
-    
-    // Define colors similar to Mahalanobis calculator
-    const colors = [
-        '#008080', // Teal (primary)
-        '#E63946', // Bright Red
-        '#1E88E5', // Bright Blue
-        '#FFA726', // Bright Orange
-        '#9C27B0', // Bright Purple
-        '#00A896', // Bright Teal
-        '#26A69A', // Medium Teal
-        '#7B1FA2'  // Deep Purple
-    ];
-    
-    // Get DOM elements
-    const neededR2Input = document.getElementById('needed-r2');
-    const predictorCorrelationInput = document.getElementById('predictor-correlation');
-    const predictorCorrelationSlider = document.getElementById('predictor-correlation-slider');
-    const collinearityInput = document.getElementById('collinearity');
-    const collinearitySlider = document.getElementById('collinearity-slider');
-    const numPredictorsInput = document.getElementById('num-predictors-r2');
-    const numPredictorsSlider = document.getElementById('num-predictors-r2-slider');
-    const recordButton = document.getElementById('record-r2');
-    const resetButton = document.getElementById('reset-r2');
-    
-    // Add event listeners
-    // Sync sliders with inputs
-    function syncInputAndSlider(input, slider, updateFn) {
-        slider.addEventListener('input', () => {
-            input.value = slider.value;
-            updateFn();
-        });
+
+    // --- DOM element retrieval ---
+    const getDOMElements = () => ({
+        targetR2Input: document.getElementById('target-r2'),
+        targetR2Slider: document.getElementById('target-r2-slider'),
+        r2BaseRateInput: document.getElementById('r2-base-rate'),
+        r2BaseRateSlider: document.getElementById('r2-base-rate-slider'),
+        predictorCorrelationInput: document.getElementById('predictor-correlation'),
+        predictorCorrelationSlider: document.getElementById('predictor-correlation-slider'),
+        collinearityInput: document.getElementById('collinearity'),
+        collinearitySlider: document.getElementById('collinearity-slider'),
+        numPredictorsInput: document.getElementById('num-predictors-r2'),
+        numPredictorsSlider: document.getElementById('num-predictors-r2-slider'),
+        recordButton: document.getElementById('record-r2'),
+        resetButton: document.getElementById('reset-r2')
+    });
+
+    // --- Main Initialization ---
+    function initializeR2Calculator() {
+        const elements = getDOMElements();
+        setupEventListeners(elements);
         
-        input.addEventListener('input', () => {
-            slider.value = input.value;
-            updateFn();
-        });
-    }
-    
-    syncInputAndSlider(predictorCorrelationInput, predictorCorrelationSlider, updateR2Plot);
-    syncInputAndSlider(collinearityInput, collinearitySlider, updateR2Plot);
-    syncInputAndSlider(numPredictorsInput, numPredictorsSlider, updateR2Plot);
-    
-    neededR2Input.addEventListener('input', updateR2Plot);
-    recordButton.addEventListener('click', recordR2Curve);
-    resetButton.addEventListener('click', resetCalculator);
-    
-    // Initialize the chart when the calculator loads
-    initializeR2Chart();
-    
-    // Function to calculate multivariate R²
-    function calculateMultivariateR2(p, predictorCorrelation, collinearity) {
-        // p = number of predictors
-        // predictorCorrelation = correlation of each predictor (r)
-        // collinearity = correlation between predictors (r_ij)
-        
-        // Calculate R² using the formula: R² = (pr²)/(1+(p-1)r_ij)
-        const numerator = p * predictorCorrelation * predictorCorrelation;
-        const denominator = 1 + (p - 1) * collinearity;
-        const r2 = numerator / denominator;
-        return Math.min(r2, 1.0); // Cap at 1.0
-    }
-    
-    // Function to ensure legend container exists
-    function ensureLegendContainer() {
         const chartContainer = document.getElementById('r2PlotContainer');
+        chartContainer.style.display = 'flex';
+        chartContainer.style.flexDirection = 'column';
+        chartContainer.style.gap = '20px';
+        
+        ensureLegendContainer(chartContainer);
+
+        initializeR2Chart(elements);
+        initializePrAucChart(elements);
+        
+        updatePlots();
+    }
+
+    // --- Event Listeners ---
+    function setupEventListeners(elements) {
+        const inputs = [
+            { input: elements.targetR2Input, slider: elements.targetR2Slider },
+            { input: elements.r2BaseRateInput, slider: elements.r2BaseRateSlider },
+            { input: elements.predictorCorrelationInput, slider: elements.predictorCorrelationSlider },
+            { input: elements.collinearityInput, slider: elements.collinearitySlider },
+            { input: elements.numPredictorsInput, slider: elements.numPredictorsSlider }
+        ];
+
+        inputs.forEach(({ input, slider }) => {
+            slider.addEventListener('input', () => {
+                input.value = slider.value;
+                updatePlots();
+            });
+            input.addEventListener('input', () => {
+                slider.value = input.value;
+                updatePlots();
+            });
+        });
+
+        elements.recordButton.addEventListener('click', recordCurrentCurve);
+        elements.resetButton.addEventListener('click', resetCalculator);
+    }
+
+    // --- Chart Initialization ---
+    function initializeR2Chart() {
+        if (r2Chart) r2Chart.destroy();
+        const ctx = document.getElementById('r2Plot').getContext('2d');
+        r2ActiveCurve = createActiveCurveDataset();
+        r2Chart = new Chart(ctx, createChartConfig(r2ActiveCurve, 'R²', 1, false, true));
+    }
+    
+    function initializePrAucChart() {
+        if (prAucChart) prAucChart.destroy();
+        const ctx = document.getElementById('r2PrAucPlot').getContext('2d');
+        prAucActiveCurve = createActiveCurveDataset();
+        prAucChart = new Chart(ctx, createChartConfig(prAucActiveCurve, 'PR-AUC', 1, true, false));
+    }
+
+    // --- Chart Configuration ---
+    function createChartConfig(activeCurve, yLabel, yMax, showXLabel, useLegendPlugin) {
+        const { numPredictors } = getInputs();
+        const xValues = Array.from({ length: numPredictors }, (_, i) => i + 1);
+
+        const plugins = [window.targetLineLabelPlugin];
+        if (useLegendPlugin) {
+            plugins.push(window.customLegendPlugin);
+        }
+
+        const config = {
+            type: 'line',
+            data: {
+                labels: xValues,
+                datasets: [createThresholdDataset(), activeCurve]
+            },
+            options: getChartOptions(yLabel, yMax, showXLabel),
+            plugins: plugins
+        };
+        
+        return config;
+    }
+
+    function getChartOptions(yLabel, yMax, showXLabel) {
+        const yTicksConfig = { font: { size: 14 } };
+        if (yLabel === 'PR-AUC') {
+            yTicksConfig.stepSize = 0.2;
+        }
+
+        const xTicksConfig = { font: { size: 14 } };
+        if (!showXLabel) {
+            xTicksConfig.display = false;
+        }
+
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: (tooltipItems) => `Predictors: ${tooltipItems[0].label}`,
+                        label: (context) => `${yLabel}: ${context.formattedValue}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    min: 1,
+                    max: getInputs().numPredictors,
+                    title: { display: showXLabel, text: 'Number of predictors', font: { size: 18 } },
+                    ticks: xTicksConfig,
+                    grid: { display: false }
+                },
+                y: {
+                    min: 0,
+                    max: yMax,
+                    title: { display: true, text: yLabel, font: { size: 18 } },
+                    ticks: yTicksConfig,
+                    grid: { display: false }
+                }
+            }
+        };
+    }
+
+    // --- Dataset Creation ---
+    function createActiveCurveDataset() {
+        const { predictorCorrelation, collinearity } = getInputs();
+        return {
+            label: `r = ${predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${collinearity.toFixed(2)}`,
+            data: [],
+            borderColor: colors[nextColorIndex],
+            pointBackgroundColor: colors[nextColorIndex],
+            borderWidth: 2,
+            pointRadius: 5,
+            fill: false,
+            isActive: true
+        };
+    }
+
+    function createThresholdDataset() {
+        return {
+            label: '',
+            annotationLabel: '',
+            data: [],
+            borderColor: '#000000',
+            borderWidth: 3,
+            borderDash: [8, 8],
+            pointRadius: 0,
+            fill: false
+        };
+    }
+
+    // --- Plot Update Logic ---
+    function updatePlots() {
+        if (!r2ActiveCurve) return;
+
+        const { targetR2, baseRate, predictorCorrelation, collinearity, numPredictors } = getInputs();
+        
+        // Update PR-AUC input field
+        const r = Math.sqrt(targetR2);
+        const targetPrAuc = StatUtils.rToPRAUCviaSimulation(r, baseRate);
+        document.getElementById('r2-target-pr-auc').value = targetPrAuc.toFixed(2);
+        
+        // Generate data
+        const xValues = Array.from({ length: numPredictors }, (_, i) => i + 1);
+        const r2Values = xValues.map(p => calculateMultivariateR2(p, predictorCorrelation, collinearity));
+        const prAucValues = r2Values.map(r2 => StatUtils.rToPRAUCviaSimulation(Math.sqrt(r2), baseRate));
+        
+        // Update charts
+        updateChart(r2Chart, xValues, r2Values, targetR2, `Target R²: ${targetR2.toFixed(2)}`);
+        updateChart(prAucChart, xValues, prAucValues, targetPrAuc, `Target PR-AUC: ${targetPrAuc.toFixed(2)}`);
+        
+        updateActiveCurveLabel();
+    }
+
+    function updateChart(chart, xValues, yValues, threshold, thresholdLabel) {
+        chart.data.labels = xValues;
+        chart.options.scales.x.max = xValues.length;
+        
+        const thresholdDataset = chart.data.datasets[0];
+        thresholdDataset.data = Array(xValues.length).fill(threshold);
+        thresholdDataset.annotationLabel = thresholdLabel;
+
+        const activeCurve = chart.data.datasets[chart.data.datasets.length - 1];
+        activeCurve.data = yValues;
+
+        chart.update();
+    }
+    
+    function updateActiveCurveLabel() {
+        if (!r2ActiveCurve) return;
+
+        const { predictorCorrelation, collinearity } = getInputs();
+        const label = `r = ${predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${collinearity.toFixed(2)}`;
+        r2ActiveCurve.label = label;
+        prAucActiveCurve.label = label;
+        r2Chart.update();
+        prAucChart.update();
+    }
+
+    // --- Curve Recording and Resetting ---
+    const maxCurves = 4;
+
+    function recordCurrentCurve() {
+        if (r2Datasets.length >= maxCurves) return;
+
+        const { baseRate, predictorCorrelation, collinearity, numPredictors } = getInputs();
+        const xValues = Array.from({ length: numPredictors }, (_, i) => i + 1);
+
+        const r2Values = xValues.map(p => calculateMultivariateR2(p, predictorCorrelation, collinearity));
+        const prAucValues = r2Values.map(r2 => StatUtils.rToPRAUCviaSimulation(Math.sqrt(r2), baseRate));
+        
+        addDataset(r2Chart, r2Datasets, r2Values, predictorCorrelation, collinearity);
+        addDataset(prAucChart, prAucDatasets, prAucValues, predictorCorrelation, collinearity);
+
+        nextColorIndex = (nextColorIndex + 1) % colors.length;
+        
+        if (r2Datasets.length < maxCurves) {
+            updateActiveCurveColor();
+            updateActiveCurveLabel();
+        } else {
+            r2Chart.data.datasets.pop();
+            prAucChart.data.datasets.pop();
+            r2ActiveCurve = null;
+            prAucActiveCurve = null;
+            r2Chart.update();
+            prAucChart.update();
+            getDOMElements().recordButton.disabled = true;
+        }
+    }
+
+    function addDataset(chart, datasets, data, predictorCorrelation, collinearity) {
+        const newDataset = {
+            label: `r = ${predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${collinearity.toFixed(2)}`,
+            data: data,
+            borderColor: colors[nextColorIndex],
+            pointBackgroundColor: colors[nextColorIndex],
+            borderWidth: 2,
+            pointRadius: 5,
+            fill: false,
+            isActive: false
+        };
+        datasets.push(newDataset);
+        chart.data.datasets = [chart.data.datasets[0], ...datasets, chart.data.datasets[chart.data.datasets.length - 1]];
+        chart.update();
+    }
+    
+    function resetCalculator() {
+        r2Datasets = [];
+        prAucDatasets = [];
+        nextColorIndex = 0;
+
+        const elements = getDOMElements();
+        elements.targetR2Input.value = initialValues.targetR2;
+        elements.targetR2Slider.value = initialValues.targetR2;
+        elements.r2BaseRateInput.value = initialValues.baseRate;
+        elements.r2BaseRateSlider.value = initialValues.baseRate;
+        elements.predictorCorrelationInput.value = initialValues.predictorCorrelation;
+        elements.predictorCorrelationSlider.value = initialValues.predictorCorrelation;
+        elements.collinearityInput.value = initialValues.collinearity;
+        elements.collinearitySlider.value = initialValues.collinearity;
+        elements.numPredictorsInput.value = initialValues.numPredictors;
+        elements.numPredictorsSlider.value = initialValues.numPredictors;
+        
+        r2ActiveCurve = createActiveCurveDataset();
+        prAucActiveCurve = createActiveCurveDataset();
+        r2Chart.data.datasets = [r2Chart.data.datasets[0], r2ActiveCurve];
+        prAucChart.data.datasets = [prAucChart.data.datasets[0], prAucActiveCurve];
+        
+        elements.recordButton.disabled = false;
+
+        updateActiveCurveColor();
+        updatePlots();
+    }
+    
+    function updateActiveCurveColor() {
+        const solidColor = colors[nextColorIndex];
+        r2ActiveCurve.borderColor = solidColor;
+        r2ActiveCurve.pointBackgroundColor = solidColor;
+        prAucActiveCurve.borderColor = solidColor;
+        prAucActiveCurve.pointBackgroundColor = solidColor;
+        r2Chart.update();
+        prAucChart.update();
+    }
+    
+    // --- Helper Functions ---
+    function getInputs() {
+        const elements = getDOMElements();
+        return {
+            targetR2: parseFloat(elements.targetR2Input.value),
+            baseRate: parseFloat(elements.r2BaseRateInput.value) / 100,
+            predictorCorrelation: parseFloat(elements.predictorCorrelationInput.value),
+            collinearity: parseFloat(elements.collinearityInput.value),
+            numPredictors: parseInt(elements.numPredictorsInput.value)
+        };
+    }
+    
+    function calculateMultivariateR2(p, r, rij) {
+        const numerator = p * r * r;
+        const denominator = 1 + (p - 1) * rij;
+        return Math.min(numerator / denominator, 1.0);
+    }
+
+    function ensureLegendContainer(chartContainer) {
         let legendContainer = chartContainer.querySelector('.chart-legend');
         if (!legendContainer) {
             legendContainer = document.createElement('div');
             legendContainer.className = 'chart-legend';
-            legendContainer.style.marginBottom = '10px';
-            legendContainer.style.textAlign = 'center';
             chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
         }
-        return legendContainer;
-    }
-    
-    // Function to get current parameter values
-    function getCurrentParams() {
-        return {
-            neededR2: parseFloat(neededR2Input.value),
-            predictorCorrelation: parseFloat(predictorCorrelationInput.value),
-            collinearity: parseFloat(collinearityInput.value),
-            numPredictors: parseInt(numPredictorsInput.value)
-        };
-    }
-    
-    // Function to create chart configuration
-    function createChartConfig(xValues, targetR2, activeCurve) {
-        return {
-            type: 'line',
-            data: {
-                labels: xValues,
-                datasets: [
-                    {
-                        label: `Needed R² = ${targetR2}`,
-                        data: Array(xValues.length).fill(targetR2),
-                        borderColor: 'black',
-                        borderWidth: 3,
-                        borderDash: [5, 5],
-                        fill: false,
-                        pointRadius: 0
-                    },
-                    activeCurve
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: { duration: 0 },
-                transitions: { active: { animation: { duration: 0 } } },
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Number of predictors',
-                            font: { size: 16 }
-                        },
-                        ticks: { font: { size: 12 } },
-                        min: 1,
-                        max: xValues.length,
-                        grid: { display: false }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'R² value',
-                            font: { size: 16 }
-                        },
-                        ticks: { font: { size: 12 } },
-                        min: 0,
-                        max: 1,
-                        grid: { display: false }
-                    }
-                }
-            },
-            plugins: [customLegendPlugin]
-        };
-    }
-    
-    // Function to initialize the R² chart
-    function initializeR2Chart() {
-        const canvas = document.getElementById('r2Plot');
-        const ctx = canvas.getContext('2d');
-        const r2PlotWrapper = document.getElementById('r2PlotWrapper');
-        const chartContainer = document.getElementById('r2PlotContainer');
-
-        // Destroy existing chart if it exists
-        if (r2Chart) {
-            r2Chart.destroy();
-        }
-
-        // Ensure legend container exists *before* setting up flex/chart
-        const legendContainer = ensureLegendContainer(); 
-
-        // --- Setup Flex container --- 
-        chartContainer.style.display = 'flex';
-        chartContainer.style.flexDirection = 'column';
-        chartContainer.style.marginBottom = '0'; 
-        chartContainer.style.paddingBottom = '0'; 
-        
-        // --- Style Legend --- 
-        legendContainer.style.flexShrink = '0'; // Legend doesn't shrink
-        
-        // --- Wrapper takes remaining space (styled in HTML: flex-grow: 1) --- 
-
-        // Get current parameters and chart data
-        const params = getCurrentParams();
-        const xValues = Array.from({length: params.numPredictors}, (_, i) => i + 1);
-        const r2Values = xValues.map(n => 
-            calculateMultivariateR2(n, params.predictorCorrelation, params.collinearity));
-
-        // Create active curve
-        activeCurve = {
-            label: `r = ${params.predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${params.collinearity.toFixed(2)}`,
-            data: r2Values,
-            borderColor: colors[nextColorIndex % colors.length] + '80', // 50% opacity
-            backgroundColor: `${colors[nextColorIndex % colors.length]}20`,
-            borderWidth: 3,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            fill: false,
-            borderDash: [] // Solid line
-        };
-
-        // Create chart config
-        const chartConfig = createChartConfig(xValues, params.neededR2, activeCurve);
-        chartConfig.options.maintainAspectRatio = false; // Crucial for manual resize
-
-        // Create chart
-        r2Chart = new Chart(ctx, chartConfig);
     }
 
-    // Function to update the R² plot based on current parameters
-    function updateR2Plot() {
-        // Get current parameters
-        const params = getCurrentParams();
-        
-        // Update x-axis scale and labels
-        const xValues = Array.from({length: params.numPredictors}, (_, i) => i + 1);
-        r2Chart.data.labels = xValues;
-        r2Chart.options.scales.x.max = params.numPredictors;
-        
-        // Update the target line
-        r2Chart.data.datasets[0].label = `Needed R² = ${params.neededR2}`;
-        r2Chart.data.datasets[0].data = Array(params.numPredictors).fill(params.neededR2);
-        
-        // Generate data for the plot
-        const r2Values = xValues.map(n => 
-            calculateMultivariateR2(n, params.predictorCorrelation, params.collinearity));
-        
-        // Update active curve data and label
-        activeCurve.data = r2Values;
-        activeCurve.label = `r=${params.predictorCorrelation.toFixed(2)}, r<sub>ij</sub>=${params.collinearity.toFixed(2)}`;
-        
-        // Update the chart
-        r2Chart.update();
-    }
-
-    // Function to record the current R² curve
-    function recordR2Curve() {
-        const params = getCurrentParams();
-        
-        // Create a new dataset with the current parameters
-        const r2Values = Array.from({length: params.numPredictors}, (_, i) => 
-            calculateMultivariateR2(i + 1, params.predictorCorrelation, params.collinearity));
-        
-        // Create a new dataset with a different color
-        const newDataset = {
-            label: `r=${params.predictorCorrelation.toFixed(2)}, r<sub>ij</sub>=${params.collinearity.toFixed(2)}`,
-            data: r2Values,
-            borderColor: colors[nextColorIndex % colors.length],
-            backgroundColor: `${colors[nextColorIndex % colors.length]}20`,
-            borderWidth: 3,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            fill: false
-        };
-        
-        // Add to datasets array and increment color index
-        datasets.push(newDataset);
-        nextColorIndex++;
-        
-        // Ensure all datasets have consistent length
-        const currentLabels = r2Chart.data.labels;
-        datasets.forEach(dataset => {
-            if (dataset.data.length < currentLabels.length) {
-                // Extend dataset if needed
-                while (dataset.data.length < currentLabels.length) {
-                    const n = dataset.data.length + 1;
-                    // Extract parameters from label
-                    const labelMatch = dataset.label.match(/r=([\d\.]+), r<sub>ij<\/sub>=([\d\.]+)/);
-                    if (labelMatch) {
-                        const r = parseFloat(labelMatch[1]);
-                        const rij = parseFloat(labelMatch[2]);
-                        dataset.data.push(calculateMultivariateR2(n, r, rij));
-                    }
-                }
-            } else if (dataset.data.length > currentLabels.length) {
-                // Trim dataset if needed
-                dataset.data = dataset.data.slice(0, currentLabels.length);
-            }
-        });
-        
-        // Update chart datasets (keep target line first, then recorded datasets, then active curve)
-        r2Chart.data.datasets = [
-            r2Chart.data.datasets[0], // Target line
-            ...datasets, // All recorded datasets
-            activeCurve // Current active curve
-        ];
-        
-        // Update the chart
-        r2Chart.update();
-        
-        // Update the active curve to use the next color (with transparency)
-        activeCurve.borderColor = colors[nextColorIndex % colors.length] + '80'; // 50% opacity
-        r2Chart.update();
-    }
-    
-    // Function to reset the calculator
-    function resetCalculator() {
-        // Clear all datasets
-        datasets = [];
-        nextColorIndex = 0;
-        
-        // Reset all inputs to initial values
-        neededR2Input.value = initialValues.neededR2;
-        predictorCorrelationInput.value = initialValues.predictorCorrelation;
-        predictorCorrelationSlider.value = initialValues.predictorCorrelation;
-        collinearityInput.value = initialValues.collinearity;
-        collinearitySlider.value = initialValues.collinearity;
-        numPredictorsInput.value = initialValues.numPredictors;
-        numPredictorsSlider.value = initialValues.numPredictors;
-        
-        // Reset chart and update plot
-        initializeR2Chart();
-    }
-}
-
-// Export to window for external access
-window.initializeR2Calculator = initializeR2Calculator;
-
-// Initialize the R² calculator when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializeR2Calculator();
-});
-})(); 
+    // --- Export ---
+    window.initializeR2Calculator = initializeR2Calculator;
+    document.addEventListener('DOMContentLoaded', initializeR2Calculator);
+})();

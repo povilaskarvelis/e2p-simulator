@@ -206,7 +206,7 @@
                     <div>
                         <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate/prevalence %</span>
+                            <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
                             <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0" max="100" step="0.1" value="50">
                         </div>
                     </div>
@@ -314,9 +314,9 @@
 
         <!-- Mahalanobis D Calculator -->
         <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Mahalanobis D Calculator</h2>
+        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Multivariable Simulator</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores univariable group separation, this calculator extends it to multivariable space by estimating how many predictors are needed to achieve a desired level of group separation. The separation itself is quantified using Mahalanobis D, which generalizes Cohen's d to multidimensional settings.</p>
+            <p>While the interactive graph above explores a single predictor, this simulator estimates how many predictors need to be combined to achieve a desired level of real-world predictive utility. This is conveyed by two metrics: PR-AUC, which accounts for the base rate, and Mahalanobis D, a multivariate generalization of Cohen's d. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
@@ -331,17 +331,37 @@
                 </div>
                 
                 <div class="form-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="slider-label">Needed Mahalanobis D</span>
-                        <input type="number" id="neededD" title="Enter the needed Mahalanobis D" step="0.01" value="3" class="slider-value" required>
+                    <div>
+                        <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 5px;">
+                            <div class="slider-container" style="margin-bottom: 0;">
+                                <input type="range" id="targetD-slider" min="0" max="5" step="0.01" value="2.46" class="slider">
+                                <div class="slider-value-container">
+                                    <span class="slider-label">Target Mahalanobis D</span>
+                                    <input type="number" id="targetD" step="0.01" value="2.46" class="slider-value">
+                                </div>
+                            </div>
+                            <div class="slider-value-container" style="margin-top: 0;">
+                                <span class="slider-label">Target PR-AUC</span>
+                                <input type="number" id="target-pr-auc" class="metrics-input" step="any" readonly="">
+                            </div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" id="mahalanobis-base-rate-slider" min="0.1" max="99.9" step="0.01" value="10" class="slider">
+                            <div class="slider-value-container">
+                                <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
+                                <input type="number" id="mahalanobis-base-rate" min="0.1" max="99.9" step="0.01" value="10" class="slider-value">
+                            </div>
+                        </div>
                     </div>
+
+                    <hr class="input-separator">
 
                     <!-- Effect size slider -->
                     <div class="slider-container">
-                        <input type="range" id="effectSize-slider" min="0.1" max="2" step="0.01" value="0.5" class="slider">
+                        <input type="range" id="effectSize-slider" min="0.1" max="2" step="0.01" value="0.8" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Effect size of each predictor (d)</span>
-                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.5" class="slider-value">
+                            <input type="number" id="effectSize" min="0.1" max="2" step="0.01" value="0.8" class="slider-value">
                         </div>
                     </div>
 
@@ -353,7 +373,7 @@
                             <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" class="slider-value">
                         </div>
                     </div>
-
+                    
                     <!-- Number of variables slider -->
                     <div class="slider-container">
                         <input type="range" id="numVariables-slider" min="1" max="100" step="1" value="20" class="slider">
@@ -373,6 +393,9 @@
                 <div id="chartContainer">
                     <div id="dPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
                         <canvas id="dPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    </div>
+                    <div id="prAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="prAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
                     </div>
                 </div>
             </div>
@@ -440,7 +463,7 @@
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                         <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
                         <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
@@ -454,9 +477,11 @@
                         </div>
                     </div>
                     
+                    <hr class="input-separator" style="margin: 20px 0 15px;">
+                    
                     <!-- Binary Metrics -->
                     <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 15px;">
-                        <div class="metrics-header" style="margin-bottom: 8px;">
+                        <div class="metrics-header" style="margin-bottom: 5px;">
                             <span></span>
                             <span>True</span>
                             <span>Obs.</span>
@@ -513,7 +538,7 @@
                     </div>
                     
                     <!-- Precise Estimates Toggle -->
-                    <div class="precise-toggle-container">
+                    <div class="precise-toggle-container" style="margin-top: 25px;">
                         <label for="precise-estimates-checkbox-cont" class="precise-toggle-label">Get precise estimates (slow)</label>
                         <label class="toggle-switch">
                             <input type="checkbox" id="precise-estimates-checkbox-cont">
@@ -634,9 +659,9 @@
 
         <!-- Multiple R² Calculator -->
         <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Multiple R² Calculator</h2>
+        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Multivariable Simulator</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores univariable prediction, this calculator extends it to multivariable space by estimating how many predictors are needed to achieve a desired level of explained variance R².</p>
+            <p>While the interactive graph above explores a single predictor, this simulator helps estimate how many predictors need to be combined to achieve a desired level of real-world predictive utility. This is conveyed by two metrics: PR-AUC, which accounts for the base rate, and variance explained (R²). For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
@@ -651,11 +676,33 @@
                 </div>
                 
                 <div class="form-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="slider-label">Needed R²</span>
-                        <input type="number" id="needed-r2" min="0.1" max="0.9" step="0.01" value="0.6" class="slider-value" required>
+                    <div>
+                        <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 5px;">
+                            <div class="slider-container" style="margin-bottom: 0;">
+                                <input type="range" id="target-r2-slider" min="0.1" max="0.99" step="0.01" value="0.8" class="slider">
+                                <div class="slider-value-container">
+                                    <span class="slider-label">Target R²</span>
+                                    <input type="number" id="target-r2" min="0.1" max="0.99" step="0.01" value="0.8" class="slider-value">
+                                </div>
+                            </div>
+                            <div class="slider-value-container" style="margin-top: 0;">
+                                <span class="slider-label">Target PR-AUC</span>
+                                <input type="number" id="r2-target-pr-auc" class="metrics-input" step="any" readonly="">
+                            </div>
+                        </div>
+                        
+                        <!-- Base Rate slider -->
+                        <div class="slider-container">
+                            <input type="range" id="r2-base-rate-slider" min="0.1" max="99.9" step="0.1" value="15" class="slider">
+                            <div class="slider-value-container">
+                                <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
+                                <input type="number" id="r2-base-rate" min="0.1" max="99.9" step="0.1" value="15" class="slider-value">
+                            </div>
+                        </div>
                     </div>
-                    
+
+                    <hr class="input-separator">
+
                     <!-- Predictor correlation slider -->
                     <div class="slider-container">
                         <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.25" class="slider">
@@ -667,10 +714,10 @@
                     
                     <!-- Collinearity slider -->
                     <div class="slider-container">
-                        <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.1" class="slider">
+                        <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.05" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Collinearity among predictors (r_ij)</span>
-                            <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.1" class="slider-value">
+                            <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.05" class="slider-value">
                         </div>
                     </div>
                     
@@ -692,9 +739,11 @@
             
             <div class="section">
                 <div id="r2PlotContainer">
-                    <!-- Legend will be inserted here by JS -->
-                    <div id="r2PlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;"> <!-- Flex wrapper -->
+                    <div id="r2PlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
                         <canvas id="r2Plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    </div>
+                    <div id="r2PrAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="r2PrAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
                     </div>
                 </div>
             </div>

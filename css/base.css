@@ -493,7 +493,7 @@ input.slider-value,
     width: 100%;
     margin-bottom: 50px;
     height: auto;
-    min-height: 550px;
+    min-height: 600px;
     flex-wrap: wrap;
 }
 
@@ -502,7 +502,7 @@ input.slider-value,
     background-color: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 35px 35px 25px 30px;
+    padding: 5px 30px;
     overflow: hidden;
     min-height: 0;
     height: 100%;
@@ -534,7 +534,7 @@ input.slider-value,
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     width: 100%;
     margin: 0 auto;
 }
@@ -544,10 +544,10 @@ input.slider-value,
 #r2PlotContainer,
 #dcaPlotContainer {
     height: 100%;
-    max-height: 500px;
     width: 100%;
     position: relative;
     margin: 20px 0;
+    flex-grow: 1;
 }
 
 #dPlot,
@@ -561,7 +561,7 @@ input.slider-value,
 
 /* Chart Legend */
 .chart-legend {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     text-align: center;
     display: flex;
     flex-wrap: wrap;
@@ -859,6 +859,7 @@ input[type="range"]::-webkit-slider-thumb {
     /* Firefox-specific input styling to match Chrome/Edge */
     input[type="range"] {
         -moz-appearance: none;
+        appearance: none;
         width: 100%;
         margin: 4px 0;
         padding: 0;
@@ -897,16 +898,19 @@ input[type="range"]::-webkit-slider-thumb {
     /* Number input styling - hide arrows by default */
     input[type="number"] {
         -moz-appearance: textfield;
+        appearance: textfield;
     }
     
     /* Show arrows only on hover for editable inputs (not readonly) */
     input[type="number"]:not([readonly]):hover {
         -moz-appearance: auto;
+        appearance: auto;
     }
     
     /* Always hide arrows for readonly inputs (observed metrics) */
     input[type="number"][readonly]:hover {
         -moz-appearance: textfield !important;
+        appearance: textfield !important;
     }
     
     /* Consistent sizing for number inputs */
@@ -960,4 +964,11 @@ input[type="range"]::-webkit-slider-thumb {
     color: white;
     border-radius: 4px;
     padding: 4px 8px;
+}
+
+.input-separator {
+    border: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 10px 0;
 }
