@@ -5,7 +5,7 @@
     <meta name="description" content="An interactive tool for estimating real-world predictive utility of research findings">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>E2P Simulator | Understanding Real-World Predictive Utility</title>
+    <title>E2P Simulator | From Effect Size to Real-World Predictive Utility</title>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VDYP5LLPT5"></script>
@@ -314,9 +314,9 @@
 
         <!-- Mahalanobis D Calculator -->
         <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Multivariable Simulator</h2>
+        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From a Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, this simulator estimates how many predictors need to be combined to achieve a desired level of real-world predictive utility. This is conveyed by two metrics: PR-AUC, which accounts for the base rate, and Mahalanobis D, a multivariate generalization of Cohen's d. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, and then computing PR-AUC, which is sensitive to the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
@@ -369,7 +369,7 @@
                     <div class="slider-container">
                         <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" class="slider">
                         <div class="slider-value-container">
-                            <span class="slider-label">Collinearity among predictors (r_ij)</span>
+                            <span class="slider-label">Collinearity among predictors (r<sub>ij</sub>)</span>
                             <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" class="slider-value">
                         </div>
                     </div>
@@ -659,9 +659,9 @@
 
         <!-- Multiple R² Calculator -->
         <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Multivariable Simulator</h2>
+        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From a Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, this simulator helps estimate how many predictors need to be combined to achieve a desired level of real-world predictive utility. This is conveyed by two metrics: PR-AUC, which accounts for the base rate, and variance explained (R²). For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
@@ -716,7 +716,7 @@
                     <div class="slider-container">
                         <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.05" class="slider">
                         <div class="slider-value-container">
-                            <span class="slider-label">Collinearity among predictors (r_ij)</span>
+                            <span class="slider-label">Collinearity among predictors (r<sub>ij</sub>)</span>
                             <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.05" class="slider-value">
                         </div>
                     </div>
