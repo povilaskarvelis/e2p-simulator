@@ -761,20 +761,20 @@ input.slider-value,
 }
 
 .threshold-buttons .toggle-button {
-    background-color: #ffe6e6 !important; /* light red background */
-    border: 1px solid #ff9999;          /* soft red border */
-    color: #b30000;                      /* dark red text */
+    background-color: #f9f9f9 !important; /* revert to default */
+    border: 1px solid #ccc;              /* revert to default */
+    color: #222222;                      /* keep reddish text */
 }
 
 .threshold-buttons .toggle-button:hover {
-    background-color: #ffcccc !important; /* slightly stronger red on hover */
-    border-color: #ff8080;
+    background-color: #e0e0e0 !important; /* default hover */
+    color: #222222;                        /* slightly darker red on hover */
 }
 
 .threshold-buttons .toggle-button.active {
-    background-color: #cc0000 !important; /* solid red when active */
-    color: #ffffff !important;
-    border-color: #b30000 !important;
+    background-color: #222222 !important; /* default active */
+    color: #ffefef !important;            /* light reddish-white text for contrast */
+    border-color: #222222 !important;
 }
 
 /* ==========================================================================
