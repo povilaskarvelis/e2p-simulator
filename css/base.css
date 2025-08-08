@@ -238,7 +238,7 @@ h1 {
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px 40px;
+    padding: 20px 20px;
     text-align: center;
     margin-top: 20px;
     position: relative;
@@ -250,14 +250,14 @@ h1 {
 
 .dashboard-metrics {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     flex-wrap: wrap;
     gap: 10px;
     position: relative;
 }
 
 .dashboard p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: #444;
     margin: 8px 0;
@@ -758,6 +758,23 @@ input.slider-value,
 .slider-container [data-tooltip] {
     overflow: visible;
     z-index: 100;
+}
+
+.threshold-buttons .toggle-button {
+    background-color: #ffe6e6 !important; /* light red background */
+    border: 1px solid #ff9999;          /* soft red border */
+    color: #b30000;                      /* dark red text */
+}
+
+.threshold-buttons .toggle-button:hover {
+    background-color: #ffcccc !important; /* slightly stronger red on hover */
+    border-color: #ff8080;
+}
+
+.threshold-buttons .toggle-button.active {
+    background-color: #cc0000 !important; /* solid red when active */
+    color: #ffffff !important;
+    border-color: #b30000 !important;
 }
 
 /* ==========================================================================

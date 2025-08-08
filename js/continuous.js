@@ -149,6 +149,24 @@ function computePredictiveMetrics(threshold, data) {
     const mcc = ((TP * TN - FP * FN) /
         Math.sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)) || 0);
     
+    // Calculate Likelihood Ratios
+    const lrPlus = sensitivity / (1 - specificity);
+    const lrMinus = (1 - sensitivity) / specificity;
+    const dor = lrPlus / lrMinus;
+    const youden = sensitivity + specificity - 1;
+    const gMean = Math.sqrt(sensitivity * specificity);
+    const nnd = 1 / (sensitivity + specificity - 1);
+    const nnm = 1 / ((1 - specificity) + (1 - sensitivity));
+
+    // Post-test probabilities
+    const baseRate = data.filter(d => d.trueClass === 1).length / data.length;
+    const preTestOdds = baseRate / (1 - baseRate);
+    const postTestOddsPlus = preTestOdds * lrPlus;
+    const postTestOddsMinus = preTestOdds * lrMinus;
+
+    const postTestProbPlus = postTestOddsPlus / (1 + postTestOddsPlus);
+    const postTestProbMinus = postTestOddsMinus / (1 + postTestOddsMinus);
+
     return {
         TP, FP, TN, FN,
         sensitivity,
@@ -159,6 +177,15 @@ function computePredictiveMetrics(threshold, data) {
         balancedAccuracy,
         f1Score,
         mcc,
+        lrPlus,
+        lrMinus,
+        dor,
+        youden,
+        gMean,
+        nnd,
+        nnm,
+        postTestProbPlus,
+        postTestProbMinus,
         fpr: 1 - specificity
     };
 }
@@ -619,7 +646,10 @@ function plotROC() {
         Plotly.purge(SELECTORS.rocPlot);
         Plotly.purge(SELECTORS.prPlot);
         // Clear dashboard too
-        document.getElementById("auc-value-cont").textContent = 'N/A';
+        const aucElement = document.getElementById("auc-value-cont");
+        if (aucElement) {
+            aucElement.textContent = 'N/A';
+        }
         // ... clear other dashboard values
         return;
     }
@@ -675,15 +705,30 @@ function plotROC() {
     const currentMetrics = computePredictiveMetrics(thresholdValue, currentLabeledData);
     
     // Update dashboard values
-    document.getElementById("auc-value-cont").textContent = auc.toFixed(2);
-    document.getElementById("accuracy-value-cont").textContent = currentMetrics.accuracy.toFixed(2);
-    document.getElementById("sensitivity-value-cont").textContent = currentMetrics.sensitivity.toFixed(2);
-    document.getElementById("specificity-value-cont").textContent = currentMetrics.specificity.toFixed(2);
-    document.getElementById("balanced-accuracy-value-cont").textContent = currentMetrics.balancedAccuracy.toFixed(2);
-    document.getElementById("f1-value-cont").textContent = currentMetrics.f1Score.toFixed(2);
-    document.getElementById("mcc-value-cont").textContent = currentMetrics.mcc.toFixed(2);
-    document.getElementById("npv-value-cont").textContent = currentMetrics.npv.toFixed(2);
-    document.getElementById("ppv-value-cont").textContent = currentMetrics.ppv.toFixed(2);
+    // Update dashboard values - only for metrics that exist
+    const metricsToUpdate = {
+        "auc-value-cont": auc,
+        "accuracy-value-cont": currentMetrics.accuracy,
+        "sensitivity-value-cont": currentMetrics.sensitivity,
+        "specificity-value-cont": currentMetrics.specificity,
+        "balanced-accuracy-value-cont": currentMetrics.balancedAccuracy,
+        "youden-value-cont": currentMetrics.youden,
+        "f1-value-cont": currentMetrics.f1Score,
+        "mcc-value-cont": currentMetrics.mcc,
+        "npv-value-cont": currentMetrics.npv,
+        "ppv-value-cont": currentMetrics.ppv,
+        "lr-plus-value-cont": currentMetrics.lrPlus,
+        "lr-minus-value-cont": currentMetrics.lrMinus,
+        "dor-value-cont": currentMetrics.dor
+    };
+
+    // Only update elements that exist
+    Object.entries(metricsToUpdate).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value.toFixed(2);
+        }
+    });
     
     // ROC Plot
     const rocTrace = {

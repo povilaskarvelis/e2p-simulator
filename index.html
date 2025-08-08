@@ -206,7 +206,7 @@
                     <div>
                         <input type="range" id="base-rate-slider" min="0" max="100" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
+                            <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate (%)</span>
                             <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0" max="100" step="0.1" value="50">
                         </div>
                     </div>
@@ -214,15 +214,19 @@
             </div>
 
             <!-- Plot 1: Overlapping distributions -->
-            <div class="main-plot-section">
+            <div class="main-plot-section" style="position: relative;">
                 <!-- Toggle buttons removed from here -->
                 <div id="overlap-plot" class="plot"></div>
+                <div class="threshold-buttons" style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px;">
+                    <button id="max-j-button" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
+                    <button id="max-f1-button" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
+                </div>
             </div>
 
-            <!-- Plot 2: ROC, PR and DCA curves -->
-            <div class="results-container">
-                <div class="roc-pr-section">
-                    <div class="plot-container">
+                        <!-- Plot 2: ROC, PR and DCA curves -->
+                <div class="results-container">
+                    <div class="roc-pr-section">
+                                                <div class="plot-container">
                         <a href="get-started.html#roc-curves" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
                             <div id="roc-plot" style="height: 100%; width: 100%;"></div>
                         </a>
@@ -246,14 +250,17 @@
         <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
             <div id="dashboard" class="dashboard">
                 <div class="dashboard-metrics">
-                    <p style="display: none;">AUC: <span id="auc-value">0.00</span></p>
-                    <p>Accuracy: <span id="accuracy-value">0.00</span></p>
-                    <p data-tooltip="Also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
-                    <p data-tooltip="Also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
+                    <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Se: <span id="sensitivity-value">0.00</span></p>
+                    <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Sp: <span id="specificity-value">0.00</span></p>
                     <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
+                    <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
+                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
+                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
+                    <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
+                    <p data-tooltip="Accuracy">Acc: <span id="accuracy-value">0.00</span></p>
                     <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
-                    <p data-tooltip="Positive Predictive Value">PPV: <span id="precision-value">0.00</span></p>
-                    <p>F1-score: <span id="f1-value">0.00</span></p>
+                    <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
+                    <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
                 </div>
             </div>
@@ -316,7 +323,9 @@
         <div style="margin-top: 50px;"></div>
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, and then computing PR-AUC, which is sensitive to the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
+            <p>
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, and then computing PR-AUC, which conveys real-world predictive utility by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.
+            </p>
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
@@ -348,7 +357,7 @@
                         <div class="slider-container">
                             <input type="range" id="mahalanobis-base-rate-slider" min="0.1" max="99.9" step="0.01" value="10" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
+                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate (%)</span>
                                 <input type="number" id="mahalanobis-base-rate" min="0.1" max="99.9" step="0.01" value="10" class="slider-value">
                             </div>
                         </div>
@@ -472,7 +481,7 @@
                     <div style="margin-top: 10px; margin-bottom: 20px;">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
+                            <span class="slider-label" data-tooltip="Prevalance of group 2 in a population">Base rate (%)</span>
                             <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
                         </div>
                     </div>
@@ -592,13 +601,17 @@
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
                     <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
-                    <p>Accuracy: <span id="accuracy-value-cont">0.00</span></p>
-                    <p data-tooltip="Also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
-                    <p data-tooltip="Also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
+                    <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Se: <span id="sensitivity-value-cont">0.00</span></p>
+                    <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Sp: <span id="specificity-value-cont">0.00</span></p>
                     <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
+                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
+                    <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
+                    <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
+                    <p data-tooltip="Accuracy">Acc: <span id="accuracy-value-cont">0.00</span></p>
                     <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
-                    <p data-tooltip="Positive Predictive Value">PPV: <span id="ppv-value-cont">0.00</span></p>
-                    <p>F1-score: <span id="f1-value-cont">0.00</span></p>
+                    <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
+                    <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
                 </div>
             </div>
@@ -695,7 +708,7 @@
                         <div class="slider-container">
                             <input type="range" id="r2-base-rate-slider" min="0.1" max="99.9" step="0.1" value="15" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Percentage of cases in group 2; prevalence">Base rate (%)</span>
+                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate (%)</span>
                                 <input type="number" id="r2-base-rate" min="0.1" max="99.9" step="0.1" value="15" class="slider-value">
                             </div>
                         </div>

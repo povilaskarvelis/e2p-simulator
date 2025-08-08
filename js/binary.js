@@ -75,6 +75,23 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
     const mcc = (TP * TN - FP * FN) / 
         Math.sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN) || 1); // Avoid division by zero
     
+    // Calculate Likelihood Ratios
+    const lrPlus = sensitivity / (1 - specificity);
+    const lrMinus = (1 - sensitivity) / specificity;
+    const dor = lrPlus / lrMinus;
+    const youden = sensitivity + specificity - 1;
+    const gMean = Math.sqrt(sensitivity * specificity);
+    const nnd = 1 / (sensitivity + specificity - 1);
+    const nnm = 1 / ((1 - specificity) + (1 - sensitivity));
+
+    // Post-test probabilities
+    const preTestOdds = baseRate / (1 - baseRate);
+    const postTestOddsPlus = preTestOdds * lrPlus;
+    const postTestOddsMinus = preTestOdds * lrMinus;
+
+    const postTestProbPlus = postTestOddsPlus / (1 + postTestOddsPlus);
+    const postTestProbMinus = postTestOddsMinus / (1 + postTestOddsMinus);
+
     return {
         fpr: thresholdFPR,
         tpr: thresholdTPR,
@@ -85,9 +102,103 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
         accuracy,
         balancedAccuracy,
         f1Score,
-        mcc
+        mcc,
+        lrPlus,
+        lrMinus,
+        dor,
+        youden,
+        gMean,
+        nnd,
+        nnm,
+        postTestProbPlus,
+        postTestProbMinus
     };
 }
+
+// Helper function to find optimal threshold for Youden's J or F1
+function findOptimalThresholdBinary(metricType = 'youden') {
+    // Iterative hill-climbing search with shrinking step for very high precision
+    try {
+        const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
+        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
+        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
+        const kappa = parseFloat(document.getElementById('kappa-slider').value);
+        
+        // Compute the observed distributions
+        const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
+        const ddif = (currentView === 'true') ? trueD : obsD;
+
+        const baseRate = parseFloat(document.getElementById('base-rate-slider').value) / 100;
+
+        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
+        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
+
+        // Helper to evaluate metric value at a given threshold
+        const metricAt = t => {
+            const m = computeMetricsForBinaryDistributions(ddif, baseRate, sigma1, sigma2, t);
+            return metricType === 'f1' ? m.f1Score : m.youden;
+        };
+
+        // Use ternary search for unimodal optimization (more robust than hill-climb)
+        let left = -8;
+        let right = 8;
+        const EPSILON = 1e-6;
+
+        while (right - left > EPSILON) {
+            const third = (right - left) / 3;
+            const m1 = left + third;
+            const m2 = right - third;
+            
+            if (metricAt(m1) < metricAt(m2)) {
+                left = m1;
+            } else {
+                right = m2;
+            }
+        }
+
+        const bestT = (left + right) / 2;
+        return parseFloat(bestT.toFixed(5));
+    } catch (err) {
+        console.error('Error finding optimal threshold:', err);
+        return 0;
+    }
+}
+
+/* removed duplicate code = parseFloat(document.getElementById('true-difference-number-bin').value);
+        const obsD = parseFloat(document.getElementById('observed-difference-number-bin').value);
+        const d = (currentView === 'true') ? trueD : obsD;
+
+        // Other parameters
+        const baseRate = parseFloat(document.getElementById('base-rate-slider').value) / 100;
+        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
+        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
+
+        // Standard deviations according to current view
+        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
+        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
+
+        // Search parameters
+        const tMin = -6;
+        const tMax = 6;
+        const step = 0.01;
+
+        let bestMetric = -Infinity;
+        let bestThreshold = 0;
+
+        for (let t = tMin; t <= tMax; t += step) {
+            const metrics = computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, t);
+            const value = (metricType === 'f1') ? metrics.f1Score : metrics.youden;
+            if (value > bestMetric) {
+                bestMetric = value;
+                bestThreshold = t;
+            }
+        }
+        return bestThreshold;
+    } catch (error) {
+        console.error('Error finding optimal threshold:', error);
+        return 0;
+    }
+*/
 
 // Drawing functions
 function drawDistributions(d) {
@@ -370,14 +481,29 @@ function plotROC(d) {
         const metrics = computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thresholdValue);
 
         // Update dashboard values
-        document.getElementById("sensitivity-value").textContent = metrics.sensitivity.toFixed(2);
-        document.getElementById("specificity-value").textContent = metrics.specificity.toFixed(2);
-        document.getElementById("balanced-accuracy-value").textContent = metrics.balancedAccuracy.toFixed(2);
-        document.getElementById("accuracy-value").textContent = metrics.accuracy.toFixed(2);
-        document.getElementById("f1-value").textContent = metrics.f1Score.toFixed(2);
-        document.getElementById("mcc-value").textContent = metrics.mcc.toFixed(2);
-        document.getElementById("precision-value").textContent = metrics.ppv.toFixed(2);
-        document.getElementById("npv-value").textContent = metrics.npv.toFixed(2);
+        // Update dashboard values - only for metrics that exist
+        const metricsToUpdate = {
+            "sensitivity-value": metrics.sensitivity,
+            "specificity-value": metrics.specificity,
+            "balanced-accuracy-value": metrics.balancedAccuracy,
+            "youden-value": metrics.youden,
+            "accuracy-value": metrics.accuracy,
+            "f1-value": metrics.f1Score,
+            "mcc-value": metrics.mcc,
+            "precision-value": metrics.ppv,
+            "npv-value": metrics.npv,
+            "lr-plus-value": metrics.lrPlus,
+            "lr-minus-value": metrics.lrMinus,
+            "dor-value": metrics.dor
+        };
+
+        // Only update elements that exist
+        Object.entries(metricsToUpdate).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value.toFixed(2);
+            }
+        });
 
         // Calculate PR AUC (Average Precision)
         let prauc = 0;
@@ -805,6 +931,24 @@ function setupEventListeners() {
         trueMetricInputs.cohensU3.addEventListener("change", () => {
             updateMetricsFromCohensU3(trueMetricInputs.cohensU3.value);
         });
+
+        // Optimal threshold buttons
+        const maxJBtn = document.getElementById('max-j-button');
+        const maxF1Btn = document.getElementById('max-f1-button');
+
+        if (maxJBtn) {
+            maxJBtn.addEventListener('click', () => {
+                thresholdValue = findOptimalThresholdBinary('youden');
+                updatePlots();
+            });
+        }
+
+        if (maxF1Btn) {
+            maxF1Btn.addEventListener('click', () => {
+                thresholdValue = findOptimalThresholdBinary('f1');
+                updatePlots();
+            });
+        }
 
         // Base rate slider and input
         const baseRateSlider = document.getElementById("base-rate-slider");
