@@ -250,18 +250,31 @@
         <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
             <div id="dashboard" class="dashboard">
                 <div class="dashboard-metrics">
-                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
                     <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
-                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
-                    <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
-                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
+                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
+                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
                     <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
+                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
+                    <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
                     <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
                 </div>
             </div>
         </a>
+        
+        <!-- Predictive Metrics dashboard (Binary) -->
+        <div class="dashboard" style="margin-top: 10px;">
+            <div class="dashboard-metrics">
+                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
+                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
+                <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
+                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value">0.00</span></p>
+                <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value">0.00</span></p>
+                <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value">0.00</span></p>
+                <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value">0.00</span></p>
+            </div>
+        </div>
         
         <!-- Equations Section -->
         <div class="equations-container">
@@ -556,7 +569,7 @@
             </div>
 
             <!-- Column 2: Plots -->
-            <div class="main-plot-section">
+            <div class="main-plot-section" style="position: relative;">
                 <!-- Toggle buttons removed from here -->
                 <div class="plots-stack">
                     <div class="scatter-plots">
@@ -566,6 +579,10 @@
                     <div class="distribution-plots">
                         <div id="distribution-plot-true-cont" class="plot" style="display: none;"></div>
                         <div id="distribution-plot-observed-cont" class="plot"></div>
+                        <div class="threshold-buttons" style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px;">
+                            <button id="max-j-button-cont" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
+                            <button id="max-f1-button-cont" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -598,18 +615,31 @@
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
                     <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
-                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
                     <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
-                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
-                    <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
-                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
+                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
+                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
                     <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
+                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
+                    <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
                     <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
                 </div>
             </div>
         </a>
+
+        <!-- Predictive Metrics dashboard (Continuous) -->
+        <div class="dashboard" style="margin-top: 10px;">
+            <div class="dashboard-metrics">
+                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
+                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+                <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
+                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value-cont">0.00</span></p>
+                <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value-cont">0.00</span></p>
+                <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value-cont">0.00</span></p>
+                <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value-cont">0.00</span></p>
+            </div>
+        </div>
 
         <!-- Equations Section for Continuous -->
         <div class="equations-container">

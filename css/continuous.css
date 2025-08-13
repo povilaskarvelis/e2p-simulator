@@ -36,6 +36,7 @@
     min-height: 150px;
     display: flex;
     flex-direction: column;
+    position: relative; /* Anchor absolute children like threshold buttons to this area */
 }
 
 /* Results section */

@@ -52,7 +52,7 @@ function generateLabeledData(r) {
     // Check the state of the precise estimates checkbox
     const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
     // Corrected numPoints logic from previous user interaction if needed
-    const numPoints = preciseCheckbox && preciseCheckbox.checked ? 400000 : 50000; 
+    const numPoints = preciseCheckbox && preciseCheckbox.checked ? 800000 : 10000; 
     const numPlotPoints = 4000; // Keep plot points lower for performance
     const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
     const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
@@ -158,6 +158,15 @@ function computePredictiveMetrics(threshold, data) {
     const nnd = 1 / (sensitivity + specificity - 1);
     const nnm = 1 / ((1 - specificity) + (1 - sensitivity));
 
+    // Cohen's kappa (chance-corrected agreement) using observed marginals
+    const pYesTrue = data.filter(d => d.trueClass === 1).length / data.length;
+    const pYesPred = predictions.filter(p => p === 1).length / data.length;
+    const pNoTrue = 1 - pYesTrue;
+    const pNoPred = 1 - pYesPred;
+    const po = accuracy;
+    const peChance = pYesTrue * pYesPred + pNoTrue * pNoPred;
+    const kappa = (po - peChance) / (1 - peChance || 1);
+
     // Post-test probabilities
     const baseRate = data.filter(d => d.trueClass === 1).length / data.length;
     const preTestOdds = baseRate / (1 - baseRate);
@@ -186,8 +195,135 @@ function computePredictiveMetrics(threshold, data) {
         nnm,
         postTestProbPlus,
         postTestProbMinus,
+        kappa,
         fpr: 1 - specificity
     };
+}
+
+// Find optimal threshold on current simulated data for a given metric ('youden' or 'f1')
+function findOptimalThresholdContinuous(metricType = 'youden') {
+    try {
+        if (!currentLabeledData || currentLabeledData.length === 0) {
+            return thresholdValue;
+        }
+
+        // Build sweep arrays on a subsample to avoid heavy computation on very large datasets
+        const MAX_OPT_POINTS = isPreciseModeEnabled() ? 200000 : 50000; // higher cap in precise mode
+        const { xs, labels, posSuffix, negSuffix, posTotal, negTotal } = buildSweepData(currentLabeledData, MAX_OPT_POINTS);
+        const n = xs.length;
+        if (n === 0) return thresholdValue;
+
+        // Scan candidate thresholds at a controlled resolution
+        const MAX_CANDIDATES = isPreciseModeEnabled() ? 4000 : 2000;
+        const stepIdx = Math.max(1, Math.floor(n / MAX_CANDIDATES));
+
+        let bestMetric = -Infinity;
+        let bestThreshold = xs[0];
+
+        for (let i = 0; i < n; i += stepIdx) {
+            const TP = posSuffix[i];
+            const FP = negSuffix[i];
+            const FN = posTotal - TP;
+            const TN = negTotal - FP;
+
+            const sensitivity = TP / (TP + FN) || 0;
+            const specificity = TN / (TN + FP) || 0;
+            const ppv = TP / (TP + FP) || 0;
+            const youden = sensitivity + specificity - 1;
+            const f1 = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
+
+            const value = (metricType === 'f1') ? f1 : youden;
+            if (value > bestMetric) {
+                bestMetric = value;
+                bestThreshold = xs[i];
+            }
+        }
+
+        // Optional refinement around the coarse optimum using a larger sweep for stability
+        const REFINE_POINTS = isPreciseModeEnabled() ? Math.min(currentLabeledData.length, 400000) : 120000;
+        const refineSweep = buildSweepData(currentLabeledData, REFINE_POINTS);
+        if (refineSweep.xs.length > 0) {
+            const { xs: rx, posSuffix: rps, negSuffix: rns, posTotal: rpt, negTotal: rnt } = refineSweep;
+            const idx = lowerBound(rx, bestThreshold);
+            const windowSize = isPreciseModeEnabled() ? Math.min(10000, Math.max(2000, Math.floor(rx.length / 150))) : Math.min(5000, Math.max(1000, Math.floor(rx.length / 200)));
+            const start = Math.max(0, idx - windowSize);
+            const end = Math.min(rx.length - 1, idx + windowSize);
+            let localBest = -Infinity;
+            let localBestIdx = idx;
+            for (let i = start; i <= end; i++) {
+                const TP = rps[i];
+                const FP = rns[i];
+                const FN = rpt - TP;
+                const TN = rnt - FP;
+                const sensitivity = TP / (TP + FN) || 0;
+                const specificity = TN / (TN + FP) || 0;
+                const ppv = TP / (TP + FP) || 0;
+                const youden = sensitivity + specificity - 1;
+                const f1 = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
+                const value = (metricType === 'f1') ? f1 : youden;
+                if (value > localBest) {
+                    localBest = value;
+                    localBestIdx = i;
+                }
+            }
+            bestThreshold = rx[localBestIdx];
+        }
+
+        return bestThreshold;
+    } catch (err) {
+        console.error('Error finding optimal threshold (continuous):', err);
+        return thresholdValue;
+    }
+}
+
+// Helper: Build sorted arrays and suffix counts for a fast sweep; subsamples if needed
+function buildSweepData(data, maxPoints) {
+    try {
+        const N = data.length;
+        const stride = N > maxPoints ? Math.ceil(N / maxPoints) : 1;
+        // Subsample deterministically by stride to keep distribution structure
+        const sampled = stride === 1 ? data : data.filter((_, idx) => idx % stride === 0);
+        // Sort by x ascending
+        const sorted = sampled.slice().sort((a, b) => a.x - b.x);
+        const n = sorted.length;
+        const xs = new Array(n);
+        const labels = new Array(n);
+        for (let i = 0; i < n; i++) {
+            xs[i] = sorted[i].x;
+            labels[i] = sorted[i].trueClass === 1 ? 1 : 0;
+        }
+        // Build suffix counts for class 1 and class 0
+        const posSuffix = new Array(n);
+        const negSuffix = new Array(n);
+        let posCount = 0;
+        let negCount = 0;
+        for (let i = n - 1; i >= 0; i--) {
+            if (labels[i] === 1) posCount++; else negCount++;
+            posSuffix[i] = posCount;
+            negSuffix[i] = negCount;
+        }
+        const posTotal = posCount;
+        const negTotal = negCount;
+        return { xs, labels, posSuffix, negSuffix, posTotal, negTotal };
+    } catch (e) {
+        console.error('Error building sweep data:', e);
+        return { xs: [], labels: [], posSuffix: [], negSuffix: [], posTotal: 0, negTotal: 0 };
+    }
+}
+
+// Helper: lower bound index (first i where arr[i] >= value)
+function lowerBound(arr, value) {
+    let left = 0, right = arr.length;
+    while (left < right) {
+        const mid = (left + right) >> 1;
+        if (arr[mid] < value) left = mid + 1; else right = mid;
+    }
+    return Math.max(0, Math.min(arr.length - 1, left));
+}
+
+function isPreciseModeEnabled() {
+    const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
+    return !!(preciseCheckbox && preciseCheckbox.checked);
 }
 
 // Cleanup function for switching views
@@ -495,31 +631,7 @@ function drawDistributions(tealX, grayX, type) {
         .style("color", "black")
         .text("Count");
 
-    // Variance annotation - Adjust positioning based on viewBox to match original approx location
-    const varianceRatio = (esMetrics.varianceGray / esMetrics.varianceTeal).toFixed(2);
-    const varianceFontSize = PLOT_CONFIG.fontSize.annotationText * 1.2;
-    
-    newSvg.append("foreignObject")
-        .attr("class", "variance-annotation") 
-        // Restore original positioning logic relative to viewBox/margins
-        .attr("x", PLOT_CONFIG.viewBoxWidth - PLOT_CONFIG.margin.right - 300) // Position near right edge
-        .attr("y", PLOT_CONFIG.margin.top + 170) // Position relative to top margin
-        .attr("width", 300)
-        .attr("height", 120)
-        .append("xhtml:div")
-        .style("font-size", `${PLOT_CONFIG.fontSize.annotationText}px`)
-        .style("font-weight", "bold")
-        .style("text-align", "center")
-        .html(`
-            <div style="display: inline-flex; align-items: center; justify-content: center;">
-                <div style="display: inline-block; text-align: center; position: relative;">
-                    <div style="color: #777777; padding: 0 5px; font-size: ${varianceFontSize}px;">σ₁²</div>
-                    <div style="height: 3px; background-color: #333333; margin: 8px auto; width: 50px;"></div>
-                    <div style="color: teal; padding: 0 5px; font-size: ${varianceFontSize}px;">σ₂²</div>
-                </div>
-                <span style="color: #444444; margin-left: 20px;"> = ${varianceRatio}</span>
-            </div>
-        `);
+    // Removed variance ratio annotation display
 
     // Legend - Adjust positioning based on viewBox
     const urlParams = parseURLParams();
@@ -653,20 +765,34 @@ function plotROC() {
         // ... clear other dashboard values
         return;
     }
-    // Generate ROC and PR curve points using currentLabeledData
-    const uniqueXValues = Array.from(new Set(currentLabeledData.map(d => d.x))).sort((a, b) => a - b);
-    const stepSize = Math.max(1, Math.floor(uniqueXValues.length / 500)); // Limit to ~500 points for performance
-    const thresholds = uniqueXValues.filter((_, i) => i % stepSize === 0);
+    // Build ROC and PR curves using a single sweep on a subsample for stability
+    const MAX_CURVE_POINTS_INPUT = isPreciseModeEnabled() ? 200000 : 100000; // higher cap in precise mode
+    const sweep = buildSweepData(currentLabeledData, MAX_CURVE_POINTS_INPUT);
+    const { xs, posSuffix, negSuffix, posTotal, negTotal } = sweep;
+    const n = xs.length;
+    const targetCurvePoints = isPreciseModeEnabled() ? 900 : 500;
+    const stepIdx = Math.max(1, Math.floor(n / targetCurvePoints));
 
-    const curvePoints = thresholds.map(t => computePredictiveMetrics(t, currentLabeledData));
+    const FPR = [];
+    const TPR = [];
+    const precision = [];
+    const recall = [];
+    for (let i = 0; i < n; i += stepIdx) {
+        const TP = posSuffix[i];
+        const FP = negSuffix[i];
+        const FN = posTotal - TP;
+        const TN = negTotal - FP;
+        const sens = TP / (TP + FN) || 0;
+        const spec = TN / (TN + FP) || 0;
+        const fpr = 1 - spec;
+        const prec = TP / (TP + FP) || 0;
+        FPR.push(fpr);
+        TPR.push(sens);
+        precision.push(prec);
+        recall.push(sens);
+    }
 
-    // Arrays for plotting
-    const FPR = curvePoints.map(p => p.fpr);
-    const TPR = curvePoints.map(p => p.sensitivity);
-    const precision = curvePoints.map(p => p.ppv);
-    const recall = TPR; // recall is the same as sensitivity/TPR
-
-    // Calculate AUC properly using trapezoidal rule
+    // Calculate AUC using trapezoidal rule on monotone FPR sequence
     let auc = 0;
     for (let i = 1; i < FPR.length; i++) {
         auc += (FPR[i-1] - FPR[i]) * (TPR[i] + TPR[i-1]) / 2;  // Reversed the order of FPR difference
@@ -701,7 +827,7 @@ function plotROC() {
         prauc += deltaRecall * avgPrecision;
     }
 
-    // Get metrics at current threshold using currentLabeledData
+    // Get metrics at current threshold using full currentLabeledData (single pass)
     const currentMetrics = computePredictiveMetrics(thresholdValue, currentLabeledData);
     
     // Update dashboard values
@@ -719,7 +845,11 @@ function plotROC() {
         "ppv-value-cont": currentMetrics.ppv,
         "lr-plus-value-cont": currentMetrics.lrPlus,
         "lr-minus-value-cont": currentMetrics.lrMinus,
-        "dor-value-cont": currentMetrics.dor
+        "dor-value-cont": currentMetrics.dor,
+        "gmean-value-cont": currentMetrics.gMean,
+        "posttest-plus-value-cont": currentMetrics.postTestProbPlus,
+        "posttest-minus-value-cont": currentMetrics.postTestProbMinus,
+        "kappa-value-cont": currentMetrics.kappa
     };
 
     // Only update elements that exist
@@ -1057,6 +1187,22 @@ function setupEventListeners() {
         togglePlotVisibility(); // Handles scatter/distribution visibility
         plotROC(); // Update ROC/PR plot with current data & threshold
     });
+
+    // Maximize buttons for continuous: use real simulated data
+    const maxJBtnCont = document.getElementById('max-j-button-cont');
+    const maxF1BtnCont = document.getElementById('max-f1-button-cont');
+    if (maxJBtnCont) {
+        maxJBtnCont.addEventListener('click', () => {
+            const bestT = findOptimalThresholdContinuous('youden');
+            updateThreshold(bestT);
+        });
+    }
+    if (maxF1BtnCont) {
+        maxF1BtnCont.addEventListener('click', () => {
+            const bestT = findOptimalThresholdContinuous('f1');
+            updateThreshold(bestT);
+        });
+    }
 }
 
 // Main initialization function - Now much smaller and focused on orchestration
@@ -1102,8 +1248,12 @@ function initializeContinuous(initialThreshold) {
 // Function to update threshold value and redraw
 function updateThreshold(newThreshold) {
     thresholdValue = newThreshold;
-    // Redraw plots to reflect the new threshold
-    updatePlots();
+    // Update ROC/PR/DCA based on existing currentLabeledData without regenerating data
+    plotROC();
+    // Redraw the threshold line on the active distribution plot
+    const type = (currentView === "true") ? "true" : "observed";
+    const metrics = (type === "true") ? trueMetrics : observedMetrics;
+    drawThreshold(metrics, type);
 }
 
 // Export for main.js

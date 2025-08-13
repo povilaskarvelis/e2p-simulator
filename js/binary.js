@@ -84,6 +84,15 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
     const nnd = 1 / (sensitivity + specificity - 1);
     const nnm = 1 / ((1 - specificity) + (1 - sensitivity));
 
+    // Cohen's kappa (chance-corrected agreement)
+    const pYesTrue = baseRate;
+    const pYesPred = TP + FP; // predicted positive rate
+    const pNoTrue = 1 - pYesTrue;
+    const pNoPred = 1 - pYesPred;
+    const po = accuracy; // observed agreement
+    const peChance = pYesTrue * pYesPred + pNoTrue * pNoPred; // chance agreement from marginals
+    const kappa = (po - peChance) / (1 - peChance || 1);
+
     // Post-test probabilities
     const preTestOdds = baseRate / (1 - baseRate);
     const postTestOddsPlus = preTestOdds * lrPlus;
@@ -111,7 +120,8 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
         nnd,
         nnm,
         postTestProbPlus,
-        postTestProbMinus
+            postTestProbMinus,
+            kappa
     };
 }
 
@@ -163,42 +173,6 @@ function findOptimalThresholdBinary(metricType = 'youden') {
         return 0;
     }
 }
-
-/* removed duplicate code = parseFloat(document.getElementById('true-difference-number-bin').value);
-        const obsD = parseFloat(document.getElementById('observed-difference-number-bin').value);
-        const d = (currentView === 'true') ? trueD : obsD;
-
-        // Other parameters
-        const baseRate = parseFloat(document.getElementById('base-rate-slider').value) / 100;
-        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
-        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
-
-        // Standard deviations according to current view
-        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
-        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
-
-        // Search parameters
-        const tMin = -6;
-        const tMax = 6;
-        const step = 0.01;
-
-        let bestMetric = -Infinity;
-        let bestThreshold = 0;
-
-        for (let t = tMin; t <= tMax; t += step) {
-            const metrics = computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, t);
-            const value = (metricType === 'f1') ? metrics.f1Score : metrics.youden;
-            if (value > bestMetric) {
-                bestMetric = value;
-                bestThreshold = t;
-            }
-        }
-        return bestThreshold;
-    } catch (error) {
-        console.error('Error finding optimal threshold:', error);
-        return 0;
-    }
-*/
 
 // Drawing functions
 function drawDistributions(d) {
@@ -494,7 +468,11 @@ function plotROC(d) {
             "npv-value": metrics.npv,
             "lr-plus-value": metrics.lrPlus,
             "lr-minus-value": metrics.lrMinus,
-            "dor-value": metrics.dor
+            "dor-value": metrics.dor,
+            "gmean-value": metrics.gMean,
+            "posttest-plus-value": metrics.postTestProbPlus,
+            "posttest-minus-value": metrics.postTestProbMinus,
+            "kappa-value": metrics.kappa
         };
 
         // Only update elements that exist
