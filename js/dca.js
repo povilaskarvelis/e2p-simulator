@@ -140,7 +140,6 @@ const DCAModule = {
             
             // Calculate Delta NB and NR_100 at current threshold position
             let currentDeltaNB = 0;
-            let currentNR100 = 0;
             let formattedDeltaNB = "0.000";
             
             if (data.currentThreshold !== undefined && data.currentMetrics !== undefined) {
@@ -166,16 +165,6 @@ const DCAModule = {
                 }
                 
                 currentDeltaNB = deltaNB[closestIndex];
-                // NR_100 = Delta NB * (1-t)/t * 100 (net reduction per 100 patients)
-                const thresholdProb = thresholdProbs[closestIndex];
-                currentNR100 = currentDeltaNB * ((1 - thresholdProb) / thresholdProb) * 100;
-            } else {
-                // Fallback to maximum values if no current threshold
-                currentDeltaNB = Math.max(...deltaNB);
-                // Find the threshold probability corresponding to max Delta NB
-                const maxIndex = deltaNB.indexOf(currentDeltaNB);
-                const thresholdProb = thresholdProbs[maxIndex];
-                currentNR100 = currentDeltaNB * ((1 - thresholdProb) / thresholdProb) * 100;
             }
             
             // Format Delta NB for display
@@ -280,7 +269,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                    text: `ΔNB: ${formattedDeltaNB}<br>NR<sub>100</sub>: ${currentNR100.toFixed(1)}`,
+                    text: `ΔNB: ${formattedDeltaNB}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right",

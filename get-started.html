@@ -213,7 +213,7 @@
         <p>Where P is Precision (PPV) and R is Recall (Sensitivity). These integrals are computed using trapezoidal numerical integration.</p>
         
         <h3 id="dca-analysis">Decision Curve Analysis (DCA)</h3>
-        <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the clinical utility of a predictive model or a single predictor by plotting net benefit across different threshold probabilities. Unlike ROC and PR curves that focus on discrimination, DCA incorporates the relative costs of false positives and false negatives, helping determine whether using a prediction model to guide treatment decisions provides more benefit than simple strategies.</p>
+        <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the utility of a predictive model or a single predictor by plotting net benefit across different threshold probabilities. Unlike ROC and PR curves that focus on discrimination, DCA incorporates the relative costs of false positives and false negatives, helping determine whether using a prediction model to guide decisions provides more benefit than simple strategies.</p>
         
         <div id="dca-diagram" style="float: right; margin: 0 0 20px 20px;">
             <img src="images/dca.png" alt="Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies" class="screenshot" style="max-width: 400px; width: 400px;">
@@ -221,40 +221,35 @@
         
         <p>A DCA plot typically includes three key curves:</p>
         <ul>
-            <li><strong>Predictor Curve</strong>: Shows the net benefit of using the predictor at different threshold probabilities. The curve's height indicates how much benefit the predictor provides compared to treating no one.</li>
-            <li><strong>Treat All</strong>: Represents the strategy of treating everyone regardless of their predicted risk. This strategy maximizes sensitivity (no false negatives) but results in many unnecessary treatments (false positives).</li>
-            <li><strong>Treat None</strong>: Represents the strategy of treating no one, which always yields zero net benefit but avoids all treatment-related harms.</li>
+            <li><strong>Model</strong>: Shows the net benefit of using the model (or a single predictor) at different threshold probabilities. </li>
+            <li><strong>All</strong>: Represents the strategy of intervening for everyone regardless of their predicted risk. This strategy maximizes sensitivity (no false negatives) but results in many unnecessary interventions (false positives).</li>
+            <li><strong>None</strong>: Represents the strategy of intervening for no one, which always yields zero net benefit but avoids all intervention-related harms.</li>
         </ul>
         
         <p>The <strong>net benefit</strong> formula accounts for both the benefits of true positives and the costs of false positives:</p>
         <div style="text-align: center; margin: 15px 0;">
             \[NB = \frac{TP}{N_{total}} - \frac{FP}{N_{total}} \times \frac{p_t}{1-p_t}\]
         </div>
-        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability, representing the odds at which a patient would be willing to accept treatment. In practical terms, p<sub>t</sub> reflects how many unnecessary interventions one is willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures the relative weighting of false positives compared to true positives. p<sub>t</sub> itself can be calculated as:</p>
+        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability, representing the odds at which one would be willing to accept an intervention. In practical terms, p<sub>t</sub> reflects how many unnecessary interventions one is willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures the relative weighting of false positives compared to true positives. p<sub>t</sub> itself can be calculated as:</p>
 
         <div style="text-align: center; margin: 15px 0;">
             \[p_t = \frac{C_{FP}}{C_{FP} + C_{FN}}\]
         </div>
-        <p>Where C<sub>FP</sub> is the cost of a false positive (unnecessary treatment) and C<sub>FN</sub> is the cost of a false negative (missed case). p<sub>t</sub> can also be estimated through clinician surveys, patient preferences, or clinical guidelines. The simulator allows you to explore a range of p<sub>t</sub> values to identify when your predictor provides meaningful clinical benefit.</p>
+
+        <p>Where C<sub>FP</sub> is the cost of a false positive (unnecessary intervention) and C<sub>FN</sub> is the cost of a false negative (missed positive case). p<sub>t</sub> can also be estimated through expert surveys, stakeholder preferences, or established guidelines.</p>
         
-        <p><strong>ΔNB (Delta Net Benefit)</strong> represents the additional clinical utility that a predictive model provides compared to the best available simple strategy (either treating all patients or treating none) at a specific threshold probability. Rather than comparing only against treating no one, ΔNB is calculated as:</p>
+        <p>What we often want to know is not the absolute NB, but added value. <strong>ΔNB (Delta Net Benefit)</strong> measures this additional utility by comparing the model against the better of the two simple strategies (either All or None) at a specific threshold probability:</p>
         <div style="text-align: center; margin: 15px 0;">
-            \[\Delta NB = NB_{\text{model}} - \max(NB_{\text{treat all}}, NB_{\text{treat none}})\]
+            \[\Delta NB = NB_{\text{model}} - \max(NB_{\text{All}}, NB_{\text{None}})\]
         </div>
-        <p>At each threshold probability, the model's net benefit is compared against whichever simple strategy performs better at that threshold. This provides a more conservative and clinically meaningful assessment of the model's added value. A positive ΔNB indicates that the predictive model offers genuine improvement over the best simple strategy, while values near zero suggest that simple strategies may be equally effective.</p>
-        
-        <p><strong>NR₁₀₀ (Net Reduction per 100)</strong> translates the net benefit into more intuitive intervention units, representing the net reduction in interventions per 100 patients when using the predictor compared to the best simple strategy:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            \[NR_{100} = \Delta NB \times \frac{1-p_t}{p_t} \times 100\]
-        </div>
-        <p>This metric helps clinicians understand the practical impact of using a prediction model. For example, if NR₁₀₀ = 5.2, it means that using the predictor would result in a net reduction of 5.2 interventions per 100 patients compared to the best simple strategy (treat all or treat none).</p>
-        
+        <p>At each threshold probability, the model's net benefit is compared against whichever simple strategy performs better at that threshold. This provides a more conservative and meaningful assessment of the model's added value. A positive ΔNB indicates that the predictive model offers genuine improvement over the best simple strategy, while values near zero suggest that simple strategies may be equally effective.</p>
+
         <p>DCA is particularly valuable because it:</p>
         <ul>
-            <li>Incorporates clinical context through threshold probabilities that reflect real decision-making scenarios</li>
+            <li>Incorporates the decision-making context through threshold probabilities that reflect real-world scenarios</li>
             <li>Accounts for the relative costs of different types of errors (false positives vs. false negatives)</li>
-            <li>Provides actionable insights about when a model should or should not be used clinically</li>
-            <li>Facilitates comparison between different models or strategies across various clinical contexts</li>
+            <li>Provides actionable insights about when a model should or should not be used</li>
+            <li>Facilitates comparison between different models or strategies across various contexts</li>
         </ul>
 
         <p>For more information about DCA, visit <a href="https://mskcc-epi-bio.github.io/decisioncurveanalysis" target="_blank">https://mskcc-epi-bio.github.io/decisioncurveanalysis</a>.</p>
