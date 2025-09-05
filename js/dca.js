@@ -1,5 +1,5 @@
 (function() {
-// DCA Module - Modular Decision Curve Analysis implementation
+// DCA Module - Simplified Decision Curve Analysis implementation
 const DCAModule = {
     // State variables for each DCA instance
     instances: new Map(),
@@ -8,8 +8,6 @@ const DCAModule = {
     init: function(instanceId, config) {
         this.instances.set(instanceId, {
             plotSelector: config.plotSelector,
-            thresholdMin: config.thresholdMin || 0.05,
-            thresholdMax: config.thresholdMax || 0.30,
             initialized: false,
             onThresholdChange: config.onThresholdChange || (() => {})
         });
@@ -44,7 +42,11 @@ const DCAModule = {
             const {
                 sensitivity,
                 specificity,
-                baseRate
+                baseRate,
+                // ROC curve data for proper DCA calculation
+                FPR,
+                TPR,
+                thresholds
             } = data;
             
             // Calculate net benefit across threshold probabilities using current model performance
@@ -58,10 +60,59 @@ const DCAModule = {
             const treatNoneBenefits = [];
             
             for (let pt = ptMin; pt <= ptMax; pt += step) {
-                // Use current threshold's sensitivity/specificity for all threshold probabilities
                 const odds = pt / (1 - pt);
                 
-                const netBenefit = (sensitivity * baseRate) - ((1 - specificity) * (1 - baseRate) * odds);
+                // Calculate sensitivity and specificity at threshold probability pt
+                let sensitivityAtPt, specificityAtPt;
+                
+                if (FPR && TPR && FPR.length > 0 && TPR.length > 0) {
+                    // Use ROC curve data to find sensitivity and specificity at threshold pt
+                    // In DCA, pt represents the probability threshold for classification
+                    // We need to interpolate sensitivity and specificity from the ROC curve
+                    
+                    // For DCA, we need to find the point on the ROC curve that corresponds
+                    // to using pt as the classification threshold
+                    // This is a complex mapping that depends on the underlying prediction model
+                    
+                    // As a first approximation, we'll use the relationship:
+                    // pt = 0 (treat everyone) -> FPR = 1, TPR = 1
+                    // pt = 1 (treat no one) -> FPR = 0, TPR = 0
+                    // Linear interpolation: targetFPR = 1 - pt
+                    const targetFPR = 1 - pt;
+                    
+                    // Find the two closest points for interpolation
+                    let lowerIndex = 0;
+                    let upperIndex = FPR.length - 1;
+                    
+                    for (let i = 0; i < FPR.length - 1; i++) {
+                        if (FPR[i] >= targetFPR && FPR[i + 1] <= targetFPR) {
+                            lowerIndex = i;
+                            upperIndex = i + 1;
+                            break;
+                        }
+                    }
+                    
+                    // Linear interpolation
+                    const fpr1 = FPR[lowerIndex];
+                    const fpr2 = FPR[upperIndex];
+                    const tpr1 = TPR[lowerIndex];
+                    const tpr2 = TPR[upperIndex];
+                    
+                    if (fpr1 === fpr2) {
+                        sensitivityAtPt = tpr1;
+                        specificityAtPt = 1 - fpr1;
+                    } else {
+                        const weight = (targetFPR - fpr1) / (fpr2 - fpr1);
+                        sensitivityAtPt = tpr1 + weight * (tpr2 - tpr1);
+                        specificityAtPt = 1 - targetFPR;
+                    }
+                } else {
+                    // Fallback to provided sensitivity/specificity if ROC data not available
+                    sensitivityAtPt = sensitivity;
+                    specificityAtPt = specificity;
+                }
+                
+                const netBenefit = (sensitivityAtPt * baseRate) - ((1 - specificityAtPt) * (1 - baseRate) * odds);
                 
                 // Calculate treat all strategy: treat everyone regardless of test result
                 // TP = all cases, FP = all controls
@@ -73,65 +124,64 @@ const DCAModule = {
                 treatNoneBenefits.push(0); // Treat none = 0
             }
             
-            // Calculate Delta A-NBC (improvement over best simple strategy)
-            let deltaANBC = 0;
-            const rangeStart = instance.thresholdMin;
-            const rangeEnd = instance.thresholdMax;
-            
-            for (let i = 1; i < thresholdProbs.length; i++) {
-                const pt1 = thresholdProbs[i-1];
-                const pt2 = thresholdProbs[i];
-                
-                // Only include points within the selected range
-                if (pt1 >= rangeStart && pt2 <= rangeEnd) {
-                    const nb1 = netBenefits[i-1];
-                    const nb2 = netBenefits[i];
-                    const ta1 = treatAllBenefits[i-1];
-                    const ta2 = treatAllBenefits[i];
-                    
-                    // Treat none benefit is always 0
-                    const tn1 = 0;
-                    const tn2 = 0;
-                    
-                    // Find the best simple strategy at each point
-                    const bestSimple1 = Math.max(ta1, tn1); // max(treat all, treat none)
-                    const bestSimple2 = Math.max(ta2, tn2);
-                    
-                    // Calculate improvement over best simple strategy
-                    const improvement1 = nb1 - bestSimple1;
-                    const improvement2 = nb2 - bestSimple2;
-                    
-                    // Integrate the improvement (can be negative)
-                    deltaANBC += (pt2 - pt1) * (improvement1 + improvement2) / 2; // Trapezoidal rule
-                }
-            }
-            
-            // Create separate shaded areas for different strategies
-            const positiveX = [];
-            const positiveY = [];
-            const positiveBaseline = []; // For bounding the positive area
-            const treatAllShadedX = [];
-            const treatAllShadedY = [];
-            
+            // Calculate Delta NB (Net Benefit) - difference between predictor and best default strategy
+            const deltaNB = [];
             for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
-                    const netBenefit = netBenefits[i];
-                    const treatAllBenefit = treatAllBenefits[i];
-                    
-                    // Only include in positive area when model is better than both 0 and treat all
-                    if (netBenefit >= 0 && netBenefit >= treatAllBenefit) {
-                        positiveX.push(pt);
-                        positiveY.push(netBenefit);
-                        // Use the higher of 0 or treat all as the baseline
-                        positiveBaseline.push(Math.max(0, treatAllBenefit));
-                    }
-                    
-                    // Collect treat all points for shading
-                    treatAllShadedX.push(pt);
-                    treatAllShadedY.push(treatAllBenefit);
-                }
+                const predictorNB = netBenefits[i];
+                const treatAllNB = treatAllBenefits[i];
+                const treatNoneNB = 0; // Treat none is always 0
+                
+                // Find the better of the two default strategies
+                const bestDefaultNB = Math.max(treatAllNB, treatNoneNB);
+                
+                // Delta NB is the difference between predictor and best default strategy
+                deltaNB.push(predictorNB - bestDefaultNB);
             }
+            
+            // Calculate Delta NB and NR_100 at current threshold position
+            let currentDeltaNB = 0;
+            let currentNR100 = 0;
+            let formattedDeltaNB = "0.000";
+            
+            if (data.currentThreshold !== undefined && data.currentMetrics !== undefined) {
+                const currentMetrics = data.currentMetrics;
+                const currentThreshold = data.currentThreshold;
+                
+                // Scale the classification threshold to 0-1 range for threshold probability
+                // Use the actual threshold range from the data
+                const thresholdMin = data.thresholdRange ? data.thresholdRange.min : -4;
+                const thresholdMax = data.thresholdRange ? data.thresholdRange.max : 4;
+                const thresholdProbability = Math.max(0, Math.min(1, (currentThreshold - thresholdMin) / (thresholdMax - thresholdMin)));
+                
+                // Find the closest point to current threshold
+                let closestIndex = 0;
+                let minDiff = Math.abs(thresholdProbs[0] - thresholdProbability);
+                
+                for (let i = 1; i < thresholdProbs.length; i++) {
+                    const diff = Math.abs(thresholdProbs[i] - thresholdProbability);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = i;
+                    }
+                }
+                
+                currentDeltaNB = deltaNB[closestIndex];
+                // NR_100 = Delta NB * (1-t)/t * 100 (net reduction per 100 patients)
+                const thresholdProb = thresholdProbs[closestIndex];
+                currentNR100 = currentDeltaNB * ((1 - thresholdProb) / thresholdProb) * 100;
+            } else {
+                // Fallback to maximum values if no current threshold
+                currentDeltaNB = Math.max(...deltaNB);
+                // Find the threshold probability corresponding to max Delta NB
+                const maxIndex = deltaNB.indexOf(currentDeltaNB);
+                const thresholdProb = thresholdProbs[maxIndex];
+                currentNR100 = currentDeltaNB * ((1 - thresholdProb) / thresholdProb) * 100;
+            }
+            
+            // Format Delta NB for display
+            formattedDeltaNB = Math.abs(currentDeltaNB) < 0.001 ? 
+                currentDeltaNB.toExponential(2) : 
+                currentDeltaNB.toFixed(3);
             
             // Create traces
             const dcaTrace = {
@@ -141,157 +191,15 @@ const DCAModule = {
                 mode: "lines",
                 name: "Predictor",
                 line: { color: "black", width: 2 },
-                showlegend: true,
-            };
-            
-            // Treat all shaded area (gray) - reference strategy
-            const treatAllArea = {
-                x: treatAllShadedX,
-                y: treatAllShadedY,
-                type: "scatter",
-                mode: "none",
-                fill: "tozeroy",
-                fillcolor: "rgba(128, 128, 128, 0.2)", // Light gray
-                name: "Treat All Net Benefit",
                 showlegend: false,
             };
-            
-            // Positive shaded area (blue) - bounded by max(0, treat all) at bottom
-            let positiveArea = null;
-            if (positiveX.length > 0) {
-                // Create area bounded by the model curve on top and max(0, treat all) on bottom
-                const positiveXCombined = [...positiveX, ...positiveX.slice().reverse()];
-                const positiveYCombined = [...positiveY, ...positiveBaseline.slice().reverse()];
-                
-                positiveArea = {
-                    x: positiveXCombined,
-                    y: positiveYCombined,
-                    type: "scatter",
-                    mode: "none",
-                    fill: "toself",
-                    fillcolor: "rgba(46, 134, 171, 0.3)",
-                    name: "Positive Net Benefit",
-                    showlegend: false,
-                    line: { color: "transparent" }
-                };
-            } else {
-                // No positive values - empty trace
-                positiveArea = {
-                    x: [],
-                    y: [],
-                    type: "scatter",
-                    mode: "none",
-                    fill: "tozeroy",
-                    fillcolor: "rgba(46, 134, 171, 0.3)",
-                    name: "Positive Net Benefit",
-                    showlegend: false,
-                };
-            }
-            
-            // Negative shaded area (red) - represents negative contribution to A-NBC integral
-            // This should be the area between the curve and y=0 when the curve is negative
-            const negativeX = [];
-            const negativeY = [];
-            
-            // Collect only points where net benefit is actually negative and within threshold range
-            for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
-                    const netBenefit = netBenefits[i];
-                    if (netBenefit < 0) {
-                        negativeX.push(pt);
-                        negativeY.push(netBenefit);
-                    }
-                }
-            }
-            
-            let negativeArea = null;
-            if (negativeX.length > 0) {
-                // Create area between negative curve and y=0 axis
-                // This represents the actual negative contribution to the A-NBC integral
-                negativeArea = {
-                    x: negativeX,
-                    y: negativeY,
-                    type: "scatter",
-                    mode: "none",
-                    fill: "tozeroy", // Fill from curve to y=0 (negative area)
-                    fillcolor: "rgba(231, 76, 60, 0.3)",
-                    name: "Negative Net Benefit",
-                    showlegend: false,
-                    line: { color: "transparent" } // Hide the line itself
-                };
-            } else {
-                // No negative values - empty trace
-                negativeArea = {
-                    x: [],
-                    y: [],
-                    type: "scatter",
-                    mode: "none",
-                    fill: "tozeroy",
-                    fillcolor: "rgba(231, 76, 60, 0.3)",
-                    name: "Negative Net Benefit",
-                    showlegend: false,
-                };
-            }
-            
-            // Suboptimal area (red) - where model is positive but treat all is better
-            // This represents negative contribution to Delta A-NBC when treat all outperforms model
-            const suboptimalX = [];
-            const suboptimalY = [];
-            const suboptimalBaseline = [];
-            
-            // Collect points where model is positive but worse than treat all
-            for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
-                    const netBenefit = netBenefits[i];
-                    const treatAllBenefit = treatAllBenefits[i];
-                    
-                    if (netBenefit >= 0 && netBenefit < treatAllBenefit) {
-                        suboptimalX.push(pt);
-                        suboptimalY.push(netBenefit);
-                        suboptimalBaseline.push(treatAllBenefit);
-                    }
-                }
-            }
-            
-            let suboptimalArea = null;
-            if (suboptimalX.length > 0) {
-                // Create area bounded by treat all curve on top and model curve on bottom
-                const suboptimalXCombined = [...suboptimalX, ...suboptimalX.slice().reverse()];
-                const suboptimalYCombined = [...suboptimalBaseline, ...suboptimalY.slice().reverse()];
-                
-                suboptimalArea = {
-                    x: suboptimalXCombined,
-                    y: suboptimalYCombined,
-                    type: "scatter",
-                    mode: "none",
-                    fill: "toself",
-                    fillcolor: "rgba(231, 76, 60, 0.3)",
-                    name: "Suboptimal Net Benefit",
-                    showlegend: false,
-                    line: { color: "transparent" }
-                };
-            } else {
-                // No suboptimal values - empty trace
-                suboptimalArea = {
-                    x: [],
-                    y: [],
-                    type: "scatter",
-                    mode: "none",
-                    fill: "tozeroy",
-                    fillcolor: "rgba(231, 76, 60, 0.3)",
-                    name: "Suboptimal Net Benefit",
-                    showlegend: false,
-                };
-            }
             
             const treatAllTrace = {
                 x: thresholdProbs,
                 y: treatAllBenefits,
                 type: "scatter",
                 mode: "lines",
-                name: "Treat all",
+                name: "All",
                 line: { color: "#666666", dash: "dash" },
                 showlegend: true,
             };
@@ -301,35 +209,45 @@ const DCAModule = {
                 y: treatNoneBenefits,
                 type: "scatter",
                 mode: "lines",
-                name: "Treat none",
+                name: "None",
                 line: { color: "#999999", dash: "dot" },
                 showlegend: true,
             };
             
-            // Legend entries for shaded areas (invisible traces just for legend)
-            const blueLegendTrace = {
-                x: [null],
-                y: [null],
+            // Add threshold marker - convert classification threshold to threshold probability
+            let thresholdMarker = null;
+            if (data.currentThreshold !== undefined && data.currentMetrics !== undefined) {
+                const currentThreshold = data.currentThreshold;
+                const currentMetrics = data.currentMetrics;
+                
+                // Scale the classification threshold to 0-1 range for threshold probability
+                // Use the actual threshold range from the data
+                const thresholdMin = data.thresholdRange ? data.thresholdRange.min : -4;
+                const thresholdMax = data.thresholdRange ? data.thresholdRange.max : 4;
+                const thresholdProbability = Math.max(0, Math.min(1, (currentThreshold - thresholdMin) / (thresholdMax - thresholdMin)));
+                
+                // Find the closest point on the DCA curve to this threshold probability
+                let closestIndex = 0;
+                let minDiff = Math.abs(thresholdProbs[0] - thresholdProbability);
+                
+                for (let i = 1; i < thresholdProbs.length; i++) {
+                    const diff = Math.abs(thresholdProbs[i] - thresholdProbability);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = i;
+                    }
+                }
+                
+                thresholdMarker = {
+                    x: [thresholdProbs[closestIndex]],
+                    y: [netBenefits[closestIndex]],
                 type: "scatter",
                 mode: "markers",
-                marker: { color: "rgba(46, 134, 171, 0.6)", size: 12, symbol: "square" },
-                name: "Predictor better than treat all/none",
-                showlegend: true,
-            };
-            
-            const redLegendTrace = {
-                x: [null],
-                y: [null],
-                type: "scatter",
-                mode: "markers",
-                marker: { color: "rgba(231, 76, 60, 0.6)", size: 12, symbol: "square" },
-                name: "Predictor worse than treat all/none",
-                showlegend: true,
-            };
-            
-            // Calculate dynamic y-axis minimum based on negative values
-            const negativeRegionMin = negativeY.length > 0 ? Math.min(...negativeY) : 0;
-            const yAxisMin = Math.min(-0.05, negativeRegionMin * 1.1); // Expand below -0.05 if needed
+                    marker: { color: "red", size: 10 },
+                    name: "Current Threshold",
+                    showlegend: false,
+                };
+            }
             
             const dcaLayout = {
                 xaxis: { 
@@ -343,20 +261,26 @@ const DCAModule = {
                 },
                 yaxis: { 
                     title: "Net benefit", 
-                    range: [yAxisMin, Math.max(...netBenefits, ...treatAllBenefits, baseRate, 0.01) * 1.1], 
                     showgrid: false, 
                     zeroline: false,
                     titlefont: { size: 15 }
                 },
-                showlegend: false,
-                margin: { t: 20, l: 50, r: 30, b: 40 },
+                showlegend: true,
+                legend: {
+                    orientation: "h",
+                    x: 0.5,
+                    y: 1.005,
+                    xanchor: "center",
+                    yanchor: "bottom"
+                },
+                margin: { t: 2, l: 50, r: 30, b: 40 },
                 font: { size: 12 },
                 annotations: [{
                     x: 0.95,
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                    text: `ΔA-NBC:<br>${deltaANBC.toFixed(3)}`,
+                    text: `ΔNB: ${formattedDeltaNB}<br>NR<sub>100</sub>: ${currentNR100.toFixed(1)}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right",
@@ -370,475 +294,41 @@ const DCAModule = {
                 displayModeBar: false
             };
             
-            if (!instance.initialized) {
-                Plotly.newPlot(instance.plotSelector, [treatNoneTrace, treatAllTrace, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaTrace, blueLegendTrace, redLegendTrace], dcaLayout, config);
-                instance.initialized = true;
-                // Add threshold bars after initial plot
-                this.addThresholdBars(instanceId);
-            } else {
-                Plotly.react(instance.plotSelector, [treatNoneTrace, treatAllTrace, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaTrace, blueLegendTrace, redLegendTrace], dcaLayout, config);
-                // Update threshold bars position
-                this.updateThresholdBars(instanceId);
+            // Build traces array, including threshold marker if available
+            const traces = [treatAllTrace, treatNoneTrace, dcaTrace];
+            if (thresholdMarker) {
+                traces.push(thresholdMarker);
             }
+            
+            if (!instance.initialized) {
+                Plotly.newPlot(instance.plotSelector, traces, dcaLayout, config);
+                instance.initialized = true;
+            } else {
+                Plotly.react(instance.plotSelector, traces, dcaLayout, config);
+            }
+            
+            // Calculate dynamic y-axis range based on data and threshold marker
+            let allValues = [...netBenefits, ...treatAllBenefits, 0];
+            
+            // Include threshold marker position if it exists
+            if (thresholdMarker !== null) {
+                allValues.push(thresholdMarker.y[0]);
+            }
+            
+            const dataMin = Math.min(...allValues);
+            const dataMax = Math.max(...allValues);
+            
+            // Set reasonable y-axis bounds with strict limits
+            const yAxisMin = Math.max(-0.1, dataMin); // Cap at -0.1 maximum
+            const yAxisMax = Math.max(0.1, dataMax + 0.05); // Ensure at least 0.1 range
+            
+            // Update the y-axis range after the plot is rendered
+            Plotly.relayout(instance.plotSelector, {
+                'yaxis.range': [yAxisMin, yAxisMax]
+            });
             
         } catch (error) {
             console.error("Error plotting DCA:", error);
-        }
-    },
-    
-    // Add movable threshold bars to DCA plot
-    addThresholdBars: function(instanceId) {
-        const instance = this.instances.get(instanceId);
-        if (!instance) return;
-        
-        try {
-            const dcaPlotElement = document.getElementById(instance.plotSelector);
-            const plotlyDiv = dcaPlotElement._fullLayout;
-            
-            // Get plot dimensions
-            const plotArea = dcaPlotElement.querySelector('.plot');
-            if (!plotArea) return;
-            
-            // Create SVG overlay for threshold bars
-            let dcaSvg = dcaPlotElement.querySelector('.dca-threshold-overlay');
-            if (!dcaSvg) {
-                dcaSvg = document.createElement('div');
-                dcaSvg.className = 'dca-threshold-overlay';
-                dcaSvg.style.position = 'absolute';
-                dcaSvg.style.top = '0';
-                dcaSvg.style.left = '0';
-                dcaSvg.style.width = '100%';
-                dcaSvg.style.height = '100%';
-                dcaSvg.style.pointerEvents = 'none';
-                dcaSvg.style.overflow = 'visible'; // Allow overflow for tooltips
-                dcaPlotElement.style.position = 'relative';
-                dcaPlotElement.style.overflow = 'visible'; // Allow overflow on plot element
-                dcaPlotElement.appendChild(dcaSvg);
-                
-                // Create SVG element
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.style.width = '100%';
-                svg.style.height = '100%';
-                svg.style.position = 'absolute';
-                svg.style.overflow = 'visible'; // Allow SVG content to overflow
-                dcaSvg.appendChild(svg);
-                
-                // Add threshold bars
-                this.addThresholdBar(instanceId, svg, instance.thresholdMin, 'min', '#888888', dcaPlotElement);
-                this.addThresholdBar(instanceId, svg, instance.thresholdMax, 'max', '#888888', dcaPlotElement);
-            }
-            
-        } catch (error) {
-            console.error("Error adding DCA threshold bars:", error);
-        }
-    },
-    
-    // Add individual threshold bar
-    addThresholdBar: function(instanceId, svg, thresholdValue, type, color, plotElement) {
-        const instance = this.instances.get(instanceId);
-        if (!instance) return;
-        
-        try {
-            const plotlyLayout = plotElement._fullLayout;
-            const xaxis = plotlyLayout.xaxis;
-            const yaxis = plotlyLayout.yaxis;
-            
-            // Calculate position
-            const xPos = xaxis.l2p(thresholdValue) + plotlyLayout.margin.l;
-            const yStart = plotlyLayout.margin.t;
-            const yEnd = plotlyLayout.height - plotlyLayout.margin.b;
-            
-            // Create group for this threshold bar
-            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            group.setAttribute('class', `dca-threshold-${type}`);
-            group.style.cursor = 'ew-resize';
-            group.style.pointerEvents = 'all';
-            
-            // Create line
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', xPos);
-            line.setAttribute('x2', xPos);
-            line.setAttribute('y1', yStart);
-            line.setAttribute('y2', yEnd);
-            line.setAttribute('stroke', color);
-            line.setAttribute('stroke-width', '3');
-            line.setAttribute('stroke-opacity', '0.8');
-            
-            // Create invisible hitbox for easier dragging
-            const hitbox = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            hitbox.setAttribute('x', xPos - 10);
-            hitbox.setAttribute('y', yStart);
-            hitbox.setAttribute('width', '20');
-            hitbox.setAttribute('height', yEnd - yStart);
-            hitbox.setAttribute('fill', 'transparent');
-            
-            // Create SVG tooltip elements
-            const tooltipGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            tooltipGroup.setAttribute('class', `dca-tooltip-${type}`);
-            tooltipGroup.style.display = 'none';
-            
-            // Tooltip background
-            const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            tooltipBg.setAttribute('fill', 'rgba(0, 0, 0, 0.8)');
-            tooltipBg.setAttribute('rx', '4');
-            tooltipBg.setAttribute('ry', '4');
-            
-            // Tooltip text
-            const tooltipText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            tooltipText.setAttribute('fill', 'white');
-            tooltipText.setAttribute('font-family', 'Arial, sans-serif');
-            tooltipText.setAttribute('font-size', '12');
-            tooltipText.setAttribute('text-anchor', 'middle');
-            tooltipText.setAttribute('dominant-baseline', 'middle');
-            
-            tooltipGroup.appendChild(tooltipBg);
-            tooltipGroup.appendChild(tooltipText);
-            
-            group.appendChild(line);
-            group.appendChild(hitbox);
-            group.appendChild(tooltipGroup);
-            svg.appendChild(group);
-            
-            // Add drag behavior
-            let isDragging = false;
-            
-            group.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                e.preventDefault();
-                e.stopPropagation(); // Prevent the link click
-                // Show SVG tooltip
-                this.showSVGTooltip(tooltipGroup, tooltipBg, tooltipText, thresholdValue, type, xPos, yStart);
-            });
-            
-            // Prevent any clicks on threshold bars from bubbling up to the link
-            group.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            });
-            
-            // Handle mouseup on the threshold group to stop dragging
-            group.addEventListener('mouseup', (e) => {
-                if (isDragging) {
-                    isDragging = false;
-                    // Hide SVG tooltip
-                    tooltipGroup.style.display = 'none';
-                    // Trigger callback if provided
-                    instance.onThresholdChange(instance.thresholdMin, instance.thresholdMax);
-                    console.log(`DCA range: ${instance.thresholdMin.toFixed(3)} - ${instance.thresholdMax.toFixed(3)}`);
-                }
-                e.stopPropagation(); // Prevent link navigation
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                
-                const rect = plotElement.getBoundingClientRect();
-                const relativeX = e.clientX - rect.left - plotlyLayout.margin.l;
-                const newThreshold = xaxis.p2l(relativeX);
-                
-                // Constrain to plot range and ensure min < max
-                let constrainedThreshold = Math.max(0, Math.min(1, newThreshold));
-                
-                if (type === 'min') {
-                    constrainedThreshold = Math.min(constrainedThreshold, instance.thresholdMax - 0.01);
-                    instance.thresholdMin = constrainedThreshold;
-                } else {
-                    constrainedThreshold = Math.max(constrainedThreshold, instance.thresholdMin + 0.01);
-                    instance.thresholdMax = constrainedThreshold;
-                }
-                
-                // Update visual position
-                const newXPos = xaxis.l2p(constrainedThreshold) + plotlyLayout.margin.l;
-                line.setAttribute('x1', newXPos);
-                line.setAttribute('x2', newXPos);
-                hitbox.setAttribute('x', newXPos - 10);
-                
-                // Update tooltip position and value
-                this.updateSVGTooltip(tooltipGroup, tooltipBg, tooltipText, constrainedThreshold, type, newXPos, yStart);
-                
-                // Update shaded area in real time
-                this.updateShadedArea(instanceId);
-            });
-            
-            // Backup document mouseup handler in case group mouseup doesn't fire
-            document.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    // Hide SVG tooltip
-                    tooltipGroup.style.display = 'none';
-                    // Trigger callback if provided
-                    instance.onThresholdChange(instance.thresholdMin, instance.thresholdMax);
-                    console.log(`DCA range: ${instance.thresholdMin.toFixed(3)} - ${instance.thresholdMax.toFixed(3)}`);
-                }
-            });
-            
-        } catch (error) {
-            console.error("Error adding threshold bar:", error);
-        }
-    },
-    
-    // Update threshold bars when plot changes
-    updateThresholdBars: function(instanceId) {
-        const instance = this.instances.get(instanceId);
-        if (!instance) return;
-        
-        try {
-            const dcaPlotElement = document.getElementById(instance.plotSelector);
-            const overlay = dcaPlotElement.querySelector('.dca-threshold-overlay');
-            if (overlay) {
-                // Remove and recreate for simplicity
-                overlay.remove();
-                setTimeout(() => this.addThresholdBars(instanceId), 100);
-            }
-        } catch (error) {
-            console.error("Error updating DCA threshold bars:", error);
-        }
-    },
-    
-    // Show SVG tooltip
-    showSVGTooltip: function(tooltipGroup, tooltipBg, tooltipText, value, type, barX, barY) {
-        const label = type === 'min' ? 'Min' : 'Max';
-        const text = `${label}: ${value.toFixed(3)}`;
-        
-        // Update text content
-        tooltipText.textContent = text;
-        
-        // Position tooltip above the threshold bar
-        const tooltipX = barX;
-        const tooltipY = barY - 25;
-        
-        // Get text dimensions for background sizing
-        const textBBox = tooltipText.getBBox ? tooltipText.getBBox() : { width: text.length * 7, height: 12 };
-        const padding = 6;
-        
-        // Position and size the background
-        tooltipBg.setAttribute('x', tooltipX - textBBox.width/2 - padding);
-        tooltipBg.setAttribute('y', tooltipY - textBBox.height/2 - padding);
-        tooltipBg.setAttribute('width', textBBox.width + padding * 2);
-        tooltipBg.setAttribute('height', textBBox.height + padding * 2);
-        
-        // Position the text
-        tooltipText.setAttribute('x', tooltipX);
-        tooltipText.setAttribute('y', tooltipY);
-        
-        // Show the tooltip
-        tooltipGroup.style.display = 'block';
-    },
-    
-    // Update SVG tooltip
-    updateSVGTooltip: function(tooltipGroup, tooltipBg, tooltipText, value, type, barX, barY) {
-        const label = type === 'min' ? 'Min' : 'Max';
-        const text = `${label}: ${value.toFixed(3)}`;
-        
-        // Update text content
-        tooltipText.textContent = text;
-        
-        // Position tooltip above the threshold bar
-        const tooltipX = barX;
-        const tooltipY = barY - 25;
-        
-        // Get text dimensions for background sizing
-        const textBBox = tooltipText.getBBox ? tooltipText.getBBox() : { width: text.length * 7, height: 12 };
-        const padding = 6;
-        
-        // Position and size the background
-        tooltipBg.setAttribute('x', tooltipX - textBBox.width/2 - padding);
-        tooltipBg.setAttribute('y', tooltipY - textBBox.height/2 - padding);
-        tooltipBg.setAttribute('width', textBBox.width + padding * 2);
-        tooltipBg.setAttribute('height', textBBox.height + padding * 2);
-        
-        // Position the text
-        tooltipText.setAttribute('x', tooltipX);
-        tooltipText.setAttribute('y', tooltipY);
-    },
-
-    // Update shaded areas in real time
-    updateShadedArea: function(instanceId) {
-        const instance = this.instances.get(instanceId);
-        if (!instance) return;
-        
-        try {
-            const dcaPlotElement = document.getElementById(instance.plotSelector);
-            if (!dcaPlotElement || !dcaPlotElement.data) return;
-            
-            // Trace indices: 0=treatNone, 1=treatAll, 2=treatAllArea, 3=negativeArea, 4=suboptimalArea, 5=positiveArea, 6=dcaCurve
-            const negativeAreaIndex = 3;
-            const suboptimalAreaIndex = 4;
-            const positiveAreaIndex = 5;
-            const mainCurveIndex = 6;
-            
-            if (dcaPlotElement.data.length <= mainCurveIndex) return;
-            
-            const thresholdProbs = dcaPlotElement.data[mainCurveIndex].x;
-            const netBenefits = dcaPlotElement.data[mainCurveIndex].y;
-            
-            // Get treat all data from the plot
-            const treatAllData = dcaPlotElement.data[1]; // Index 1 is treat all trace
-            const treatAllBenefits = treatAllData.y;
-            
-            // Create separate shaded areas for different strategies
-            const positiveX = [];
-            const positiveY = [];
-            const positiveBaseline = []; // For bounding the positive area
-            const treatAllShadedX = [];
-            const treatAllShadedY = [];
-            
-            for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
-                    const netBenefit = netBenefits[i];
-                    const treatAllBenefit = treatAllBenefits[i];
-                    
-                    // Only include in positive area when model is better than both 0 and treat all
-                    if (netBenefit >= 0 && netBenefit >= treatAllBenefit) {
-                        positiveX.push(pt);
-                        positiveY.push(netBenefit);
-                        // Use the higher of 0 or treat all as the baseline
-                        positiveBaseline.push(Math.max(0, treatAllBenefit));
-                    }
-                    
-                    // Collect treat all points for shading
-                    treatAllShadedX.push(pt);
-                    treatAllShadedY.push(treatAllBenefit);
-                }
-            }
-            
-            // Create negative area data - area between curve and y=0 when curve is negative
-            const finalNegativeX = [];
-            const finalNegativeY = [];
-            
-            // Collect only points where net benefit is actually negative and within threshold range
-            for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
-                    const netBenefit = netBenefits[i];
-                    if (netBenefit < 0) {
-                        finalNegativeX.push(pt);
-                        finalNegativeY.push(netBenefit);
-                    }
-                }
-            }
-            
-            // Create suboptimal area data - where model is positive but treat all is better
-            const suboptimalX = [];
-            const suboptimalY = [];
-            const suboptimalBaseline = [];
-            
-            // Collect points where model is positive but worse than treat all
-            for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                if (pt >= instance.thresholdMin && pt <= instance.thresholdMax) {
-                    const netBenefit = netBenefits[i];
-                    const treatAllBenefit = treatAllBenefits[i];
-                    
-                    if (netBenefit >= 0 && netBenefit < treatAllBenefit) {
-                        suboptimalX.push(pt);
-                        suboptimalY.push(netBenefit);
-                        suboptimalBaseline.push(treatAllBenefit);
-                    }
-                }
-            }
-            
-            // Recalculate Delta A-NBC for the new threshold range (improvement over best simple strategy)
-            let deltaANBC = 0;
-            
-            for (let i = 1; i < thresholdProbs.length; i++) {
-                const pt1 = thresholdProbs[i-1];
-                const pt2 = thresholdProbs[i];
-                
-                // Only include points within the selected range
-                if (pt1 >= instance.thresholdMin && pt2 <= instance.thresholdMax) {
-                    const nb1 = netBenefits[i-1];
-                    const nb2 = netBenefits[i];
-                    const ta1 = treatAllBenefits[i-1];
-                    const ta2 = treatAllBenefits[i];
-                    
-                    // Treat none benefit is always 0
-                    const tn1 = 0;
-                    const tn2 = 0;
-                    
-                    // Find the best simple strategy at each point
-                    const bestSimple1 = Math.max(ta1, tn1); // max(treat all, treat none)
-                    const bestSimple2 = Math.max(ta2, tn2);
-                    
-                    // Calculate improvement over best simple strategy
-                    const improvement1 = nb1 - bestSimple1;
-                    const improvement2 = nb2 - bestSimple2;
-                    
-                    // Integrate the improvement (can be negative)
-                    deltaANBC += (pt2 - pt1) * (improvement1 + improvement2) / 2; // Trapezoidal rule
-                }
-            }
-            
-            // Calculate dynamic y-axis minimum based on negative values in threshold range
-            const negativeRegionMin = finalNegativeY.length > 0 ? Math.min(...finalNegativeY) : 0;
-            const yAxisMin = Math.min(-0.05, negativeRegionMin * 1.1); // Expand below -0.05 if needed
-            
-            // Update all shaded area traces
-            // Note: trace order is [treatNone, treatAll, treatAllArea, negativeArea, suboptimalArea, positiveArea, dcaCurve]
-            const treatAllAreaIndex = 2;
-            
-            Plotly.restyle(instance.plotSelector, {
-                x: [treatAllShadedX],
-                y: [treatAllShadedY]
-            }, treatAllAreaIndex);
-            
-            Plotly.restyle(instance.plotSelector, {
-                x: [finalNegativeX],
-                y: [finalNegativeY]
-            }, negativeAreaIndex);
-            
-            // Update suboptimal area with bounded fill
-            if (suboptimalX.length > 0) {
-                const suboptimalXCombined = [...suboptimalX, ...suboptimalX.slice().reverse()];
-                const suboptimalYCombined = [...suboptimalBaseline, ...suboptimalY.slice().reverse()];
-                
-                Plotly.restyle(instance.plotSelector, {
-                    x: [suboptimalXCombined],
-                    y: [suboptimalYCombined],
-                    fill: ['toself'],
-                    fillcolor: ['rgba(231, 76, 60, 0.3)'],
-                    'line.color': ['transparent']
-                }, suboptimalAreaIndex);
-            } else {
-                // No suboptimal values - empty area
-                Plotly.restyle(instance.plotSelector, {
-                    x: [[]],
-                    y: [[]]
-                }, suboptimalAreaIndex);
-            }
-            
-            // Update positive area with bounded fill (similar to initial plot logic)
-            if (positiveX.length > 0) {
-                const positiveXCombined = [...positiveX, ...positiveX.slice().reverse()];
-                const positiveYCombined = [...positiveY, ...positiveBaseline.slice().reverse()];
-                
-                Plotly.restyle(instance.plotSelector, {
-                    x: [positiveXCombined],
-                    y: [positiveYCombined],
-                    fill: ['toself'],
-                    fillcolor: ['rgba(46, 134, 171, 0.3)'],
-                    'line.color': ['transparent']
-                }, positiveAreaIndex);
-            } else {
-                // No positive values - empty area
-                Plotly.restyle(instance.plotSelector, {
-                    x: [[]],
-                    y: [[]]
-                }, positiveAreaIndex);
-            }
-            
-            // Update y-axis range and A-NBC annotation
-            const currentLayout = dcaPlotElement.layout;
-            const currentYMax = currentLayout.yaxis.range[1];
-            
-            Plotly.relayout(instance.plotSelector, {
-                'yaxis.range': [yAxisMin, currentYMax],
-                'annotations[0].text': `ΔA-NBC:<br>${deltaANBC.toFixed(3)}`
-            });
-            
-        } catch (error) {
-            console.error("Error updating shaded areas:", error);
         }
     },
     
@@ -851,27 +341,6 @@ const DCAModule = {
                 Plotly.purge(instance.plotSelector);
             }
             this.instances.delete(instanceId);
-        }
-    },
-    
-    // Get current threshold range for an instance
-    getThresholdRange: function(instanceId) {
-        const instance = this.instances.get(instanceId);
-        if (instance) {
-            return {
-                min: instance.thresholdMin,
-                max: instance.thresholdMax
-            };
-        }
-        return null;
-    },
-    
-    // Update threshold range for an instance
-    setThresholdRange: function(instanceId, min, max) {
-        const instance = this.instances.get(instanceId);
-        if (instance) {
-            instance.thresholdMin = min;
-            instance.thresholdMax = max;
         }
     }
 };

@@ -973,7 +973,15 @@ function plotROC() {
         DCAModule.plot('continuous', {
             sensitivity: currentMetrics.sensitivity,
             specificity: currentMetrics.specificity,
-            baseRate: baseRate
+            baseRate: baseRate,
+            // Pass ROC curve data for proper DCA calculation
+            FPR: FPR,
+            TPR: TPR,
+            // Pass current threshold and metrics for marker positioning
+            currentThreshold: thresholdValue,
+            currentMetrics: currentMetrics,
+            // Pass threshold range for proper scaling
+            thresholdRange: { min: -4, max: 4 }
         });
     }
 }
@@ -1221,11 +1229,7 @@ function initializeContinuous(initialThreshold) {
     // Initialize DCA module if available
     if (typeof DCAModule !== 'undefined') {
         DCAModule.init('continuous', {
-            plotSelector: SELECTORS.dcaPlot,
-            thresholdRange: { min: 0.05, max: 0.30 },
-            onThresholdChange: (min, max) => {
-                console.log(`DCA continuous range: ${min.toFixed(3)} - ${max.toFixed(3)}`);
-            }
+            plotSelector: SELECTORS.dcaPlot
         });
     }
     

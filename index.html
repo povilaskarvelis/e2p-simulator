@@ -615,13 +615,13 @@
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
                     <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
+                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
                     <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
-                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
-                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
+                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+
                     <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
                     <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
-                    <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
                     <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
                 </div>
@@ -631,12 +631,13 @@
         <!-- Predictive Metrics dashboard (Continuous) -->
         <div class="dashboard" style="margin-top: 10px;">
             <div class="dashboard-metrics">
-                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
-                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+                <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
+                <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
                 <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
-                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value-cont">0.00</span></p>
                 <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value-cont">0.00</span></p>
                 <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value-cont">0.00</span></p>
+                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value-cont">0.00</span></p>
+                <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
                 <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value-cont">0.00</span></p>
             </div>
         </div>
@@ -837,7 +838,7 @@
                 <!-- Shrinkage criterion -->
                 <div class="equation-box flat">
                     <p class="equation-title">Shrinkage criterion (minimizes overfitting)</p>
-                    <div class="equation-content">\[N = \dfrac{p}{(1-S)\,[-\ln(1- R^2_{CS})]}\]</div>
+                    <div class="equation-content">\[N = \dfrac{p}{(S-1)\,\ln(1- R^2_{CS}/S)}\]</div>
                 </div>
                 <div class="slider-container">
                     <input type="range" id="ssb-r2cs-slider" min="0.01" max="0.9" step="0.01" value="0.2" class="slider">
@@ -889,7 +890,7 @@
     </div>
 
     <!-- Continuous Outcome: Required Sample Size -->
-    <div class="container ss-cont-container" id="ss-cont-container">
+    <div class="container ss-cont-container" id="ss-cont-container" style="display: none;">
         <div class="section sliders">
             <div class="form-container">
                 <div class="slider-container">
@@ -900,6 +901,21 @@
                     </div>
                 </div>
 
+                <hr class="input-separator">
+
+                <!-- Residual SD precision criterion -->
+                <div class="equation-box flat">
+                    <p class="equation-title">Residual SD precision criterion (≤10% multiplicative error)</p>
+                    <div class="equation-content">\[N = 234 + p\]</div>
+                </div>
+
+                <hr class="input-separator">
+
+                <!-- Shrinkage criterion -->
+                <div class="equation-box flat">
+                    <p class="equation-title">Shrinkage criterion</p>
+                    <div class="equation-content">\[N = \dfrac{p}{(S-1)\,\ln(1- R^2/S)}\]</div>
+                </div>
                 <div class="slider-container">
                     <input type="range" id="ssc-r2-slider" min="0.01" max="0.95" step="0.01" value="0.5" class="slider">
                     <div class="slider-value-container">
@@ -907,7 +923,6 @@
                         <input type="number" id="ssc-r2" min="0.01" max="0.95" step="0.01" value="0.5" class="slider-value">
                     </div>
                 </div>
-
                 <div class="slider-container">
                     <input type="range" id="ssc-shrinkage-slider" min="0.7" max="0.99" step="0.01" value="0.9" class="slider">
                     <div class="slider-value-container">
@@ -916,59 +931,32 @@
                     </div>
                 </div>
 
-                <div class="slider-container">
-                    <input type="range" id="ssc-delta-slider" min="0.01" max="0.2" step="0.005" value="0.05" class="slider">
-                    <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Maximum allowed difference between apparent and adjusted R²">Max R² optimism (Δ)</span>
-                        <input type="number" id="ssc-delta" min="0.01" max="0.2" step="0.005" value="0.05" class="slider-value">
-                    </div>
-                </div>
-
-                <div class="slider-container">
-                    <input type="range" id="ssc-sdY-slider" min="0.1" max="10" step="0.1" value="1" class="slider">
-                    <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Anticipated SD of the outcome Y in target population">SD(Y)</span>
-                        <input type="number" id="ssc-sdY" min="0.1" max="10" step="0.1" value="1" class="slider-value">
-                    </div>
-                </div>
-
-                <div class="slider-container">
-                    <input type="range" id="ssc-mean-margin-slider" min="0.01" max="1" step="0.01" value="0.1" class="slider">
-                    <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Desired half-width for mean outcome estimate (absolute units)">Mean(Y) margin m</span>
-                        <input type="number" id="ssc-mean-margin" min="0.01" max="1" step="0.01" value="0.1" class="slider-value">
-                    </div>
-                </div>
-
-                <div class="slider-value-container" style="margin-top: 10px;">
-                    <span class="slider-label">Confidence level</span>
-                    <select id="ssc-ci" class="slider-value">
-                        <option value="0.95" selected>95%</option>
-                        <option value="0.90">90%</option>
-                        <option value="0.99">99%</option>
-                    </select>
-                </div>
-
                 <hr class="input-separator">
+
+                <!-- Optimism criterion -->
+                <div class="equation-box flat">
+                    <p class="equation-title">Optimism criterion</p>
+                    <div class="equation-content">\[N = 1 + \dfrac{p(1-R^2)}{\delta}\]</div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="ssc-delta-slider" min="0.001" max="0.1" step="0.001" value="0.05" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Target small value for optimism (recommendation ≤ 0.05)">Target optimism (δ)</span>
+                        <input type="number" id="ssc-delta" min="0.001" max="0.1" step="0.001" value="0.05" class="slider-value">
+                    </div>
+                </div>
             </div>
         </div>
         <div class="section">
             <div id="sscPlotContainer">
-                <div class="equation-box flat">
-                    <p class="equation-title">Continuous outcome (linear): key criteria</p>
-                    <div class="equation-content">
-                        \[R^2_{adj} = 1 - (1-R^2)\,\frac{n-1}{n-p-1}\]
-                        <span style="font-size:0.9em; color:#666;">(used for shrinkage and optimism)</span><br/>
-                        \[n_{\Delta R^2} \ge p+1 + \frac{p(1-R^2)}{\Delta}\]
-                        <span style="font-size:0.9em; color:#666;">(limit apparent vs adjusted \(R^2\) difference ≤ \(\Delta\))</span>
+                <div class="content-bubble">
+                    <div id="ssc-results-table" class="results-summary"></div>
+                </div>
+                <div class="content-bubble plot-bubble">
+                    <div class="chart-legend"></div>
+                    <div id="sscPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="sscPlot" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
                     </div>
-                </div>
-                <div class="chart-legend"></div>
-                <div id="sscPlotWrapperP" style="position: relative; flex-grow: 1; min-height: 0;">
-                    <canvas id="sscPlotP" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
-                </div>
-                <div id="sscPlotWrapperR2" style="position: relative; flex-grow: 1; min-height: 0;">
-                    <canvas id="sscPlotR2" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
                 </div>
             </div>
         </div>

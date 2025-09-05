@@ -606,7 +606,15 @@ function plotROC(d) {
         DCAModule.plot('binary', {
             sensitivity: metrics.sensitivity,
             specificity: metrics.specificity,
-            baseRate: baseRate
+            baseRate: baseRate,
+            // Pass ROC curve data for proper DCA calculation
+            FPR: FPR,
+            TPR: TPR,
+            // Pass current threshold and metrics for marker positioning
+            currentThreshold: thresholdValue,
+            currentMetrics: metrics,
+            // Pass threshold range for proper scaling
+            thresholdRange: { min: -5.5, max: 6 }
         });
 
         if (!rocInitialized) {
@@ -1093,12 +1101,7 @@ function initializeBinary(initialThreshold) {
     // Initialize DCA module for binary mode
     if (typeof DCAModule !== 'undefined') {
         DCAModule.init('binary', {
-            plotSelector: SELECTORS.dcaPlot,
-            thresholdMin: 0.05,
-            thresholdMax: 0.30,
-            onThresholdChange: (min, max) => {
-                console.log(`DCA threshold range updated: ${min.toFixed(3)} - ${max.toFixed(3)}`);
-            }
+            plotSelector: SELECTORS.dcaPlot
         });
     }
 

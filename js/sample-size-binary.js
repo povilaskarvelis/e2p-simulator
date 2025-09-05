@@ -14,9 +14,10 @@
     function clamp01(x){ return Math.max(0, Math.min(1, x)); }
 
     function computeShrinkageN(p, S, r2cs){
-        const k = -Math.log(1 - r2cs);
-        if (!isFinite(k) || k <= 0) return NaN;
-        return p / ((1 - S) * k);
+        // Riley et al. formula: n = p / ((S-1) × [ln(1-R²_CS/S)])
+        const denominator = (S - 1) * Math.log(1 - r2cs / S);
+        if (!isFinite(denominator) || denominator <= 0) return NaN;
+        return p / denominator;
     }
 
     function computeOptimismN(p, delta, r2cs){
