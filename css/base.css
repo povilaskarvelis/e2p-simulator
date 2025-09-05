@@ -443,17 +443,17 @@ input.slider-value,
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    height: 160px;
+    min-height: 160px;
 }
 
 .equation-box.wide {
     width: 360px;
-    height: 160px;
+    min-height: 160px;
 }
 
 .equation-box.wider {
     width: 280px;
-    height: 160px;
+    min-height: 160px;
 }
 
 .equation-title {
@@ -476,7 +476,19 @@ input.slider-value,
 /* Add MathJax specific styling */
 .equation-content .MathJax {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
+}
+
+/* Tighter spacing for sample size equations in input panels */
+#ss-binary-container .equation-box.flat,
+#ss-cont-container .equation-box.flat {
+    margin: 0;
+    padding: 0;
+}
+
+#ss-binary-container .equation-box.flat .equation-title,
+#ss-cont-container .equation-box.flat .equation-title {
+    margin-bottom: 2px;
 }
 
 /* ==========================================================================
@@ -484,7 +496,9 @@ input.slider-value,
    ========================================================================== */
 .mahalanobis-container,
 .r-squared-container,
-.dca-container {
+.dca-container,
+.ss-binary-container,
+.ss-cont-container {
     display: flex;
     justify-content: space-between;
     gap: 20px;
@@ -495,6 +509,13 @@ input.slider-value,
     height: auto;
     min-height: 600px;
     flex-wrap: wrap;
+}
+
+/* Force flex layout for sample size containers (override grid from .container) */
+#ss-binary-container,
+#ss-cont-container {
+    display: flex;
+    align-items: stretch;
 }
 
 /* Calculator Sections */
@@ -518,10 +539,30 @@ input.slider-value,
     height: auto;
 }
 
+/* Override width for sample-size calculators to allow side-by-side layout */
+.ss-binary-container .section.sliders,
+.ss-cont-container .section.sliders {
+    width: auto;
+    flex: 0 0 38%;
+    max-width: 38%;
+}
+
+/* Ensure the plots section grows wider than inputs */
+.ss-binary-container .section:not(.sliders),
+.ss-cont-container .section:not(.sliders) {
+    flex: 0 0 62%;
+    max-width: 62%;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
 /* Calculator section layout */
 .mahalanobis-container .section:last-child,
 .r-squared-container .section:last-child,
-.dca-container .section:last-child {
+.dca-container .section:last-child,
+.ss-binary-container .section:last-child,
+.ss-cont-container .section:last-child {
     flex: 2 1 600px;
     width: 100%;
     min-width: 300px;
@@ -542,12 +583,24 @@ input.slider-value,
 /* Calculator Plot Container */
 #chartContainer,
 #r2PlotContainer,
-#dcaPlotContainer {
+#dcaPlotContainer,
+#ssbPlotContainer,
+#sscPlotContainer {
     height: 100%;
     width: 100%;
     position: relative;
     margin: 20px 0;
     flex-grow: 1;
+}
+
+/* Stack calculator plots vertically like Mahalanobis/R² */
+#ssbPlotContainer,
+#sscPlotContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    margin: 0;
 }
 
 #dPlot,
@@ -557,6 +610,21 @@ input.slider-value,
     height: 100% !important;
     max-height: 1000px;
     background-color: white;
+}
+
+/* New bubble container style */
+.content-bubble {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.plot-bubble {
+    flex-grow: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Chart Legend */
@@ -580,11 +648,11 @@ input.slider-value,
     box-shadow: none;
     border-radius: 0;
     padding: 0;
-    margin: 0 0 10px 0;
+    margin: 0 0 4px 0;
     width: 100%;
     max-width: 100%;
     height: auto;
-    min-height: 100px;
+    min-height: 80px;
     display: flex;
     flex-direction: column;
 }
@@ -595,8 +663,11 @@ input.slider-value,
 
 .section .equation-box.flat .equation-content {
     background-color: transparent;
-    transform: scale(0.99);
-    overflow: hidden;
+    transform: none;
+    overflow: visible;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0;
 }
 
 .section button {
@@ -968,6 +1039,86 @@ input[type="range"]::-webkit-slider-thumb {
     fill: #0366d6; /* GitHub blue on hover */
 }
 
+/* New Results Summary Bubble */
+.results-summary {
+    padding: 0;
+    margin: 0;
+    font-size: 1em;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-main {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.summary-main-label {
+    display: block;
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.summary-main-value {
+    display: block;
+    font-size: 2.2em;
+    font-weight: 700;
+    color: #000;
+    line-height: 1;
+}
+
+.summary-detail-header {
+    font-size: 0.9em;
+    color: #666;
+    margin: 0 0 8px 0;
+}
+
+.summary-detail-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.summary-item {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+}
+
+.summary-item.highlight {
+    border-width: 2px;
+    border-color: #000;
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+.item-label {
+    display: block;
+    font-size: 0.9em;
+    color: #444;
+}
+
+.item-value {
+    display: block;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.summary-reference {
+    font-size: 0.9em;
+    color: #555;
+    background-color: #fafafa;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px dashed #ddd;
+}
+
 /* Highlighting for True/Observed column labels */
 .metrics-header span.selected-true {
     background-color: #333333;
@@ -987,5 +1138,5 @@ input[type="range"]::-webkit-slider-thumb {
     border: 0;
     height: 1px;
     background-color: #e0e0e0;
-    margin: 10px 0;
+    margin: 4px 0;
 }

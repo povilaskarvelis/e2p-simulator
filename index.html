@@ -250,13 +250,12 @@
         <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
             <div id="dashboard" class="dashboard">
                 <div class="dashboard-metrics">
+                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
                     <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
-                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
-                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
+                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
                     <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
                     <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
-                    <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
                     <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
                 </div>
@@ -266,12 +265,13 @@
         <!-- Predictive Metrics dashboard (Binary) -->
         <div class="dashboard" style="margin-top: 10px;">
             <div class="dashboard-metrics">
-                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
-                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
+                <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
+                <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
                 <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
-                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value">0.00</span></p>
                 <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value">0.00</span></p>
                 <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value">0.00</span></p>
+                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value">0.00</span></p>
+                <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
                 <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value">0.00</span></p>
             </div>
         </div>
@@ -787,6 +787,193 @@
         </div> 
     </div>
     
+    <!-- Required Sample Size Calculators (Binary and Continuous) -->
+    <div style="margin-top: 50px;"></div>
+    <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Required Sample Size for Multivariable Models</h2>
+    <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+        <p>
+            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to ensure a minimum number of events per variable (EPV). However, more principled criteria that are based on desired model performance - such as minimizing overfitting or prediction error - can provide more accurate estimates. <br/> See the <a href="get-started.html#sample-size" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
+        </p>
+    </div>
+
+    <!-- Binary Outcome: Required Sample Size -->
+    <div class="container ss-binary-container" id="ss-binary-container">
+        <div class="section sliders">
+            <div class="form-container">
+                <div class="slider-container">
+                    <input type="range" id="ssb-p-slider" min="1" max="100" step="1" value="10" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Number of predictor parameters (coefficients excluding intercept)">Number of predictors (p)</span>
+                        <input type="number" id="ssb-p" min="1" max="100" step="1" value="10" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssb-prevalence-slider" min="0.1" max="99.9" step="0.1" value="25" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Outcome prevalence in the training data">Base rate (\(\phi\), %)</span>
+                        <input type="number" id="ssb-prevalence" min="0.1" max="99.9" step="0.1" value="25" class="slider-value">
+                    </div>
+                </div>
+                
+                <hr class="input-separator">
+
+                <!-- EPV criterion -->
+                <div class="equation-box flat">
+                    <p class="equation-title">EPV criterion (rule of thumb)</p>
+                    <div class="equation-content">\[N = \dfrac{EPV \cdot p}{\phi}\]</div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssb-epp-slider" min="5" max="50" step="1" value="10" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Events per variable">EPV</span>
+                        <input type="number" id="ssb-epp" min="1" max="100" step="1" value="10" class="slider-value">
+                    </div>
+                </div>
+
+                <hr class="input-separator">
+
+                <!-- Shrinkage criterion -->
+                <div class="equation-box flat">
+                    <p class="equation-title">Shrinkage criterion (minimizes overfitting)</p>
+                    <div class="equation-content">\[N = \dfrac{p}{(1-S)\,[-\ln(1- R^2_{CS})]}\]</div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="ssb-r2cs-slider" min="0.01" max="0.9" step="0.01" value="0.2" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Anticipated Cox–Snell R² of the final model">Anticipated R² (Cox–Snell)</span>
+                        <input type="number" id="ssb-r2cs" min="0.01" max="0.9" step="0.01" value="0.2" class="slider-value">
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="ssb-shrinkage-slider" min="0.7" max="0.99" step="0.01" value="0.9" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Target global shrinkage to limit overfitting (recommendation ≥ 0.9)">Target shrinkage (S)</span>
+                        <input type="number" id="ssb-shrinkage" min="0.7" max="0.99" step="0.01" value="0.9" class="slider-value">
+                    </div>
+                </div>
+
+                <hr class="input-separator">
+
+                <!-- Mean absolute prediction error (MAPE) criterion -->
+                <div class="equation-box flat">
+                    <p class="equation-title">Mean Absolute Prediction Error (MAPE) criterion (p ≤ 30)</p>
+                    <p class="equation-title" style="margin-top:0;">(minimizes prediction error)</p>
+                    <div class="equation-content">\[N = \mathrm{exp}\left(\dfrac{-0.508 + 0.259\ln(\phi) + 0.504\ln(P) - \ln(\delta)}{0.544}\right)\]</div>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="ssb-mape-slider" min="0.01" max="0.2" step="0.005" value="0.05" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Target mean absolute prediction error (applies when p ≤ 30)">Target MAPE (δ)</span>
+                        <input type="number" id="ssb-mape" min="0.01" max="0.2" step="0.005" value="0.05" class="slider-value">
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="section">
+            <div id="ssbPlotContainer">
+                <div class="content-bubble">
+                    <div id="ssb-results-table" class="results-summary"></div>
+                </div>
+                <div class="content-bubble plot-bubble">
+                    <div class="chart-legend"></div>
+                    <div id="ssbPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="ssbPlot" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Continuous Outcome: Required Sample Size -->
+    <div class="container ss-cont-container" id="ss-cont-container">
+        <div class="section sliders">
+            <div class="form-container">
+                <div class="slider-container">
+                    <input type="range" id="ssc-p-slider" min="1" max="100" step="1" value="10" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Number of predictor parameters (coefficients excluding intercept)">Number of predictors (p)</span>
+                        <input type="number" id="ssc-p" min="1" max="100" step="1" value="10" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssc-r2-slider" min="0.01" max="0.95" step="0.01" value="0.5" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Anticipated R² of the final model">Anticipated R²</span>
+                        <input type="number" id="ssc-r2" min="0.01" max="0.95" step="0.01" value="0.5" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssc-shrinkage-slider" min="0.7" max="0.99" step="0.01" value="0.9" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Target global shrinkage to limit overfitting (recommendation ≥ 0.9)">Target shrinkage (S)</span>
+                        <input type="number" id="ssc-shrinkage" min="0.7" max="0.99" step="0.01" value="0.9" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssc-delta-slider" min="0.01" max="0.2" step="0.005" value="0.05" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Maximum allowed difference between apparent and adjusted R²">Max R² optimism (Δ)</span>
+                        <input type="number" id="ssc-delta" min="0.01" max="0.2" step="0.005" value="0.05" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssc-sdY-slider" min="0.1" max="10" step="0.1" value="1" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Anticipated SD of the outcome Y in target population">SD(Y)</span>
+                        <input type="number" id="ssc-sdY" min="0.1" max="10" step="0.1" value="1" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="ssc-mean-margin-slider" min="0.01" max="1" step="0.01" value="0.1" class="slider">
+                    <div class="slider-value-container">
+                        <span class="slider-label" data-tooltip="Desired half-width for mean outcome estimate (absolute units)">Mean(Y) margin m</span>
+                        <input type="number" id="ssc-mean-margin" min="0.01" max="1" step="0.01" value="0.1" class="slider-value">
+                    </div>
+                </div>
+
+                <div class="slider-value-container" style="margin-top: 10px;">
+                    <span class="slider-label">Confidence level</span>
+                    <select id="ssc-ci" class="slider-value">
+                        <option value="0.95" selected>95%</option>
+                        <option value="0.90">90%</option>
+                        <option value="0.99">99%</option>
+                    </select>
+                </div>
+
+                <hr class="input-separator">
+            </div>
+        </div>
+        <div class="section">
+            <div id="sscPlotContainer">
+                <div class="equation-box flat">
+                    <p class="equation-title">Continuous outcome (linear): key criteria</p>
+                    <div class="equation-content">
+                        \[R^2_{adj} = 1 - (1-R^2)\,\frac{n-1}{n-p-1}\]
+                        <span style="font-size:0.9em; color:#666;">(used for shrinkage and optimism)</span><br/>
+                        \[n_{\Delta R^2} \ge p+1 + \frac{p(1-R^2)}{\Delta}\]
+                        <span style="font-size:0.9em; color:#666;">(limit apparent vs adjusted \(R^2\) difference ≤ \(\Delta\))</span>
+                    </div>
+                </div>
+                <div class="chart-legend"></div>
+                <div id="sscPlotWrapperP" style="position: relative; flex-grow: 1; min-height: 0;">
+                    <canvas id="sscPlotP" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+                </div>
+                <div id="sscPlotWrapperR2" style="position: relative; flex-grow: 1; min-height: 0;">
+                    <canvas id="sscPlotR2" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Scripts -->
     <!-- Load shared plugins -->
     <script src="js/shared-plugins.js"></script>
@@ -802,6 +989,10 @@
     <script src="js/r-squared.js"></script>
     <!-- Add DCA module -->
     <script src="js/dca.js"></script>
+
+    <!-- Required Sample Size calculators -->
+    <script src="js/sample-size-binary.js"></script>
+    <script src="js/sample-size-continuous.js"></script>
 
 
     <!-- Footer -->

@@ -32,6 +32,24 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Error during mobile detection:", e);
     }
 
+    // Helper to toggle sample size sections by mode
+    function toggleSampleSizeSections(mode) {
+        try {
+            const ssBinary = document.getElementById('ss-binary-container');
+            const ssCont = document.getElementById('ss-cont-container');
+            if (!ssBinary || !ssCont) return;
+            if (mode === 'binary') {
+                ssBinary.style.display = 'flex';
+                ssCont.style.display = 'none';
+            } else if (mode === 'continuous') {
+                ssBinary.style.display = 'none';
+                ssCont.style.display = 'flex';
+            }
+        } catch (e) {
+            console.error('Error toggling sample size sections:', e);
+        }
+    }
+
     // Set form values based on URL parameters
     function setFormValues(params) {
         // Check if mode is specified
@@ -42,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 continuousButtons.forEach(btn => btn.classList.remove('active'));
                 binaryContainer.style.display = 'block';
                 continuousContainer.style.display = 'none';
+                toggleSampleSizeSections('binary');
                 
                 // Set binary mode parameters
                 if (params.baseRate) {
@@ -82,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 binaryButtons.forEach(btn => btn.classList.remove('active'));
                 binaryContainer.style.display = 'none';
                 continuousContainer.style.display = 'block';
+                toggleSampleSizeSections('continuous');
                 
                 // Pass initial threshold if provided
                 const initialThreshold = params.thresholdValue ? parseFloat(params.thresholdValue) : undefined;
@@ -140,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the binary version by default
     initializeBinary();
+    // Default sample size sections to binary mode on first load
+    toggleSampleSizeSections('binary');
     
 
     
@@ -153,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show binary container, hide continuous
             binaryContainer.style.display = 'block';
             continuousContainer.style.display = 'none';
+            toggleSampleSizeSections('binary');
         });
     });
 
@@ -166,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show continuous container, hide binary
             binaryContainer.style.display = 'none';
             continuousContainer.style.display = 'block';
+            toggleSampleSizeSections('continuous');
             
             // Initialize continuous version if not already done
             if (!continuousInitialized) {
