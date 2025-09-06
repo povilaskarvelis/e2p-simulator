@@ -49,9 +49,18 @@ const DCAModule = {
                 thresholds
             } = data;
             
+            // Debug: log the current threshold and metrics
+            console.log('DCA Debug:', {
+                currentThreshold: data.currentThreshold,
+                currentMetrics: data.currentMetrics ? {
+                    sensitivity: data.currentMetrics.sensitivity,
+                    specificity: data.currentMetrics.specificity
+                } : 'undefined'
+            });
+            
             // Calculate net benefit across threshold probabilities using current model performance
             const ptMin = 0.001;
-            const ptMax = 0.999;
+            const ptMax = 0.95;  // Further reduce upper limit for smoother curves
             const step = 0.001;
             
             const thresholdProbs = [];
@@ -62,65 +71,42 @@ const DCAModule = {
             for (let pt = ptMin; pt <= ptMax; pt += step) {
                 const odds = pt / (1 - pt);
                 
-                // Calculate sensitivity and specificity at threshold probability pt
-                let sensitivityAtPt, specificityAtPt;
+                // Calculate optimal sensitivity and specificity for this pt
+                let bestNetBenefit = -Infinity;
+                let sensitivityAtPt = 0;
+                let specificityAtPt = 0;
                 
                 if (FPR && TPR && FPR.length > 0 && TPR.length > 0) {
-                    // Use ROC curve data to find sensitivity and specificity at threshold pt
-                    // In DCA, pt represents the probability threshold for classification
-                    // We need to interpolate sensitivity and specificity from the ROC curve
-                    
-                    // For DCA, we need to find the point on the ROC curve that corresponds
-                    // to using pt as the classification threshold
-                    // This is a complex mapping that depends on the underlying prediction model
-                    
-                    // As a first approximation, we'll use the relationship:
-                    // pt = 0 (treat everyone) -> FPR = 1, TPR = 1
-                    // pt = 1 (treat no one) -> FPR = 0, TPR = 0
-                    // Linear interpolation: targetFPR = 1 - pt
-                    const targetFPR = 1 - pt;
-                    
-                    // Find the two closest points for interpolation
-                    let lowerIndex = 0;
-                    let upperIndex = FPR.length - 1;
-                    
-                    for (let i = 0; i < FPR.length - 1; i++) {
-                        if (FPR[i] >= targetFPR && FPR[i + 1] <= targetFPR) {
-                            lowerIndex = i;
-                            upperIndex = i + 1;
-                            break;
+                    // For each point on the ROC curve, calculate net benefit for this pt
+                    // Choose the point that gives the highest net benefit
+                    for (let i = 0; i < FPR.length; i++) {
+                        const currentSensitivity = TPR[i];
+                        const currentSpecificity = 1 - FPR[i];
+                        
+                        // Calculate net benefit for this ROC point at this pt
+                        const netBenefit = (currentSensitivity * baseRate) - ((1 - currentSpecificity) * (1 - baseRate) * odds);
+                        
+                        // Keep the ROC point that gives the highest net benefit
+                        if (netBenefit > bestNetBenefit) {
+                            bestNetBenefit = netBenefit;
+                            sensitivityAtPt = currentSensitivity;
+                            specificityAtPt = currentSpecificity;
                         }
                     }
-                    
-                    // Linear interpolation
-                    const fpr1 = FPR[lowerIndex];
-                    const fpr2 = FPR[upperIndex];
-                    const tpr1 = TPR[lowerIndex];
-                    const tpr2 = TPR[upperIndex];
-                    
-                    if (fpr1 === fpr2) {
-                        sensitivityAtPt = tpr1;
-                        specificityAtPt = 1 - fpr1;
-                    } else {
-                        const weight = (targetFPR - fpr1) / (fpr2 - fpr1);
-                        sensitivityAtPt = tpr1 + weight * (tpr2 - tpr1);
-                        specificityAtPt = 1 - targetFPR;
-                    }
                 } else {
-                    // Fallback to provided sensitivity/specificity if ROC data not available
+                    // Fallback to provided sensitivity/specificity if no ROC data
                     sensitivityAtPt = sensitivity;
                     specificityAtPt = specificity;
+                    bestNetBenefit = (sensitivityAtPt * baseRate) - ((1 - specificityAtPt) * (1 - baseRate) * odds);
                 }
-                
-                const netBenefit = (sensitivityAtPt * baseRate) - ((1 - specificityAtPt) * (1 - baseRate) * odds);
                 
                 // Calculate treat all strategy: treat everyone regardless of test result
                 // TP = all cases, FP = all controls
                 const treatAllBenefit = baseRate - ((1 - baseRate) * odds);
                 
                 thresholdProbs.push(pt);
-                netBenefits.push(netBenefit); // Allow negative net benefit
-                treatAllBenefits.push(treatAllBenefit); // Allow negative net benefit for treat all
+                netBenefits.push(bestNetBenefit);
+                treatAllBenefits.push(treatAllBenefit);
                 treatNoneBenefits.push(0); // Treat none = 0
             }
             
@@ -141,30 +127,67 @@ const DCAModule = {
             // Calculate Delta NB and NR_100 at current threshold position
             let currentDeltaNB = 0;
             let formattedDeltaNB = "0.000";
+            let currentThresholdProb = 0;
             
             if (data.currentThreshold !== undefined && data.currentMetrics !== undefined) {
                 const currentMetrics = data.currentMetrics;
                 const currentThreshold = data.currentThreshold;
                 
-                // Scale the classification threshold to 0-1 range for threshold probability
-                // Use the actual threshold range from the data
-                const thresholdMin = data.thresholdRange ? data.thresholdRange.min : -4;
-                const thresholdMax = data.thresholdRange ? data.thresholdRange.max : 4;
-                const thresholdProbability = Math.max(0, Math.min(1, (currentThreshold - thresholdMin) / (thresholdMax - thresholdMin)));
-                
-                // Find the closest point to current threshold
+                // For the red marker, we need to find which pt value corresponds to the current classification threshold
+                // We do this by finding the pt that gives us the current sensitivity/specificity
                 let closestIndex = 0;
-                let minDiff = Math.abs(thresholdProbs[0] - thresholdProbability);
-                
-                for (let i = 1; i < thresholdProbs.length; i++) {
-                    const diff = Math.abs(thresholdProbs[i] - thresholdProbability);
+                let minDiff = Infinity;
+            
+                // Find the pt that corresponds to the current threshold's actual net benefit
+                // Use a smoother approach to reduce marker jumping
+                let bestPt = 0.5;
+                let bestNetBenefit = 0;
+            
+            for (let i = 0; i < thresholdProbs.length; i++) {
+                const pt = thresholdProbs[i];
+                    const odds = pt / (1 - pt);
+                    
+                    // Calculate what net benefit the current threshold would give at this pt
+                    const currentThresholdNetBenefit = (currentMetrics.sensitivity * baseRate) - ((1 - currentMetrics.specificity) * (1 - baseRate) * odds);
+                    
+                    // Find the pt where this net benefit matches the DCA curve
+                    const diff = Math.abs(currentThresholdNetBenefit - netBenefits[i]);
+                    
                     if (diff < minDiff) {
                         minDiff = diff;
                         closestIndex = i;
+                        bestPt = pt;
+                        bestNetBenefit = currentThresholdNetBenefit;
                     }
                 }
                 
+                // Use interpolation to smooth the pt value
+                if (closestIndex > 0 && closestIndex < thresholdProbs.length - 1) {
+                    const prevPt = thresholdProbs[closestIndex - 1];
+                    const nextPt = thresholdProbs[closestIndex + 1];
+                    const prevNB = netBenefits[closestIndex - 1];
+                    const nextNB = netBenefits[closestIndex + 1];
+                    const currentNB = netBenefits[closestIndex];
+                    
+                    // Linear interpolation to get a smoother pt value
+                    if (Math.abs(bestNetBenefit - prevNB) < Math.abs(bestNetBenefit - nextNB)) {
+                        const weight = Math.abs(bestNetBenefit - currentNB) / (Math.abs(bestNetBenefit - currentNB) + Math.abs(bestNetBenefit - prevNB) + 0.001);
+                        currentThresholdProb = bestPt + (prevPt - bestPt) * weight * 0.5;
+                    } else {
+                        const weight = Math.abs(bestNetBenefit - currentNB) / (Math.abs(bestNetBenefit - currentNB) + Math.abs(bestNetBenefit - nextNB) + 0.001);
+                        currentThresholdProb = bestPt + (nextPt - bestPt) * weight * 0.5;
+                    }
+                } else {
+                    currentThresholdProb = bestPt;
+                }
+                
                 currentDeltaNB = deltaNB[closestIndex];
+                // currentThresholdProb is already set by the interpolation above
+            } else {
+                // Fallback: use middle of the pt range
+                const middleIndex = Math.floor(thresholdProbs.length / 2);
+                currentDeltaNB = deltaNB[middleIndex];
+                currentThresholdProb = thresholdProbs[middleIndex];
             }
             
             // Format Delta NB for display
@@ -203,24 +226,15 @@ const DCAModule = {
                 showlegend: true,
             };
             
-            // Add threshold marker - convert classification threshold to threshold probability
+            // Add threshold marker - use the pt value we already calculated
             let thresholdMarker = null;
             if (data.currentThreshold !== undefined && data.currentMetrics !== undefined) {
-                const currentThreshold = data.currentThreshold;
-                const currentMetrics = data.currentMetrics;
-                
-                // Scale the classification threshold to 0-1 range for threshold probability
-                // Use the actual threshold range from the data
-                const thresholdMin = data.thresholdRange ? data.thresholdRange.min : -4;
-                const thresholdMax = data.thresholdRange ? data.thresholdRange.max : 4;
-                const thresholdProbability = Math.max(0, Math.min(1, (currentThreshold - thresholdMin) / (thresholdMax - thresholdMin)));
-                
-                // Find the closest point on the DCA curve to this threshold probability
+                // Find the index corresponding to our calculated currentThresholdProb
                 let closestIndex = 0;
-                let minDiff = Math.abs(thresholdProbs[0] - thresholdProbability);
+                let minDiff = Math.abs(thresholdProbs[0] - currentThresholdProb);
                 
                 for (let i = 1; i < thresholdProbs.length; i++) {
-                    const diff = Math.abs(thresholdProbs[i] - thresholdProbability);
+                    const diff = Math.abs(thresholdProbs[i] - currentThresholdProb);
                     if (diff < minDiff) {
                         minDiff = diff;
                         closestIndex = i;
@@ -269,10 +283,10 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                    text: `ΔNB: ${formattedDeltaNB}`,
+                    text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${currentThresholdProb.toFixed(2)}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
-                    align: "right",
+                    align: "right"
                 }],
                 autosize: true,
             };
@@ -292,7 +306,7 @@ const DCAModule = {
             if (!instance.initialized) {
                 Plotly.newPlot(instance.plotSelector, traces, dcaLayout, config);
                 instance.initialized = true;
-            } else {
+                } else {
                 Plotly.react(instance.plotSelector, traces, dcaLayout, config);
             }
             
