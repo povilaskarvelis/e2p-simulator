@@ -238,10 +238,13 @@
 
         <p>Where C<sub>FP</sub> is the cost of a false positive (unnecessary intervention) and C<sub>FN</sub> is the cost of a false negative (missed positive case). p<sub>t</sub> can also be estimated through expert surveys, stakeholder preferences, or established guidelines.</p>
         
+        <p>For population screening, p<sub>t</sub> is typically set low because missing true cases is costlier than unnecessary follow-ups, so more false positives are acceptable. For diagnostic confirmation (e.g., before initiating high-risk treatment), p<sub>t</sub> is set higher to avoid false positives, reflecting a preference for specificity. As a rule of thumb, screening scenarios may use p<sub>t</sub> in the 1–10% range, whereas diagnostic decisions often warrant much higher p<sub>t</sub> (for example 30–70% or more), depending on harms and preferences.</p>
+        
         <p>What we often want to know is not the absolute NB, but added value. <strong>ΔNB (Delta Net Benefit)</strong> measures this additional utility by comparing the model against the better of the two simple strategies (either All or None) at a specific threshold probability:</p>
         <div style="text-align: center; margin: 15px 0;">
             \[\Delta NB = NB_{\text{model}} - \max(NB_{\text{All}}, NB_{\text{None}})\]
         </div>
+        
         <p>At each threshold probability, the model's net benefit is compared against whichever simple strategy performs better at that threshold. This provides a more conservative and meaningful assessment of the model's added value. A positive ΔNB indicates that the predictive model offers genuine improvement over the best simple strategy, while values near zero suggest that simple strategies may be equally effective.</p>
 
         <p>DCA is particularly valuable because it:</p>
@@ -273,9 +276,9 @@
                 </ul>
             </li>
 
-            <li>This will yield ROC-AUC = 0.71 and PR-AUC = 0.19. Even with the optimistic effect size of 0.8, the predictive utility remains modest, particularly in balancing recall and precision (as shown by the low PR-AUC). The DCA plot also suggests limited clinical utility, with predictor-based diagnosis showing minimal improvement over diagnosing no one / everyone (ΔNB ≈ 0.001).</li>
+            <li>This will yield ROC-AUC = 0.71 and PR-AUC = 0.19. Even with the optimistic effect size of 0.8, the predictive utility remains modest, particularly in balancing recall and precision (as shown by the low PR-AUC). The DCA plot also suggests limited clinical utility: assuming a threshold probability (p<sub>t</sub>) of 0.1, which would be suitable for a screening scenario, we get ΔNB ≈ 0.018, which means that relying on this biomarker would result in 1.8 additional true positives per 100 patients (after accounting for the harm of false positives at that threshold).</li>
 
-            <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and much better predictive utility, ROC-AUC = 0.87, PR-AUC = 0.46, and ΔNB ≈ 0.006. This demonstrates the importance of measurement reliability in predictive modeling. </li>
+            <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and much better predictive utility, ROC-AUC = 0.87, PR-AUC = 0.46, and ΔNB ≈ 0.042. This demonstrates the importance of measurement reliability in predictive modeling. </li>
 
             <li>Now let's say we are serious about precision psychiatry and we want to achieve a PR-AUC of 0.8. Using the tool, we can find that it would require d = 2.55. It would be rather unrealistic to expect a single biomarker to achieve this effect size. Using the Mahalanobis D calculator, you can explore how many predictors with smaller d values would be required to achieve D = 2.55.</li>
 
@@ -295,7 +298,7 @@
                     <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://direct.mit.edu/netn/article/6/4/1066/109196/Computational-approaches-to-treatment-response" target="_blank">Karvelis et al., 2022</a>)</li>
                 </ul>
 
-            <li>This will yield AUC = 0.73 and PR-AUC = 0.32, indicating rather modest predictive performance, as shown by the low PR-AUC. The clinical utility would also be rather limited with ΔNB ≈ 0.004, as indicated by the DCA plot. Improving measurement reliability could improve the performance up to AUC = 0.87 and PR-AUC = 0.57, and clinical utility up to ΔNB ≈ 0.014, which is a substantial improvement.</li>
+            <li>This will yield AUC = 0.73 and PR-AUC = 0.32, indicating rather modest predictive performance, as shown by the low PR-AUC. At p<sub>t</sub> = 0.30, which is a reasonable threshold for accounting for the harms of unnecesarily prescribing antidepressants, we get ΔNB ≈ 0.013. Improving measurement reliability could increase performance up to AUC = 0.87, PR-AUC = 0.57, and ΔNB ≈ 0.054.</li>
 
             <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires r = 0.9 (R² = 0.81). These are rather extremely ambitious values (requiring to explain 81% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
@@ -316,7 +319,7 @@
                 </ul>
             </li>
 
-            <li>This will yield PR-AUC = 0.08, indicating extremely abysmal predictive performance, meaning that depending on where we place the threshold, we would either predict a lot of false positives (low precision, high recall) or a lot of false negatives (high precision, low recall). When the threshold is set to maximize the F1 score (0.15), we get precision = 0.15 and recall = 0.15. Which means that we would miss 85% of actual attempters and 85% of the predicted attempters would not attempt suicide. Not surprisingly, this gives us extremely low clinical utility (ΔNB ≈ 0.000).</li>
+            <li>This will yield PR-AUC = 0.08, indicating extremely abysmal predictive performance, meaning that depending on where we place the threshold, we would either predict a lot of false positives (low precision, high recall) or a lot of false negatives (high precision, low recall). When the threshold is set to maximize the F1 score (0.15), we get precision = 0.15 and recall = 0.15. Which means that we would miss 85% of actual attempters and 85% of the predicted attempters would not attempt suicide. Not surprisingly, this gives us extremely low clinical utility (ΔNB ≈ 0.0004 at p<sub>t</sub> = 0.15). At threshold of p<sub>t</sub> = 0.05, which would be reasonable given how costly false negatives (missing actual attempters) are, ΔNB would be very low (≈ 0.0004), illustrating the limited utility of prediction in this context.</li>
 
             <li>Considering that we are serious about precision psychiatry and want to aim for PR-AUC of 0.8, we will find it requires observed d = 3.76, which means we have a very long way to go. Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
         </ol>
