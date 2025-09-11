@@ -254,7 +254,7 @@ const DCAModule = {
             
             const dcaLayout = {
                 xaxis: { 
-                    title: "Threshold probability", 
+                    title: "Threshold probability (p<sub>t</sub>)", 
                     range: [0, 1], 
                     showgrid: false,
                     showline: false,

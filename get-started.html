@@ -328,6 +328,26 @@
    
     </div>
 
+    <div class="guide-section" id="sample-size">
+        <h2>Sample Size Calculations for Prediction Models</h2>
+        
+        <p>E2P Simulator includes sample size calculators that implement evidence-based criteria (<a href="https://www.bmj.com/content/368/bmj.m441" target="_blank">Riley et al., 2020</a>) to ensure your multivariable prediction models have sufficient data to avoid overfitting and ensure low prediction error. These go beyond simple rules of thumb like "10 events per predictor."</p>
+
+        <h3>How to Use</h3>
+        <p>Specify your number of predictors, <strong>realistically expected R²</strong> (based on prior research or pilot data), and outcome prevalence (for binary outcomes only). Use R²<sub>CS</sub> for binary outcomes and standard R² for continuous outcomes. Note, for binary outcomes with a single continuous predictor, R²<sub>CS</sub> equals eta-squared (η²), which is already displayed in the main E2P simulator dashboard. The final recommendation uses the <em>maximum</em> across all criteria to ensure all performance targets are met.
+
+        <p>The sample size calculators complement the main E2P simulators in study planning: the E2P simulators explore relationships between effect sizes and predictive utility (both what you need for desired performance and what utility to expect from realistic effects), while the sample size calculators determine adequate sample size based on realistic R² estimates from prior research. For sample size planning, always use conservative, realistic R² estimates based on prior research, not idealized target values.</p>
+
+        <h3>Single Predictor Models and Power Analysis</h3>
+        <p>When developing a model with just one predictor (p = 1), the sample size calculations relate directly to traditional power analysis for detecting that predictor's effect. However, the criteria still provide value beyond simple power calculations:</p>
+        <ul>
+            <li><strong>Power analysis</strong>: Focuses on detecting a statistically significant effect (p &lt; 0.05)</li>
+            <li><strong>Prediction-focused criteria</strong>: Ensure the model will be robust and generalizable, with stable coefficients and accurate predictions</li>
+        </ul>
+        <p>For single predictors, the shrinkage and optimism criteria often require larger sample sizes than traditional power analysis, reflecting the higher standards needed for reliable prediction versus mere statistical significance.</p>
+
+    </div>
+
     <div class="guide-section">
         <h2>Feedback and Contributions</h2>
         <p>E2P Simulator is an open-source project - feedback, bug reports, and suggestions for improvement are welcome. The easiest way to do so is through the <a href="https://github.com/povilaskarvelis/e2p-simulator/issues" target="_blank">GitHub Issues page</a>.</p>
