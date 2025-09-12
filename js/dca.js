@@ -263,7 +263,7 @@ const DCAModule = {
                     dtick: 0.2
                 },
                 yaxis: { 
-                    title: "Net benefit", 
+                    title: "Net benefit (NB)", 
                     showgrid: false, 
                     zeroline: false,
                     titlefont: { size: 15 }
