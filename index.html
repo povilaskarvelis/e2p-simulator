@@ -164,14 +164,14 @@
 
                             <!-- Point-biserial r -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and a binary variable">Point-biserial r</span>
+                                <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and a binary variable">Point-biserial r<sub>pb</sub></span>
                                 <input type="number" id="true-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0">
                                 <input type="number" id="observed-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0" readonly>
                             </div>
 
                             <!-- Eta squared -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span class="slider-label" data-tooltip="Eta squared: proportion of variance explained by group membership">η²</span>
+                                <span class="slider-label" data-tooltip="Eta squared: proportion of variance explained by group membership">η² (r<sub>pb</sub>²)</span>
                                 <input type="number" id="true-eta-squared-bin" class="metrics-input" min="0" max="0.86" step="0.01" value="0">
                                 <input type="number" id="observed-eta-squared-bin" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
                             </div>
@@ -206,7 +206,7 @@
                     <div>
                         <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate (%)</span>
+                            <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate, \(\phi\) (%)</span>
                             <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
                         </div>
                     </div>
@@ -263,18 +263,21 @@
         </a>
         
         <!-- Predictive Metrics dashboard (Binary) -->
-        <div class="dashboard" style="margin-top: 10px;">
-            <div class="dashboard-metrics">
-                <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
-                <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
-                <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
-                <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value">0.00</span></p>
-                <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value">0.00</span></p>
-                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value">0.00</span></p>
-                <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
-                <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value">0.00</span></p>
+        <details class="metrics-collapsible" style="margin-top: 15px;">
+            <summary class="metrics-summary" style="cursor: pointer; color: #666666; font-size: 0.9em; list-style: none; text-align: center;">Show more metrics</summary>
+            <div class="dashboard" style="margin-top: 10px;">
+                <div class="dashboard-metrics">
+                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
+                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
+                    <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
+                    <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value">0.00</span></p>
+                    <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value">0.00</span></p>
+                    <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value">0.00</span></p>
+                    <p data-tooltip="Youden's Index">J: <span id="youden-value">0.00</span></p>
+                    <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value">0.00</span></p>
+                </div>
             </div>
-        </div>
+        </details>
         
         <!-- Equations Section -->
         <div class="equations-container">
@@ -307,26 +310,27 @@
                     </div>
                 </a>
             </div>
+
+            <!-- d to U3 -->
+            <div class="equation-box">
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;" target="_blank">
+                    <p class="equation-title">d to U3</p>
+                    <div class="equation-content">
+                        \[U_3 = \Phi(d)\]
+                    </div>
+                </a>
+            </div>
             
             <!-- d to Point-biserial r -->
             <div class="equation-box">
                 <a href="https://psycnet.apa.org/record/2006-22258-004" style="text-decoration: none; color: inherit;" target="_blank">
                     <p class="equation-title">d to Point-biserial r</p>
                     <div class="equation-content">
-                        \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{p(1-p)}}}\]
+                        \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{\phi(1-\phi)}}}\]
                     </div>
                 </a>
             </div>
             
-            <!-- d to Eta squared -->
-            <div class="equation-box">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;" target="_blank">
-                    <p class="equation-title">d to Eta squared</p>
-                    <div class="equation-content">
-                        \[\eta^2 = \frac{d^2}{d^2 + \frac{1}{p(1-p)}}\]
-                    </div>
-                </a>
-            </div>
         </div>
 
         <!-- Mahalanobis D Calculator -->
@@ -629,18 +633,21 @@
         </a>
 
         <!-- Predictive Metrics dashboard (Continuous) -->
-        <div class="dashboard" style="margin-top: 10px;">
-            <div class="dashboard-metrics">
-                <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
-                <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
-                <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
-                <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value-cont">0.00</span></p>
-                <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value-cont">0.00</span></p>
-                <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value-cont">0.00</span></p>
-                <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
-                <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value-cont">0.00</span></p>
+        <details class="metrics-collapsible" style="margin-top: 10px;">
+            <summary class="metrics-summary" style="cursor: pointer; color: #666666; font-size: 0.9em; list-style: none; text-align: center;">Show more metrics</summary>
+            <div class="dashboard" style="margin-top: 10px;">
+                <div class="dashboard-metrics">
+                    <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
+                    <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
+                    <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
+                    <p data-tooltip="Post-test probability of condition given a positive test">P(D|+): <span id="posttest-plus-value-cont">0.00</span></p>
+                    <p data-tooltip="Post-test probability of condition given a negative test">P(D|−): <span id="posttest-minus-value-cont">0.00</span></p>
+                    <p data-tooltip="Geometric mean of Sensitivity and Specificity">G-Mean: <span id="gmean-value-cont">0.00</span></p>
+                    <p data-tooltip="Youden's Index">J: <span id="youden-value-cont">0.00</span></p>
+                    <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value-cont">0.00</span></p>
+                </div>
             </div>
-        </div>
+        </details>
 
         <!-- Equations Section for Continuous -->
         <div class="equations-container">
@@ -843,14 +850,14 @@
                 <div class="slider-container">
                     <input type="range" id="ssb-r2cs-slider" min="0.01" max="0.9" step="0.01" value="0.2" class="slider">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Anticipated Cox–Snell R² of the final model">Anticipated R² (Cox–Snell)</span>
+                        <span class="slider-label" data-tooltip="Anticipated Cox–Snell R² (for binary classification with continuous predictors, this equals η² shown on the main dashboard)">Anticipated R²<sub>cs</sub></span>
                         <input type="number" id="ssb-r2cs" min="0.01" max="0.9" step="0.01" value="0.2" class="slider-value">
                     </div>
                 </div>
                 <div class="slider-container">
                     <input type="range" id="ssb-shrinkage-slider" min="0.7" max="0.99" step="0.01" value="0.9" class="slider">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Target global shrinkage to limit overfitting (recommendation ≥ 0.9)">Target shrinkage (S)</span>
+                        <span class="slider-label" data-tooltip="Shrinkage factor to limit overfitting (recommendation ≥ 0.9, which limits shrinkage to ≤ 10%)">Shrinkage factor (S)</span>
                         <input type="number" id="ssb-shrinkage" min="0.7" max="0.99" step="0.01" value="0.9" class="slider-value">
                     </div>
                 </div>
@@ -926,7 +933,7 @@
                 <div class="slider-container">
                     <input type="range" id="ssc-shrinkage-slider" min="0.7" max="0.99" step="0.01" value="0.9" class="slider">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Target global shrinkage to limit overfitting (recommendation ≥ 0.9)">Target shrinkage (S)</span>
+                        <span class="slider-label" data-tooltip="Shrinkage factor to limit overfitting (recommendation ≥ 0.9, which limits shrinkage to ≤ 10%)">Shrinkage factor (S)</span>
                         <input type="number" id="ssc-shrinkage" min="0.7" max="0.99" step="0.01" value="0.9" class="slider-value">
                     </div>
                 </div>

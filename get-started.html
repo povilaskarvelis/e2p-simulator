@@ -177,18 +177,10 @@
         <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
         
         <div id="predictive-metrics-diagram" style="text-align: center; margin: 20px 0;">
-            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 90%;">
+            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%;">
         </div>
         
         <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
-        
-        <h3>Key Metrics for Different Contexts</h3>
-        <p>Depending on your research context, certain metrics may be more relevant than others:</p>
-        <ul>
-            <li><strong>When false negatives are costly</strong> (e.g., missing a disease diagnosis): Focus on Sensitivity/Recall. In clinical settings where missing a diagnosis could be life-threatening, maximizing Sensitivity ensures fewer cases are missed, even if it means more false alarms.</li>
-            <li><strong>When false positives are costly</strong> (e.g., unnecessary treatments): Focus on Specificity. When treatments have significant side effects or costs, high Specificity ensures fewer healthy individuals receive unnecessary interventions.</li>
-            <li><strong>When dealing with low base rate</strong>: Focus on Precision (PPV), NPV, F1 score, MCC, and PR-AUC. These metrics are sensitive to the base rate and thus provide a more accurate assessment of how a predictor would perform in the real world.</li>
-        </ul>
         
         <h3 id="threshold-metrics">Threshold-Independent Metrics</h3>
         
@@ -208,9 +200,9 @@
         </div>
     
         <div style="text-align: center; margin: 15px 0;">
-            \[PR\text{-}AUC = \int_0^1 P(R) \, dR\]
+            \[PR\text{-}AUC = \int_0^1 PPV(TPR) \, d(TPR)\]
         </div>
-        <p>Where P is Precision (PPV) and R is Recall (Sensitivity). These integrals are computed using trapezoidal numerical integration.</p>
+        <p>These integrals are computed using trapezoidal numerical integration.</p>
         
         <h3 id="dca-analysis">Decision Curve Analysis (DCA)</h3>
         <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the utility of a predictive model or a single predictor by plotting net benefit across different threshold probabilities. Unlike ROC and PR curves that focus on discrimination, DCA incorporates the relative costs of false positives and false negatives, helping determine whether using a prediction model to guide decisions provides more benefit than simple strategies.</p>

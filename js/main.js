@@ -19,6 +19,22 @@ function parseURLParams() {
 
 // Initialize version switching
 document.addEventListener('DOMContentLoaded', function() {
+    // Toggle text for metrics collapsibles
+    try {
+        const toggles = document.querySelectorAll('.metrics-collapsible');
+        toggles.forEach(det => {
+            const summary = det.querySelector('.metrics-summary');
+            if (!summary) return;
+            const updateText = () => {
+                summary.textContent = det.open ? 'Show less metrics' : 'Show more metrics';
+            };
+            // Initialize text based on state
+            updateText();
+            det.addEventListener('toggle', updateText);
+        });
+    } catch (e) {
+        console.error('Error wiring metrics collapsible toggles:', e);
+    }
     // Mobile detection
     try {
         const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
