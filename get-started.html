@@ -205,7 +205,7 @@
         <p>These integrals are computed using trapezoidal numerical integration.</p>
         
         <h3 id="dca-analysis">Decision Curve Analysis (DCA)</h3>
-        <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the utility of a predictive model or a single predictor by plotting net benefit across different threshold probabilities. Unlike ROC and PR curves that focus on discrimination, DCA incorporates the relative costs of false positives and false negatives, helping determine whether using a prediction model to guide decisions provides more benefit than simple strategies.</p>
+        <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the clinical utility of a predictive model or a single predictor by explicitly balancing the costs of false positives against the benefits of true positives.</p>
         
         <div id="dca-diagram" style="float: right; margin: 0 0 20px 20px;">
             <img src="images/dca.png" alt="Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies" class="screenshot" style="max-width: 400px; width: 400px;">
@@ -222,7 +222,7 @@
         <div style="text-align: center; margin: 15px 0;">
             \[NB = \frac{TP}{N_{total}} - \frac{FP}{N_{total}} \times \frac{p_t}{1-p_t}\]
         </div>
-        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability, representing the odds at which one would be willing to accept an intervention. In practical terms, p<sub>t</sub> reflects how many unnecessary interventions one is willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures the relative weighting of false positives compared to true positives. p<sub>t</sub> itself can be calculated as:</p>
+        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability — the minimum predicted probability at which you would decide to intervene (e.g., diagnose, treat, or refer for further assessment). For example, if p<sub>t</sub> = 0.10, you would intervene for anyone with a predicted risk ≥ 10%. In practical terms, p<sub>t</sub> represents the trade-off between benefits and harms: for every 1/(1-p<sub>t</sub>) - 1 unnecessary interventions you're willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures this relative weighting of false positives compared to true positives. p<sub>t</sub> itself can be calculated as:</p>
 
         <div style="text-align: center; margin: 15px 0;">
             \[p_t = \frac{C_{FP}}{C_{FP} + C_{FN}}\]

@@ -124,7 +124,7 @@
                 <div class="slider-container">
                     <!-- Cohen's d and other metrics -->
                     <div>
-                        <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="1.0" style="width: 100%; margin-bottom: 10px;">
+                        <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="1.34" style="width: 100%; margin-bottom: 10px;">
                         
                         <!-- Continuous Metrics -->
                         <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 30px;">
@@ -137,8 +137,8 @@
                             <!-- Cohen's d -->
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span class="slider-label" data-tooltip="Standardized mean difference between groups">Cohen's d</span>
-                                <input type="number" id="true-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1">
-                                <input type="number" id="observed-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1" readonly>
+                                <input type="number" id="true-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1.34">
+                                <input type="number" id="observed-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1.34" readonly>
                             </div>
 
                             <!-- Cohen's U3 -->
@@ -204,10 +204,10 @@
 
                     <!-- Base rate -->
                     <div>
-                        <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="50">
+                        <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="45">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                             <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate, \(\phi\) (%)</span>
-                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
+                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
                         </div>
                     </div>
                 </div>
@@ -530,13 +530,13 @@
                         
                         <!-- Point-biserial r -->
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and binary group membership">Point-biserial r</span>
+                            <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and binary group membership">Point-biserial r<sub>pb</sub></span>
                             <input type="number" id="true-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
                             <input type="number" id="observed-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
                         </div>
                         
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r</span>
+                            <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r<sub>rb</sub></span>
                             <input type="number" id="true-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
                             <input type="number" id="observed-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
                         </div>
