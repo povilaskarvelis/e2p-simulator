@@ -192,7 +192,7 @@ const DCAModule = {
             
             // Format Delta NB for display
             formattedDeltaNB = Math.abs(currentDeltaNB) < 0.001 ? 
-                currentDeltaNB.toExponential(2) : 
+                currentDeltaNB.toExponential(1) : 
                 currentDeltaNB.toFixed(3);
             
             // Create traces
@@ -283,7 +283,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                    text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${currentThresholdProb.toFixed(2)}`,
+                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${currentThresholdProb.toFixed(3)}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right"
