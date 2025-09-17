@@ -291,8 +291,8 @@ function handleVersionChange(event) {
     } else {
         // Construct Netlify branch URL
         // Format: https://version-{version}--e2p-simulator.netlify.app
-        // Replace dots with hyphens for Netlify branch naming
-        const branchName = selectedVersion.replace(/\./g, '-');
+        // Remove the 'v' prefix and replace dots with hyphens for Netlify branch naming
+        const branchName = selectedVersion.replace(/^v/, '').replace(/\./g, '-');
         const netlifyUrl = `https://version-${branchName}--e2p-simulator.netlify.app`;
         
         // Redirect to the version-specific Netlify deployment
