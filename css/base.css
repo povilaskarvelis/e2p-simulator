@@ -89,6 +89,40 @@ h1 {
     gap: 20px; /* Adjust gap between nav and GitHub logo */
 }
 
+/* Version selector styles */
+.version-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.version-label {
+    font-size: 0.9em;
+    color: #666;
+    font-weight: 500;
+}
+
+.version-dropdown {
+    padding: 4px 8px;
+    border: 1px solid #d1d5da;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9em;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.version-dropdown:hover {
+    border-color: #0366d6;
+}
+
+.version-dropdown:focus {
+    outline: none;
+    border-color: #0366d6;
+    box-shadow: 0 0 0 2px rgba(3, 102, 214, 0.1);
+}
+
 /* Description Text */
 .description {
     text-align: center;

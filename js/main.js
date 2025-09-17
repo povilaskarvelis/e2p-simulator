@@ -228,19 +228,41 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchVersionInfo();
 }); 
 
-// Function to fetch the latest release version from GitHub
+// Function to fetch available versions and populate version selector
 async function fetchVersionInfo() {
     try {
-        const response = await fetch('https://api.github.com/repos/povilaskarvelis/e2p-simulator/releases/latest');
+        // Fetch all releases (not just latest)
+        const response = await fetch('https://api.github.com/repos/povilaskarvelis/e2p-simulator/releases');
         if (response.ok) {
-            const data = await response.json();
-            const versionNumber = data.tag_name || data.name;
+            const releases = await response.json();
             
-            // Update the version display
+            // Get the latest release for the footer display
+            const latestRelease = releases[0];
+            const versionNumber = latestRelease?.tag_name || latestRelease?.name;
+            
+            // Update the footer version display
             const versionElement = document.getElementById('version-number');
             if (versionElement && versionNumber) {
                 versionElement.textContent = versionNumber;
                 versionElement.style.color = '#0366d6'; // GitHub blue color
+            }
+            
+            // Populate version selector dropdown
+            const versionSelect = document.getElementById('version-select');
+            if (versionSelect && releases.length > 0) {
+                // Clear existing options except "Latest"
+                versionSelect.innerHTML = '<option value="latest">Latest (' + versionNumber + ')</option>';
+                
+                // Add other releases
+                releases.slice(1).forEach(release => {
+                    const option = document.createElement('option');
+                    option.value = release.tag_name;
+                    option.textContent = release.tag_name;
+                    versionSelect.appendChild(option);
+                });
+                
+                // Add version change handler
+                versionSelect.addEventListener('change', handleVersionChange);
             }
         } else {
             // If API call fails, hide the version info or show fallback
@@ -255,6 +277,31 @@ async function fetchVersionInfo() {
         const versionInfo = document.getElementById('version-info');
         if (versionInfo) {
             versionInfo.style.display = 'none';
+        }
+    }
+}
+
+// Function to handle version switching
+function handleVersionChange(event) {
+    const selectedVersion = event.target.value;
+    
+    if (selectedVersion === 'latest') {
+        // Redirect to the main site
+        window.location.href = 'https://e2p-simulator.com';
+    } else {
+        // Create a confirmation dialog
+        const userConfirmed = confirm(
+            `You are about to switch to version ${selectedVersion}. ` +
+            'This will redirect you to GitHub where you can download and run that version locally. ' +
+            'Continue?'
+        );
+        
+        if (userConfirmed) {
+            // Redirect to the GitHub release page
+            window.open(`https://github.com/povilaskarvelis/e2p-simulator/releases/tag/${selectedVersion}`, '_blank');
+        } else {
+            // Reset to current selection
+            event.target.value = 'latest';
         }
     }
 }
