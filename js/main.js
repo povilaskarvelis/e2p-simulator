@@ -289,19 +289,13 @@ function handleVersionChange(event) {
         // Redirect to the main site
         window.location.href = 'https://e2p-simulator.com';
     } else {
-        // Create a confirmation dialog
-        const userConfirmed = confirm(
-            `You are about to switch to version ${selectedVersion}. ` +
-            'This will redirect you to GitHub where you can download and run that version locally. ' +
-            'Continue?'
-        );
+        // Construct Netlify branch URL
+        // Format: https://version-{version}--e2p-simulator.netlify.app
+        // Replace dots with hyphens for Netlify branch naming
+        const branchName = selectedVersion.replace(/\./g, '-');
+        const netlifyUrl = `https://version-${branchName}--e2p-simulator.netlify.app`;
         
-        if (userConfirmed) {
-            // Redirect to the GitHub release page
-            window.open(`https://github.com/povilaskarvelis/e2p-simulator/releases/tag/${selectedVersion}`, '_blank');
-        } else {
-            // Reset to current selection
-            event.target.value = 'latest';
-        }
+        // Redirect to the version-specific Netlify deployment
+        window.location.href = netlifyUrl;
     }
 }
