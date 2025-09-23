@@ -259,8 +259,8 @@ const DCAModule = {
                     showgrid: false,
                     showline: false,
                     titlefont: { size: 15 },
-                    tickformat: ".1f",
-                    dtick: 0.2
+                    tickvals: [0, 1.0],
+                    ticktext: ["0", "100%"]
                 },
                 yaxis: { 
                     title: "Net benefit (NB)", 
@@ -283,7 +283,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${currentThresholdProb.toFixed(3)}`,
+                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${(currentThresholdProb * 100).toFixed(2)}%`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right"

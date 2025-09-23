@@ -92,7 +92,7 @@
 
     <div class="guide-section">
         <h2>What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, MCC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.</p>
 
         <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how research findings will translate into real-world prediction or what effect sizes/predictive performance is needed to achieve a desired level of predictive and clinical utility. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
@@ -142,7 +142,21 @@
         </ul>
         
         <h3>Measurement Reliability and True vs. Observed Effects</h3>
-        <p>Measurement reliability attenuates observed effect sizes, which in turn reduces predictive performance. The simulator allows you to specify reliability using the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability); see <a href="https://osf.io/preprints/psyarxiv/z4yqe_v4" target="_blank">Karvelis & Diaconescu, 2025</a> for more details on how reliability attenuates individual and group differences.</p>
+        <p>Measurement reliability attenuates observed effect sizes, which in turn reduces predictive performance. The simulator allows you to specify reliability using the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability).</p>
+        
+        <p>For continuous outcomes, the relationship between true and observed Pearson's r is given by:</p>
+        <div style="text-align: center; margin: 15px 0;">
+            \[r_{\text{observed}} = r_{\text{true}} \times \sqrt{ICC_{\text{predictor}} \times ICC_{\text{outcome}}}\]
+        </div>
+
+        <p>For binary outcomes, the relationship between true and observed Cohen's d is:</p>
+        <div style="text-align: center; margin: 15px 0;">
+            \[d_{\text{observed}} = d_{\text{true}} \times \sqrt{\frac{2 \times ICC_1 \times ICC_2}{ICC_1 + ICC_2} \times \sin(\frac{\pi}{2} \kappa)}\]
+        </div>
+
+        <p>where \(ICC_1\) and \(ICC_2\) denote reliability of the predictor in each of the two groups, and \(\kappa\) (kappa) is the reliability of the predicted binary outcome labels (e.g., interrater reliability of a diagnosis).</p>
+
+        <p>See <a href="https://osf.io/preprints/psyarxiv/z4yqe_v5" target="_blank">Karvelis & Diaconescu (2025)</a> for more details on how reliability attenuates individual and group differences.</p>
        
         <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
@@ -180,7 +194,19 @@
             <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%;">
         </div>
         
-        <p>The image above illustrates how these four outcomes relate to various classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you'll find the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
+        <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
+        
+        <p>A short summary of each metric:</p>
+        <ul>
+            <li><strong>Sensitivity (Recall, True Positive Rate)</strong>: Measures the proportion of actual positives correctly identified. Useful when missing a positive case is costly (e.g., disease screening), but ignores false positives.</li>
+            <li><strong>Specificity (True Negative Rate)</strong>: Measures the proportion of actual negatives correctly identified. Important when false alarms are costly (e.g., confirming a diagnosis before a risky treatment), but ignores false negatives.</li>
+            <li><strong>Accuracy</strong>: The proportion of all predictions that are correct. Intuitive but can be misleading for imbalanced datasets, as it is heavily influenced by the majority class.</li>
+            <li><strong>Balanced Accuracy</strong>: The average of Sensitivity and Specificity. A better measure than accuracy for imbalanced datasets, but it gives equal weight to both types of errors and does not account for the base rate, which is critical for assessing real-world utility.</li>
+            <li><strong>Positive Predictive Value (PPV, Precision)</strong>: The proportion of positive predictions that are actually correct. It informatively accounts for base rate, and corresponds to the posterior probability of a condition given a positive test result ("How likely is a positive prediction to be true?"). As such, it is a crucial metric for clinical decision-making.</li>
+            <li><strong>Negative Predictive Value (NPV)</strong>: The proportion of negative predictions that are actually correct. It also informatively accounts for the base rate and corresponds to the posterior probability of not having a condition given a negative test result ("How likely is a negative prediction to be true?"). This makes it a crucial metric for ruling out conditions.</li>
+            <li><strong>F1 Score</strong>: The harmonic mean of Precision and Recall. A useful summary when you need to balance finding all positives and not making too many false alarms, though it can be hard to interpret directly.</li>
+            <li><strong>Matthews Correlation Coefficient (MCC)</strong>: A correlation between observed and predicted classifications. A balanced measure suitable for imbalanced datasets, but it is less intuitive to interpret and does not reveal the types of errors being made.</li>
+        </ul>
         
         <h3 id="threshold-metrics">Threshold-Independent Metrics</h3>
         
@@ -190,8 +216,8 @@
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
         <ul>
-            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Visualizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds, capturing the trade-off between the two. An ROC-AUC of 0.5 means the model is no better than flipping a coin, while 1.0 means perfect separation between groups.</li>
-            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Shows how well a model can maintain both precision (PPV) and Recall (Sensitivity) together, which is particularly informative in the context of rare outcomes, as the base rate affects Precision. A larger PR-AUC means the model can achieve high Precision without sacrificing Recall (or vice versa), indicating a smaller trade-off between finding all positive cases and avoiding false alarms.</li>
+            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Summarizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds. While useful, ROC-AUC can be misleadingly optimistic for imbalanced datasets (e.g., rare diseases) because it does not account for the base rate of the outcome, which is a critical component of real-world performance.</li>
+            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Summarizes how well a model maintains both Precision (PPV) and Recall (Sensitivity). PR-AUC is often a more informative metric for real-world applications because it directly evaluates the trade-off between finding positive cases (Recall) and ensuring that positive predictions are correct (Precision), which critically depends on the outcome's base rate. A high PR-AUC indicates strong performance in practical scenarios where correctly identifying positive cases is paramount. Therefore, to get a realistic estimate of real-world utility, it is essential to use PR-AUC with a base rate that reflects the intended population.</li>
         </ul>
         
         <p>Both ROC-AUC and PR-AUC represent areas under their respective curves and are mathematically expressed as integrals:</p>
@@ -222,7 +248,7 @@
         <div style="text-align: center; margin: 15px 0;">
             \[NB = \frac{TP}{N_{total}} - \frac{FP}{N_{total}} \times \frac{p_t}{1-p_t}\]
         </div>
-        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability — the minimum predicted probability at which you would decide to intervene (e.g., diagnose, treat, or refer for further assessment). For example, if p<sub>t</sub> = 0.10, you would intervene for anyone with a predicted risk ≥ 10%. In practical terms, p<sub>t</sub> represents the trade-off between benefits and harms: for every 1/(1-p<sub>t</sub>) - 1 unnecessary interventions you're willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures this relative weighting of false positives compared to true positives. p<sub>t</sub> itself can be calculated as:</p>
+        <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability. It represents the minimum predicted probability of an outcome at which you would decide to intervene (e.g., diagnose or treat). For instance, if p<sub>t</sub> = 0.10, you would intervene for anyone with a predicted risk ≥ 10%. The choice of p<sub>t</sub> determines a specific balance between sensitivity (finding true cases) and specificity (avoiding false alarms). In practical terms, p<sub>t</sub> represents the trade-off between benefits and harms: for every 1/(1-p<sub>t</sub>) - 1 unnecessary interventions you are willing to accept to prevent one adverse outcome. The ratio p<sub>t</sub>/(1-p<sub>t</sub>) in the net benefit formula captures this relative weighting of false positives compared to true positives. The optimal p<sub>t</sub> can be estimated as:</p>
 
         <div style="text-align: center; margin: 15px 0;">
             \[p_t = \frac{C_{FP}}{C_{FP} + C_{FN}}\]

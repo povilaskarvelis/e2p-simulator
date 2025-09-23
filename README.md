@@ -1,7 +1,7 @@
 # E2P Simulator
 [![DOI](https://zenodo.org/badge/934366440.svg)](https://doi.org/10.5281/zenodo.15127945)
 
-E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, MCC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.
+E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.
 
 E2P Simulator has several applications:
 
@@ -21,7 +21,7 @@ This tool has been designed with biomedical and behavioral sciences in mind, par
 
 If you use this simulator in your research, please cite it as:
 
-Povilas Karvelis. (2025). povilaskarvelis/e2p-simulator: E2P Simulator v1.1.1 (v1.1.1). Zenodo. https://doi.org/10.5281/zenodo.16689694
+Povilas Karvelis. (2025). povilaskarvelis/e2p-simulator: E2P Simulator v1.2.0 (v1.2.0). Zenodo. https://doi.org/10.5281/zenodo.17112626
 
 ## Running E2P Simulator Locally
 
