@@ -257,7 +257,7 @@ const DCAModule = {
                     title: "Threshold probability (p<sub>t</sub>)", 
                     range: [0, 1], 
                     showgrid: false,
-                    showline: false,
+                    showline: true,
                     titlefont: { size: 15 },
                     tickvals: [0, 1.0],
                     ticktext: ["0", "100%"]
@@ -266,7 +266,8 @@ const DCAModule = {
                     title: "Net benefit (NB)", 
                     showgrid: false, 
                     zeroline: false,
-                    titlefont: { size: 15 }
+                    titlefont: { size: 15 },
+                    tickvals: [0, 0.1, 0.2, 0.3, 0.4, 0.5]
                 },
                 showlegend: true,
                 legend: {
