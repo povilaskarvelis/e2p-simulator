@@ -1,6 +1,6 @@
 (function() {
 // Global variables to track datasets and colors
-    let dDatasets = [], prAucDatasets = [];
+    let rocaucDatasets = [], prAucDatasets = [];
 const colors = [
         '#008080', '#E63946', '#FFA726', '#1E88E5', 
         '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'
@@ -8,8 +8,8 @@ const colors = [
     let nextColorIndex = 0;
 
     // Track active curves and chart instances
-    let dActiveCurve, prAucActiveCurve;
-    let dChart = null, prAucChart = null;
+    let rocaucActiveCurve, prAucActiveCurve;
+    let rocaucChart = null, prAucChart = null;
 
     function initializeMahalanobis() {
         const chartContainer = document.getElementById('chartContainer');
@@ -26,7 +26,7 @@ const colors = [
             chartContainer.insertBefore(legendContainer, chartContainer.firstChild);
         }
         
-        initializeDChart();
+        initializeRocAucChart();
         initializePrAucChart();
         setupInputListeners();
         updatePlot();
@@ -51,7 +51,7 @@ const colors = [
             input.addEventListener('input', inputUpdate);
         };
 
-        ['targetD-slider', 'mahalanobis-base-rate-slider', 'effectSize-slider', 'correlation-slider', 'numVariables-slider'].forEach(id => {
+        ['targetRocAuc-slider', 'mahalanobis-base-rate-slider', 'effectSize-slider', 'correlation-slider', 'numVariables-slider'].forEach(id => {
             const idRoot = id.replace('-slider', '');
             setupInputPair(id, idRoot);
         });
@@ -60,21 +60,28 @@ const colors = [
     document.getElementById('reset-mahalanobis').addEventListener('click', resetChart);
     }
 
-    function initializeDChart() {
-        if (dChart) dChart.destroy();
-        const ctx = document.getElementById('dPlot').getContext('2d');
-        dActiveCurve = createActiveCurveDataset();
-        dChart = new Chart(ctx, createChartConfig(dActiveCurve, 'Mahalanobis D', 'Target D', false, true, 0, parseFloat(document.getElementById("targetD").value) * 1.3));
+    function initializeRocAucChart() {
+        if (rocaucChart) rocaucChart.destroy();
+        const ctx = document.getElementById('rocAucPlot').getContext('2d');
+        rocaucActiveCurve = createActiveCurveDataset();
+        const thresholdValue = parseFloat(document.getElementById("targetRocAuc").value);
+        rocaucChart = new Chart(ctx, createChartConfig(rocaucActiveCurve, 'ROC-AUC', 'Target ROC-AUC', false, true, thresholdValue, 0.5, 1));
     }
 
     function initializePrAucChart() {
         if (prAucChart) prAucChart.destroy();
         const ctx = document.getElementById('prAucPlot').getContext('2d');
         prAucActiveCurve = createActiveCurveDataset();
-        prAucChart = new Chart(ctx, createChartConfig(prAucActiveCurve, 'PR-AUC', 'Target PR-AUC', true, false, 0, 1));
+        
+        const targetRocAuc = parseFloat(document.getElementById('targetRocAuc').value);
+        const targetD = StatUtils.aucToD(targetRocAuc);
+        const baseRate = parseFloat(document.getElementById('mahalanobis-base-rate').value);
+        const thresholdValue = StatUtils.dToPRAUC(targetD, baseRate);
+
+        prAucChart = new Chart(ctx, createChartConfig(prAucActiveCurve, 'PR-AUC', 'Target PR-AUC', true, false, thresholdValue, 0, 1));
     }
 
-    function createChartConfig(activeCurve, yLabel, thresholdLabel, showXLabel, useLegendPlugin, yMin = 0, yMax = undefined) {
+    function createChartConfig(activeCurve, yLabel, thresholdLabel, showXLabel, useLegendPlugin, thresholdValue, yMin = 0, yMax = undefined) {
         const numVariables = parseInt(document.getElementById("numVariables").value);
         const plugins = [targetLineLabelPlugin];
         if (useLegendPlugin) {
@@ -84,9 +91,9 @@ const colors = [
             type: 'line',
             data: {
                 labels: Array.from({ length: numVariables }, (_, i) => i + 1),
-                datasets: [createThresholdDataset(thresholdLabel, yLabel === 'Mahalanobis D' ? parseFloat(document.getElementById("targetD").value) : parseFloat(document.getElementById("target-pr-auc").value)), activeCurve]
+                datasets: [createThresholdDataset(thresholdLabel, thresholdValue), activeCurve]
             },
-            options: getChartOptions(yLabel, yMax, showXLabel),
+            options: getChartOptions(yLabel, yMax, showXLabel, yMin),
             plugins: plugins
         };
         return config;
@@ -122,13 +129,15 @@ const colors = [
     };
     }
 
-    function getChartOptions(yLabel, yMax, showXLabel = true) {
+    function getChartOptions(yLabel, yMax, showXLabel = true, yMin = 0) {
     const yTicksConfig = {
         font: { size: 14 }
     };
 
     if (yLabel === 'PR-AUC') {
         yTicksConfig.stepSize = 0.2;
+    } else if (yLabel === 'ROC-AUC') {
+        yTicksConfig.stepSize = 0.1;
     }
 
     const xTicksConfig = { font: { size: 14 } };
@@ -168,7 +177,7 @@ const colors = [
                 grid: { display: false, drawBorder: false }
             },
             y: {
-                min: 0,
+                min: yMin,
                 max: yMax,
                 title: { display: true, text: yLabel, font: { size: 18 } },
                 ticks: yTicksConfig,
@@ -179,24 +188,25 @@ const colors = [
 }
 
     function updatePlot() {
-        if (!dActiveCurve) return;
+        if (!rocaucActiveCurve) return;
 
-        const targetD = parseFloat(document.getElementById('targetD').value);
-        const baseRate = parseFloat(document.getElementById('mahalanobis-base-rate').value) / 100;
+        const targetRocAuc = parseFloat(document.getElementById('targetRocAuc').value);
+        const targetD = StatUtils.aucToD(targetRocAuc);
+        const baseRate = parseFloat(document.getElementById('mahalanobis-base-rate').value);
         const effectSize = parseFloat(document.getElementById('effectSize').value);
         const correlation = parseFloat(document.getElementById('correlation').value);
         const numVariables = parseInt(document.getElementById('numVariables').value);
 
         document.getElementById('target-pr-auc').value = StatUtils.dToPRAUC(targetD, baseRate).toFixed(2);
         
-        let dValues = [], prAucValues = [];
+        let rocaucValues = [], prAucValues = [];
         for (let i = 1; i <= numVariables; i++) {
             const d = computeMahalanobisD(i, effectSize, correlation);
-            dValues.push(d);
+            rocaucValues.push(StatUtils.dToAUC(d));
             prAucValues.push(StatUtils.dToPRAUC(d, baseRate));
         }
 
-        updateChart(dChart, dValues, targetD, 'Target D', numVariables);
+        updateChart(rocaucChart, rocaucValues, targetRocAuc, 'Target ROC-AUC', numVariables, 0.5, 1);
         updateChart(prAucChart, prAucValues, StatUtils.dToPRAUC(targetD, baseRate), 'Target PR-AUC', numVariables, 0, 1);
         updateActiveCurveLabel();
     }
@@ -214,6 +224,7 @@ const colors = [
     
     if(yMax === undefined) yMax = threshold * 1.3;
     chart.options.scales.y.max = yMax;
+    chart.options.scales.y.min = yMin;
     
     chart.update();
 }
@@ -221,31 +232,31 @@ const colors = [
     const maxCurves = 4;
 
     function recordCurrentCurve() {
-        if (dDatasets.length >= maxCurves) return;
+        if (rocaucDatasets.length >= maxCurves) return;
 
-        const { targetD, baseRate, effectSize, correlation, numVariables } = getInputs();
+        const { targetRocAuc, baseRate, effectSize, correlation, numVariables } = getInputs();
         
-        let dValues = [], prAucValues = [];
+        let rocaucValues = [], prAucValues = [];
         for (let i = 1; i <= numVariables; i++) {
             const d = computeMahalanobisD(i, effectSize, correlation);
-            dValues.push(d);
+            rocaucValues.push(StatUtils.dToAUC(d));
             prAucValues.push(StatUtils.dToPRAUC(d, baseRate));
         }
 
-        addDataset(dChart, dDatasets, dValues, effectSize, correlation, colors[nextColorIndex]);
+        addDataset(rocaucChart, rocaucDatasets, rocaucValues, effectSize, correlation, colors[nextColorIndex]);
         addDataset(prAucChart, prAucDatasets, prAucValues, effectSize, correlation, colors[nextColorIndex]);
 
         nextColorIndex = (nextColorIndex + 1) % colors.length;
         
-        if (dDatasets.length < maxCurves) {
+        if (rocaucDatasets.length < maxCurves) {
             updateActiveCurveColor();
             updateActiveCurveLabel();
         } else {
-            dChart.data.datasets.pop();
+            rocaucChart.data.datasets.pop();
             prAucChart.data.datasets.pop();
-            dActiveCurve = null;
+            rocaucActiveCurve = null;
             prAucActiveCurve = null;
-            dChart.update();
+            rocaucChart.update();
             prAucChart.update();
             document.getElementById('record-mahalanobis').disabled = true;
         }
@@ -269,13 +280,13 @@ const colors = [
 }
 
 function resetChart() {
-        dDatasets = [];
+        rocaucDatasets = [];
         prAucDatasets = [];
     nextColorIndex = 0;
     
-        dActiveCurve = createActiveCurveDataset();
+        rocaucActiveCurve = createActiveCurveDataset();
         prAucActiveCurve = createActiveCurveDataset();
-        dChart.data.datasets = [dChart.data.datasets[0], dActiveCurve];
+        rocaucChart.data.datasets = [rocaucChart.data.datasets[0], rocaucActiveCurve];
         prAucChart.data.datasets = [prAucChart.data.datasets[0], prAucActiveCurve];
         
         document.getElementById('record-mahalanobis').disabled = false;
@@ -286,18 +297,18 @@ function resetChart() {
 
     function updateActiveCurveColor() {
         const solidColor = colors[nextColorIndex];
-        dActiveCurve.borderColor = solidColor;
-        dActiveCurve.pointBackgroundColor = solidColor;
+        rocaucActiveCurve.borderColor = solidColor;
+        rocaucActiveCurve.pointBackgroundColor = solidColor;
         prAucActiveCurve.borderColor = solidColor;
         prAucActiveCurve.pointBackgroundColor = solidColor;
-        dChart.update();
+        rocaucChart.update();
         prAucChart.update();
     }
     
     function getInputs() {
         return {
-            targetD: parseFloat(document.getElementById('targetD').value),
-            baseRate: parseFloat(document.getElementById('mahalanobis-base-rate').value) / 100,
+            targetRocAuc: parseFloat(document.getElementById('targetRocAuc').value),
+            baseRate: parseFloat(document.getElementById('mahalanobis-base-rate').value),
             effectSize: parseFloat(document.getElementById('effectSize').value),
             correlation: parseFloat(document.getElementById('correlation').value),
             numVariables: parseInt(document.getElementById('numVariables').value)
@@ -305,13 +316,13 @@ function resetChart() {
     }
     
     function updateActiveCurveLabel() {
-        if (!dActiveCurve) return;
+        if (!rocaucActiveCurve) return;
 
         const { effectSize, correlation } = getInputs();
         const label = `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`;
-        dActiveCurve.label = label;
+        rocaucActiveCurve.label = label;
         prAucActiveCurve.label = label;
-    dChart.update();
+    rocaucChart.update();
         prAucChart.update();
 }
 

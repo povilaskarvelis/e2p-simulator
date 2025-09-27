@@ -138,7 +138,7 @@ function findOptimalThresholdBinary(metricType = 'youden') {
         const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
         const ddif = (currentView === 'true') ? trueD : obsD;
 
-        const baseRate = parseFloat(document.getElementById('base-rate-slider').value) / 100;
+        const baseRate = parseFloat(document.getElementById('base-rate-slider').value);
 
         const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
         const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
@@ -177,7 +177,7 @@ function findOptimalThresholdBinary(metricType = 'youden') {
 // Drawing functions
 function drawDistributions(d) {
     try {
-        const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
+        const baseRate = parseFloat(document.getElementById("base-rate-slider").value);
 
         // Get ICC values
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
@@ -399,7 +399,7 @@ function drawThreshold(d) {
 
 function plotROC(d) {
     try {
-        const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
+        const baseRate = parseFloat(document.getElementById("base-rate-slider").value);
 
         // Get ICC values for standard deviation calculation
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
@@ -677,7 +677,7 @@ function updateMetricsFromD(d) {
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
         const kappa = parseFloat(document.getElementById("kappa-slider").value);
-        const baseRate = parseFloat(document.getElementById("base-rate-slider").value) / 100;
+        const baseRate = parseFloat(document.getElementById("base-rate-slider").value);
         
         // Calculate attenuated d
         const dObs = d * Math.sqrt((2 * icc1 * icc2) / (icc1 + icc2) * Math.sin((Math.PI/2) * kappa));
@@ -941,7 +941,7 @@ function setupEventListeners() {
         const baseRateInput = document.getElementById("base-rate-number");
 
         baseRateSlider.addEventListener("input", () => {
-            baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(1);
+            baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(3);
             updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
         });
 

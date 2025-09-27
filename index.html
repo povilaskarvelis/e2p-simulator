@@ -88,7 +88,7 @@
     <h1>From Effect Size to Real-World Predictive Utility</h1>
 
     <div class="description">
-        <p><strong>E2P Simulator</strong> estimates the real-world predictive utility of research findings by accounting for measurement reliability and outcome base rates. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly in individual differences research, biomarker development, predictive modelling, and precision medicine/psychiatry.</p>
+        <p><strong>E2P Simulator</strong> estimates the real-world predictive utility of research findings by accounting for measurement reliability and outcome prevalence. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly in individual differences research, biomarker development, predictive modelling, and precision medicine/psychiatry.</p>
 
         <p>See <a href="get-started.html" style="color: #0366d6; text-decoration: none;" target="_blank">Get Started</a> guide for more details.</p>
 
@@ -183,31 +183,31 @@
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Group 1 reliability, ICC<sub>1</sub></span>
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>1</sub></span>
                             <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Group 2 Reliability -->
                         <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Group 2 reliability, ICC<sub>2</sub></span>
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>2</sub></span>
                             <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Classification Reliability -->
                         <input type="range" id="kappa-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
-                            <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Grouping reliability, <i>&kappa;</i></span>
+                            <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Outcome reliability, <i>&kappa;</i></span>
                             <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                     </div>
 
-                    <!-- Base rate -->
+                    <!-- Prevalence -->
                     <div>
-                        <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="45">
+                        <input type="range" id="base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.45">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate, \(\phi\) (%)</span>
-                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
+                            <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Prevalence, \(\phi\)</span>
+                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.001" max="0.999" step="0.001" value="0.45">
                         </div>
                     </div>
                 </div>
@@ -304,7 +304,7 @@
             <!-- d to AUC -->
             <div class="equation-box">
                 <a href="https://psycnet.apa.org/record/2008-02525-002" style="text-decoration: none; color: inherit;" target="_blank">
-                    <p class="equation-title">d to AUC</p>
+                    <p class="equation-title">d to ROC-AUC</p>
                     <div class="equation-content">
                         \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
                     </div>
@@ -338,7 +338,7 @@
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
             <p>
-                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, and then computing PR-AUC, which conveys real-world predictive utility by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then converted to ROC-AUC. PR-AUC is also computed to convey real-world predictive utility by accounting for the prevalence. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.
             </p>
         </div>
 
@@ -347,9 +347,9 @@
             <div class="section sliders">
                 <!-- Mahalanobis D equation box -->
                 <div class="equation-box flat">
-                    <p class="equation-title">A simplified Mahalanobis D formula when all predictors have the same effect size and collinearity:</p>
+                    <p class="equation-title">A simplified formula for converting multiple predictors to ROC-AUC:</p>
                     <div class="equation-content">
-                        \[D = d \sqrt{\dfrac{p}{1 + (p-1)r_{ij}}}\]
+                        \[\text{ROC-AUC} = \Phi\left(d \sqrt{\frac{p}{2(1 + (p-1)r_{ij})}}\right)\]
                     </div>
                 </div>
                 
@@ -357,10 +357,10 @@
                     <div>
                         <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 5px;">
                             <div class="slider-container" style="margin-bottom: 0;">
-                                <input type="range" id="targetD-slider" min="0" max="5" step="0.01" value="2.46" class="slider">
+                                <input type="range" id="targetRocAuc-slider" min="0.5" max="1" step="0.01" value="0.96" class="slider">
                                 <div class="slider-value-container">
-                                    <span class="slider-label">Target Mahalanobis D</span>
-                                    <input type="number" id="targetD" step="0.01" value="2.46" class="slider-value">
+                                    <span class="slider-label">Target ROC-AUC</span>
+                                    <input type="number" id="targetRocAuc" step="0.01" value="0.96" class="slider-value">
                                 </div>
                             </div>
                             <div class="slider-value-container" style="margin-top: 0;">
@@ -369,10 +369,10 @@
                             </div>
                         </div>
                         <div class="slider-container">
-                            <input type="range" id="mahalanobis-base-rate-slider" min="0.1" max="99.9" step="0.01" value="10" class="slider">
+                            <input type="range" id="mahalanobis-base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.10" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate (%)</span>
-                                <input type="number" id="mahalanobis-base-rate" min="0.1" max="99.9" step="0.01" value="10" class="slider-value">
+                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Prevalence</span>
+                                <input type="number" id="mahalanobis-base-rate" min="0.001" max="0.999" step="0.001" value="0.10" class="slider-value">
                             </div>
                         </div>
                     </div>
@@ -414,8 +414,8 @@
             </div>
             <div class="section">
                 <div id="chartContainer">
-                    <div id="dPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="dPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    <div id="rocAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="rocAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
                     </div>
                     <div id="prAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
                         <canvas id="prAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
@@ -491,12 +491,12 @@
                         <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
 
-                    <!-- Base rate -->
+                    <!-- Prevalence -->
                     <div style="margin-top: 10px; margin-bottom: 20px;">
-                        <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
+                        <input type="range" id="base-rate-slider-cont" min="0.001" max="0.999" step="0.001" value="0.50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <span class="slider-label" data-tooltip="Prevalance of group 2 in a population">Base rate (%)</span>
-                            <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
+                            <span class="slider-label" data-tooltip="Prevalance of group 2 in a population">Prevalence</span>
+                            <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.001" max="0.999" step="0.001" value="0.50">
                         </div>
                     </div>
                     
@@ -706,7 +706,7 @@
         <div style="margin-top: 50px;"></div>
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the prevalence to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
@@ -736,12 +736,12 @@
                             </div>
                         </div>
                         
-                        <!-- Base Rate slider -->
+                        <!-- Prevalence slider -->
                         <div class="slider-container">
-                            <input type="range" id="r2-base-rate-slider" min="0.1" max="99.9" step="0.1" value="15" class="slider">
+                            <input type="range" id="r2-base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.15" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Base rate (%)</span>
-                                <input type="number" id="r2-base-rate" min="0.1" max="99.9" step="0.1" value="15" class="slider-value">
+                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Prevalence</span>
+                                <input type="number" id="r2-base-rate" min="0.001" max="0.999" step="0.001" value="0.15" class="slider-value">
                             </div>
                         </div>
                     </div>
@@ -817,10 +817,10 @@
                 </div>
 
                 <div class="slider-container">
-                    <input type="range" id="ssb-prevalence-slider" min="0.1" max="99.9" step="0.1" value="30" class="slider">
+                    <input type="range" id="ssb-prevalence-slider" min="0.001" max="0.999" step="0.001" value="0.30" class="slider">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Outcome prevalence in the training data">Base rate (\(\phi\), %)</span>
-                        <input type="number" id="ssb-prevalence" min="0.1" max="99.9" step="0.1" value="30" class="slider-value">
+                        <span class="slider-label" data-tooltip="Event prevalence in the training data">Prevalence (\(\phi\))</span>
+                        <input type="number" id="ssb-prevalence" min="0.001" max="0.999" step="0.001" value="0.30" class="slider-value">
                     </div>
                 </div>
                 

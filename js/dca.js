@@ -260,7 +260,7 @@ const DCAModule = {
                     showline: true,
                     titlefont: { size: 15 },
                     tickvals: [0, 1.0],
-                    ticktext: ["0", "100%"]
+                    ticktext: ["0", "1"]
                 },
                 yaxis: { 
                     title: "Net benefit (NB)", 
@@ -284,7 +284,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${(currentThresholdProb * 100).toFixed(2)}%`,
+                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${currentThresholdProb.toFixed(3)}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right"
@@ -319,12 +319,11 @@ const DCAModule = {
                 allValues.push(thresholdMarker.y[0]);
             }
             
-            const dataMin = Math.min(...allValues);
             const dataMax = Math.max(...allValues);
             
-            // Set reasonable y-axis bounds with strict limits
-            const yAxisMin = Math.max(-0.1, dataMin); // Cap at -0.1 maximum
+            // Set reasonable y-axis bounds, with ymin as a percentage of ymax
             const yAxisMax = Math.max(0.1, dataMax + 0.05); // Ensure at least 0.1 range
+            const yAxisMin = -yAxisMax / 5;
             
             // Update the y-axis range after the plot is rendered
             Plotly.relayout(instance.plotSelector, {

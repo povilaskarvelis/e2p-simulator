@@ -148,6 +148,11 @@ const StatUtils = {
     dToAUC: function(d) {
         return this.normalCDF(d / Math.sqrt(2), 0, 1);
     },
+
+    aucToD: function(auc) {
+        if (auc <= 0.5) return 0;
+        return this.normalInverseCDF(auc) * Math.sqrt(2);
+    },
     
     dToOddsRatio: function(d) {
         return Math.exp(d * Math.PI / Math.sqrt(3));

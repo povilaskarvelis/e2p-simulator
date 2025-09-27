@@ -55,7 +55,7 @@ function generateLabeledData(r) {
     const numPoints = preciseCheckbox && preciseCheckbox.checked ? 800000 : 10000; 
     const numPlotPoints = 4000; // Keep plot points lower for performance
     const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
-    const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
+    const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value);
 
     // Generate the full dataset
     const fullData = d3.range(numPoints).map(() => {
@@ -469,7 +469,7 @@ function drawDistributions(tealX, grayX, type) {
     const xRange = [-4, 4];
     xScale.domain(xRange);
     
-    const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
+    const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value);
     const greenScale = baseRate;
     const blueScale = 1 - baseRate;
 
@@ -998,7 +998,7 @@ function updateMetricsFromD(metrics, type) {
     const logOddsRatio = da * Math.PI / Math.sqrt(3);
     
     // Calculate point-biserial correlation
-    const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value) / 100;
+    const baseRate = parseFloat(document.getElementById("base-rate-slider-cont").value);
     const pbR = StatUtils.dToR(da,baseRate);
     
     document.getElementById(`${type}-cohens-d-cont`).value = d.toFixed(2);
@@ -1129,7 +1129,7 @@ function setupEventListeners() {
     const baseRateInput = document.getElementById("base-rate-number-cont");
     
     baseRateSlider.addEventListener("input", () => {
-        baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(1);
+        baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(3);
         updatePlots();
     });
 

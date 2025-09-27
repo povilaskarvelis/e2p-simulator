@@ -125,7 +125,7 @@
     function update(){
         const p = val('ssb-p');
         const r2cs = Math.max(0.0001, Math.min(0.9, val('ssb-r2cs')));
-        const prevPct = Math.max(0.1, Math.min(99.9, val('ssb-prevalence')));
+        const prevPct = Math.max(0.001, Math.min(0.999, val('ssb-prevalence')));
         const S = Math.max(0.7, Math.min(0.99, val('ssb-shrinkage')));
         const delta = Math.max(0.001, Math.min(0.2, val('ssb-delta')));
         // mean risk precision inputs removed
@@ -135,14 +135,14 @@
         if (p == null || r2cs == null || prevPct == null || S == null || delta == null) return;
 
         const nS = computeShrinkageN(p, S, r2cs);
-        const nMAPE = (p <= 30) ? computeMapeN(p, targetMAPE, prevPct/100.0) : 0;
+        const nMAPE = (p <= 30) ? computeMapeN(p, targetMAPE, prevPct) : 0;
         const nRequired = Math.max(nS||0, nMAPE||0);
 
         setHTML('ssb-n-s', formatInt(nS));
         // Removed R² optimism output
         setHTML('ssb-n-required', formatInt(nRequired));
 
-        const events = (nRequired * (prevPct/100.0));
+        const events = (nRequired * prevPct);
         const nonevents = nRequired - events;
         const epp = events / Math.max(1, p);
         setHTML('ssb-events', formatInt(events));
@@ -152,8 +152,7 @@
         // Update results summary table
         const tableContainer = document.getElementById('ssb-results-table');
         if (tableContainer) {
-            const pi = prevPct/100.0;
-            const nEPP = (targetEPP * p) / Math.max(1e-6, pi);
+            const nEPP = (targetEPP * p) / Math.max(1e-6, prevPct);
             const isSHigher = nS >= (nMAPE || 0);
             const isMAPEHigher = !isSHigher;
 
@@ -194,9 +193,8 @@
             xsP.push(pp);
             ysS.push(computeShrinkageN(pp, S, r2cs));
             // Reference: EPP target => n = EPP * p / prevalence
-            const pi = prevPct/100.0;
-            ysEPP.push((targetEPP * pp) / Math.max(1e-6, pi));
-            ysMAPE.push(pp <= 30 ? computeMapeN(pp, targetMAPE, prevPct/100.0) : NaN);
+            ysEPP.push((targetEPP * pp) / Math.max(1e-6, prevPct));
+            ysMAPE.push(pp <= 30 ? computeMapeN(pp, targetMAPE, prevPct) : NaN);
         }
         // Order series so EPV appears first, Shrinkage second, MAPE third, all using palette
         series.push({ label: `EPV (${targetEPP})`, data: ysEPP, borderColor: palette[0], pointBackgroundColor: palette[0], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });

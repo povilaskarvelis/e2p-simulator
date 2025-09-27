@@ -92,7 +92,7 @@
 
     <div class="guide-section">
         <h2>What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rates.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) by accounting for measurement reliability and outcome prevalence.</p>
 
         <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how research findings will translate into real-world prediction or what effect sizes/predictive performance is needed to achieve a desired level of predictive and clinical utility. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
@@ -114,17 +114,17 @@
             <li><strong>Overemphasis on statistical significance:</strong> Most research continues to optimize for statistical significance (p-values) without optimizing for practical significance (effect sizes).</li>
             <li><strong>Difficulty interpreting effect sizes:</strong> The interpretation of effect sizes, which are critical for gauging real-world utility, is often reduced to arbitrary cutoffs (small/medium/large) without conveying their practical utility.</li>
             <li><strong>Overlooked measurement reliability:</strong> Measurement noise attenuates both effect sizes and predictive performance, yet it is rarely accounted for in study design or interpretation of findings.</li>
-            <li><strong>Neglected outcome base rates:</strong> Low prevalence of outcomes can drastically limit predictive performance in real-world settings, but is rarely accounted for when evaluating the translational potential of prediction models.</li>
+            <li><strong>Neglected outcome prevalence:</strong> Low prevalence of outcomes can drastically limit predictive performance in real-world settings, but is rarely accounted for when evaluating the translational potential of prediction models.</li>
         </ul>
 
         <p>Together, these issues undermine the quality and impact of academic research, because routinely reported metrics do not reflect real-world utility. Whether researchers focus on achieving statistical significance of individual predictors or optimizing model performance metrics like accuracy and ROC-AUC, both approaches often lead to unrealistic expectations about practical impact. In turn, this results in inefficient study planning, resource misallocation, and considerable waste of time and funding.</p>
 
-        <p>E2P Simulator is designed to address these fundamental challenges by placing measurement reliability and outcome base rates at the center of study planning and interpretation. It helps researchers understand how these factors jointly shape real-world predictive utility, and guides them in making more informed research decisions.</p>
+        <p>E2P Simulator is designed to address these fundamental challenges by placing measurement reliability and outcome prevalence at the center of study planning and interpretation. It helps researchers understand how these factors jointly shape real-world predictive utility, and guides them in making more informed research decisions.</p>
 
     <div class="guide-section">
         <h2>How to use E2P Simulator</h2>
 
-        <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting effect sizes, measurement reliability, base rates, and decision threshold, and immediately see how these changes impact predictive performance through various visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
+        <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting effect sizes, measurement reliability, prevalence, and decision threshold, and immediately see how these changes impact predictive performance through various visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
 
         <div id="use-summary-diagram" style="text-align: center; margin: 30px 0;">
             <img src="images/use_summary.png" alt="E2P Simulator overview showing all key inputs and interactive elements at a high level" class="screenshot" style="max-width: 100%; width: 100%;">
@@ -138,36 +138,36 @@
         <ul>
             <li><strong>Binary Mode</strong>: Considers dichotomous outcomes such as diagnostic categories (e.g., cases vs. controls) or discrete states (e.g., success vs. failure). All metric calculations and conversions in this mode are completely analytical and follow the formulas provided on the page.</li>
             
-            <li><strong>Continuous Mode</strong>: Considers continuous measurements such as symptom severity or performance scores that may need to be categorized (e.g., responders vs. non-responders or performers vs. non-performers) for practical decisions. This mode is based on actual data simulations rather than analytical solutions, hence it may be slower to react.</li>
+            <li><strong>Continuous Mode</strong>: Considers continuous measurements such as symptom severity or performance scores that may need to be categorized (e.g., responders vs. non-responders or performers vs. non-performers) for practical decisions. This mode is based on actual data simulations rather than analytical solutions, hence it may be slower to respond to inputs.</li>
         </ul>
         
         <h3>Measurement Reliability and True vs. Observed Effects</h3>
-        <p>Measurement reliability attenuates observed effect sizes, which in turn reduces predictive performance. The simulator allows you to specify reliability using the Intraclass Correlation Coefficient (ICC) for continuous measurements and Cohen's kappa (κ) for binary classifications. These typically correspond to test-retest reliability and inter-rater reliability, respectively. You can toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability).</p>
+        <p>Measurement reliability attenuates observed effect sizes, which in turn reduces predictive performance. The simulator allows you to toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability). The reliability of continuous variables (predictors or outcomes) is specified using the Intraclass Correlation Coefficient (ICC), which typically corresponds to test-retest reliability. For binary variables, reliability is specified using Cohen's kappa (κ), which usually represents inter-rater reliability.</p>
         
-        <p>For continuous outcomes, the relationship between true and observed Pearson's r is given by:</p>
+        <p>For continuous outcomes, where both the predictor and outcome are continuous, the relationship between true and observed Pearson's r is given by:</p>
         <div style="text-align: center; margin: 15px 0;">
             \[r_{\text{observed}} = r_{\text{true}} \times \sqrt{ICC_{\text{predictor}} \times ICC_{\text{outcome}}}\]
         </div>
 
-        <p>For binary outcomes, the relationship between true and observed Cohen's d is:</p>
+        <p>For binary outcomes, where a continuous predictor is used to classify a binary outcome, the relationship between true and observed Cohen's d is:</p>
         <div style="text-align: center; margin: 15px 0;">
             \[d_{\text{observed}} = d_{\text{true}} \times \sqrt{\frac{2 \times ICC_1 \times ICC_2}{ICC_1 + ICC_2} \times \sin(\frac{\pi}{2} \kappa)}\]
         </div>
 
-        <p>where \(ICC_1\) and \(ICC_2\) denote reliability of the predictor in each of the two groups, and \(\kappa\) (kappa) is the reliability of the predicted binary outcome labels (e.g., interrater reliability of a diagnosis).</p>
+        <p>Here, \(ICC_1\) and \(ICC_2\) denote the reliability of the continuous predictor in each of the two outcome groups, and \(\kappa\) is the reliability of the binary outcome classification (e.g., interrater reliability of a diagnosis).</p>
 
         <p>See <a href="https://osf.io/preprints/psyarxiv/z4yqe_v5" target="_blank">Karvelis & Diaconescu (2025)</a> for more details on how reliability attenuates individual and group differences.</p>
        
         <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
-        <h3>Base Rates</h3>
-        <p>Base rate (or prevalence) refers to the proportion of individuals in the population who have the outcome of interest before considering any predictors or test results (in Bayesian terms, this is the prior probability of the outcome). To estimate real-world predictive utility, the base rate should be set to reflect the population where your predictor or model will actually be used — not the composition of your study sample. This distinction is crucial because research studies often use case-control designs with balanced sampling (e.g., 50% cases, 50% controls) that do not reflect real-world prevalence. This is one of the most commonly overlooked problems in evaluating prediction models (<a href="https://link.springer.com/chapter/10.1007/978-3-030-50423-6_6" target="_blank">Barbec et al., 2020</a>), as the base rate directly affects multiple metrics used for model evaluation (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
+        <h3>Prevalence</h3>
+        <p>Prevalence (also referred to as base rate) refers to the proportion of individuals in the population who have the outcome of interest before considering any predictors or test results (in Bayesian terms, this is the prior probability of the outcome). To estimate real-world predictive utility, the prevalence should be set to reflect the population where your predictor or model will actually be used — not the composition of your study sample. This distinction is crucial because research studies often use case-control designs with balanced sampling (e.g., 50% cases, 50% controls) that do not reflect real-world prevalence. This is one of the most commonly overlooked problems in evaluating prediction models (<a href="https://link.springer.com/chapter/10.1007/978-3-030-50423-6_6" target="_blank">Barbec et al., 2020</a>), as the prevalence directly affects multiple metrics used for model evaluation (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
             
-        <p>For instance, if you are developing a model for a rare disorder that affects 2% of the general population, the base rate should be set to 2%, even if your training dataset contains equal numbers of cases and controls. However, if your model will be used in a pre-screened high-risk population where the disorder prevalence is 20%, then 20% becomes the relevant base rate (however, in this scenario, the effect size should also reflect the difference between cases and high-risk controls rather than general population controls).</p>        
+        <p>For instance, if you are developing a model for a rare disorder that affects 2% of the general population, the prevalence should be set to 2%, even if your training dataset contains equal numbers of cases and controls. However, if your model will be used in a pre-screened high-risk population where the disorder prevalence is 20%, then 20% becomes the relevant prevalence (however, in this scenario, the effect size should also reflect the difference between cases and high-risk controls rather than general population controls).</p>        
 
         <h3>Multivariable Simulators</h3>
 
-        <p>Both binary and continuous outcomes analysis modes include simulators that help estimate how many predictors need to be combined to achieve a desired level of real-world predictive utility. The main metric for this is PR-AUC - it accounts for the base rate and is threshold-independent. For binary classification, the simulator also displays Mahalanobis D, a multivariate generalization of Cohen's d, and for continuous outcomes, it displays total variance explained R².</p>
+        <p>Both binary and continuous outcomes analysis modes include simulators that help estimate how many predictors need to be combined to achieve a desired level of real-world predictive utility. The main metric for this is PR-AUC - it accounts for the prevalence and is threshold-independent. For binary classification, the simulator also displays Mahalanobis D, a multivariate generalization of Cohen's d, and for continuous outcomes, it displays total variance explained R².</p>
         
         <p>The multivariable simulators can help approximate the expected performance of multivariate models without having to train the full models and thus help with research planning and model development. They also help gain intuition about how multicollinearity undermines predictive performance and leads to diminishing returns when adding more predictors.</p>
 
@@ -201,9 +201,9 @@
             <li><strong>Sensitivity (Recall, True Positive Rate)</strong>: Measures the proportion of actual positives correctly identified. Useful when missing a positive case is costly (e.g., disease screening), but ignores false positives.</li>
             <li><strong>Specificity (True Negative Rate)</strong>: Measures the proportion of actual negatives correctly identified. Important when false alarms are costly (e.g., confirming a diagnosis before a risky treatment), but ignores false negatives.</li>
             <li><strong>Accuracy</strong>: The proportion of all predictions that are correct. Intuitive but can be misleading for imbalanced datasets, as it is heavily influenced by the majority class.</li>
-            <li><strong>Balanced Accuracy</strong>: The average of Sensitivity and Specificity. A better measure than accuracy for imbalanced datasets, but it gives equal weight to both types of errors and does not account for the base rate, which is critical for assessing real-world utility.</li>
-            <li><strong>Positive Predictive Value (PPV, Precision)</strong>: The proportion of positive predictions that are actually correct. It informatively accounts for base rate, and corresponds to the posterior probability of a condition given a positive test result ("How likely is a positive prediction to be true?"). As such, it is a crucial metric for clinical decision-making.</li>
-            <li><strong>Negative Predictive Value (NPV)</strong>: The proportion of negative predictions that are actually correct. It also informatively accounts for the base rate and corresponds to the posterior probability of not having a condition given a negative test result ("How likely is a negative prediction to be true?"). This makes it a crucial metric for ruling out conditions.</li>
+            <li><strong>Balanced Accuracy</strong>: The average of Sensitivity and Specificity. A better measure than accuracy for imbalanced datasets, but it gives equal weight to both types of errors and does not account for the prevalence, which is critical for assessing real-world utility.</li>
+            <li><strong>Positive Predictive Value (PPV, Precision)</strong>: The proportion of positive predictions that are actually correct. It informatively accounts for prevalence, and corresponds to the posterior probability of a condition given a positive test result ("How likely is a positive prediction to be true?"). As such, it is a crucial metric for clinical decision-making.</li>
+            <li><strong>Negative Predictive Value (NPV)</strong>: The proportion of negative predictions that are actually correct. It also informatively accounts for the prevalence and corresponds to the posterior probability of not having a condition given a negative test result ("How likely is a negative prediction to be true?"). This makes it a crucial metric for ruling out conditions.</li>
             <li><strong>F1 Score</strong>: The harmonic mean of Precision and Recall. A useful summary when you need to balance finding all positives and not making too many false alarms, though it can be hard to interpret directly.</li>
             <li><strong>Matthews Correlation Coefficient (MCC)</strong>: A correlation between observed and predicted classifications. A balanced measure suitable for imbalanced datasets, but it is less intuitive to interpret and does not reveal the types of errors being made.</li>
         </ul>
@@ -216,8 +216,8 @@
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
         <ul>
-            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Summarizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds. While useful, ROC-AUC can be misleadingly optimistic for imbalanced datasets (e.g., rare diseases) because it does not account for the base rate of the outcome, which is a critical component of real-world performance.</li>
-            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Summarizes how well a model maintains both Precision (PPV) and Recall (Sensitivity). PR-AUC is often a more informative metric for real-world applications because it directly evaluates the trade-off between finding positive cases (Recall) and ensuring that positive predictions are correct (Precision), which critically depends on the outcome's base rate. A high PR-AUC indicates strong performance in practical scenarios where correctly identifying positive cases is paramount. Therefore, to get a realistic estimate of real-world utility, it is essential to use PR-AUC with a base rate that reflects the intended population.</li>
+            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Summarizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds. While useful, ROC-AUC can be misleadingly optimistic for imbalanced datasets (e.g., rare diseases) because it does not account for the prevalence of the outcome, which is a critical component of real-world performance.</li>
+            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Summarizes how well a model maintains both Precision (PPV) and Recall (Sensitivity). PR-AUC is often a more informative metric for real-world applications because it directly evaluates the trade-off between finding positive cases (Recall) and ensuring that positive predictions are correct (Precision), which critically depends on the outcome's prevalence. A high PR-AUC indicates strong performance in practical scenarios where correctly identifying positive cases is paramount. Therefore, to get a realistic estimate of real-world utility, it is essential to use PR-AUC with a prevalence that reflects the intended population.</li>
         </ul>
         
         <p>Both ROC-AUC and PR-AUC represent areas under their respective curves and are mathematically expressed as integrals:</p>
@@ -287,7 +287,7 @@
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set base rate to 8% (the prevalence of depression in the population; <a href="https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>)</li>
+                    <li>Set prevalence to 8% (the prevalence of depression in the population; <a href="https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>)</li>
                     <li>Set the grouping reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.6 (an average reliability for cognitive measures; <a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
                     <li>Set the observed effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice)</li>
@@ -310,7 +310,7 @@
         <ol>
             <li>Select Continuous outcome mode:</li>
                 <ul>
-                    <li>Set base rate to 15% (the rate of response to antidepressant treatment beyond placebo; <a href="https://www.bmj.com/content/378/bmj-2021-067606" target="_blank">Stone et al., 2022</a>)</li>
+                    <li>Set prevalence to 15% (the rate of response to antidepressant treatment beyond placebo; <a href="https://www.bmj.com/content/378/bmj-2021-067606" target="_blank">Stone et al., 2022</a>)</li>
                     <li>Set predictor reliability to 0.4 (an average reliability for task-fMRI measures; <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">Elliott et al., 2020</a>)</li>
                     <li>Set outcome reliability to 0.94 (Hamilton Depression Rating Scale (HAMD) reliability; <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">Trajković et al., 2011</a>)</li>
                     <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://direct.mit.edu/netn/article/6/4/1066/109196/Computational-approaches-to-treatment-response" target="_blank">Karvelis et al., 2022</a>)</li>
@@ -330,7 +330,7 @@
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set base rate to 0.3% (the 12-month prevalence of suicide attempts; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>)</li>
+                    <li>Set prevalence to 0.3% (the 12-month prevalence of suicide attempts; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>)</li>
                     <li>Set the grouping reliability to 0.8 (<a href="https://cssrs.columbia.edu/wp-content/uploads/CSSRS_Supporting-Evidence_Book_2022.pdf" target="_blank">The Columbia Suicide Severity Rating Scale (C-SSRS) supporting evidence</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.8 (a rough estimate for the average reliability across the risk factors) </li>
                     <li>Set the observed effect size to d = 2.04, which corresponds to AUC = 0.9</li>

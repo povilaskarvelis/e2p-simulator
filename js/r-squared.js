@@ -9,7 +9,7 @@
 
     const initialValues = {
         targetR2: 0.8,
-        baseRate: 15,
+        baseRate: 15, // Will be converted to 0.15 when setting input values
         predictorCorrelation: 0.25,
         collinearity: 0.05,
         numPredictors: 20
@@ -286,8 +286,8 @@
         const elements = getDOMElements();
         elements.targetR2Input.value = initialValues.targetR2;
         elements.targetR2Slider.value = initialValues.targetR2;
-        elements.r2BaseRateInput.value = initialValues.baseRate;
-        elements.r2BaseRateSlider.value = initialValues.baseRate;
+        elements.r2BaseRateInput.value = initialValues.baseRate / 100;
+        elements.r2BaseRateSlider.value = initialValues.baseRate / 100;
         elements.predictorCorrelationInput.value = initialValues.predictorCorrelation;
         elements.predictorCorrelationSlider.value = initialValues.predictorCorrelation;
         elements.collinearityInput.value = initialValues.collinearity;
@@ -321,7 +321,7 @@
         const elements = getDOMElements();
         return {
             targetR2: parseFloat(elements.targetR2Input.value),
-            baseRate: parseFloat(elements.r2BaseRateInput.value) / 100,
+            baseRate: parseFloat(elements.r2BaseRateInput.value),
             predictorCorrelation: parseFloat(elements.predictorCorrelationInput.value),
             collinearity: parseFloat(elements.collinearityInput.value),
             numPredictors: parseInt(elements.numPredictorsInput.value)
