@@ -11,6 +11,8 @@ const DCAModule = {
             initialized: false,
             onThresholdChange: config.onThresholdChange || (() => {})
         });
+        // Reset smoothing values for clean start
+        this.lastPtValue = undefined;
     },
     
     // Plot DCA for a given instance
@@ -59,9 +61,11 @@ const DCAModule = {
             });
             
             // Calculate net benefit across threshold probabilities using current model performance
+            // Use higher precision when precise estimates are enabled
+            const usePrecise = data.usePreciseEstimates || false;
             const ptMin = 0.001;
             const ptMax = 0.95;  // Further reduce upper limit for smoother curves
-            const step = 0.001;
+            const step = usePrecise ? 0.0001 : 0.001; // Much finer step when precise
             
             const thresholdProbs = [];
             const netBenefits = [];
@@ -134,55 +138,123 @@ const DCAModule = {
                 const currentThreshold = data.currentThreshold;
                 
                 // For the red marker, we need to find which pt value corresponds to the current classification threshold
-                // We do this by finding the pt that gives us the current sensitivity/specificity
-                let closestIndex = 0;
-                let minDiff = Infinity;
-            
-                // Find the pt that corresponds to the current threshold's actual net benefit
-                // Use a smoother approach to reduce marker jumping
-                let bestPt = 0.5;
-                let bestNetBenefit = 0;
-            
-            for (let i = 0; i < thresholdProbs.length; i++) {
-                const pt = thresholdProbs[i];
-                    const odds = pt / (1 - pt);
-                    
-                    // Calculate what net benefit the current threshold would give at this pt
-                    const currentThresholdNetBenefit = (currentMetrics.sensitivity * baseRate) - ((1 - currentMetrics.specificity) * (1 - baseRate) * odds);
-                    
-                    // Find the pt where this net benefit matches the DCA curve
-                    const diff = Math.abs(currentThresholdNetBenefit - netBenefits[i]);
-                    
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        closestIndex = i;
-                        bestPt = pt;
-                        bestNetBenefit = currentThresholdNetBenefit;
-                    }
-                }
+                // Use a more direct approach: find the pt where the current sensitivity/specificity would be optimal
                 
-                // Use interpolation to smooth the pt value
-                if (closestIndex > 0 && closestIndex < thresholdProbs.length - 1) {
-                    const prevPt = thresholdProbs[closestIndex - 1];
-                    const nextPt = thresholdProbs[closestIndex + 1];
-                    const prevNB = netBenefits[closestIndex - 1];
-                    const nextNB = netBenefits[closestIndex + 1];
-                    const currentNB = netBenefits[closestIndex];
+                // Calculate the current threshold's net benefit for each pt value
+                let bestPt = 0.5;
+                let bestDelta = Infinity;
+                let closestIndex = 0;
+                
+                // More stable approach: use direct mathematical calculation
+                // The pt value where current sensitivity/specificity would be optimal can be calculated directly
+                
+                if (FPR && TPR && FPR.length > 0 && TPR.length > 0) {
+                    // Find the closest ROC point to current sensitivity/specificity
+                    let rocIndex = 0;
+                    let minROCDist = Infinity;
                     
-                    // Linear interpolation to get a smoother pt value
-                    if (Math.abs(bestNetBenefit - prevNB) < Math.abs(bestNetBenefit - nextNB)) {
-                        const weight = Math.abs(bestNetBenefit - currentNB) / (Math.abs(bestNetBenefit - currentNB) + Math.abs(bestNetBenefit - prevNB) + 0.001);
-                        currentThresholdProb = bestPt + (prevPt - bestPt) * weight * 0.5;
-                    } else {
-                        const weight = Math.abs(bestNetBenefit - currentNB) / (Math.abs(bestNetBenefit - currentNB) + Math.abs(bestNetBenefit - nextNB) + 0.001);
-                        currentThresholdProb = bestPt + (nextPt - bestPt) * weight * 0.5;
+                    for (let i = 0; i < FPR.length; i++) {
+                        const rocSens = TPR[i];
+                        const rocSpec = 1 - FPR[i];
+                        const dist = Math.sqrt(
+                            Math.pow(rocSens - currentMetrics.sensitivity, 2) + 
+                            Math.pow(rocSpec - currentMetrics.specificity, 2)
+                        );
+                        
+                        if (dist < minROCDist) {
+                            minROCDist = dist;
+                            rocIndex = i;
+                        }
+                    }
+                    
+                    // Use the closest ROC point for stable calculation
+                    const targetSens = TPR[rocIndex];
+                    const targetSpec = 1 - FPR[rocIndex];
+                    
+                    // Calculate the net benefit of this ROC point for each pt
+                    // and find where it matches the DCA curve (which is the envelope of all ROC points)
+                    let bestMatch = Infinity;
+                    for (let i = 0; i < thresholdProbs.length; i++) {
+                        const pt = thresholdProbs[i];
+                        const odds = pt / (1 - pt);
+                        
+                        // Net benefit of target ROC point at this pt
+                        const targetNB = (targetSens * baseRate) - ((1 - targetSpec) * (1 - baseRate) * odds);
+                        
+                        // How close is this to the DCA curve value?
+                        const diff = Math.abs(targetNB - netBenefits[i]);
+                        
+                        if (diff < bestMatch) {
+                            bestMatch = diff;
+                            bestPt = pt;
+                            closestIndex = i;
+                        }
+                    }
+                    
+                    // Use high-precision interpolation for much finer pt resolution
+                    if (closestIndex > 0 && closestIndex < thresholdProbs.length - 1) {
+                        // Get neighboring points for interpolation
+                        const prevIdx = closestIndex - 1;
+                        const nextIdx = closestIndex + 1;
+                        
+                        const pt1 = thresholdProbs[prevIdx];
+                        const pt2 = thresholdProbs[closestIndex];
+                        const pt3 = thresholdProbs[nextIdx];
+                        
+                        const odds1 = pt1 / (1 - pt1);
+                        const odds2 = pt2 / (1 - pt2);
+                        const odds3 = pt3 / (1 - pt3);
+                        
+                        const nb1 = (targetSens * baseRate) - ((1 - targetSpec) * (1 - baseRate) * odds1);
+                        const nb2 = (targetSens * baseRate) - ((1 - targetSpec) * (1 - baseRate) * odds2);
+                        const nb3 = (targetSens * baseRate) - ((1 - targetSpec) * (1 - baseRate) * odds3);
+                        
+                        const dcaNb1 = netBenefits[prevIdx];
+                        const dcaNb2 = netBenefits[closestIndex];
+                        const dcaNb3 = netBenefits[nextIdx];
+                        
+                        // Find the exact pt where target net benefit intersects DCA curve using linear interpolation
+                        let interpolatedPt = bestPt;
+                        
+                        // Check between pt1 and pt2
+                        if ((nb1 - dcaNb1) * (nb2 - dcaNb2) <= 0) {
+                            // Linear interpolation between pt1 and pt2
+                            const t = Math.abs(nb1 - dcaNb1) / (Math.abs(nb1 - dcaNb1) + Math.abs(nb2 - dcaNb2));
+                            interpolatedPt = pt1 + t * (pt2 - pt1);
+                        }
+                        // Check between pt2 and pt3
+                        else if ((nb2 - dcaNb2) * (nb3 - dcaNb3) <= 0) {
+                            // Linear interpolation between pt2 and pt3
+                            const t = Math.abs(nb2 - dcaNb2) / (Math.abs(nb2 - dcaNb2) + Math.abs(nb3 - dcaNb3));
+                            interpolatedPt = pt2 + t * (pt3 - pt2);
+                        }
+                        
+                        bestPt = interpolatedPt;
+                        
+                        // For closestIndex, still use the discrete index for deltaNB lookup
+                        // but the pt value is now continuous
+                    }
+                    
+                    // Apply additional smoothing for very fine movements
+                    if (usePrecise) {
+                        // Use temporal smoothing to prevent micro-jumps
+                        const smoothingFactor = 0.7; // Adjust between 0 (no smoothing) and 1 (heavy smoothing)
+                        
+                        // Store previous pt value for smoothing (using a simple approach)
+                        if (!DCAModule.lastPtValue) DCAModule.lastPtValue = bestPt;
+                        
+                        const smoothedPt = DCAModule.lastPtValue * smoothingFactor + bestPt * (1 - smoothingFactor);
+                        DCAModule.lastPtValue = smoothedPt;
+                        bestPt = smoothedPt;
                     }
                 } else {
-                    currentThresholdProb = bestPt;
+                    // Fallback: use middle range
+                    bestPt = 0.5;
+                    closestIndex = Math.floor(thresholdProbs.length / 2);
                 }
                 
+                currentThresholdProb = bestPt;
                 currentDeltaNB = deltaNB[closestIndex];
-                // currentThresholdProb is already set by the interpolation above
             } else {
                 // Fallback: use middle of the pt range
                 const middleIndex = Math.floor(thresholdProbs.length / 2);
@@ -194,6 +266,9 @@ const DCAModule = {
             formattedDeltaNB = Math.abs(currentDeltaNB) < 0.001 ? 
                 currentDeltaNB.toExponential(1) : 
                 currentDeltaNB.toFixed(3);
+            
+            // Format pt with appropriate precision (always 3 decimal places for display)
+            const formattedPt = currentThresholdProb.toFixed(3);
             
             // Create traces
             const dcaTrace = {
@@ -284,7 +359,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${currentThresholdProb.toFixed(3)}`,
+                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${formattedPt}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right"

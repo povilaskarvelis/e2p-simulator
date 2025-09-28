@@ -294,15 +294,15 @@
                 </ul>
             </li>
 
-            <li>This will yield ROC-AUC = 0.71 and PR-AUC = 0.19. Even with the optimistic effect size of 0.8, the predictive utility remains modest, particularly in balancing recall and precision (as shown by the low PR-AUC). The DCA plot also suggests limited clinical utility: assuming a threshold probability (p<sub>t</sub>) of 0.1, which would be suitable for a screening scenario, we get ΔNB ≈ 0.018, which means that relying on this biomarker would result in 1.8 additional true positives per 100 patients (after accounting for the harm of false positives at that threshold).</li>
+            <li>With these parameters, observed Cohen's d = 0.8 will yield ROC-AUC = 0.71 and PR-AUC = 0.19. This means that even with a "large" effect size of 0.8, the predictive utility remains rather modest, especially when it comes to the tradeoff between PPV and Sensitivity (as shown by the low PR-AUC). Using the DCA plot to set the classification threshold to correspond to 10% risk, p<sub>t</sub> = 0.1, we obtain PPV = 0.16, Sensitivity = 0.53, and ΔNB = 0.018, which means that at this threshold 84% of diagnoses would be false positives while still missing 47% of actual cases, and we would get 1.8 additional true positives per 100 diagnoses.</li>
 
-            <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and much better predictive utility, ROC-AUC = 0.87, PR-AUC = 0.46, and ΔNB ≈ 0.042. This demonstrates the importance of measurement reliability in predictive modeling. </li>
+            <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and in turn much better predictive performance, ROC-AUC = 0.87 and PR-AUC = 0.46, and PPV = 0.27, Sensitivity = 0.74, and ΔNB = 0.046 at p<sub>t</sub> = 0.1, highlighting how much improvement in diagnostic prediction could be achieved simply by improving measurement reliability.</li>
 
-            <li>Now let's say we are serious about precision psychiatry and we want to achieve a PR-AUC of 0.8. Using the tool, we can find that it would require d = 2.55. It would be rather unrealistic to expect a single biomarker to achieve this effect size. Using the Mahalanobis D calculator, you can explore how many predictors with smaller d values would be required to achieve D = 2.55.</li>
+            <li>Now let's say we are serious about precision psychiatry and we want to achieve a PR-AUC of 0.8. Using the tool, we can find that it would require ROC-AUC = 0.96. It would be rather unrealistic to expect a single biomarker to achieve this effect size. Using the multivariable simulator, you can explore how many predictors with smaller d values would be required to achieve a desired prediction performance.</li>
 
         </ol>
         
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=8&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=1.39'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=0.92'">Explore this example yourself →</button>
         
 
         <h3>Example 2: Treatment Response Prediction</h3>
@@ -316,33 +316,39 @@
                     <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://direct.mit.edu/netn/article/6/4/1066/109196/Computational-approaches-to-treatment-response" target="_blank">Karvelis et al., 2022</a>)</li>
                 </ul>
 
-            <li>This will yield AUC = 0.73 and PR-AUC = 0.32, indicating rather modest predictive performance, as shown by the low PR-AUC. At p<sub>t</sub> = 0.30, which is a reasonable threshold for accounting for the harms of unnecesarily prescribing antidepressants, we get ΔNB ≈ 0.013. Improving measurement reliability could increase performance up to AUC = 0.87, PR-AUC = 0.57, and ΔNB ≈ 0.054.</li>
+            <li>This will yield ROC-AUC = 0.73 and PR-AUC = 0.33, indicating rather modest predictive performance, as shown by the low PR-AUC. At p<sub>t</sub> = 0.2, which reflects the relative harms of antidepressant side effects, this would result in Sensitivity = 0.54, PPV = 0.29, and ΔNB = 0.031, which means that 46% of those who would benefit from treatment would not receive treatment, 71% of those given treatment would not benefit from it, and we would get additional 3.1 true responders per 100 people who receive antidepressants. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.87 and PR-AUC = 0.57, which at p<sub>t</sub> = 0.2 would give Sensitivity = 0.74, PPV = 0.42, and ΔNB = 0.073.</li>
 
-            <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires r = 0.9 (R² = 0.81). These are rather extremely ambitious values (requiring to explain 81% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
+            <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires R² = 0.8. These are rather extremely ambitious values (requiring to explain 80% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=15&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdValue=0.5'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.15&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdValue=0.6'">Explore this example yourself →</button>
 
         <h3>Example 3: Risk Prediction</h3>
-        <p> Can we predict who will attempt suicide using a combination of risk factors?</p> 
+        <p> Can we predict who will attempt suicide using electronic health records?</p> 
             
-        <p> Most suicide prediction models (which include a variety of risk factors such as psychopathology, history of suicidal behavior, socio-demographics, etc.) achieve ROC-AUC &gt; 0.7, with a handful exceeding ROC-AUC = 0.9 for predicting suicide attempts (<a href="https://doi.org/10.1038/s41398-024-02852-9" target="_blank">Pigoni et al., 2024</a>). Let's ignore potential overfitting concerns and consider how ROC-AUC = 0.9 would translate to real-world predictive utility.</p>
+        <p>
+            One of the largest prospective suicide prediction studies (<a href="https://journals.lww.com/lww-medicalcare/fulltext/2021/02001/machine_learning_to_differentiate_risk_of_suicide.14.aspx" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://www.sciencedirect.com/science/article/pii/S0022395622005878" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month prevalence of 3.9% and similar discrimination.
+        </p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set prevalence to 0.3% (the 12-month prevalence of suicide attempts; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3000886/" target="_blank">Borges et al., 2011</a>)</li>
-                    <li>Set the grouping reliability to 0.8 (<a href="https://cssrs.columbia.edu/wp-content/uploads/CSSRS_Supporting-Evidence_Book_2022.pdf" target="_blank">The Columbia Suicide Severity Rating Scale (C-SSRS) supporting evidence</a>)</li>
-                    <li>Set the predictor reliability for both groups to 0.8 (a rough estimate for the average reliability across the risk factors) </li>
-                    <li>Set the observed effect size to d = 2.04, which corresponds to AUC = 0.9</li>
+                    <li>Set prevalence to 3.9% (<a href="https://www.sciencedirect.com/science/article/pii/S0022395622005878" target="_blank">Thiruvalluru et al., 2023</a>)</li>
+                    <li>Set the outcome reliability to 1.0 (hospital admissions for attempts or self-harm can be assumed to be near perfect)</li>
+                    <li>Set the predictor reliability for both groups to 0.8 (structured electronic health records including healthcare utilization, prior attempts, psychiatric diagnoses, etc., can be assumed to have rather high reliability)</li>
+                    <li>Set the observed effect size to d = 0.77, which corresponds to ROC-AUC = 0.71</li>
                 </ul>
             </li>
 
-            <li>This will yield PR-AUC = 0.08, indicating extremely abysmal predictive performance, meaning that depending on where we place the threshold, we would either predict a lot of false positives (low precision, high recall) or a lot of false negatives (high precision, low recall). When the threshold is set to maximize the F1 score (0.15), we get precision = 0.15 and recall = 0.15. Which means that we would miss 85% of actual attempters and 85% of the predicted attempters would not attempt suicide. Not surprisingly, this gives us extremely low clinical utility (ΔNB ≈ 0.0004 at p<sub>t</sub> = 0.15). At threshold of p<sub>t</sub> = 0.05, which would be reasonable given how costly false negatives (missing actual attempters) are, ΔNB would be very low (≈ 0.0004), illustrating the limited utility of prediction in this context.</li>
+            <li>This yields PR-AUC = 0.10, indicating poor predictive performance in the real world. At p<sub>t</sub> = 0.03 (a reasonable threshold for intervention), we get Sensitivity = 0.77, PPV = 0.06, and ΔNB = 0.006. This means that while the model would capture about three-quarters of true cases, only 6% of those flagged would actually attempt suicide, and the net clinical benefit over treating all or none would be rather negligible.</li>
 
-            <li>Considering that we are serious about precision psychiatry and want to aim for PR-AUC of 0.8, we will find it requires observed d = 3.76, which means we have a very long way to go. Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
+            <li>To achieve PR-AUC = 0.8 in this population would require ROC-AUC = 0.98, which is extremely unrealistic. At p<sub>t</sub> = 0.03, this would result in Sensitivity = 0.94, PPV = 0.30, and ΔNB = 0.025.</li>
+
+            <li>It's important to note that this analysis focuses on a specific high-risk subpopulation (those with previous hospital admissions and serious mental illness). In the general population, the 12-month prevalence of suicide attempts is around 0.3% - about 10 times lower - which would make prediction even more challenging. However, conducting research within psychiatric populations is more clinically relevant, as around 80% of all suicide attempts occur within populations with diagnosable mental disorders, and the relative risk of suicide attempts is 4-8 times higher in those with mental disorders.</li>
+
+            <li>The fundamental prediction challenges posed by low prevalence are well-established in suicide research. Given that the ultimate goal is suicide rate reduction, improving universal prevention methods may be more productive than developing tools for individual risk assessment.</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.3&groupingReliability=0.8&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=2.04&label1=Controls&label2=Suicide%20attempters&xaxisLabel=Predictor&thresholdValue=3.13'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Controls&label2=Suicide%20attempters&label3=Electronic%20health%20records&thresholdValue=0.05'">Explore this example yourself →</button>
    
     </div>
 

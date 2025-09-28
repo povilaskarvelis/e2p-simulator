@@ -981,7 +981,9 @@ function plotROC() {
             currentThreshold: thresholdValue,
             currentMetrics: currentMetrics,
             // Pass threshold range for proper scaling
-            thresholdRange: { min: -4, max: 4 }
+            thresholdRange: { min: -4, max: 4 },
+            // Pass precise estimates flag for consistent precision
+            usePreciseEstimates: isPreciseModeEnabled()
         });
     }
 }
