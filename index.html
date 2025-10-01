@@ -88,7 +88,7 @@
     <h1>From Effect Size to Real-World Predictive Utility</h1>
 
     <div class="description">
-        <p><strong>E2P Simulator</strong> estimates the real-world predictive utility of research findings by accounting for measurement reliability and outcome prevalence. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly in individual differences research, biomarker development, predictive modelling, and precision medicine/psychiatry.</p>
+        <p><strong>E2P Simulator</strong> estimates the real-world predictive utility of research findings by accounting for measurement reliability and outcome base rate. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly in individual differences research, biomarker development, predictive modelling, and precision medicine/psychiatry.</p>
 
         <p>See <a href="get-started.html" style="color: #0366d6; text-decoration: none;" target="_blank">Get Started</a> guide for more details.</p>
 
@@ -202,11 +202,11 @@
                         </div>
                     </div>
 
-                    <!-- Prevalence -->
+                    <!-- Base Rate -->
                     <div>
                         <input type="range" id="base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.45">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Prevalence, \(\phi\)</span>
+                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate, \(\phi\)</span>
                             <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.001" max="0.999" step="0.001" value="0.45">
                         </div>
                     </div>
@@ -338,7 +338,7 @@
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
             <p>
-                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then converted to ROC-AUC. PR-AUC is also computed to convey real-world predictive utility by accounting for the prevalence. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then converted to ROC-AUC. PR-AUC is also computed to convey real-world predictive utility by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.
             </p>
         </div>
 
@@ -371,7 +371,7 @@
                         <div class="slider-container">
                             <input type="range" id="mahalanobis-base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.10" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Prevalence</span>
+                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate</span>
                                 <input type="number" id="mahalanobis-base-rate" min="0.001" max="0.999" step="0.001" value="0.10" class="slider-value">
                             </div>
                         </div>
@@ -491,11 +491,11 @@
                         <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
 
-                    <!-- Prevalence -->
+                    <!-- Base Rate -->
                     <div style="margin-top: 10px; margin-bottom: 20px;">
                         <input type="range" id="base-rate-slider-cont" min="0.001" max="0.999" step="0.001" value="0.50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <span class="slider-label" data-tooltip="Prevalance of group 2 in a population">Prevalence</span>
+                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate</span>
                             <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.001" max="0.999" step="0.001" value="0.50">
                         </div>
                     </div>
@@ -706,7 +706,7 @@
         <div style="margin-top: 50px;"></div>
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the prevalence to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
@@ -736,11 +736,11 @@
                             </div>
                         </div>
                         
-                        <!-- Prevalence slider -->
+                        <!-- Base Rate slider -->
                         <div class="slider-container">
                             <input type="range" id="r2-base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.15" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Prevalence of group 2 in a population">Prevalence</span>
+                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate</span>
                                 <input type="number" id="r2-base-rate" min="0.001" max="0.999" step="0.001" value="0.15" class="slider-value">
                             </div>
                         </div>
@@ -819,7 +819,7 @@
                 <div class="slider-container">
                     <input type="range" id="ssb-prevalence-slider" min="0.001" max="0.999" step="0.001" value="0.30" class="slider">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Event prevalence in the training data">Prevalence (\(\phi\))</span>
+                        <span class="slider-label" data-tooltip="Event base rate in the training data">Base rate (\(\phi\))</span>
                         <input type="number" id="ssb-prevalence" min="0.001" max="0.999" step="0.001" value="0.30" class="slider-value">
                     </div>
                 </div>
