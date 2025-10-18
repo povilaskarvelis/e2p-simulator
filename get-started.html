@@ -22,16 +22,10 @@
     <link rel="apple-touch-icon" href="images/favicon.png">
     <link rel="canonical" href="https://e2p-simulator.com/get-started.html" />
     
-    <!-- Load libraries first -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.1/math.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax handles mathematical rendering, no other libraries needed for documentation -->
     
     <!-- Load styles -->
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/binary.css">
-    <link rel="stylesheet" href="css/continuous.css">
     
     <!-- MathJax for professional equation rendering -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
@@ -92,7 +86,7 @@
 
     <div class="guide-section">
         <h2>What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), and real-world predictive utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) by accounting for measurement reliability and outcome base rate.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), as well as real-world predictive value and clinical utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) while explicitly accounting for measurement reliability and outcome base rates.</p>
 
         <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how research findings will translate into real-world prediction or what effect sizes/predictive performance is needed to achieve a desired level of predictive and clinical utility. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
@@ -156,12 +150,12 @@
 
         <p>Here, \(ICC_1\) and \(ICC_2\) denote the reliability of the continuous predictor in each of the two outcome groups, and \(\kappa\) is the reliability of the binary outcome classification (e.g., interrater reliability of a diagnosis).</p>
 
-        <p>See <a href="https://osf.io/preprints/psyarxiv/z4yqe_v5" target="_blank">Karvelis & Diaconescu (2025)</a> for more details on how reliability attenuates individual and group differences.</p>
+        <p>See <a href="https://doi.org/10.3389/fpsyg.2025.1592658" target="_blank">Karvelis & Diaconescu (2025)</a> for more details on how reliability attenuates individual and group differences.</p>
        
         <p>Note that the simulator does not account for sample size limitations, which can introduce additional uncertainty around the true effect size through sampling error.</p>
         
         <h3>Base Rate</h3>
-        <p>Base rate (also referred to as prevalence) refers to the proportion of individuals in the population who have the outcome of interest before considering any predictors or test results (in Bayesian terms, this is the prior probability of the outcome). To estimate real-world predictive utility, the base rate should be set to reflect the population where your predictor or model will actually be used — not the composition of your study sample. This distinction is crucial because research studies often use case-control designs with balanced sampling (e.g., 50% cases, 50% controls) that do not reflect real-world base rate. This is one of the most commonly overlooked problems in evaluating prediction models (<a href="https://link.springer.com/chapter/10.1007/978-3-030-50423-6_6" target="_blank">Barbec et al., 2020</a>), as the base rate directly affects multiple metrics used for model evaluation (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
+        <p>Base rate (also referred to as prevalence) refers to the proportion of individuals in the population who have the outcome of interest before considering any predictors or test results (in Bayesian terms, this is the prior probability of the outcome). To estimate real-world predictive utility, the base rate should be set to reflect the population where your predictor or model will actually be used — not the composition of your study sample. This distinction is crucial because research studies often use case-control designs with balanced sampling (e.g., 50% cases, 50% controls) that do not reflect real-world base rate. This is one of the most commonly overlooked problems in evaluating prediction models (<a href="https://doi.org/10.1007/978-3-030-50423-6_6" target="_blank">Brabec et al., 2020</a>), as the base rate directly affects multiple metrics used for model evaluation (see <a href="#understanding-metrics">Understanding Predictive Metrics</a>).</p>
             
         <p>For instance, if you are developing a model for a rare disorder that affects 2% of the general population, the base rate should be set to 2%, even if your training dataset contains equal numbers of cases and controls. However, if your model will be used in a pre-screened high-risk population where the disorder base rate is 20%, then 20% becomes the relevant base rate (however, in this scenario, the effect size should also reflect the difference between cases and high-risk controls rather than general population controls).</p>        
 
@@ -287,7 +281,7 @@
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set base rate to 8% (the base rate of depression in the population; <a href="https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>)</li>
+                    <li>Set base rate to 8% (the base rate of depression in adolescents; <a href="https://doi.org/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>)</li>
                     <li>Set the grouping reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.6 (an average reliability for cognitive measures; <a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
                     <li>Set the observed effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice)</li>
@@ -313,7 +307,7 @@
                     <li>Set base rate to 15% (the rate of response to antidepressant treatment beyond placebo; <a href="https://www.bmj.com/content/378/bmj-2021-067606" target="_blank">Stone et al., 2022</a>)</li>
                     <li>Set predictor reliability to 0.4 (an average reliability for task-fMRI measures; <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">Elliott et al., 2020</a>)</li>
                     <li>Set outcome reliability to 0.94 (Hamilton Depression Rating Scale (HAMD) reliability; <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">Trajković et al., 2011</a>)</li>
-                    <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://direct.mit.edu/netn/article/6/4/1066/109196/Computational-approaches-to-treatment-response" target="_blank">Karvelis et al., 2022</a>)</li>
+                    <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://doi.org/10.1162/netn_a_00233" target="_blank">Karvelis et al., 2022</a>)</li>
                 </ul>
 
             <li>This will yield ROC-AUC = 0.73 and PR-AUC = 0.33, indicating rather modest predictive performance, as shown by the low PR-AUC. At p<sub>t</sub> = 0.2, which reflects the relative harms of antidepressant side effects, this would result in Sensitivity = 0.54, PPV = 0.29, and ΔNB = 0.031, which means that 46% of those who would benefit from treatment would not receive treatment, 71% of those given treatment would not benefit from it, and we would get additional 3.1 true responders per 100 people who receive antidepressants. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.87 and PR-AUC = 0.57, which at p<sub>t</sub> = 0.2 would give Sensitivity = 0.74, PPV = 0.42, and ΔNB = 0.073.</li>
@@ -327,12 +321,12 @@
         <p> Can we predict who will attempt suicide using electronic health records?</p> 
             
         <p>
-            One of the largest prospective suicide prediction studies (<a href="https://journals.lww.com/lww-medicalcare/fulltext/2021/02001/machine_learning_to_differentiate_risk_of_suicide.14.aspx" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://www.sciencedirect.com/science/article/pii/S0022395622005878" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
+            One of the largest prospective suicide prediction studies (<a href="https://doi.org/10.1097/MLR.0000000000001445" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
         </p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set base rate to 3.9% (<a href="https://www.sciencedirect.com/science/article/pii/S0022395622005878" target="_blank">Thiruvalluru et al., 2023</a>)</li>
+                    <li>Set base rate to 3.9% (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>)</li>
                     <li>Set the outcome reliability to 1.0 (hospital admissions for attempts or self-harm can be assumed to be near perfect)</li>
                     <li>Set the predictor reliability for both groups to 0.8 (structured electronic health records including healthcare utilization, prior attempts, psychiatric diagnoses, etc., can be assumed to have rather high reliability)</li>
                     <li>Set the observed effect size to d = 0.77, which corresponds to ROC-AUC = 0.71</li>
@@ -353,7 +347,7 @@
     <div class="guide-section" id="sample-size">
         <h2>Sample Size Calculations for Prediction Models</h2>
         
-        <p>E2P Simulator includes sample size calculators that implement evidence-based criteria (<a href="https://www.bmj.com/content/368/bmj.m441" target="_blank">Riley et al., 2020</a>) to ensure your multivariable prediction models have sufficient data to avoid overfitting and ensure low prediction error. These go beyond simple rules of thumb like "10 events per predictor."</p>
+        <p>E2P Simulator includes a sample size calculator to help you determine how much data is needed for your multivariable prediction models. This calculator is designed to help you avoid overfitting and keep prediction error low (following the recommendations from <a href="https://doi.org/10.1136/bmj.m441" target="_blank">Riley et al., 2020</a>), providing more robust sample size estimates than simple rules of thumb like "10 events per predictor".</p>
 
         <h3>How to Use</h3>
         <p>Specify your number of predictors, <strong>realistically expected R²</strong> (based on prior research or pilot data), and outcome base rate (for binary outcomes only). Use R²<sub>CS</sub> for binary outcomes and standard R² for continuous outcomes. Note, for binary outcomes with a single continuous predictor, R²<sub>CS</sub> equals eta-squared (η²), which is already displayed in the main E2P simulator dashboard. The final recommendation uses the <em>maximum</em> across all criteria to ensure all performance targets are met.
@@ -374,6 +368,41 @@
         <p>For other inquiries, you can find my contact information <a href="https://povilaskarvelis.github.io/" target="_blank">here</a>.</p>
     </div>
 
+    <div class="guide-section">
+        <h2>References</h2>
+        <ol style="font-size: 0.95em; line-height: 1.8;">
+            <li>Brabec, J., Komárek, T., Franc, V., & Machlica, L. (2020). On model evaluation under non-constant class imbalance. <em>International Conference on Computational Science</em>, vol. 12140 (pp. 74-87). Springer, Cham. <a href="https://doi.org/10.1007/978-3-030-50423-6_6" target="_blank">https://doi.org/10.1007/978-3-030-50423-6_6</a></li>
+            
+            <li>Christodoulou, E., Ma, J., Collins, G. S., Steyerberg, E. W., Verbakel, J. Y., & Van Calster, B. (2019). A systematic review shows no performance benefit of machine learning over logistic regression for clinical prediction models. <em>Journal of Clinical Epidemiology, 110</em>, 12-22. <a href="https://doi.org/10.1016/j.jclinepi.2019.02.004" target="_blank">https://doi.org/10.1016/j.jclinepi.2019.02.004</a></li>
+
+            <li>Edgcomb, J. B., Thiruvalluru, R., Pathak, J., Brooks, J. O., & Zima, B. (2021). Machine learning to differentiate risk of suicide attempt and self-harm after general medical hospitalization of women with mental illness. <em>Medical Care, 59</em>, S58-S64. <a href="https://journals.lww.com/lww-medicalcare/fulltext/2021/02001/machine_learning_to_differentiate_risk_of_suicide.14.aspx" target="_blank">https://doi.org/10.1097/MLR.0000000000001445</a></li>
+            
+            <li>Elliott, M. L., Knodt, A. R., Ireland, D., Morris, M. L., Poulton, R., Ramrakha, S., Sison, M. L., Moffitt, T. E., Caspi, A., & Hariri, A. R. (2020). What is the test-retest reliability of common task-functional MRI measures? New empirical evidence and a meta-analysis. <em>Psychological Science, 31</em>(7), 792-806. <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">https://doi.org/10.1177/0956797620916786</a></li>
+            
+            <li>Karvelis, P., & Diaconescu, A. O. (2025). Clarifying the reliability paradox: poor measurement reliability attenuates group differences. <em>Frontiers in Psychology, 16</em>, 1592658. <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2025.1592658" target="_blank">https://doi.org/10.3389/fpsyg.2025.1592658</a></li>
+            
+            <li>Karvelis, P., Paulus, M. P., & Diaconescu, A. O. (2023). Individual differences in computational psychiatry: A review of current challenges. <em>Neuroscience & Biobehavioral Reviews, 148</em>, 105137. <a href="https://doi.org/10.1016/j.neubiorev.2023.105137" target="_blank">https://doi.org/10.1016/j.neubiorev.2023.105137</a></li>
+            
+            <li>Karvelis, P., Charlton, C. E., Allohverdi, S. G., Bedford, P., Hauke, D. J., & Diaconescu, A. O. (2022). Computational approaches to treatment response prediction in major depression using brain activity and behavioral data: A systematic review. <em>Network Neuroscience, 6</em>(4), 1066-1103. <a href="https://doi.org/10.1162/netn_a_00233" target="_blank">https://doi.org/10.1162/netn_a_00233</a></li>
+            
+            <li>Large, M. M. (2018). The role of prediction in suicide prevention. <em>Dialogues in Clinical Neuroscience, 20</em>(3), 197-205. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">https://doi.org/10.31887/DCNS.2018.20.3/mlarge</a></li>
+            
+            <li>Regier, D. A., Narrow, W. E., Clarke, D. E., Kraemer, H. C., Kuramoto, S. J., Kuhl, E. A., & Kupfer, D. J. (2013). DSM-5 field trials in the United States and Canada, Part II: Test-retest reliability of selected categorical diagnoses. <em>American Journal of Psychiatry, 170</em>(1), 59-70. <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">https://doi.org/10.1176/appi.ajp.2012.12070999</a></li>
+            
+            <li>Riley, R. D., Ensor, J., Snell, K. I. E., Harrell Jr, F. E., Martin, G. P., Reitsma, J. B., Moons, K. G. M., Collins, G., & van Smeden, M. (2020). Calculating the sample size required for developing a clinical prediction model. <em>BMJ, 368</em>, m441. <a href="https://doi.org/10.1136/bmj.m441" target="_blank">https://doi.org/10.1136/bmj.m441</a></li>
+            
+            <li>Shorey, S., Ng, E. D., & Wong, C. H. J. (2022). Global prevalence of depression and elevated depressive symptoms among adolescents: A systematic review and meta-analysis. <em>British Journal of Clinical Psychology, 61</em>(2), 287-305. <a href="https://doi.org/10.1111/bjc.12333" target="_blank">https://doi.org/10.1111/bjc.12333</a></li>
+            
+            <li>Stone, M. B., Yaseen, Z. S., Miller, B. J., Richardville, K., Kalaria, S. N., & Kirsch, I. (2022). Response to acute monotherapy for major depressive disorder in randomized, placebo controlled trials submitted to the US Food and Drug Administration: Individual participant data analysis. <em>BMJ, 378</em>, e067606. <a href="https://www.bmj.com/content/378/bmj-2021-067606" target="_blank">https://doi.org/10.1136/bmj-2021-067606</a></li>
+            
+            <li>Thiruvalluru, R. K., Edgcomb, J. B., Brooks, J. O., & Pathak, J. (2023). Risk of suicide attempts and self-harm after 1.4 million general medical hospitalizations of men with mental illness. <em>Journal of Psychiatric Research, 157</em>, 50-56. <a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">https://doi.org/10.1016/j.jpsychires.2022.10.035</a></li>
+            
+            <li>Trajković, G., Starčević, V., Latas, M., Leštarević, M., Ille, T., Bukumirić, Z., & Marinković, J. (2011). Reliability of the Hamilton Rating Scale for Depression: A meta-analysis over a period of 49 years. <em>Psychiatry Research, 189</em>(1), 1-9. <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">https://doi.org/10.1016/j.psychres.2010.12.007</a></li>
+            
+            <li>Vickers, A. J., & Elkin, E. B. (2006). Decision curve analysis: A novel method for evaluating prediction models. <em>Medical Decision Making, 26</em>(6), 565-574. <a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">https://doi.org/10.1177/0272989X06295361</a></li>
+        </ol>
+    </div>
+
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #eee;">
         <p style="color: #666; font-size: 0.9em;">
@@ -386,9 +415,44 @@
         </p>
     </footer>
 
-    <!-- Load scripts -->
-    <script src="js/utils.js"></script>
-    <script src="js/dca.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Load minimal scripts for get-started page -->
+    <script>
+        // Minimal initialization for get-started page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only fetch version info, no binary/continuous initialization needed
+            fetchVersionInfo();
+        });
+        
+        // Copy the version fetch function from main.js
+        async function fetchVersionInfo() {
+            try {
+                const response = await fetch('https://api.github.com/repos/povilaskarvelis/e2p-simulator/releases/latest');
+                if (response.ok) {
+                    const data = await response.json();
+                    const versionNumber = data.tag_name || data.name;
+                    
+                    // Update the version display
+                    const versionElement = document.getElementById('version-number');
+                    if (versionElement && versionNumber) {
+                        versionElement.textContent = versionNumber;
+                        versionElement.style.color = '#0366d6'; // GitHub blue color
+                    }
+                } else {
+                    // If API call fails, hide the version info or show fallback
+                    const versionInfo = document.getElementById('version-info');
+                    if (versionInfo) {
+                        versionInfo.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.log('Could not fetch version info:', error);
+                // Hide version info if fetch fails
+                const versionInfo = document.getElementById('version-info');
+                if (versionInfo) {
+                    versionInfo.style.display = 'none';
+                }
+            }
+        }
+    </script>
 </body>
 </html> 

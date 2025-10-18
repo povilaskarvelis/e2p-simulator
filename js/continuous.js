@@ -927,14 +927,14 @@ function plotROC() {
         font: { size: 12 },
         autosize: true,
         annotations: [{
-            x: 0.05,
-            y: 0.05,
+            x: prauc < 0.27 ? 0.95 : 0.05,
+            y: prauc < 0.27 ? 0.95 : 0.05,
             xref: "paper",
             yref: "paper",
             text: `PR-AUC: ${prauc.toFixed(2)}`,
             showarrow: false,
             font: { size: 16, color: "black", weight: "bold" },
-            align: "left",
+            align: prauc < 0.27 ? "right" : "left",
         }]
     };
     

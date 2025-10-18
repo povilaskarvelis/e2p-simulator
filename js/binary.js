@@ -584,14 +584,14 @@ function plotROC(d) {
             margin: { t: 20, l: 50, r: 30, b: 40 },
             font: { size: 13 },
             annotations: [{
-                x: prauc < 0.3 ? 0.95 : 0.05,
-                y: prauc < 0.3 ? 0.95 : 0.05,
+                x: prauc < 0.27 ? 0.95 : 0.05,
+                y: prauc < 0.27 ? 0.95 : 0.05,
                 xref: "paper",
                 yref: "paper",
                 text: `PR-AUC: ${prauc.toFixed(2)}`,
                 showarrow: false,
                 font: { size: 16, color: "black", weight: "bold" },
-                align: prauc < 0.3 ? "right" : "left",
+                align: prauc < 0.27 ? "right" : "left",
             }],
             autosize: true,
         };
