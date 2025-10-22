@@ -19,7 +19,7 @@ authors:
     affiliation: "1, 2, 3, 4"
 affiliations:
   - index: 1
-    name: Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health, University of Toronto, Canada
+    name: Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health, Toronto, ON, Canada
   - index: 2
     name: Department of Psychiatry, University of Toronto, Toronto, ON, Canada
   - index: 3
