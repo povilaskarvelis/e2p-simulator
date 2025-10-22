@@ -16,17 +16,18 @@ authors:
     affiliation: 1
   - name: Andreea O. Diaconescu
     orcid: 0000-0002-3633-9757
-    affiliation: [1, 2, 3, 4]
+    affiliation: "1, 2, 3, 4"
 affiliations:
-  - name: Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health, University of Toronto, Canada
-    index: 1
-  - name: Department of Psychiatry, University of Toronto, Toronto, ON, Canada
-    index: 2
-  - name: Institute of Medical Sciences, University of Toronto, Toronto, ON, Canada
-    index: 3
-  - name: Department of Psychology, University of Toronto, Toronto, ON, Canada
-    index: 4
-date: 18 October 2025
+  - index: 1
+    name: Krembil Centre for Neuroinformatics, Centre for Addiction and Mental Health, University of Toronto, Canada
+  - index: 2
+    name: Department of Psychiatry, University of Toronto, Toronto, ON, Canada
+  - index: 3
+    name: Institute of Medical Sciences, University of Toronto, Toronto, ON, Canada
+  - index: 4
+    name: Department of Psychology, University of Toronto, Toronto, ON, Canada
+    
+date: 22 October 2025
 bibliography: paper.bib
 ---
 

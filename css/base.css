@@ -851,6 +851,14 @@ input.slider-value,
 /* ==========================================================================
    Get Started Page Styles
    ========================================================================== */
+
+/* Override fixed width for get-started page only */
+body.get-started-page {
+    width: 100% !important;
+    max-width: 1400px !important;
+    min-width: 1200px !important;
+}
+
 .guide-section {
         margin-bottom: 40px;
     }
