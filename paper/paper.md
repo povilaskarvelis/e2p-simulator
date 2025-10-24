@@ -45,7 +45,7 @@ E2P Simulator has several potential applications:
 
 3. **Education**: The simulator's interactive design makes it a valuable teaching tool, helping researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world utility.
 
-This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research, precision medicine, epidemiology, and biostatistics. However, it may be just as useful for any area of research that can is focused on predictive modelling and personalization, such as within forensic, education, and sports sciences.
+This tool has been designed with biomedical and behavioral sciences in mind, particularly areas such as biomarker research, precision medicine, epidemiology, and biostatistics. However, it may be just as useful for any area of research that is focused on predictive modelling and personalization, such as within forensic, education, and sports sciences.
 
 # Statement of Need
 

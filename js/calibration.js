@@ -529,55 +529,8 @@ function plotTestDistributions() {
     };
     
     Plotly.newPlot(plotDiv, traces, layout, config).then(() => {
-        addEditableLegend(plotDiv, ['Group 1', 'Group 2']);
         addAUCDisplay(plotDiv, calculateROCAUC(testParams));
         drawThresholdOnTestPlot();
-    });
-}
-
-function addEditableLegend(plotDiv, legendData) {
-    // Remove any existing legend overlay
-    d3.select(plotDiv).select('.legend-overlay').remove();
-    
-    // Get the plotly plot dimensions
-    const plotlyPlot = plotDiv.querySelector('.plotly');
-    if (!plotlyPlot) return;
-    
-    // Create SVG overlay for legend
-    const svg = d3.select(plotDiv)
-        .append('svg')
-        .attr('class', 'legend-overlay')
-        .style('position', 'absolute')
-        .style('top', '0')
-        .style('left', '0')
-        .style('width', '100%')
-        .style('height', '100%')
-        .style('pointer-events', 'none');
-    
-    const legendGroup = svg.append('g')
-        .attr('class', 'legend-group-container')
-        .attr('transform', 'translate(80, 60)');
-    
-    // Add legend items
-    legendData.forEach((label, i) => {
-        const legendItem = legendGroup.append('foreignObject')
-            .attr('class', 'legend-item')
-            .attr('width', 300)
-            .attr('height', 50)
-            .attr('x', 0)
-            .attr('y', i * 16)
-            .style('pointer-events', 'auto');
-        
-        legendItem.append('xhtml:div')
-            .attr('contenteditable', true)
-            .style('font-size', '14px')
-            .style('font-weight', 'bold')
-            .style('color', i === 0 ? '#555555' : 'teal')
-            .style('display', 'inline')
-            .style('white-space', 'nowrap')
-            .style('overflow', 'visible')
-            .style('outline', 'none')
-            .text(label);
     });
 }
 
