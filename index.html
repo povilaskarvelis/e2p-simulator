@@ -338,7 +338,7 @@
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
             <p>
-                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then converted to ROC-AUC. PR-AUC is also computed to convey real-world predictive utility by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive value. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC. To better reflect real-world performance with imbalanced outcomes, PR-AUC is also calculated using the specified base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.<br/> See the <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
             </p>
         </div>
 
@@ -706,7 +706,7 @@
         <div style="margin-top: 50px;"></div>
         <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.</p>
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of real-world predictive utility. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. <br/> See the <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
