@@ -161,13 +161,11 @@
 
         <h3 id="multivariable">Multivariable Simulators</h3>
 
-        <p>Both binary and continuous outcomes analysis modes include multivariable simulators that help estimate how many predictors with a given effect size need to be combined to achieve a desired level of real-world predictive value. These simulators show how increasing the number of predictors improves performance, while also illustrating how collinearity leads to diminishing returns. It deomonstrates that small effects do not add up that quickly, in contrast with the intuitions of many researchers. </p>
+        <p>Both binary and continuous outcomes analysis modes include multivariable simulators that help estimate how many predictors with a given effect size need to be combined to achieve a desired level of predictive performance. These simulators can approximate the expected performance of multivariate models without having to train the full models, making them useful for research planning and model development. The simulators illustrate how increasing the number of predictors improves performance while also showing how collinearity leads to diminishing returns,demonstrating that small effects do not add up as quickly as many researchers might intuitively expect. </p>
         
         <p>For binary outcomes, the simulator displays ROC-AUC and PR-AUC. ROC-AUC provides a threshold-independent measure of discriminative ability while PR-AUC accounts for the base rate to reflect real-world performance with imbalanced outcomes. The conversion from multiple predictors to ROC-AUC is done via Mahalanobis D, a multivariate generalization of Cohen's d, which allows you to start from familiar effect size metrics.</p>
         
         <p>For continuous outcomes, the simulator displays total variance explained (R²) and PR-AUC. R² provides the standard measure of predictive performance in regression models, while PR-AUC accounts for the base rate to reflect real-world classification performance. The conversion from R² to PR-AUC is done by dichotomizing the continuous outcome at the base rate threshold, which allows you to assess how well the model would perform if used to make binary decisions (e.g., identifying the top 20% of patients most likely to benefit from treatment).</p>
-        
-        <p>These multivariable simulators can help approximate the expected performance of multivariate models without having to train the full models, making them useful for research planning and model development. They also help build intuition about how multicollinearity undermines predictive performance and leads to diminishing returns when adding correlated predictors.</p>
 
         <h4>Assumptions and Limitations</h4>
         
