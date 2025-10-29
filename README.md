@@ -22,7 +22,7 @@ This tool has been designed with biomedical and behavioral sciences in mind, par
 
 If you use this simulator in your research, please cite it as:
 
-Karvelis, & Diaconescu (2025). E2P Simulator: An Interactive Tool for Estimating Real-World Predictive Utility of Research Findings. Journal of Open Source Software, 10(114), 8334, https://doi.org/10.21105/joss.08334
+Karvelis, P., & Diaconescu, A. O. (2025). E2P Simulator: An Interactive Tool for Estimating Real-World Predictive Utility of Research Findings. Journal of Open Source Software, 10(114), 8334, https://doi.org/10.21105/joss.08334
 
 ## Running E2P Simulator Locally
 
