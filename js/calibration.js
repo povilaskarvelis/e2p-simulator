@@ -134,6 +134,60 @@ function calculateROCAUC(distParams) {
     return auc;
 }
 
+// Calculate PR-AUC analytically (Average Precision)
+function calculatePRAUC(distParams) {
+    const mu0 = distParams.group0.mean;
+    const mu1 = distParams.group1.mean;
+    const sigma0 = distParams.group0.stdDev;
+    const sigma1 = distParams.group1.stdDev;
+    const baseRate = distParams.baseRate;
+    
+    // Generate precision-recall curve by varying threshold
+    const tMin = -20;
+    const tMax = 20;
+    const step = 0.025;
+    
+    const precision = [];
+    const recall = [];
+    
+    // Add the zero point explicitly
+    precision.push(baseRate);
+    recall.push(1);
+    
+    for (let t = tMin; t <= tMax; t += step) {
+        // Calculate sensitivity (recall) and specificity
+        const cdfA = normalCDF(t, mu0, sigma0);  // Group 0
+        const cdfB = normalCDF(t, mu1, sigma1);  // Group 1
+        
+        const sens = 1 - cdfB;  // Sensitivity (TPR) = Recall
+        const spec = cdfA;      // Specificity
+        
+        // Calculate precision
+        // When sensitivity is 0, precision is 1 by convention
+        const prec = sens === 0 ? 1 : (sens * baseRate) / (sens * baseRate + (1 - spec) * (1 - baseRate));
+        
+        precision.push(prec);
+        recall.push(sens);
+    }
+    
+    // Add the end point explicitly
+    precision.push(1);
+    recall.push(0);
+    
+    // Calculate PR AUC (Average Precision) using trapezoidal rule
+    let prauc = 0;
+    for (let i = 1; i < recall.length; i++) {
+        // Only include segments where recall is decreasing
+        if (recall[i] < recall[i-1]) {
+            const width = recall[i-1] - recall[i];
+            const avgHeight = (precision[i-1] + precision[i]) / 2;
+            prauc += width * avgHeight;
+        }
+    }
+    
+    return prauc;
+}
+
 // ============================================================================
 // Data Generation Functions
 // ============================================================================
@@ -529,12 +583,14 @@ function plotTestDistributions() {
     };
     
     Plotly.newPlot(plotDiv, traces, layout, config).then(() => {
-        addAUCDisplay(plotDiv, calculateROCAUC(testParams));
+        const rocAuc = calculateROCAUC(testParams);
+        const prAuc = calculatePRAUC(testParams);
+        addAUCDisplay(plotDiv, rocAuc, prAuc);
         drawThresholdOnTestPlot();
     });
 }
 
-function addAUCDisplay(plotDiv, auc) {
+function addAUCDisplay(plotDiv, rocAuc, prAuc) {
     // Remove any existing AUC overlay
     d3.select(plotDiv).select('.auc-overlay').remove();
     
@@ -553,16 +609,27 @@ function addAUCDisplay(plotDiv, auc) {
         .style('height', '100%')
         .style('pointer-events', 'none');
     
-    // Add AUC text in top right corner
-    const aucText = svg.append('text')
-        .attr('class', 'auc-text')
+    // Add ROC-AUC text in top right corner
+    const rocAucText = svg.append('text')
+        .attr('class', 'roc-auc-text')
         .attr('x', '95%')
         .attr('y', '60')
         .attr('text-anchor', 'end')
         .style('font-size', '14px')
         .style('font-weight', 'bold')
         .style('fill', '#333')
-        .text(`AUC: ${auc.toFixed(3)}`);
+        .text(`ROC-AUC: ${rocAuc.toFixed(3)}`);
+    
+    // Add PR-AUC text underneath ROC-AUC
+    const prAucText = svg.append('text')
+        .attr('class', 'pr-auc-text')
+        .attr('x', '95%')
+        .attr('y', '80')
+        .attr('text-anchor', 'end')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .style('fill', '#333')
+        .text(`PR-AUC: ${prAuc.toFixed(3)}`);
 }
 
 function plotDeploymentDistributions() {
@@ -652,7 +719,9 @@ function plotDeploymentDistributions() {
     };
     
     Plotly.newPlot(plotDiv, traces, layout, config).then(() => {
-        addAUCDisplay(plotDiv, calculateROCAUC(deployParams));
+        const rocAuc = calculateROCAUC(deployParams);
+        const prAuc = calculatePRAUC(deployParams);
+        addAUCDisplay(plotDiv, rocAuc, prAuc);
         drawThresholdOnDeploymentPlot();
     });
 }
