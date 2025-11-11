@@ -290,7 +290,7 @@
                 </ul>
             </li>
 
-            <li>With these parameters, observed Cohen's d = 0.8 will yield ROC-AUC = 0.71 and PR-AUC = 0.19. This means that even with a "large" effect size of 0.8, the predictive utility remains rather modest, especially when it comes to the tradeoff between PPV and Sensitivity (as shown by the low PR-AUC). Using the DCA plot to set the classification threshold to correspond to 10% risk, p<sub>t</sub> = 0.1, we obtain PPV = 0.16, Sensitivity = 0.53, and ΔNB = 0.018, which means that at this threshold 84% of diagnoses would be false positives while still missing 47% of actual cases, and we would get 1.8 additional true positives per 100 diagnoses.</li>
+            <li>With these parameters, the observed Cohen's d = 0.8 will yield ROC-AUC = 0.71 and PR-AUC = 0.19. This means that even with a "large" effect size of 0.8, the predictive utility remains rather modest, especially when it comes to the tradeoff between PPV and Sensitivity (as shown by the low PR-AUC). Using the DCA plot to set the classification threshold to correspond to 15% risk, p<sub>t</sub> = 0.15, we obtain PPV = 0.22, Sensitivity = 0.31, and ΔNB = 0.009, which means that at this threshold 78% of diagnoses would be false positives while still missing 69% of actual cases, and we would get 9 additional true positives per 1,000 diagnoses.</li>
 
             <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and in turn much better predictive performance, ROC-AUC = 0.87 and PR-AUC = 0.46, and PPV = 0.27, Sensitivity = 0.74, and ΔNB = 0.046 at p<sub>t</sub> = 0.1, highlighting how much improvement in diagnostic prediction could be achieved simply by improving measurement reliability.</li>
 
@@ -298,7 +298,7 @@
 
         </ol>
         
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=0.92'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=1.67'">Explore this example yourself →</button>
         
 
         <h3>Example 2: Treatment Response Prediction</h3>
