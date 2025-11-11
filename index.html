@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/binary.css">
     <link rel="stylesheet" href="css/continuous.css">
+    <link rel="stylesheet" href="css/calibration.css">
     
     <!-- MathJax for professional equation rendering -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
@@ -969,6 +970,163 @@
         </div>
     </div>
 
+    <!-- Calibration Exploration Module -->
+    <div style="margin-top: 50px;"></div>
+    <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Calibration: From Test Set to Deployment (beta version)</h2>
+    <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+        <p>
+            Models trained and validated on test sets often encounter different conditions when deployed in real-world settings. This module explores how differences in measurement reliability and outcome base rates between test and deployment environments affect model calibration. A well-calibrated model's predicted probabilities should match observed outcome frequencies in the deployment set.
+        </p>
+    </div>
+
+    <!-- Calibration Container -->
+    <div class="container calibration-container">
+        <!-- Controls Section (Left) -->
+        <div class="section sliders">
+            <div class="form-container">
+                <!-- Test Set Parameters -->
+                <div class="dataset-section test-set">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #333; border-left: 4px solid #888888; padding-left: 10px;">Test Set</h3>
+                    
+                    <div class="slider-container">
+                        <input type="range" id="calib-test-effectsize-slider" min="0.1" max="5" step="0.1" value="2.5" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Effect size (Cohen's d) in the test set">True Effect Size (d)</span>
+                            <input type="number" id="calib-test-effectsize-number" class="slider-value" min="0.1" max="5" step="0.1" value="2.50">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-test-icc1-slider" min="0" max="1" step="0.01" value="0.7" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 1">Predictor reliability, ICC<sub>1</sub></span>
+                            <input type="number" id="calib-test-icc1-number" class="slider-value" min="0" max="1" step="0.01" value="0.70">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-test-icc2-slider" min="0" max="1" step="0.01" value="0.7" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 2">Predictor reliability, ICC<sub>2</sub></span>
+                            <input type="number" id="calib-test-icc2-number" class="slider-value" min="0" max="1" step="0.01" value="0.70">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-test-kappa-slider" min="0" max="1" step="0.01" value="1.0" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Reliability of the group membership">Outcome reliability, <i>κ</i></span>
+                            <input type="number" id="calib-test-kappa-number" class="slider-value" min="0" max="1" step="0.01" value="1.00">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-test-baserate-slider" min="0.001" max="0.999" step="0.001" value="0.5" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Base rate (prevalence) of the outcome in the test set">Base rate, φ</span>
+                            <input type="number" id="calib-test-baserate-number" class="slider-value" min="0.001" max="0.999" step="0.001" value="0.500">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="input-separator">
+
+                <!-- Deployment Set Parameters -->
+                <div class="dataset-section deployment-set">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #333; border-left: 4px solid #008080; padding-left: 10px;">Deployment Set</h3>
+                    
+                    <div class="slider-container">
+                        <input type="range" id="calib-deploy-effectsize-slider" min="0.1" max="5" step="0.1" value="2.5" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Effect size (Cohen's d) in the deployment set">True Effect Size (d)</span>
+                            <input type="number" id="calib-deploy-effectsize-number" class="slider-value" min="0.1" max="5" step="0.1" value="2.50">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-deploy-icc1-slider" min="0" max="1" step="0.01" value="0.4" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 1">Predictor reliability, ICC<sub>1</sub></span>
+                            <input type="number" id="calib-deploy-icc1-number" class="slider-value" min="0" max="1" step="0.01" value="0.40">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-deploy-icc2-slider" min="0" max="1" step="0.01" value="0.4" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 2">Predictor reliability, ICC<sub>2</sub></span>
+                            <input type="number" id="calib-deploy-icc2-number" class="slider-value" min="0" max="1" step="0.01" value="0.40">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-deploy-kappa-slider" min="0" max="1" step="0.01" value="1.0" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Reliability of the group membership">Outcome reliability, <i>κ</i></span>
+                            <input type="number" id="calib-deploy-kappa-number" class="slider-value" min="0" max="1" step="0.01" value="1.00">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="calib-deploy-baserate-slider" min="0.001" max="0.999" step="0.001" value="0.3" class="slider">
+                        <div class="slider-value-container">
+                            <span class="slider-label" data-tooltip="Base rate (prevalence) of the outcome in the deployment setting">Base rate, φ</span>
+                            <input type="number" id="calib-deploy-baserate-number" class="slider-value" min="0.001" max="0.999" step="0.001" value="0.300">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="input-separator">
+
+                <!-- Info Box -->
+                <div style="padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; font-size: 0.9rem; color: #856404;">
+                    <strong style="display: block; margin-bottom: 5px;">What to look for:</strong>
+                    Perfect calibration appears as points along the diagonal line. Deviations indicate miscalibration: points above the line mean the model underestimates risk, points below mean it overestimates risk.
+                </div>
+            </div>
+        </div>
+
+        <!-- Plots Section (Right) -->
+        <div class="section">
+                <div id="calibrationPlotContainer" style="display: flex; flex-direction: column; gap: 15px; height: 100%;">
+                    <!-- Test Set Distributions (25% height) -->
+                    <div id="calibration-test-plot-wrapper" style="position: relative; flex: 1; min-height: 0;">
+                        <div id="calibration-test-plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                    </div>
+
+                    <!-- Deployment Set Distributions (25% height) -->
+                    <div id="calibration-deploy-plot-wrapper" style="position: relative; flex: 1; min-height: 0;">
+                        <div id="calibration-deploy-plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                    </div>
+
+                    <!-- Calibration Plot (50% height) -->
+                    <div id="calibration-plot-wrapper" style="position: relative; flex: 2; min-height: 0;">
+                        <div id="calibration-plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                    </div>
+                
+                <!-- Calibration Metrics -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px 0; font-size: 1.1rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <span style="color: #666; font-weight: 500;" data-tooltip="Lower is better; measures overall prediction accuracy">Brier:</span>
+                        <span style="color: #333; font-weight: 700;" id="calib-brier-score">0.000</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <span style="color: #666; font-weight: 500;" data-tooltip="Expected Calibration Error; lower is better">ECE:</span>
+                        <span style="color: #333; font-weight: 700;" id="calib-ece">0.000</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <span style="color: #666; font-weight: 500;" data-tooltip="Slope of calibration curve; 1.0 is ideal">Slope:</span>
+                        <span style="color: #333; font-weight: 700;" id="calib-slope">1.000</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <span style="color: #666; font-weight: 500;" data-tooltip="Intercept of calibration curve; 0.0 is ideal">Intercept:</span>
+                        <span style="color: #333; font-weight: 700;" id="calib-intercept">0.000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Scripts -->
     <!-- Load shared plugins -->
     <script src="js/shared-plugins.js"></script>
@@ -988,7 +1146,9 @@
     <!-- Required Sample Size calculators -->
     <script src="js/sample-size-binary.js"></script>
     <script src="js/sample-size-continuous.js"></script>
-
+    
+    <!-- Calibration module -->
+    <script src="js/calibration.js"></script>
 
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #eee;">
