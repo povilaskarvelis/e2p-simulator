@@ -278,3 +278,22 @@ function makeResizablePlot(plotId) {
 function toPercentage(decimal, precision = 1) {
     return (decimal * 100).toFixed(precision) + '%';
 } 
+
+// Convert percentage-based UI value to fraction (0-1)
+function percentageToFraction(value) {
+    const numeric = parseFloat(value);
+    if (isNaN(numeric)) return 0;
+    const clamped = clamp(numeric, 0, 100);
+    return clamped / 100;
+}
+
+// Convert fraction (0-1) to percentage for UI controls
+function fractionToPercentage(value) {
+    const numeric = parseFloat(value);
+    if (isNaN(numeric)) return 0;
+    const clamped = clamp(numeric, 0, 1);
+    return clamped * 100;
+}
+
+window.percentageToFraction = percentageToFraction;
+window.fractionToPercentage = fractionToPercentage;

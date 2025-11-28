@@ -1133,43 +1133,49 @@ function updateAll() {
 
 function setupEventListeners() {
     // Helper function to create slider/number pair listener
-    function setupControl(sliderId, numberId, stateKey, decimalPlaces = 2) {
+function setupControl(sliderId, numberId, stateKey, options = {}) {
+    const config = typeof options === 'number' ? { decimals: options } : options || {};
+    const decimals = config.decimals !== undefined ? config.decimals : 2;
+    const isPercentage = !!config.isPercentage;
         const slider = document.getElementById(sliderId);
         const number = document.getElementById(numberId);
         
         if (slider && number) {
             slider.addEventListener('input', (e) => {
-                state[stateKey] = parseFloat(e.target.value);
-                number.value = state[stateKey].toFixed(decimalPlaces);
+            const rawValue = parseFloat(e.target.value);
+            if (isNaN(rawValue)) return;
+            state[stateKey] = isPercentage ? rawValue / 100 : rawValue;
+            number.value = rawValue.toFixed(decimals);
                 updateAll();
             });
             
             number.addEventListener('change', (e) => {
-                const value = parseFloat(e.target.value);
+            let rawValue = parseFloat(e.target.value);
                 const min = parseFloat(slider.min);
                 const max = parseFloat(slider.max);
-                if (value >= min && value <= max) {
-                    state[stateKey] = value;
-                    slider.value = value;
-                    updateAll();
-                }
+            if (isNaN(rawValue)) return;
+            rawValue = Math.max(min, Math.min(max, rawValue));
+            state[stateKey] = isPercentage ? rawValue / 100 : rawValue;
+            slider.value = rawValue;
+            number.value = rawValue.toFixed(decimals);
+            updateAll();
             });
         }
     }
     
     // Test set controls
-    setupControl('calib-test-effectsize-slider', 'calib-test-effectsize-number', 'testEffectSize', 1);
-    setupControl('calib-test-icc1-slider', 'calib-test-icc1-number', 'testICC1', 2);
-    setupControl('calib-test-icc2-slider', 'calib-test-icc2-number', 'testICC2', 2);
-    setupControl('calib-test-kappa-slider', 'calib-test-kappa-number', 'testKappa', 2);
-    setupControl('calib-test-baserate-slider', 'calib-test-baserate-number', 'testBaseRate', 3);
+    setupControl('calib-test-effectsize-slider', 'calib-test-effectsize-number', 'testEffectSize', { decimals: 1 });
+    setupControl('calib-test-icc1-slider', 'calib-test-icc1-number', 'testICC1', { decimals: 2 });
+    setupControl('calib-test-icc2-slider', 'calib-test-icc2-number', 'testICC2', { decimals: 2 });
+    setupControl('calib-test-kappa-slider', 'calib-test-kappa-number', 'testKappa', { decimals: 2 });
+    setupControl('calib-test-baserate-slider', 'calib-test-baserate-number', 'testBaseRate', { decimals: 1, isPercentage: true });
     
     // Deployment set controls
-    setupControl('calib-deploy-effectsize-slider', 'calib-deploy-effectsize-number', 'deploymentEffectSize', 1);
-    setupControl('calib-deploy-icc1-slider', 'calib-deploy-icc1-number', 'deploymentICC1', 2);
-    setupControl('calib-deploy-icc2-slider', 'calib-deploy-icc2-number', 'deploymentICC2', 2);
-    setupControl('calib-deploy-kappa-slider', 'calib-deploy-kappa-number', 'deploymentKappa', 2);
-    setupControl('calib-deploy-baserate-slider', 'calib-deploy-baserate-number', 'deploymentBaseRate', 3);
+    setupControl('calib-deploy-effectsize-slider', 'calib-deploy-effectsize-number', 'deploymentEffectSize', { decimals: 1 });
+    setupControl('calib-deploy-icc1-slider', 'calib-deploy-icc1-number', 'deploymentICC1', { decimals: 2 });
+    setupControl('calib-deploy-icc2-slider', 'calib-deploy-icc2-number', 'deploymentICC2', { decimals: 2 });
+    setupControl('calib-deploy-kappa-slider', 'calib-deploy-kappa-number', 'deploymentKappa', { decimals: 2 });
+    setupControl('calib-deploy-baserate-slider', 'calib-deploy-baserate-number', 'deploymentBaseRate', { decimals: 1, isPercentage: true });
 }
 
 // ============================================================================

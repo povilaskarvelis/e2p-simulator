@@ -41,6 +41,10 @@ function parseURLParams() {
     return params;
 }
 
+function getBaseRateFraction() {
+    return percentageToFraction(document.getElementById('base-rate-slider').value);
+}
+
 // Function to compute metrics at a given threshold
 function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, threshold) {
     // Calculate FPR (1 - specificity) and TPR (sensitivity)
@@ -138,7 +142,7 @@ function findOptimalThresholdBinary(metricType = 'youden') {
         const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
         const ddif = (currentView === 'true') ? trueD : obsD;
 
-        const baseRate = parseFloat(document.getElementById('base-rate-slider').value);
+        const baseRate = getBaseRateFraction();
 
         const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
         const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
@@ -177,7 +181,7 @@ function findOptimalThresholdBinary(metricType = 'youden') {
 // Drawing functions
 function drawDistributions(d) {
     try {
-        const baseRate = parseFloat(document.getElementById("base-rate-slider").value);
+        const baseRate = getBaseRateFraction();
 
         // Get ICC values
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
@@ -399,7 +403,7 @@ function drawThreshold(d) {
 
 function plotROC(d) {
     try {
-        const baseRate = parseFloat(document.getElementById("base-rate-slider").value);
+        const baseRate = getBaseRateFraction();
 
         // Get ICC values for standard deviation calculation
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
@@ -677,7 +681,7 @@ function updateMetricsFromD(d) {
         const icc1 = parseFloat(document.getElementById("icc1-slider").value);
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
         const kappa = parseFloat(document.getElementById("kappa-slider").value);
-        const baseRate = parseFloat(document.getElementById("base-rate-slider").value);
+        const baseRate = getBaseRateFraction();
         
         // Calculate attenuated d
         const dObs = d * Math.sqrt((2 * icc1 * icc2) / (icc1 + icc2) * Math.sin((Math.PI/2) * kappa));
@@ -941,12 +945,17 @@ function setupEventListeners() {
         const baseRateInput = document.getElementById("base-rate-number");
 
         baseRateSlider.addEventListener("input", () => {
-            baseRateInput.value = parseFloat(baseRateSlider.value).toFixed(3);
+            const percent = parseFloat(baseRateSlider.value);
+            baseRateInput.value = isNaN(percent) ? "" : percent.toFixed(1);
             updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
         });
 
         baseRateInput.addEventListener("change", () => {
-            baseRateSlider.value = baseRateInput.value;
+            let percent = parseFloat(baseRateInput.value);
+            if (isNaN(percent)) return;
+            percent = Math.min(Math.max(percent, 0.1), 99.9);
+            baseRateInput.value = percent.toFixed(1);
+            baseRateSlider.value = percent;
             updateMetricsFromD(parseFloat(document.getElementById("true-difference-number-bin").value));
         });
 

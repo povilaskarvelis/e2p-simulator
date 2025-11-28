@@ -84,8 +84,24 @@
         <p>Welcome to E2P Simulator! This guide will help you understand what it does, <br> why it is needed, and how to use it.</p>
     </div>
 
+    <!-- Sticky Sidebar Table of Contents -->
+    <nav class="toc-sidebar" id="toc-sidebar">
+        <h3>Contents</h3>
+        <ol>
+            <li><a href="#what-is">What is E2P Simulator?</a></li>
+            <li><a href="#why-needed">Why is it needed?</a></li>
+            <li><a href="#how-to-use">How to use</a></li>
+            <li><a href="#understanding-metrics">Predictive Metrics</a></li>
+            <li><a href="#predictive-utility-analysis">Predictive Utility Analysis</a></li>
+            <li><a href="#examples">Examples</a></li>
+            <li><a href="#sample-size">Sample Size</a></li>
+            <li><a href="#feedback">Feedback</a></li>
+            <li><a href="#references">References</a></li>
+        </ol>
+    </nav>
+
     <div class="guide-section">
-        <h2>What is E2P Simulator?</h2>
+        <h2 id="what-is">What is E2P Simulator?</h2>
         <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), as well as real-world predictive value and clinical utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) while explicitly accounting for measurement reliability and outcome base rates.</p>
 
         <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how research findings will translate into real-world prediction or what effect sizes/predictive performance is needed to achieve a desired level of predictive and clinical utility. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
@@ -100,7 +116,7 @@
     </div>
 
     <div class="guide-section">
-        <h2>Why is E2P Simulator needed?</h2>
+        <h2 id="why-needed">Why is E2P Simulator needed?</h2>
         
         <p>Many research areas such as biomedical, behavioral, education, and sports sciences are increasingly studying individual differences to build predictive models to personalize treatments, learning, and training. Identifying reliable biomarkers and other predictors is central to these efforts. Yet, several entrenched research practices continue to undermine the search for predictors:</p>
 
@@ -116,11 +132,11 @@
         <p>E2P Simulator is designed to address these fundamental challenges by placing measurement reliability and outcome base rate at the center of study planning and interpretation. It helps researchers understand how these factors jointly shape real-world predictive utility, and guides them in making more informed research decisions.</p>
 
     <div class="guide-section">
-        <h2>How to use E2P Simulator</h2>
+        <h2 id="how-to-use">How to use E2P Simulator</h2>
 
         <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting effect sizes, measurement reliability, base rate, and decision threshold, and immediately see how these changes impact predictive performance through various visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
 
-        <div id="use-summary-diagram" style="text-align: center; margin: 30px 0;">
+        <div id="use-summary-diagram" style="text-align: left; margin: 0 30px 0 0;">
             <img src="images/use_summary.png" alt="E2P Simulator overview showing all key inputs and interactive elements at a high level" class="screenshot" style="max-width: 100%; width: 100%;">
         </div>
         
@@ -184,7 +200,7 @@
         <h3>Classification Outcomes and Metrics</h3>
         <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
         
-        <div id="predictive-metrics-diagram" style="text-align: center; margin: 20px 0;">
+        <div id="predictive-metrics-diagram" style="text-align: center; margin: 0 30px 0 0;">
             <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%;">
         </div>
         
@@ -272,7 +288,51 @@
        </div>
 
        <div class="guide-section">
-        <h2>Quick Start Examples</h2>
+        <h2 id="predictive-utility-analysis">Predictive Utility Analysis</h2>
+        
+        <p>Predictive utility analysis consists of two key components: (1) estimating real-world predictive value and clinical utility of research findings by accounting for the outcome base rate, and (2) determining how much performance is lost due to measurement reliability.</p>
+        
+        <p>Predictive utility analysis can be applied in two main scenarios: interpreting existing research findings and planning new studies. Each scenario follows a different workflow, as outlined below.</p>
+
+        <h3>1. Interpreting Existing Research Findings</h3>
+        
+        <p>When evaluating published research or your own completed studies, the workflow starts with observed metrics and works forward to understand real-world utility:</p>
+        
+        <ol>            
+            <li><strong>Set measurement reliability</strong>: Ideally, reliability estimates should come directly from the same data set as the observed effect sizes. If not available, use expected estimates based on other relevant research in the field. In principle, one could perform predictive utility analysis by ignoring measurement reliability (setting all reliabilities to 1, for example). This would still allow to estimate real-world utility, but we would not know how diminished predictive performance is due to measurement reliability.</li>
+
+            <li><strong>Set observed metrics</strong>: This can be effect size (e.g., Cohen's d, Pearson's r) or predictive performance metric (e.g., ROC-AUC, PR-AUC). It is important to ensure that you are using a robust estimate here (not inflated due to small sample or overfitting).</li>
+            
+            <li><strong>Set base rate</strong>: Set the base rate to reflect the expected prevalence in the real-world conditions where the predictor or model will be applied — not the composition of the study sample. For example, if the study used a balanced case-control design (50% cases, 50% controls) but the condition affects only 5% of the target population, use 5% as the base rate to accurately estimate real-world predictive utility.</li>
+            
+            <li><strong>Set classification threshold</strong>: Determine a classification threshold that corresponds to a realistic threshold probability (p<sub>t</sub>) in Decision Curve Analysis. This threshold should reflect the clinical or practical context where the predictor will be used, balancing the costs of false positives against the benefits of true positives.</li>
+            
+            <li><strong>Document relevant metrics</strong>: Note down all the relevant metrics for the chosen threshold: ROC-AUC, PR-AUC, PPV, NPV, and Net Benefit (NB). These metrics provide a comprehensive picture of the predictor's real-world utility.</li>
+        </ol>
+
+        <h3>2. Planning Studies</h3>
+        
+        <p>When planning new research, the workflow starts from desired clinical utility and works backward to determine what effect sizes and study design are needed:</p>
+        
+        <ol>
+            <li><strong>Identify clinically meaningful targets</strong>: Start by determining what level of PR-AUC, PPV, NPV, or Net Benefit would be clinically meaningful in your specific context. These targets should reflect the minimum utility needed to justify using the predictor in practice. This could come from performing cost-benefit analysis, or from existing guidelines, or from using already existing clinical instruments as a benchmark.</li>
+            
+            <li><strong>Determine required effect sizes</strong>: Use the simulator to determine how these clinical targets translate to the needed effect sizes (e.g., Cohen's d, ROC-AUC) by setting the base rate to the expected prevalence in the real-world setting where the predictor or model will be applied. Compare these required effect sizes with typical effect sizes found in relevant research literature to assess feasibility.</li>
+            
+            <li><strong>Explore ways to improve performance</strong>: Use the simulator to explore how much closer you can get to your goal by:
+                <ul>
+                    <li><strong>Improving measurement reliability</strong> of each predictor (e.g., using more reliable assessment methods or improving measurement protocols)</li>
+                    <li><strong>Using multiple predictors</strong>: estimate how many predictors are needed to achieve a desired prediction performance. For  average effect size and average collinearity among predictors you can pick what is common in the field or what you find in your own data. Using these values in the multivariable calculator will provide you with a rough estimate of how well a multivariable model wwould perform without even needing to train it. </li>
+                </ul>
+            </li>
+            
+            <li><strong>Assess feasibility</strong>: This analysis can help determine the feasibility of both individual markers and multivariable models. </li>
+        </ol>
+
+       </div>
+
+       <div class="guide-section">
+        <h2 id="examples">Quick Start Examples</h2>
         
         To further clarify how the tool can be used and to demonstrate its utility we provide some specific examples.
 
@@ -341,6 +401,48 @@
         </ol>
 
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Controls&label2=Suicide%20attempters&label3=Electronic%20health%20records&thresholdValue=0.05'">Explore this example yourself →</button>
+        
+        <h3>Example 4: FDA-Cleared Biomarker</h3>
+        <p> How does the FDA-cleared plasma p-tau217/Aβ42 ratio perform inside the simulator?</p>
+        <ol>
+            <li>In the Binary outcome mode:
+                <ul>
+                    <li>Set the base rate to 51.1% (amyloid positivity in the clearance cohort).</li>
+                    <li>Set the outcome (grouping) reliability to 0.9 to reflect PET/CSF reference agreement.</li>
+                    <li>Set the predictor reliability for both groups to 0.9 (test-retest reliability of the assay components).</li>
+                    <li>Set the observed effect size to d = 2.25, yielding ROC-AUC = 0.94 and PR-AUC = 0.95.</li>
+                </ul>
+            </li>
+
+            <li>At p<sub>t</sub> = 0.68, the simulator recovers PPV = 0.92, NPV = 0.81, and ΔNB = 0.324. The original FDA study used two thresholds, leaving ~20% of indeterminate cases for confirmatory PET/CSF; here we approximate the same PPV with a single threshold.</li>
+
+            <li>Measurement reliability in this case is already very high and improving it will not result in a substantial improvement in predictive performance.</li>
+
+            <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
+        </ol>
+
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=No%20amyloid%20pathology&label2=Amyloid-positive&xaxisLabel=p-tau217%2FA%CE%B242%20ratio&thresholdValue=1.53'">Explore this example yourself →</button>
+
+        <h3>Example 5: Psychosis Transition Prediction</h3>
+        <p> How promising is MMN for predicting transition to psychosis within CHR cohorts?</p>
+        <ol>
+            <li>In the Binary outcome mode:
+                <ul>
+                    <li>Set the base rate to 19% (average 24-month conversion rate in CHR cohorts).</li>
+                    <li>Set the outcome (grouping) reliability to 0.46 (DSM-5 psychosis spectrum κ).</li>
+                    <li>Set the predictor reliability for both groups to 0.5 (double-deviant MMN test-retest reliability).</li>
+                    <li>Set the observed effect size to d = 0.43, yielding ROC-AUC = 0.62 and PR-AUC = 0.27.</li>
+                </ul>
+            </li>
+
+            <li>At p<sub>t</sub> = 0.15 (low-cost monitoring), the simulator produces PPV = 0.22, Sensitivity = 0.81, and ΔNB = 0.010, matching the incremental utility reported in the longitudinal study.</li>
+
+            <li>Accounting for attenuation shows the underlying true effect is d ≈ 0.75, highlighting how modest discrimination partly reflects limited measurement fidelity.</li>
+
+            <li>Improving measurement reliability (e.g., ICC ≈ 0.8) boosts performance to ROC-AUC = 0.70, PR-AUC = 0.36, PPV = 0.26, Sensitivity = 0.78, and ΔNB = 0.026 at the same threshold.</li>
+        </ol>
+
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdValue=0.15'">Explore this example yourself →</button>
    
     </div>
 
@@ -362,14 +464,14 @@
     </div>
 
     <div class="guide-section">
-        <h2>Feedback and Contributions</h2>
+        <h2 id="feedback">Feedback and Contributions</h2>
         <p>E2P Simulator is an open-source project - feedback, bug reports, and suggestions for improvement are welcome. The easiest way to do so is through the <a href="https://github.com/povilaskarvelis/e2p-simulator/issues" target="_blank">GitHub Issues page</a>.</p>
         <p>You can view the source code, track development, and contribute directly at the <a href="https://github.com/povilaskarvelis/e2p-simulator" target="_blank">project's GitHub repository</a>.</p>
         <p>For other inquiries, you can find my contact information <a href="https://povilaskarvelis.github.io/" target="_blank">here</a>.</p>
     </div>
 
     <div class="guide-section">
-        <h2>References</h2>
+        <h2 id="references">References</h2>
         <ol style="font-size: 0.95em; line-height: 1.8;">
             <li>Brabec, J., Komárek, T., Franc, V., & Machlica, L. (2020). On model evaluation under non-constant class imbalance. <em>International Conference on Computational Science</em>, vol. 12140 (pp. 74-87). Springer, Cham. <a href="https://doi.org/10.1007/978-3-030-50423-6_6" target="_blank">https://doi.org/10.1007/978-3-030-50423-6_6</a></li>
             
@@ -380,6 +482,8 @@
             <li>Elliott, M. L., Knodt, A. R., Ireland, D., Morris, M. L., Poulton, R., Ramrakha, S., Sison, M. L., Moffitt, T. E., Caspi, A., & Hariri, A. R. (2020). What is the test-retest reliability of common task-functional MRI measures? New empirical evidence and a meta-analysis. <em>Psychological Science, 31</em>(7), 792-806. <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">https://doi.org/10.1177/0956797620916786</a></li>
             
             <li>Karvelis, P., & Diaconescu, A. O. (2025). Clarifying the reliability paradox: poor measurement reliability attenuates group differences. <em>Frontiers in Psychology, 16</em>, 1592658. <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2025.1592658" target="_blank">https://doi.org/10.3389/fpsyg.2025.1592658</a></li>
+            
+            <li>Karvelis, P., & Diaconescu, A. O. (2025). E2P Simulator: An Interactive Tool for Estimating Real-World Predictive Utility of Research Findings. <em>Journal of Open Source Software, 10</em>(114), 8334. <a href="https://doi.org/10.21105/joss.08334" target="_blank">https://doi.org/10.21105/joss.08334</a></li>
             
             <li>Karvelis, P., Paulus, M. P., & Diaconescu, A. O. (2023). Individual differences in computational psychiatry: A review of current challenges. <em>Neuroscience & Biobehavioral Reviews, 148</em>, 105137. <a href="https://doi.org/10.1016/j.neubiorev.2023.105137" target="_blank">https://doi.org/10.1016/j.neubiorev.2023.105137</a></li>
             
@@ -421,7 +525,65 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Only fetch version info, no binary/continuous initialization needed
             fetchVersionInfo();
+            
+            // Initialize TOC active section tracking
+            initTocTracking();
         });
+        
+        // TOC active section tracking
+        function initTocTracking() {
+            const tocLinks = document.querySelectorAll('.toc-sidebar a');
+            const sections = [];
+            
+            // Gather all section elements
+            tocLinks.forEach(link => {
+                const id = link.getAttribute('href').substring(1);
+                const section = document.getElementById(id);
+                if (section) {
+                    sections.push({ id, element: section, link });
+                }
+            });
+            
+            // Update active section on scroll
+            function updateActiveSection() {
+                const scrollPosition = window.scrollY + 120; // Offset for header
+                const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollProgress = (window.scrollY / documentHeight) * 100;
+                
+                // Update progress indicator
+                document.querySelector('.toc-sidebar').style.setProperty('--scroll-progress', scrollProgress + '%');
+                
+                // Find active section
+                let activeSection = sections[0];
+                
+                for (const section of sections) {
+                    if (section.element.offsetTop <= scrollPosition) {
+                        activeSection = section;
+                    }
+                }
+                
+                // Update active class
+                tocLinks.forEach(link => link.classList.remove('active'));
+                if (activeSection) {
+                    activeSection.link.classList.add('active');
+                }
+            }
+            
+            // Throttle scroll events for performance
+            let ticking = false;
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        updateActiveSection();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+            
+            // Initial update
+            updateActiveSection();
+        }
         
         // Copy the version fetch function from main.js
         async function fetchVersionInfo() {

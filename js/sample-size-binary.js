@@ -125,14 +125,15 @@
     function update(){
         const p = val('ssb-p');
         const r2cs = Math.max(0.0001, Math.min(0.9, val('ssb-r2cs')));
-        const prevPct = Math.max(0.001, Math.min(0.999, val('ssb-prevalence')));
+        const prevInput = val('ssb-prevalence');
         const S = Math.max(0.7, Math.min(0.99, val('ssb-shrinkage')));
         const delta = Math.max(0.001, Math.min(0.2, val('ssb-delta')));
         // mean risk precision inputs removed
         const targetEPP = Math.max(1, val('ssb-epp')) || 10;
         const targetMAPE = Math.max(0.001, val('ssb-mape') || 0.05);
 
-        if (p == null || r2cs == null || prevPct == null || S == null || delta == null) return;
+        if (p == null || r2cs == null || prevInput == null || S == null || delta == null) return;
+        const prevPct = Math.max(0.001, Math.min(0.999, percentageToFraction(prevInput)));
 
         const nS = computeShrinkageN(p, S, r2cs);
         const nMAPE = (p <= 30) ? computeMapeN(p, targetMAPE, prevPct) : 0;

@@ -80,8 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Set binary mode parameters
                 if (params.baseRate) {
-                    document.getElementById('base-rate-number').value = parseFloat(params.baseRate);
-                    document.getElementById('base-rate-slider').value = parseFloat(params.baseRate);
+                    const parsedBaseRate = parseFloat(params.baseRate);
+                    if (!isNaN(parsedBaseRate)) {
+                        const percentValue = parsedBaseRate <= 1 ? parsedBaseRate * 100 : parsedBaseRate;
+                        const clampedPercent = Math.min(Math.max(percentValue, 0.1), 99.9);
+                        document.getElementById('base-rate-number').value = clampedPercent.toFixed(1);
+                        document.getElementById('base-rate-slider').value = clampedPercent;
+                    }
                 }
                 
                 if (params.groupingReliability) {
@@ -145,8 +150,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (params.baseRate) {
-                    document.getElementById('base-rate-number-cont').value = parseFloat(params.baseRate);
-                    document.getElementById('base-rate-slider-cont').value = parseFloat(params.baseRate);
+                    const parsedBaseRate = parseFloat(params.baseRate);
+                    if (!isNaN(parsedBaseRate)) {
+                        const percentValue = parsedBaseRate <= 1 ? parsedBaseRate * 100 : parsedBaseRate;
+                        const clampedPercent = Math.min(Math.max(percentValue, 0.1), 99.9);
+                        document.getElementById('base-rate-number-cont').value = clampedPercent.toFixed(1);
+                        document.getElementById('base-rate-slider-cont').value = clampedPercent;
+                    }
                 }
                 
                 if (params.effectSizeR) {
