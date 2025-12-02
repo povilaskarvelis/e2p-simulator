@@ -1148,3 +1148,103 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: #e0e0e0;
     margin: 4px 0;
 }
+
+/* ==========================================================================
+   Sticky Sidebar Table of Contents (Get Started Page)
+   ========================================================================== */
+.toc-sidebar {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    width: 220px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    z-index: 100;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toc-sidebar h3 {
+    margin: 0 0 15px 0;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.toc-sidebar ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.toc-sidebar li {
+    margin: 0;
+    padding: 0;
+}
+
+.toc-sidebar a {
+    display: block;
+    padding: 8px 12px;
+    margin: 2px 0;
+    color: #555;
+    text-decoration: none;
+    font-size: 0.85em;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.toc-sidebar a:hover {
+    background: rgba(3, 102, 214, 0.08);
+    color: #0366d6;
+    border-left-color: rgba(3, 102, 214, 0.3);
+}
+
+.toc-sidebar a.active {
+    background: rgba(3, 102, 214, 0.12);
+    color: #0366d6;
+    font-weight: 500;
+    border-left-color: #0366d6;
+}
+
+/* Progress indicator */
+.toc-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: var(--scroll-progress, 0%);
+    background: linear-gradient(180deg, #0366d6, #28a745);
+    border-radius: 3px 0 0 3px;
+    transition: height 0.1s ease-out;
+}
+
+/* Custom scrollbar for TOC */
+.toc-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+}
+
+.toc-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* Smooth scroll behavior for get-started page */
+.get-started-page {
+    scroll-behavior: smooth;
+}

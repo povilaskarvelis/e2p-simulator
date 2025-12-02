@@ -75,7 +75,7 @@ const colors = [
         
         const targetRocAuc = parseFloat(document.getElementById('targetRocAuc').value);
         const targetD = StatUtils.aucToD(targetRocAuc);
-        const baseRate = parseFloat(document.getElementById('mahalanobis-base-rate').value);
+        const baseRate = percentageToFraction(document.getElementById('mahalanobis-base-rate').value);
         const thresholdValue = StatUtils.dToPRAUC(targetD, baseRate);
 
         prAucChart = new Chart(ctx, createChartConfig(prAucActiveCurve, 'PR-AUC', 'Target PR-AUC', true, false, thresholdValue, 0, 1));
@@ -192,7 +192,7 @@ const colors = [
 
         const targetRocAuc = parseFloat(document.getElementById('targetRocAuc').value);
         const targetD = StatUtils.aucToD(targetRocAuc);
-        const baseRate = parseFloat(document.getElementById('mahalanobis-base-rate').value);
+        const baseRate = percentageToFraction(document.getElementById('mahalanobis-base-rate').value);
         const effectSize = parseFloat(document.getElementById('effectSize').value);
         const correlation = parseFloat(document.getElementById('correlation').value);
         const numVariables = parseInt(document.getElementById('numVariables').value);
@@ -308,7 +308,7 @@ function resetChart() {
     function getInputs() {
         return {
             targetRocAuc: parseFloat(document.getElementById('targetRocAuc').value),
-            baseRate: parseFloat(document.getElementById('mahalanobis-base-rate').value),
+            baseRate: percentageToFraction(document.getElementById('mahalanobis-base-rate').value),
             effectSize: parseFloat(document.getElementById('effectSize').value),
             correlation: parseFloat(document.getElementById('correlation').value),
             numVariables: parseInt(document.getElementById('numVariables').value)

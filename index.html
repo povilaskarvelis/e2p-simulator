@@ -205,10 +205,10 @@
 
                     <!-- Base Rate -->
                     <div>
-                        <input type="range" id="base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.45">
+                        <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="45">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate, \(\phi\)</span>
-                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.001" max="0.999" step="0.001" value="0.45">
+                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate, \(\phi\) (%)</span>
+                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
                         </div>
                     </div>
                 </div>
@@ -370,10 +370,10 @@
                             </div>
                         </div>
                         <div class="slider-container">
-                            <input type="range" id="mahalanobis-base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.10" class="slider">
+                            <input type="range" id="mahalanobis-base-rate-slider" min="0.1" max="99.9" step="0.1" value="10" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate</span>
-                                <input type="number" id="mahalanobis-base-rate" min="0.001" max="0.999" step="0.001" value="0.10" class="slider-value">
+                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
+                                <input type="number" id="mahalanobis-base-rate" min="0.1" max="99.9" step="0.1" value="10" class="slider-value">
                             </div>
                         </div>
                     </div>
@@ -494,10 +494,10 @@
 
                     <!-- Base Rate -->
                     <div style="margin-top: 10px; margin-bottom: 20px;">
-                        <input type="range" id="base-rate-slider-cont" min="0.001" max="0.999" step="0.001" value="0.50">
+                        <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate</span>
-                            <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.001" max="0.999" step="0.001" value="0.50">
+                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
+                            <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
                         </div>
                     </div>
                     
@@ -739,10 +739,10 @@
                         
                         <!-- Base Rate slider -->
                         <div class="slider-container">
-                            <input type="range" id="r2-base-rate-slider" min="0.001" max="0.999" step="0.001" value="0.15" class="slider">
+                            <input type="range" id="r2-base-rate-slider" min="0.1" max="99.9" step="0.1" value="15" class="slider">
                             <div class="slider-value-container">
-                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate</span>
-                                <input type="number" id="r2-base-rate" min="0.001" max="0.999" step="0.001" value="0.15" class="slider-value">
+                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
+                                <input type="number" id="r2-base-rate" min="0.1" max="99.9" step="0.1" value="15" class="slider-value">
                             </div>
                         </div>
                     </div>
@@ -818,10 +818,10 @@
                 </div>
 
                 <div class="slider-container">
-                    <input type="range" id="ssb-prevalence-slider" min="0.001" max="0.999" step="0.001" value="0.30" class="slider">
+                    <input type="range" id="ssb-prevalence-slider" min="0.1" max="99.9" step="0.1" value="30" class="slider">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Event base rate in the training data">Base rate (\(\phi\))</span>
-                        <input type="number" id="ssb-prevalence" min="0.001" max="0.999" step="0.001" value="0.30" class="slider-value">
+                                <span class="slider-label" data-tooltip="Event base rate in the training data">Base rate, \(\phi\) (%)</span>
+                        <input type="number" id="ssb-prevalence" min="0.1" max="99.9" step="0.1" value="30" class="slider-value">
                     </div>
                 </div>
                 
@@ -1021,10 +1021,10 @@
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-test-baserate-slider" min="0.001" max="0.999" step="0.001" value="0.5" class="slider">
+                        <input type="range" id="calib-test-baserate-slider" min="0.1" max="99.9" step="0.1" value="50" class="slider">
                         <div class="slider-value-container">
-                            <span class="slider-label" data-tooltip="Base rate (prevalence) of the outcome in the test set">Base rate, φ</span>
-                            <input type="number" id="calib-test-baserate-number" class="slider-value" min="0.001" max="0.999" step="0.001" value="0.500">
+                            <span class="slider-label" data-tooltip="Base rate (prevalence) of the outcome in the test set">Base rate (%)</span>
+                            <input type="number" id="calib-test-baserate-number" class="slider-value" min="0.1" max="99.9" step="0.1" value="50.0">
                         </div>
                     </div>
                 </div>
@@ -1068,10 +1068,10 @@
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-deploy-baserate-slider" min="0.001" max="0.999" step="0.001" value="0.3" class="slider">
+                        <input type="range" id="calib-deploy-baserate-slider" min="0.1" max="99.9" step="0.1" value="30" class="slider">
                         <div class="slider-value-container">
-                            <span class="slider-label" data-tooltip="Base rate (prevalence) of the outcome in the deployment setting">Base rate, φ</span>
-                            <input type="number" id="calib-deploy-baserate-number" class="slider-value" min="0.001" max="0.999" step="0.001" value="0.300">
+                            <span class="slider-label" data-tooltip="Base rate (prevalence) of the outcome in the deployment setting">Base rate (%)</span>
+                            <input type="number" id="calib-deploy-baserate-number" class="slider-value" min="0.1" max="99.9" step="0.1" value="30.0">
                         </div>
                     </div>
                 </div>
