@@ -307,7 +307,7 @@
             
             <li><strong>Set classification threshold</strong>: Determine a classification threshold that corresponds to a realistic threshold probability (p<sub>t</sub>) in Decision Curve Analysis. This threshold should reflect the clinical or practical context where the predictor will be used, balancing the costs of false positives against the benefits of true positives.</li>
             
-            <li><strong>Document relevant metrics</strong>: Note down all the relevant metrics for the chosen threshold: ROC-AUC, PR-AUC, PPV, NPV, and Net Benefit (NB). These metrics provide a comprehensive picture of the predictor's real-world utility.</li>
+            <li><strong>Document relevant metrics</strong>: Note down all the relevant metrics for the chosen threshold: ROC-AUC, PR-AUC, PPV, NPV, and Net Benefit. These metrics provide a comprehensive picture of the predictor's real-world utility.</li>
         </ol>
 
         <h3>2. Planning Studies</h3>
@@ -336,7 +336,31 @@
         
         To further clarify how the tool can be used and to demonstrate its utility we provide some specific examples.
 
-        <h3>Example 1: Diagnostic Prediction</h3>
+        <h3>Example 1: Diagnostic Prediction: FDA-Cleared Biomarker for Alzheimer's Disease</h3>
+        <p> Recently, <a href="https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease" target="_blank">FDA has cleared</a> plasma p-tau217/Aβ42 ratio for assessing amyloid positivity, which is a key criterion for Alzheimer's diagnosis. Let us unpack this example in E2P Simulator as an anchor for all other examples. We will use the <a href="https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf" target="_blank">report</a> that FDA clearance was based on as a reference for the parameters.
+            
+        </p>
+        <ol>
+            <li>In the Binary outcome mode:
+                <ul>
+                    <li>Set the base rate to 51.1%. This is amyloid positivity prevalence in the clearance cohort, which consists targets individuals with mild cognitive impairment. Note, in practice we may expect this to vary between ~ 20% to 80% depending on the average age of the cohort (<a href="https://doi.org/10.1001/jama.2015.4668" target="_blank">Jansen et al., 2015</a>).</li>
+                    <li>Set the outcome reliability to 0.9, which is the reliability of PET/CSF reference agreement used to confirm amyloid positivity in the clearance cohort (<a href="https://doi.org/10.1097/RLU.0000000000001693" target="_blank">Harn et al., 2017</a>).</li>
+                    <li>Set the predictor reliability for both groups to 0.9 (test-retest reliability of the assay components; <a href="https://doi.org/10.1038/s41398-024-03084-7" target="_blank">Della Monica et al., 2024</a>).</li>
+                    <li>Setting the effect size in this case is a bit tricky because it is not reported. However, we can instead use the reported PPV and NPV. The report used two thresholds one for PPV and one for NPV, leaving ~20% of indeterminate cases for confirmatory PET/CSF. We only need to consider one of the thresholds to recreate the distributions: for the positive threshold they report 201/255 being true positives and 54/255 being false positives, which corresponds to PPV ≈ 0.92 and NPV ≈ 0.81. Now we adjust the effect size and classification threshld until we achieve these values.
+                       </li>
+                </ul>
+            </li>
+
+            <li> We find this corresponds to observed effect size d = 2.25, yielding ROC-AUC = 0.94 and PR-AUC = 0.95. We also find that the positive threshold corresponds to p<sub>t</sub> ≈ 0.68, recovering PPV = 0.92, NPV = 0.81, and resulting in ΔNB = 0.324. </li>
+
+            <li>Measurement reliability in this case is already very high and improving it will not result in a substantial improvement in predictive performance.</li>
+
+            <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
+        </ol>
+
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=No%20amyloid%20pathology&label2=Amyloid-positive&xaxisLabel=p-tau217%2FA%CE%B242%20ratio&thresholdValue=1.53'">Explore this example yourself →</button>
+
+        <h3>Example 2: Diagnostic Prediction: Depression</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
         <ol>
             <li>In the Binary outcome mode:
@@ -359,7 +383,7 @@
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=0.92'">Explore this example yourself →</button>
         
 
-        <h3>Example 2: Treatment Response Prediction</h3>
+        <h3>Example 3: Treatment Response Prediction: Antidepressants</h3>
         <p> Can we predict who will respond to antidepressant treatment using task-based brain activity measures?</p>
         <ol>
             <li>Select Continuous outcome mode:</li>
@@ -377,7 +401,7 @@
 
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.15&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdValue=0.6'">Explore this example yourself →</button>
 
-        <h3>Example 3: Risk Prediction</h3>
+        <h3>Example 4: Risk Prediction: Suicide Attempts</h3>
         <p> Can we predict who will attempt suicide using electronic health records?</p> 
             
         <p>
@@ -401,30 +425,9 @@
         </ol>
 
         <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Controls&label2=Suicide%20attempters&label3=Electronic%20health%20records&thresholdValue=0.05'">Explore this example yourself →</button>
-        
-        <h3>Example 4: FDA-Cleared Biomarker</h3>
-        <p> How does the FDA-cleared plasma p-tau217/Aβ42 ratio perform inside the simulator?</p>
-        <ol>
-            <li>In the Binary outcome mode:
-                <ul>
-                    <li>Set the base rate to 51.1% (amyloid positivity in the clearance cohort).</li>
-                    <li>Set the outcome (grouping) reliability to 0.9 to reflect PET/CSF reference agreement.</li>
-                    <li>Set the predictor reliability for both groups to 0.9 (test-retest reliability of the assay components).</li>
-                    <li>Set the observed effect size to d = 2.25, yielding ROC-AUC = 0.94 and PR-AUC = 0.95.</li>
-                </ul>
-            </li>
 
-            <li>At p<sub>t</sub> = 0.68, the simulator recovers PPV = 0.92, NPV = 0.81, and ΔNB = 0.324. The original FDA study used two thresholds, leaving ~20% of indeterminate cases for confirmatory PET/CSF; here we approximate the same PPV with a single threshold.</li>
-
-            <li>Measurement reliability in this case is already very high and improving it will not result in a substantial improvement in predictive performance.</li>
-
-            <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
-        </ol>
-
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=No%20amyloid%20pathology&label2=Amyloid-positive&xaxisLabel=p-tau217%2FA%CE%B242%20ratio&thresholdValue=1.53'">Explore this example yourself →</button>
-
-        <h3>Example 5: Psychosis Transition Prediction</h3>
-        <p> How promising is MMN for predicting transition to psychosis within CHR cohorts?</p>
+        <h3>Example 5: Risk Prediction: Transition to Psychosis</h3>
+        <p> How promising is MMN for predicting transition to psychosis within clinical high-risk (CHR) cohorts?</p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
@@ -477,9 +480,19 @@
             
             <li>Christodoulou, E., Ma, J., Collins, G. S., Steyerberg, E. W., Verbakel, J. Y., & Van Calster, B. (2019). A systematic review shows no performance benefit of machine learning over logistic regression for clinical prediction models. <em>Journal of Clinical Epidemiology, 110</em>, 12-22. <a href="https://doi.org/10.1016/j.jclinepi.2019.02.004" target="_blank">https://doi.org/10.1016/j.jclinepi.2019.02.004</a></li>
 
+            <li>Della Monica, C., Revell, V., Atzori, G., Laban, R., Skene, S. S., Heslegrave, A., ... & Dijk, D.-J. (2024). P-tau217 and other blood biomarkers of dementia: Variation with time of day. <em>Translational Psychiatry, 14</em>(1), 373. <a href="https://doi.org/10.1038/s41398-024-03084-7" target="_blank">https://doi.org/10.1038/s41398-024-03084-7</a></li>
+
             <li>Edgcomb, J. B., Thiruvalluru, R., Pathak, J., Brooks, J. O., & Zima, B. (2021). Machine learning to differentiate risk of suicide attempt and self-harm after general medical hospitalization of women with mental illness. <em>Medical Care, 59</em>, S58-S64. <a href="https://journals.lww.com/lww-medicalcare/fulltext/2021/02001/machine_learning_to_differentiate_risk_of_suicide.14.aspx" target="_blank">https://doi.org/10.1097/MLR.0000000000001445</a></li>
             
             <li>Elliott, M. L., Knodt, A. R., Ireland, D., Morris, M. L., Poulton, R., Ramrakha, S., Sison, M. L., Moffitt, T. E., Caspi, A., & Hariri, A. R. (2020). What is the test-retest reliability of common task-functional MRI measures? New empirical evidence and a meta-analysis. <em>Psychological Science, 31</em>(7), 792-806. <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">https://doi.org/10.1177/0956797620916786</a></li>
+            
+            <li>Food and Drug Administration. (2025). FDA Clears First Blood Test Used in Diagnosing Alzheimer's Disease. <em>FDA News Release</em>. <a href="https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease" target="_blank">https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease</a></li>
+            
+            <li>Food and Drug Administration. (2025). 510(k) Premarket Notification: Lumipulse G p-Tau 217/β-Amyloid 1-42 Plasma Ratio. <em>FDA 510(k) Summary, K242706</em>. <a href="https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf" target="_blank">https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf</a></li>
+            
+            <li>Harn, N. R., Hunt, S. L., Hill, J., Vidoni, E., Perry, M., & Burns, J. M. (2017). Augmenting amyloid PET interpretations with quantitative information improves consistency of early amyloid detection. <em>Clinical Nuclear Medicine, 42</em>(8), 577-581. <a href="https://doi.org/10.1097/RLU.0000000000001693" target="_blank">https://doi.org/10.1097/RLU.0000000000001693</a></li>
+            
+            <li>Jansen, W. J., Ossenkoppele, R., Knol, D. L., Tijms, B. M., Scheltens, P., Verhey, F. R., ... & Amyloid Biomarker Study Group. (2015). Prevalence of cerebral amyloid pathology in persons without dementia: A meta-analysis. <em>JAMA, 313</em>(19), 1924-1938. <a href="https://doi.org/10.1001/jama.2015.4668" target="_blank">https://doi.org/10.1001/jama.2015.4668</a></li>
             
             <li>Karvelis, P., & Diaconescu, A. O. (2025). Clarifying the reliability paradox: poor measurement reliability attenuates group differences. <em>Frontiers in Psychology, 16</em>, 1592658. <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2025.1592658" target="_blank">https://doi.org/10.3389/fpsyg.2025.1592658</a></li>
             
