@@ -860,8 +860,9 @@ body.get-started-page {
 }
 
 .guide-section {
-        margin-bottom: 40px;
-    }
+    margin-bottom: 40px;
+    padding-right: 0px;
+}
 
 .guide-section h2 {
     color: #333;
@@ -1156,12 +1157,12 @@ input[type="range"]::-webkit-slider-thumb {
     position: fixed;
     top: 80px;
     right: 30px;
-    width: 220px;
+    width: 140px;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
     border-radius: 12px;
-    padding: 20px;
+    padding: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(0, 0, 0, 0.06);
     z-index: 100;
@@ -1169,12 +1170,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .toc-sidebar h3 {
-    margin: 0 0 15px 0;
-    font-size: 0.85em;
-    font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: none;
 }
 
 .toc-sidebar ol {
@@ -1197,20 +1193,22 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 0.85em;
     border-radius: 6px;
     transition: all 0.2s ease;
-    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-left: none;
+    text-align: right;
 }
 
 .toc-sidebar a:hover {
     background: rgba(3, 102, 214, 0.08);
     color: #0366d6;
-    border-left-color: rgba(3, 102, 214, 0.3);
+    border-right-color: rgba(3, 102, 214, 0.3);
 }
 
 .toc-sidebar a.active {
     background: rgba(3, 102, 214, 0.12);
     color: #0366d6;
     font-weight: 500;
-    border-left-color: #0366d6;
+    border-right-color: #0366d6;
 }
 
 /* Progress indicator */
@@ -1218,11 +1216,11 @@ input[type="range"]::-webkit-slider-thumb {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
+    right: 0;
     width: 3px;
     height: var(--scroll-progress, 0%);
     background: linear-gradient(180deg, #0366d6, #28a745);
-    border-radius: 3px 0 0 3px;
+    border-radius: 0 3px 3px 0;
     transition: height 0.1s ease-out;
 }
 

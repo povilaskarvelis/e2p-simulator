@@ -102,9 +102,9 @@
 
     <div class="guide-section">
         <h2 id="what-is">What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) allows researchers to interactively and quantitatively explore the relationship between effect sizes (e.g., Cohen's d, Odds Ratio, Pearson's r), the corresponding predictive performance (e.g., ROC-AUC, Sensitivity, Specificity, Accuracy, etc.), as well as real-world predictive value and clinical utility (e.g., PPV, NPV, PR-AUC, Net Benefit, etc.) while explicitly accounting for measurement reliability and outcome base rates.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) is an open-source simulation engine that allows researchers to visually and quantitatively explore the relationships between effect sizes (e.g., Cohen's d, Pearson's r), discriminative ability (e.g., ROC-AUC, sensitivity, specificity), predictive value (e.g., PPV, NPV, PR-AUC), and clinical utility (Net Benefit), while accounting for measurement reliability and outcome base rates.</p>
 
-        <p>In other words, E2P Simulator is a tool for performing <em>predictive utility analysis</em> - estimating how research findings will translate into real-world prediction or what effect sizes/predictive performance is needed to achieve a desired level of predictive and clinical utility. Much like how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
+        <p>As such, it provides an easy way to perform <em><a href="#predictive-utility-analysis">predictive utility analysis</a></em>: estimating how research findings will translate into real-world prediction or what effect sizes or discriminative ability are needed to achieve a desired level of predictive value and clinical utility. Similar to how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
         <p>E2P Simulator has several key applications:</p>
         
@@ -112,6 +112,7 @@
             <li><strong>Interpretation of findings</strong>: It helps researchers move beyond arbitrary "small/medium/large" effect size labels and misleading predictive metrics by grounding their interpretation in estimated real-world predictive utility.</li>
             <li><strong>Research planning</strong>: Being able to easily derive what effect sizes and predictive performance are needed to achieve a desired real-world predictive performance allows researchers to plan their studies more effectively and allocate resources more efficiently.</li>
             <li><strong>Education</strong>: The simulator's interactive design makes it a valuable teaching tool, helping researchers develop a more intuitive understanding of how different abstract statistical metrics relate to one another and to real-world utility.</li>
+            <li><strong>Reporting standardization</strong>: E2P Simulator can help standardize transparent reporting practices by providing a complete view of the all key metrics as well as the underlying data distribution.</li>
         </ul>
     </div>
 
@@ -205,7 +206,7 @@
             <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%;">
         </div>
         
-        <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., Sensitivity/Recall/TPR, Precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
+        <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
         
         <p>A short summary of each metric:</p>
         <ul>
@@ -227,8 +228,8 @@
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
         <ul>
-            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Summarizes how well a model balances true positives (Sensitivity) and false positives (1-Specificity) across all possible thresholds. ROC-AUC measures inherent discriminative capacity independent of base rates, which means it remains constant across different outcome base rates. This makes it a valuable metric for comparing models across different populations.</li>
-            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Summarizes how well a model balances Precision (PPV) and Recall (Sensitivity) across all thresholds. Because Precision is dependent on the base rate, PR-AUC can often be a more informative summary metric for real-world contexts with low base rates. The caveat is that for it to be truly informative, the base rate used to obtain PR-AUC should reflect expected real-world conditions (instead of being based on artificially balanced datasets).</li>
+            <li><strong>ROC-AUC (Area Under the Receiver Operating Characteristic Curve)</strong>: Summarizes how well a model balances true positives (sensitivity) and false positives (1-specificity) across all possible thresholds. ROC-AUC measures inherent discriminative capacity independent of base rates, which means it remains constant across different outcome base rates. This makes it a valuable metric for comparing models across different populations.</li>
+            <li><strong>PR-AUC (Area Under the Precision-Recall Curve)</strong>: Summarizes how well a model balances precision (PPV) and recall (sensitivity) across all thresholds. Because precision is dependent on the base rate, PR-AUC can often be a more informative summary metric for real-world contexts with low base rates. The caveat is that for it to be truly informative, the base rate used to obtain PR-AUC should reflect expected real-world conditions (instead of being based on artificially balanced datasets).</li>
         </ul>
         
         <p>Both ROC-AUC and PR-AUC represent areas under their respective curves and are mathematically expressed as integrals:</p>
@@ -359,7 +360,7 @@
             <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=No%20amyloid%20pathology&label2=Amyloid-positive&xaxisLabel=p-tau217%2FA%CE%B242%20ratio&thresholdValue=1.53'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdValue=1.53'">Explore this example yourself →</button>
 
         <h3>Example 2: Diagnostic Prediction: Depression</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
@@ -425,7 +426,7 @@
             <li>Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Controls&label2=Suicide%20attempters&label3=Electronic%20health%20records&thresholdValue=0.05'">Explore this example yourself →</button>
+        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Electronic%20health%20records&thresholdValue=0.05'">Explore this example yourself →</button>
 
         <h3>Example 5: Risk Prediction: Transition to Psychosis</h3>
         <p> How promising is MMN for predicting transition to psychosis within clinical high-risk (CHR) cohorts?</p>
@@ -547,6 +548,8 @@
         // TOC active section tracking
         function initTocTracking() {
             const tocLinks = document.querySelectorAll('.toc-sidebar a');
+            const tocSidebar = document.querySelector('.toc-sidebar');
+            const footer = document.querySelector('footer');
             const sections = [];
             
             // Gather all section elements
@@ -565,7 +568,22 @@
                 const scrollProgress = (window.scrollY / documentHeight) * 100;
                 
                 // Update progress indicator
-                document.querySelector('.toc-sidebar').style.setProperty('--scroll-progress', scrollProgress + '%');
+                tocSidebar.style.setProperty('--scroll-progress', scrollProgress + '%');
+                
+                // Hide sidebar when it would overlap with footer
+                if (footer) {
+                    const footerRect = footer.getBoundingClientRect();
+                    const sidebarRect = tocSidebar.getBoundingClientRect();
+                    const buffer = 20; // Extra buffer space
+                    
+                    if (footerRect.top < sidebarRect.bottom + buffer) {
+                        tocSidebar.style.opacity = '0';
+                        tocSidebar.style.pointerEvents = 'none';
+                    } else {
+                        tocSidebar.style.opacity = '1';
+                        tocSidebar.style.pointerEvents = 'auto';
+                    }
+                }
                 
                 // Find active section
                 let activeSection = sections[0];

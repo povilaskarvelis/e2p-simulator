@@ -392,6 +392,7 @@ function drawThreshold(d) {
                     });
 
                 plotROC(d);
+                updatePtDisplay();
             }));
 
         // Ensure the threshold group is always on top
@@ -674,6 +675,103 @@ function inverseNormalCDF(p) {
     return 0; // fallback
 }
 
+// Compute p_t (probability of positive class) at a given threshold
+// p_t = P(positive | x = threshold) using Bayes' theorem
+function computePtFromThreshold(threshold) {
+    try {
+        const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
+        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
+        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
+        const kappa = parseFloat(document.getElementById('kappa-slider').value);
+        const baseRate = getBaseRateFraction();
+        
+        // Compute the observed distributions parameters
+        const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
+        const ddif = (currentView === 'true') ? trueD : obsD;
+        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
+        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
+        
+        // Compute PDFs at threshold
+        const pdf1 = StatUtils.normalPDF(threshold, 0, sigma1);      // Group 1 (negative)
+        const pdf2 = StatUtils.normalPDF(threshold, ddif, sigma2);   // Group 2 (positive)
+        
+        // Bayes' theorem: p_t = (pdf2 * baseRate) / (pdf1 * (1-baseRate) + pdf2 * baseRate)
+        const numerator = pdf2 * baseRate;
+        const denominator = pdf1 * (1 - baseRate) + pdf2 * baseRate;
+        
+        if (denominator === 0) return 0.5; // fallback
+        
+        return numerator / denominator;
+    } catch (err) {
+        console.error('Error computing p_t from threshold:', err);
+        return 0.5;
+    }
+}
+
+// Find threshold from p_t using bisection search
+function computeThresholdFromPt(targetPt) {
+    try {
+        const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
+        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
+        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
+        const kappa = parseFloat(document.getElementById('kappa-slider').value);
+        const baseRate = getBaseRateFraction();
+        
+        // Compute the observed distributions parameters
+        const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
+        const ddif = (currentView === 'true') ? trueD : obsD;
+        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
+        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
+        
+        // Helper to compute p_t at a given threshold
+        const ptAt = t => {
+            const pdf1 = StatUtils.normalPDF(t, 0, sigma1);
+            const pdf2 = StatUtils.normalPDF(t, ddif, sigma2);
+            const numerator = pdf2 * baseRate;
+            const denominator = pdf1 * (1 - baseRate) + pdf2 * baseRate;
+            return denominator === 0 ? 0.5 : numerator / denominator;
+        };
+        
+        // p_t is monotonically increasing with threshold (higher threshold = more likely positive)
+        // Use bisection search
+        let left = -8;
+        let right = 8;
+        const EPSILON = 1e-6;
+        const MAX_ITER = 100;
+        
+        for (let i = 0; i < MAX_ITER; i++) {
+            const mid = (left + right) / 2;
+            const ptMid = ptAt(mid);
+            
+            if (Math.abs(ptMid - targetPt) < EPSILON) {
+                return mid;
+            }
+            
+            if (ptMid < targetPt) {
+                left = mid;
+            } else {
+                right = mid;
+            }
+            
+            if (right - left < EPSILON) break;
+        }
+        
+        return (left + right) / 2;
+    } catch (err) {
+        console.error('Error computing threshold from p_t:', err);
+        return 0;
+    }
+}
+
+// Update the p_t input display based on current threshold
+function updatePtDisplay() {
+    const ptInput = document.getElementById('pt-input');
+    if (ptInput) {
+        const pt = computePtFromThreshold(thresholdValue);
+        ptInput.value = pt.toFixed(2);
+    }
+}
+
 // Effect size and metric conversion functions
 function updateMetricsFromD(d) {
     try {
@@ -787,6 +885,9 @@ function updatePlots() {
         drawDistributions(ddiff);
         drawThreshold(ddiff);
         plotROC(ddiff);
+        
+        // Update p_t display to reflect current threshold
+        updatePtDisplay();
     } catch (error) {
         console.error("Error updating plots:", error);
     }
@@ -930,12 +1031,38 @@ function setupEventListeners() {
             maxJBtn.addEventListener('click', () => {
                 thresholdValue = findOptimalThresholdBinary('youden');
                 updatePlots();
+                updatePtDisplay();
             });
         }
 
         if (maxF1Btn) {
             maxF1Btn.addEventListener('click', () => {
                 thresholdValue = findOptimalThresholdBinary('f1');
+                updatePlots();
+                updatePtDisplay();
+            });
+        }
+
+        // p_t input for precise threshold setting
+        const ptInput = document.getElementById('pt-input');
+        if (ptInput) {
+            ptInput.addEventListener('change', () => {
+                let pt = parseFloat(ptInput.value);
+                if (isNaN(pt)) return;
+                // Clamp to valid range
+                pt = Math.min(Math.max(pt, 0.001), 0.999);
+                ptInput.value = pt.toFixed(2);
+                // Convert p_t to threshold and update
+                thresholdValue = computeThresholdFromPt(pt);
+                updatePlots();
+            });
+            
+            // Also handle input event for more responsive feedback
+            ptInput.addEventListener('input', () => {
+                let pt = parseFloat(ptInput.value);
+                if (isNaN(pt) || pt <= 0 || pt >= 1) return;
+                // Convert p_t to threshold and update
+                thresholdValue = computeThresholdFromPt(pt);
                 updatePlots();
             });
         }
