@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "e2p"
+version = "0.1.0"
+description = "Effect-to-Prediction: Estimate real-world predictive utility from empirical data distributions"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Povilas Karvelis", email = "karvelis.povilas@gmail.com"}
+]
+maintainers = [
+    {name = "Povilas Karvelis", email = "karvelis.povilas@gmail.com"}
+]
+keywords = [
+    "effect size",
+    "prediction",
+    "classification",
+    "ROC",
+    "AUC",
+    "Cohen's d",
+    "bootstrap",
+    "confidence intervals"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pkarvelis/e2p"
+Repository = "https://github.com/pkarvelis/e2p"
+Issues = "https://github.com/pkarvelis/e2p/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["e2p*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

@@ -6,6 +6,14 @@ Test bootstrap CI stability across different:
 This helps determine if 500 iterations is sufficient.
 """
 
+import os
+import sys
+
+# Allow running this script from repo root without installing the package.
+_PKG_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _PKG_ROOT not in sys.path:
+    sys.path.insert(0, _PKG_ROOT)
+
 import numpy as np
 from e2p import e2p_binary
 

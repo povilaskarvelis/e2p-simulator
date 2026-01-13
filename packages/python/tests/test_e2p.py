@@ -4,6 +4,32 @@ Test script for e2p.py
 Run with: python test_e2p.py
 """
 
+import os
+import sys
+
+# Allow running this script from repo root without installing the package.
+_PKG_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _PKG_ROOT not in sys.path:
+    sys.path.insert(0, _PKG_ROOT)
+
+def _env_show_plots() -> bool:
+    """
+    Control plotting for interactive/manual runs vs CI/headless runs.
+
+    Default: ON (show plots)
+    Disable: set E2P_SHOW_PLOTS=0 (or 'false'/'no'/'off')
+    """
+    raw = os.getenv("E2P_SHOW_PLOTS", "1").strip().lower()
+    return raw not in {"0", "false", "no", "off", ""}
+
+
+_SHOW_PLOTS = _env_show_plots()
+if not _SHOW_PLOTS:
+    # Must be set before importing pyplot, otherwise the backend is already chosen.
+    import matplotlib
+
+    matplotlib.use("Agg")
+
 import numpy as np
 import matplotlib.pyplot as plt
 from e2p import (
@@ -261,5 +287,8 @@ print("All tests passed!")
 print("=" * 60)
 
 # Show both plots at the end
-print("\nShowing plots (close windows to exit)...")
-plt.show()
+if _SHOW_PLOTS:
+    print("\nShowing plots (close windows to exit)...")
+    plt.show()
+else:
+    print("\nSkipping plot display (E2P_SHOW_PLOTS=0).")

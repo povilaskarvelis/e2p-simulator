@@ -1,0 +1,20 @@
+Package: e2p
+Type: Package
+Title: Effect-to-Prediction (E2P)
+Version: 0.1.0
+Authors@R: person("Povilas", "Karvelis", email = "karvelis.povilas@gmail.com", role = c("aut", "cre"))
+Description: Estimates real-world predictive utility from empirical data
+    distributions. Computes effect sizes, discrimination metrics, and
+    threshold-dependent classification metrics with bootstrap confidence
+    intervals. Includes support for binary (two-group) and continuous
+    (predictor-outcome) analyses, as well as reliability deattenuation
+    transformations.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports:
+    stats,
+    graphics,
+    grDevices
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

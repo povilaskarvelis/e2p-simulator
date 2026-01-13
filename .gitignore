@@ -15,3 +15,17 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# R package artifacts
+*.Rcheck/
+*.tar.gz
+.Rproj.user
+
+# renv (keep renv.lock, ignore local library/cache)
+**/renv/library/
+**/renv/staging/
+**/renv/local/
+**/renv/cellar/
+**/renv/lock/
+**/renv/python/
+**/renv/sandbox/
