@@ -1,1 +1,17 @@
 node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Cypress artifacts
+cypress/videos/
+cypress/screenshots/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
