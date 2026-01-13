@@ -11,7 +11,8 @@ from .utils import (
     compute_cohens_d, compute_point_biserial_r, compute_eta_squared,
     compute_odds_ratio, compute_cohens_u3, compute_roc_auc, compute_pr_auc,
     compute_roc_curve, compute_pr_curve, convert_pt_to_threshold,
-    compute_threshold_metrics
+    compute_threshold_metrics, transform_for_target_reliability,
+    transform_groups_for_target_kappa
 )
 from .plotting import plot_binary
 
@@ -213,6 +214,130 @@ class E2PBinary:
             group2_label=group2_label
         )
 
+    def plot_deattenuated(
+        self,
+        *,
+        r_current: float,
+        r_target: float = 1.0,
+        kappa_current: Optional[float] = None,
+        kappa_target: float = 1.0,
+        per_group: bool = False,
+        r1_current: Optional[float] = None,
+        r2_current: Optional[float] = None,
+        r1_target: Optional[float] = None,
+        r2_target: Optional[float] = None,
+        center: str = "mean",
+        figsize: Tuple[float, float] = (16, 9),
+        group1_label: str = "Group 1 (Controls)",
+        group2_label: str = "Group 2 (Cases)",
+    ) -> plt.Figure:
+        """
+        Plot the standard binary panels after applying reliability transformation.
+
+        Returns a fresh matplotlib Figure (a separate window when shown).
+        """
+        if per_group:
+            if None in (r1_current, r2_current, r1_target, r2_target):
+                raise ValueError(
+                    "When per_group=True, you must provide r1_current, r2_current, r1_target, r2_target"
+                )
+            g1_tgt = transform_for_target_reliability(self.group1, r1_current, r1_target, center=center)
+            g2_tgt = transform_for_target_reliability(self.group2, r2_current, r2_target, center=center)
+            icc_title = f"ICC g1 {r1_current:.2f}→{r1_target:.2f}, ICC g2 {r2_current:.2f}→{r2_target:.2f}"
+        else:
+            g1_tgt = transform_for_target_reliability(self.group1, r_current, r_target, center=center)
+            g2_tgt = transform_for_target_reliability(self.group2, r_current, r_target, center=center)
+            icc_title = f"ICC g1 {r_current:.2f}→{r_target:.2f}, ICC g2 {r_current:.2f}→{r_target:.2f}"
+
+        title_parts = [f"Deattenuated ({icc_title}"]
+
+        if kappa_current is not None:
+            g1_tgt, g2_tgt = transform_groups_for_target_kappa(
+                g1_tgt, g2_tgt, kappa_current=kappa_current, kappa_target=kappa_target
+            )
+            title_parts.append(f"; kappa {kappa_current:.2f}→{kappa_target:.2f}")
+
+        title_parts.append(")")
+        title = "".join(title_parts)
+
+        results = E2PBinary(
+            group1=g1_tgt,
+            group2=g2_tgt,
+            base_rate=self.base_rate,
+            threshold_prob=self.threshold_prob,
+            n_bootstrap=self.n_bootstrap,
+            ci_level=self.ci_level,
+            random_state=self.random_state,
+        ).compute()
+
+        return plot_binary(
+            g1_tgt,
+            g2_tgt,
+            self.base_rate,
+            self.threshold_prob,
+            results=results,
+            figsize=figsize,
+            group1_label=group1_label,
+            group2_label=group2_label,
+            figure_title_prefix=title,
+        )
+
+    def compute_at_reliability(
+        self,
+        r_current: float,
+        r_target: float = 1.0,
+        *,
+        kappa_current: Optional[float] = None,
+        kappa_target: float = 1.0,
+        per_group: bool = False,
+        r1_current: Optional[float] = None,
+        r2_current: Optional[float] = None,
+        r1_target: Optional[float] = None,
+        r2_target: Optional[float] = None,
+        center: str = "mean",
+    ) -> BinaryResults:
+        """
+        Compute all metrics after a deterministic reliability transformation.
+
+        Parameters
+        ----------
+        r_current, r_target : float
+            Current and target reliability (applied to both groups) when
+            per_group=False.
+        per_group : bool
+            If True, transform each group with its own current/target reliability.
+        r1_current, r2_current, r1_target, r2_target : float, optional
+            Per-group reliabilities used when per_group=True.
+        center : {"mean","median"}
+            Centering used by the transformation.
+        """
+        if per_group:
+            if None in (r1_current, r2_current, r1_target, r2_target):
+                raise ValueError(
+                    "When per_group=True, you must provide r1_current, r2_current, r1_target, r2_target"
+                )
+            g1_tgt = transform_for_target_reliability(self.group1, r1_current, r1_target, center=center)
+            g2_tgt = transform_for_target_reliability(self.group2, r2_current, r2_target, center=center)
+        else:
+            g1_tgt = transform_for_target_reliability(self.group1, r_current, r_target, center=center)
+            g2_tgt = transform_for_target_reliability(self.group2, r_current, r_target, center=center)
+
+        if kappa_current is not None:
+            g1_tgt, g2_tgt = transform_groups_for_target_kappa(
+                g1_tgt, g2_tgt, kappa_current=kappa_current, kappa_target=kappa_target
+            )
+
+        calculator = E2PBinary(
+            group1=g1_tgt,
+            group2=g2_tgt,
+            base_rate=self.base_rate,
+            threshold_prob=self.threshold_prob,
+            n_bootstrap=self.n_bootstrap,
+            ci_level=self.ci_level,
+            random_state=self.random_state,
+        )
+        return calculator.compute()
+
 
 def e2p_binary(group1, group2, base_rate, threshold_prob=0.5, 
                n_bootstrap=1000, ci_level=0.95, random_state=None) -> BinaryResults:
@@ -251,3 +376,49 @@ def e2p_binary(group1, group2, base_rate, threshold_prob=0.5,
         random_state=random_state
     )
     return calculator.compute()
+
+
+def e2p_binary_deattenuated(
+    group1,
+    group2,
+    base_rate,
+    threshold_prob: float = 0.5,
+    *,
+    r_current: float,
+    r_target: float = 1.0,
+    kappa_current: Optional[float] = None,
+    kappa_target: float = 1.0,
+    n_bootstrap: int = 1000,
+    ci_level: float = 0.95,
+    random_state: Optional[int] = None,
+    per_group: bool = False,
+    r1_current: Optional[float] = None,
+    r2_current: Optional[float] = None,
+    r1_target: Optional[float] = None,
+    r2_target: Optional[float] = None,
+    center: str = "mean",
+) -> BinaryResults:
+    """
+    Convenience function: compute binary metrics after reliability transformation.
+    """
+    calculator = E2PBinary(
+        group1=group1,
+        group2=group2,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        n_bootstrap=n_bootstrap,
+        ci_level=ci_level,
+        random_state=random_state,
+    )
+    return calculator.compute_at_reliability(
+        r_current=r_current,
+        r_target=r_target,
+        kappa_current=kappa_current,
+        kappa_target=kappa_target,
+        per_group=per_group,
+        r1_current=r1_current,
+        r2_current=r2_current,
+        r1_target=r1_target,
+        r2_target=r2_target,
+        center=center,
+    )

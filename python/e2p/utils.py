@@ -9,6 +9,137 @@ from typing import Tuple
 import warnings
 
 
+def transform_for_target_reliability(
+    x: np.ndarray,
+    r_current: float,
+    r_target: float,
+    *,
+    center: str = "mean",
+) -> np.ndarray:
+    """
+    Deterministically transform measurements to reflect a target reliability.
+
+    This implements a simple "distribution-rescale" model based on the classical
+    measurement error decomposition:
+
+        X_obs = X_true + E,  with  Rel(X_obs) = Var(X_true) / Var(X_obs)
+
+    If we interpret the observed deviations around a location parameter as
+    containing both true-score variation and error variation, then changing
+    reliability from r_current to r_target corresponds to scaling the total
+    variance by a factor of (r_current / r_target) while keeping the location
+    fixed:
+
+        x_tgt = c + sqrt(r_current / r_target) * (x - c)
+
+    Notes
+    -----
+    - If r_target > r_current, the scale factor is < 1, shrinking variance
+      (i.e., "improving reliability" by reducing measurement noise).
+    - If r_target < r_current, the scale factor is > 1 (worsening reliability).
+    - This is exact with respect to this deterministic transformation; it is not
+      a full deconvolution of the measurement error distribution.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Observed measurements.
+    r_current : float
+        Current reliability in (0, 1].
+    r_target : float
+        Target reliability in (0, 1].
+    center : {"mean","median"}
+        Location parameter c used for centering before rescaling.
+
+    Returns
+    -------
+    np.ndarray
+        Transformed measurements.
+    """
+    x = np.asarray(x, dtype=float)
+
+    if not np.all(np.isfinite(x)):
+        raise ValueError("x must contain only finite values")
+    if not (0 < r_current <= 1):
+        raise ValueError("r_current must be in (0, 1]")
+    if not (0 < r_target <= 1):
+        raise ValueError("r_target must be in (0, 1]")
+
+    if center not in {"mean", "median"}:
+        raise ValueError("center must be 'mean' or 'median'")
+
+    c = float(np.mean(x)) if center == "mean" else float(np.median(x))
+    scale = float(np.sqrt(r_current / r_target))
+    return c + scale * (x - c)
+
+
+def transform_groups_for_target_kappa(
+    group1: np.ndarray,
+    group2: np.ndarray,
+    kappa_current: float,
+    kappa_target: float = 1.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Deterministically adjust between-group separation to reflect target label reliability.
+
+    This mirrors the webapp's attenuation relationship (see `js/binary.js`):
+
+        d_observed = d_true * sqrt( sin(pi/2 * kappa) )
+
+    Interpreting kappa as attenuating the *between-group separation* (not the
+    within-group variability), we can map kappa changes onto a mean-shift
+    transformation that increases/decreases the difference in group means while
+    preserving each group's within-group deviations.
+
+    The mean difference is scaled by:
+
+        scale = sqrt( sin(pi/2 * kappa_target) / sin(pi/2 * kappa_current) )
+
+    For deattenuation to perfect labels, use kappa_target=1.0 (since sin(pi/2)=1).
+
+    Parameters
+    ----------
+    group1, group2 : np.ndarray
+        Observed measurements for controls/negatives and cases/positives.
+    kappa_current : float
+        Current label reliability in (0, 1].
+    kappa_target : float
+        Target label reliability in (0, 1].
+
+    Returns
+    -------
+    (np.ndarray, np.ndarray)
+        Transformed (group1, group2).
+    """
+    g1 = np.asarray(group1, dtype=float)
+    g2 = np.asarray(group2, dtype=float)
+
+    if not np.all(np.isfinite(g1)) or not np.all(np.isfinite(g2)):
+        raise ValueError("group1 and group2 must contain only finite values")
+    if not (0 < kappa_current <= 1):
+        raise ValueError("kappa_current must be in (0, 1]")
+    if not (0 < kappa_target <= 1):
+        raise ValueError("kappa_target must be in (0, 1]")
+
+    s_cur = float(np.sin((np.pi / 2) * kappa_current))
+    s_tgt = float(np.sin((np.pi / 2) * kappa_target))
+    if s_cur <= 0:
+        raise ValueError("sin(pi/2 * kappa_current) must be > 0")
+
+    scale = float(np.sqrt(s_tgt / s_cur))
+    if np.isclose(scale, 1.0):
+        return g1, g2
+
+    m1 = float(np.mean(g1))
+    m2 = float(np.mean(g2))
+    delta = m2 - m1
+    delta_tgt = delta * scale
+
+    # Symmetric mean shift: preserve grand mean of the two group means.
+    shift = 0.5 * (delta_tgt - delta)
+    return (g1 - shift), (g2 + shift)
+
+
 def compute_cohens_d(g1: np.ndarray, g2: np.ndarray) -> float:
     """Compute Cohen's d: standardized mean difference with pooled SD."""
     n1, n2 = len(g1), len(g2)

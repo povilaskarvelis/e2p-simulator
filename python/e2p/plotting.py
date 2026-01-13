@@ -61,7 +61,8 @@ def plot_binary(group1: np.ndarray, group2: np.ndarray,
                 threshold: float = None,
                 figsize: Tuple[float, float] = (16, 9),
                 group1_label: str = "Group 1 (Controls)",
-                group2_label: str = "Group 2 (Cases)") -> plt.Figure:
+                group2_label: str = "Group 2 (Cases)",
+                figure_title_prefix: str | None = None) -> plt.Figure:
     """
     Plot 3x2 panel figure for binary classification:
     - Row 1: Empirical distributions, ROC curve
@@ -142,6 +143,9 @@ def plot_binary(group1: np.ndarray, group2: np.ndarray,
     fig, axes = plt.subplots(2, 3, figsize=figsize)
     ax1, ax2, ax3 = axes[0]  # Row 1: Empirical distributions, ROC, Empirical DCA
     ax4, ax5, ax6 = axes[1]  # Row 2: Scaled distributions, PR, Real-world DCA
+
+    if figure_title_prefix:
+        fig.suptitle(str(figure_title_prefix), fontsize=14, fontweight="bold")
     
     # Determine bin edges and compute KDE for smooth curves
     all_data = np.concatenate([group1, group2])
@@ -307,7 +311,10 @@ def plot_binary(group1: np.ndarray, group2: np.ndarray,
     ax6.text(0.02, 0.98, f"ΔNB = {delta_nb:.4f}", transform=ax6.transAxes, fontsize=10,
              verticalalignment='top', horizontalalignment='left', bbox=props, family='monospace')
     
-    plt.tight_layout()
+    if figure_title_prefix:
+        fig.tight_layout(rect=[0, 0, 1, 0.95])
+    else:
+        fig.tight_layout()
     return fig
 
 
@@ -318,7 +325,8 @@ def plot_continuous(X: np.ndarray, Y: np.ndarray,
                     results: BinaryResults = None,
                     figsize: Tuple[float, float] = (16, 9),
                     x_label: str = "Predictor (X)",
-                    y_label: str = "Outcome (Y)") -> plt.Figure:
+                    y_label: str = "Outcome (Y)",
+                    figure_title_prefix: str | None = None) -> plt.Figure:
     """
     Plot 2x3 panel figure for continuous prediction:
     - Row 1: Scatterplot, ROC curve, DCA
@@ -391,6 +399,9 @@ def plot_continuous(X: np.ndarray, Y: np.ndarray,
     fig, axes = plt.subplots(2, 3, figsize=figsize)
     ax1, ax2, ax3 = axes[0]  # Row 1: Scatterplot, ROC, DCA
     ax4, ax5, ax6 = axes[1]  # Row 2: Distributions, PR, Metrics
+
+    if figure_title_prefix:
+        fig.suptitle(str(figure_title_prefix), fontsize=14, fontweight="bold")
     
     # =========================================================================
     # Row 1, Left: Scatterplot of X vs Y
@@ -494,7 +505,6 @@ def plot_continuous(X: np.ndarray, Y: np.ndarray,
     ax4.set_ylabel('Density (scaled)', fontsize=11)
     ax4.set_title(f'Predictor Distributions (Base Rate = {base_rate:.1%})', fontsize=12)
     ax4.set_ylim(bottom=0)
-    ax4.legend(loc='upper left', fontsize=9)
     
     # Add metrics text box to distributions panel
     metrics_text = (
@@ -550,5 +560,176 @@ def plot_continuous(X: np.ndarray, Y: np.ndarray,
              family='monospace',
              bbox=dict(boxstyle='round', facecolor='lightgray', alpha=0.3))
     
-    plt.tight_layout()
+    if figure_title_prefix:
+        fig.tight_layout(rect=[0, 0, 1, 0.95])
+    else:
+        fig.tight_layout()
     return fig
+
+
+def plot_binary_deattenuated(
+    group1: np.ndarray,
+    group2: np.ndarray,
+    base_rate: float,
+    threshold_prob: float,
+    *,
+    r_current: float,
+    r_target: float = 1.0,
+    kappa_current: float | None = None,
+    kappa_target: float = 1.0,
+    per_group: bool = False,
+    r1_current: float | None = None,
+    r2_current: float | None = None,
+    r1_target: float | None = None,
+    r2_target: float | None = None,
+    center: str = "mean",
+    n_bootstrap: int = 0,
+    ci_level: float = 0.95,
+    random_state: int | None = None,
+    figsize: Tuple[float, float] = (16, 9),
+    group1_label: str = "Group 1 (Controls)",
+    group2_label: str = "Group 2 (Cases)",
+) -> plt.Figure:
+    """
+    Plot the same binary panels after applying a reliability transformation.
+
+    Returns a fresh matplotlib Figure (i.e., a separate window when shown).
+    """
+    from .binary import E2PBinary
+    from .utils import transform_for_target_reliability, transform_groups_for_target_kappa
+
+    g1 = np.asarray(group1, dtype=float)
+    g2 = np.asarray(group2, dtype=float)
+
+    if per_group:
+        if None in (r1_current, r2_current, r1_target, r2_target):
+            raise ValueError(
+                "When per_group=True, provide r1_current, r2_current, r1_target, r2_target"
+            )
+        g1_tgt = transform_for_target_reliability(g1, r1_current, r1_target, center=center)
+        g2_tgt = transform_for_target_reliability(g2, r2_current, r2_target, center=center)
+        icc_title = f"ICC g1 {r1_current:.2f}→{r1_target:.2f}, ICC g2 {r2_current:.2f}→{r2_target:.2f}"
+    else:
+        g1_tgt = transform_for_target_reliability(g1, r_current, r_target, center=center)
+        g2_tgt = transform_for_target_reliability(g2, r_current, r_target, center=center)
+        icc_title = f"ICC g1 {r_current:.2f}→{r_target:.2f}, ICC g2 {r_current:.2f}→{r_target:.2f}"
+
+    title_parts = [f"Deattenuated ({icc_title}"]
+
+    if kappa_current is not None:
+        g1_tgt, g2_tgt = transform_groups_for_target_kappa(
+            g1_tgt, g2_tgt, kappa_current=kappa_current, kappa_target=kappa_target
+        )
+        title_parts.append(f"; kappa {kappa_current:.2f}→{kappa_target:.2f}")
+
+    title_parts.append(")")
+    title = "".join(title_parts)
+
+    results = E2PBinary(
+        group1=g1_tgt,
+        group2=g2_tgt,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        n_bootstrap=n_bootstrap,
+        ci_level=ci_level,
+        random_state=random_state,
+    ).compute()
+
+    return plot_binary(
+        g1_tgt,
+        g2_tgt,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        results=results,
+        figsize=figsize,
+        group1_label=group1_label,
+        group2_label=group2_label,
+        figure_title_prefix=title,
+    )
+
+
+def plot_continuous_deattenuated(
+    X: np.ndarray,
+    Y: np.ndarray,
+    base_rate: float,
+    threshold_prob: float,
+    *,
+    r_x_current: float,
+    r_x_target: float = 1.0,
+    r_y_current: float | None = None,
+    r_y_target: float | None = None,
+    center: str = "mean",
+    n_bootstrap: int = 0,
+    ci_level: float = 0.95,
+    random_state: int | None = None,
+    figsize: Tuple[float, float] = (16, 9),
+    x_label: str = "Predictor (X)",
+    y_label: str = "Outcome (Y)",
+) -> plt.Figure:
+    """
+    Plot the same continuous panels after applying reliability transformation.
+
+    Keeps the original case/control split fixed (based on observed Y).
+    Returns a fresh matplotlib Figure (i.e., a separate window when shown).
+    """
+    from .continuous import E2PContinuous
+    from .binary import E2PBinary
+    from .utils import transform_for_target_reliability
+
+    X = np.asarray(X, dtype=float)
+    Y = np.asarray(Y, dtype=float)
+
+    X_tgt = transform_for_target_reliability(X, r_x_current, r_x_target, center=center)
+
+    if (r_y_current is None) ^ (r_y_target is None):
+        raise ValueError("Provide both r_y_current and r_y_target, or neither")
+    Y_tgt = (
+        transform_for_target_reliability(Y, r_y_current, r_y_target, center=center)
+        if (r_y_current is not None and r_y_target is not None)
+        else Y
+    )
+
+    calc = E2PContinuous(
+        X=X,
+        Y=Y,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        n_bootstrap=n_bootstrap,
+        ci_level=ci_level,
+        random_state=random_state,
+    )
+    # fixed split from observed Y
+    group1_tgt = X_tgt[~calc.is_case]
+    group2_tgt = X_tgt[calc.is_case]
+
+    results = E2PBinary(
+        group1=group1_tgt,
+        group2=group2_tgt,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        n_bootstrap=n_bootstrap,
+        ci_level=ci_level,
+        random_state=random_state,
+    ).compute()
+
+    title_bits = [f"Deattenuated (X reliability: {r_x_current:.2f}→{r_x_target:.2f}"]
+    if r_y_current is not None and r_y_target is not None:
+        title_bits.append(f", Y reliability: {r_y_current:.2f}→{r_y_target:.2f}")
+    title_bits.append("; fixed split)")
+    title = "".join(title_bits)
+
+    return plot_continuous(
+        X=X_tgt,
+        Y=Y_tgt,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        y_threshold=calc.y_threshold,
+        is_case=calc.is_case,
+        group1=group1_tgt,
+        group2=group2_tgt,
+        results=results,
+        figsize=figsize,
+        x_label=x_label,
+        y_label=y_label,
+        figure_title_prefix=title,
+    )

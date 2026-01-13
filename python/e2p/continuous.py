@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 from .core import BinaryResults
 from .binary import E2PBinary
+from .utils import transform_for_target_reliability
 from .plotting import plot_continuous
 
 
@@ -121,6 +122,46 @@ class E2PContinuous:
             random_state=self.random_state
         )
         return calculator.compute_at_threshold(threshold_prob)
+
+    def compute_at_reliability(
+        self,
+        r_x_current: float,
+        r_x_target: float = 1.0,
+        *,
+        r_y_current: Optional[float] = None,
+        r_y_target: Optional[float] = None,
+        center: str = "mean",
+    ) -> BinaryResults:
+        """
+        Compute all metrics after deterministic reliability transformation.
+
+        Notes
+        -----
+        - The case/control split is kept fixed (the original `is_case` mask).
+        - X is always transformed. Y is optionally transformed for completeness,
+          but does not currently change metrics because the split is fixed.
+        """
+        X_tgt = transform_for_target_reliability(self.X, r_x_current, r_x_target, center=center)
+
+        # Optional Y transform (does not affect split in this scope)
+        if (r_y_current is None) ^ (r_y_target is None):
+            raise ValueError("Provide both r_y_current and r_y_target, or neither")
+        if r_y_current is not None and r_y_target is not None:
+            _ = transform_for_target_reliability(self.Y, r_y_current, r_y_target, center=center)
+
+        group1_tgt = X_tgt[~self.is_case]
+        group2_tgt = X_tgt[self.is_case]
+
+        calculator = E2PBinary(
+            group1=group1_tgt,
+            group2=group2_tgt,
+            base_rate=self.base_rate,
+            threshold_prob=self.threshold_prob,
+            n_bootstrap=self.n_bootstrap,
+            ci_level=self.ci_level,
+            random_state=self.random_state,
+        )
+        return calculator.compute()
     
     def plot(self, results: BinaryResults = None,
              figsize: Tuple[float, float] = (10, 8),
@@ -138,6 +179,69 @@ class E2PContinuous:
             figsize=figsize,
             x_label=x_label,
             y_label=y_label
+        )
+
+    def plot_deattenuated(
+        self,
+        *,
+        r_x_current: float,
+        r_x_target: float = 1.0,
+        r_y_current: Optional[float] = None,
+        r_y_target: Optional[float] = None,
+        center: str = "mean",
+        figsize: Tuple[float, float] = (16, 9),
+        x_label: str = "Predictor (X)",
+        y_label: str = "Outcome (Y)",
+    ) -> plt.Figure:
+        """
+        Plot the standard continuous panels after applying reliability transformation.
+
+        Keeps the original case/control split fixed (based on observed Y).
+        Returns a fresh matplotlib Figure (a separate window when shown).
+        """
+        X_tgt = transform_for_target_reliability(self.X, r_x_current, r_x_target, center=center)
+
+        if (r_y_current is None) ^ (r_y_target is None):
+            raise ValueError("Provide both r_y_current and r_y_target, or neither")
+        Y_tgt = (
+            transform_for_target_reliability(self.Y, r_y_current, r_y_target, center=center)
+            if (r_y_current is not None and r_y_target is not None)
+            else self.Y
+        )
+
+        group1_tgt = X_tgt[~self.is_case]
+        group2_tgt = X_tgt[self.is_case]
+
+        results = E2PBinary(
+            group1=group1_tgt,
+            group2=group2_tgt,
+            base_rate=self.base_rate,
+            threshold_prob=self.threshold_prob,
+            n_bootstrap=self.n_bootstrap,
+            ci_level=self.ci_level,
+            random_state=self.random_state,
+        ).compute()
+
+        title_bits = [f"Deattenuated (X reliability: {r_x_current:.2f}→{r_x_target:.2f}"]
+        if r_y_current is not None and r_y_target is not None:
+            title_bits.append(f", Y reliability: {r_y_current:.2f}→{r_y_target:.2f}")
+        title_bits.append("; fixed split)")
+        title = "".join(title_bits)
+
+        return plot_continuous(
+            X_tgt,
+            Y_tgt,
+            self.base_rate,
+            self.threshold_prob,
+            self.y_threshold,
+            self.is_case,
+            group1_tgt,
+            group2_tgt,
+            results=results,
+            figsize=figsize,
+            x_label=x_label,
+            y_label=y_label,
+            figure_title_prefix=title,
         )
 
 
@@ -180,3 +284,41 @@ def e2p_continuous(X, Y, base_rate, threshold_prob=0.5,
         random_state=random_state
     )
     return calculator.compute()
+
+
+def e2p_continuous_deattenuated(
+    X,
+    Y,
+    base_rate,
+    threshold_prob: float = 0.5,
+    *,
+    r_x_current: float,
+    r_x_target: float = 1.0,
+    r_y_current: Optional[float] = None,
+    r_y_target: Optional[float] = None,
+    n_bootstrap: int = 1000,
+    ci_level: float = 0.95,
+    random_state: Optional[int] = None,
+    center: str = "mean",
+) -> BinaryResults:
+    """
+    Convenience function: compute metrics after reliability transformation.
+
+    Keeps the original case/control split fixed (based on observed Y).
+    """
+    calculator = E2PContinuous(
+        X=X,
+        Y=Y,
+        base_rate=base_rate,
+        threshold_prob=threshold_prob,
+        n_bootstrap=n_bootstrap,
+        ci_level=ci_level,
+        random_state=random_state,
+    )
+    return calculator.compute_at_reliability(
+        r_x_current=r_x_current,
+        r_x_target=r_x_target,
+        r_y_current=r_y_current,
+        r_y_target=r_y_target,
+        center=center,
+    )

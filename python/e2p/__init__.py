@@ -15,16 +15,21 @@ Functions:
 """
 
 from .core import MetricWithCI, BinaryResults
-from .binary import E2PBinary, e2p_binary
-from .continuous import E2PContinuous, e2p_continuous
+from .binary import E2PBinary, e2p_binary, e2p_binary_deattenuated
+from .continuous import E2PContinuous, e2p_continuous, e2p_continuous_deattenuated
+from .plotting import plot_binary_deattenuated, plot_continuous_deattenuated
 
 __all__ = [
     'MetricWithCI',
     'BinaryResults', 
     'E2PBinary',
     'e2p_binary',
+    'e2p_binary_deattenuated',
     'E2PContinuous',
     'e2p_continuous',
+    'e2p_continuous_deattenuated',
+    'plot_binary_deattenuated',
+    'plot_continuous_deattenuated',
 ]
 
 __version__ = '0.1.0'

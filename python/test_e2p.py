@@ -6,10 +6,37 @@ Run with: python test_e2p.py
 
 import numpy as np
 import matplotlib.pyplot as plt
-from e2p import E2PBinary, e2p_binary, E2PContinuous, e2p_continuous
+from e2p import (
+    E2PBinary,
+    E2PContinuous,
+    e2p_binary,
+    e2p_binary_deattenuated,
+    e2p_continuous,
+    e2p_continuous_deattenuated,
+)
+from e2p.utils import transform_for_target_reliability
 
 # Set seed for reproducibility
 np.random.seed(42)
+
+# =============================================================================
+# Quick unit-style checks for deattenuation utilities
+# =============================================================================
+print("\n" + "=" * 60)
+print("DEATTENUATION UTILITY CHECKS")
+print("=" * 60)
+
+x = np.random.normal(0, 1, 1000)
+r_cur = 0.50
+r_tgt = 0.90
+x_tgt = transform_for_target_reliability(x, r_cur, r_tgt, center="mean")
+
+var_ratio = np.var(x_tgt, ddof=1) / np.var(x, ddof=1)
+expected_ratio = r_cur / r_tgt
+print(f"Variance ratio observed:  {var_ratio:.4f}")
+print(f"Variance ratio expected:  {expected_ratio:.4f}")
+assert np.isclose(var_ratio, expected_ratio, rtol=0.05), "Variance scaling check failed"
+print("✓ Transform variance scaling check passed")
 
 # Generate simulated data
 # Group 1 (controls): mean=0, sd=1
@@ -100,6 +127,50 @@ e2p_obj = E2PBinary(
 )
 fig_binary = e2p_obj.plot(results, group1_label="Controls", group2_label="Cases")
 
+# Deattenuated binary results + plot (separate window)
+print("\nComputing deattenuated binary metrics (no bootstrap)...")
+results_deatt = e2p_binary_deattenuated(
+    group1=controls,
+    group2=cases,
+    base_rate=0.10,
+    threshold_prob=0.20,
+    r_current=0.60,
+    n_bootstrap=0,
+    random_state=42,
+)
+print(f"Original d:      {results.cohens_d.estimate:.4f}")
+print(f"Deattenuated d:  {results_deatt.cohens_d.estimate:.4f}")
+print(f"Original AUC:    {results.roc_auc.estimate:.4f}")
+print(f"Deattenuated AUC:{results_deatt.roc_auc.estimate:.4f}")
+assert results_deatt.cohens_d.estimate > results.cohens_d.estimate, "Deattenuated d should increase"
+assert results_deatt.roc_auc.estimate >= results.roc_auc.estimate - 1e-6, "Deattenuated AUC should not decrease"
+
+fig_binary_deatt = e2p_obj.plot_deattenuated(
+    r_current=0.60,
+    group1_label="Controls",
+    group2_label="Cases",
+)
+assert fig_binary_deatt is not fig_binary
+assert fig_binary_deatt._suptitle is not None and "Deattenuated" in fig_binary_deatt._suptitle.get_text()
+assert "ICC g1" in fig_binary_deatt._suptitle.get_text() and "ICC g2" in fig_binary_deatt._suptitle.get_text()
+print("✓ Binary deattenuation checks passed")
+
+# Add kappa deattenuation check (binary labels)
+print("\nComputing deattenuated binary metrics with kappa correction...")
+results_deatt_kappa = e2p_binary_deattenuated(
+    group1=controls,
+    group2=cases,
+    base_rate=0.10,
+    threshold_prob=0.20,
+    r_current=0.60,
+    kappa_current=0.70,
+    n_bootstrap=0,
+    random_state=42,
+)
+print(f"Deattenuated d (ICC only):      {results_deatt.cohens_d.estimate:.4f}")
+print(f"Deattenuated d (ICC + kappa):   {results_deatt_kappa.cohens_d.estimate:.4f}")
+assert results_deatt_kappa.cohens_d.estimate > results_deatt.cohens_d.estimate, "kappa correction should further increase d"
+
 # =============================================================================
 # Test E2PContinuous
 # =============================================================================
@@ -153,6 +224,37 @@ e2p_cont_obj = E2PContinuous(
     n_bootstrap=0
 )
 fig_cont = e2p_cont_obj.plot(results_cont, x_label="Predictor (X)", y_label="Outcome (Y)")
+
+# Deattenuated continuous results + plot (fixed split)
+print("\nComputing deattenuated continuous metrics (no bootstrap)...")
+is_case_before = e2p_cont_obj.is_case.copy()
+
+results_cont_deatt = e2p_continuous_deattenuated(
+    X=X,
+    Y=Y,
+    base_rate=0.10,
+    threshold_prob=0.20,
+    r_x_current=0.60,
+    r_x_target=1.0,
+    r_y_current=0.70,
+    r_y_target=1.0,
+    n_bootstrap=0,
+    random_state=42,
+)
+assert np.array_equal(is_case_before, e2p_cont_obj.is_case), "is_case split must remain fixed"
+assert results_cont_deatt.cohens_d.estimate >= results_cont.cohens_d.estimate, "Deattenuated d should not decrease"
+
+fig_cont_deatt = e2p_cont_obj.plot_deattenuated(
+    r_x_current=0.60,
+    r_x_target=1.0,
+    r_y_current=0.70,
+    r_y_target=1.0,
+    x_label="Predictor (X)",
+    y_label="Outcome (Y)",
+)
+assert fig_cont_deatt is not fig_cont
+assert fig_cont_deatt._suptitle is not None and "Deattenuated" in fig_cont_deatt._suptitle.get_text()
+print("✓ Continuous deattenuation checks passed")
 
 print("\n" + "=" * 60)
 print("All tests passed!")
