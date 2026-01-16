@@ -28,6 +28,7 @@ body {
 h1 {
     text-align: center;
     color: #333;
+    margin-top: 50px;
     margin-bottom: 20px;
     font-size: 2.5rem;
 }
@@ -92,8 +93,8 @@ h1 {
 /* Description Text */
 .description {
     text-align: center;
-    max-width: 800px;
-    margin: 0 auto 30px;
+    max-width: 850px;
+    margin: 0 auto 50px;
     color: #555;
     font-size: 1.1rem;
     line-height: 1.5;
@@ -870,7 +871,7 @@ input.slider-value,
 body.get-started-page {
     width: 100% !important;
     max-width: 1400px !important;
-    min-width: 1200px !important;
+    min-width: 800px !important;
 }
 
 .guide-section {
@@ -949,6 +950,20 @@ h2[style*="text-align: center"] {
 .r-squared-container h2,
 h2.calculator-title {
     font-size: 2rem !important;
+}
+
+/* ==========================================================================
+   Section Dividers - Clear separation between major calculators
+   ========================================================================== */
+h2.calculator-title {
+    margin-top: 50px;
+    padding-top: 35px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Add more space after tool descriptions (not the main dashboard) */
+h2.calculator-title + .description {
+    margin-bottom: 40px !important;
 }
 
 /* Add WebKit-specific slider thumb styling to match Firefox */
@@ -1259,4 +1274,39 @@ input[type="range"]::-webkit-slider-thumb {
 /* Smooth scroll behavior for get-started page */
 .get-started-page {
     scroll-behavior: smooth;
+}
+
+/* Hide TOC on very small screens to prevent overlap */
+@media (max-width: 1000px) {
+    .toc-sidebar {
+        display: none;
+    }
+    
+    /* Keep images larger on smaller screens, except inline floating images */
+    .screenshot {
+        max-width: 100% !important;
+        width: auto !important;
+    }
+    
+    #aucs-diagram .screenshot,
+    #dca-diagram .screenshot {
+        max-width: 280px !important;
+        width: 280px !important;
+    }
+}
+
+/* Don't center get-started page so left edge stays fixed when resizing */
+@media (min-width: 1001px) {
+    .get-started-page {
+        margin-left: 165px !important;
+        margin-right: auto !important;
+    }
+}
+
+/* On small screens where TOC is hidden, remove the left margin */
+@media (max-width: 1000px) {
+    .get-started-page {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
 }

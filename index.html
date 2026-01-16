@@ -89,7 +89,7 @@
     <h1>From Effect Size to Real-World Predictive Utility</h1>
 
     <div class="description">
-        <p><strong>E2P Simulator</strong> estimates the real-world predictive utility of research findings by accounting for measurement reliability and outcome base rate. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly in research on individual differences, biomarkers, predictive modelling, and precision medicine/psychiatry.</p>
+        <p><strong>E2P Simulator</strong> estimates real-world predictive utility of research findings by accounting for measurement reliability and outcome base rates. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly for individual differences research, biomarker studies, diagnostic tool validation, predictive modeling, and precision medicine/psychiatry.</p>
 
         <p>See <a href="get-started.html" style="color: #0366d6; text-decoration: none;" target="_blank">Get Started</a> guide for more details.</p>
 
@@ -335,11 +335,10 @@
         </div>
 
         <!-- Mahalanobis D Calculator -->
-        <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
+        <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
             <p>
-                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level predictive performance. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC, and to PR-AUC by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.<br/> See the <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level predictive performance. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC, and to PR-AUC by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.<br/> See <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
             </p>
         </div>
 
@@ -705,9 +704,9 @@
 
         <!-- Multiple R² Calculator -->
         <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">From Single to Multiple Predictors</h2>
+        <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of predictive performance. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. <br/> See the <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.</p>
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of predictive performance. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. <br/> See <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
@@ -798,10 +797,10 @@
     
     <!-- Required Sample Size Calculators (Binary and Continuous) -->
     <div style="margin-top: 50px;"></div>
-    <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Required Sample Size for Multivariable Models</h2>
+    <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">Required Sample Size for Multivariable Models</h2>
     <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
         <p>
-            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to ensure a minimum number of events per variable (EPV). However, more principled criteria that are based on desired model performance - such as minimizing overfitting or prediction error - can provide more accurate estimates. <br/> See the <a href="get-started.html#sample-size" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
+            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to ensure a minimum number of events per variable (EPV). However, more principled criteria that are based on desired model performance - such as minimizing overfitting or prediction error - can provide more accurate estimates. <br/> See <a href="get-started.html#sample-size" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
         </p>
     </div>
 
@@ -972,7 +971,7 @@
 
     <!-- Calibration Exploration Module -->
     <div style="margin-top: 50px;"></div>
-    <h2 style="text-align: center; font-size: 2rem; margin-top: 40px;" class="calculator-title">Calibration: From Test Set to Deployment (beta version)</h2>
+    <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">Calibration: From Test Set to Deployment (beta version)</h2>
     <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
         <p>
             Models trained and validated on test sets often encounter different conditions when deployed in real-world settings. This module explores how differences in measurement reliability and outcome base rates between test and deployment environments affect model calibration. A well-calibrated model's predicted probabilities should match observed outcome frequencies in the deployment set.
