@@ -101,6 +101,11 @@ h1 {
     padding: 0 15px;
 }
 
+/* Narrower intro description for get-started page */
+.intro-description {
+    max-width: 550px;
+}
+
 /* ==========================================================================
    Shared Container Layout
    ========================================================================== */
@@ -1297,6 +1302,35 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* Better mobile experience for touch devices */
 @media (pointer: coarse), (hover: none) {
+    /* Smaller, more compact header on mobile */
+    .site-header {
+        padding: 10px 15px !important;
+        margin: 0 0 15px 0 !important;
+    }
+    
+    .site-title {
+        font-size: 1.1rem !important;
+    }
+    
+    .site-title img {
+        height: 24px !important;
+        width: 24px !important;
+    }
+    
+    .site-nav {
+        gap: 8px !important;
+    }
+    
+    .nav-link {
+        font-size: 0.85rem !important;
+        padding: 4px 8px !important;
+    }
+    
+    .github-link {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
     body.get-started-page {
         min-width: 320px !important;
         width: 100% !important;
