@@ -102,7 +102,7 @@
 
     <div class="guide-section">
         <h2 id="what-is">What is E2P Simulator?</h2>
-        <p>E2P Simulator (Effect-to-Prediction Simulator) is an open-source simulation engine that allows researchers to visually and quantitatively explore the relationships between effect sizes (e.g., Cohen's d, Pearson's r), discriminative ability (e.g., ROC-AUC, sensitivity, specificity), predictive value (e.g., PPV, NPV, PR-AUC), and clinical utility (Net Benefit), while accounting for measurement reliability and outcome base rates.</p>
+        <p>E2P Simulator (Effect-to-Prediction Simulator) is an interactive open-source tool that allows researchers to visually and quantitatively explore the relationships between effect sizes (e.g., Cohen's d, Pearson's r), discriminative ability (e.g., ROC-AUC, sensitivity, specificity), predictive value (e.g., PPV, NPV, PR-AUC), and clinical utility (Net Benefit), while accounting for measurement reliability and outcome base rates (<a href="https://doi.org/10.21105/joss.08334" target="_blank">Karvelis & Diaconescu, 2025</a>).</p>
 
         <p>As such, it provides an easy way to perform <em><a href="#predictive-utility-analysis">predictive utility analysis</a></em>: estimating how research findings will translate into real-world prediction or what effect sizes or discriminative ability are needed to achieve a desired level of predictive value and clinical utility. Similar to how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
 
@@ -129,15 +129,15 @@
 
         <p>Together, these issues undermine the quality and impact of academic research, because routinely reported metrics do not reflect real-world utility. Whether researchers focus on achieving statistical significance of individual predictors or optimizing model performance metrics like accuracy and ROC-AUC, both approaches often lead to unrealistic expectations about practical impact. In turn, this results in inefficient study planning, resource misallocation, and considerable waste of time and funding.</p>
 
-        <p>E2P Simulator is designed to address these fundamental challenges by placing measurement reliability and outcome base rate at the center of study planning and interpretation. It helps researchers understand how these factors jointly shape real-world predictive utility, and guides them in making more informed research decisions.</p>
+        <p>E2P Simulator is designed to address these fundamental challenges by placing measurement reliability and outcome base rate at the center of study planning and interpretation. It helps researchers understand how these factors jointly shape real-world predictive utility, and guides them in making more informed research decisions. For a detailed analysis of these issues in the context of psychiatry research, see <a href="https://osf.io/preprints/psyarxiv/atn5m_v1" target="_blank">Karvelis et al. (2025)</a>.</p>
 
     <div class="guide-section">
         <h2 id="how-to-use">How to use E2P Simulator</h2>
 
         <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting effect sizes, measurement reliability, base rate, and decision threshold, and immediately see how these changes impact predictive performance through various visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
 
-        <div id="use-summary-diagram" style="text-align: left; margin: 0 30px 0 0;">
-            <img src="images/use_summary.png" alt="E2P Simulator overview showing all key inputs and interactive elements at a high level" class="screenshot" style="max-width: 100%; width: 100%;">
+        <div id="use-summary-diagram" style="text-align: center; margin: 0;">
+            <img src="images/use_summary.png" alt="E2P Simulator overview showing all key inputs and interactive elements at a high level" class="screenshot" style="max-width: 80%; width: 80%;">
         </div>
         
         <p>The image above provides an overview of all E2P Simulator's interactive components.</p>
@@ -203,7 +203,7 @@
         <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
         
         <div id="predictive-metrics-diagram" style="text-align: center; margin: 0 30px 0 0;">
-            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%;">
+            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 80%;">
         </div>
         
         <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
@@ -223,7 +223,7 @@
         <h3 id="threshold-metrics">Threshold-Independent Metrics</h3>
         
         <div id="aucs-diagram" style="float: right; margin: 0 0 20px 20px;">
-            <img src="images/aucs.png" alt="ROC and Precision-Recall curves showing AUC calculation" class="screenshot" style="max-width: 350px; width: 350px;">
+            <img src="images/aucs.png" alt="ROC and Precision-Recall curves showing AUC calculation" class="screenshot" style="max-width: 280px; width: 280px;">
         </div>
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
@@ -246,7 +246,7 @@
         <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the clinical utility of a predictive model or a single predictor by explicitly balancing the costs of false positives against the benefits of true positives.</p>
         
         <div id="dca-diagram" style="float: right; margin: 0 0 20px 20px;">
-            <img src="images/dca.png" alt="Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies" class="screenshot" style="max-width: 400px; width: 400px;">
+            <img src="images/dca.png" alt="Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies" class="screenshot" style="max-width: 320px; width: 320px;">
         </div>
         
         <p>A DCA plot typically includes three key curves:</p>
@@ -360,7 +360,7 @@
             <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdValue=1.53'">Explore this example yourself →</button>
+        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdValue=1.53">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
 
         <h3>Example 2: Diagnostic Prediction: Depression</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
@@ -382,7 +382,7 @@
 
         </ol>
         
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=1.67'">Explore this example yourself →</button>
+        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=1.67">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
         
 
         <h3>Example 3: Treatment Response Prediction: Antidepressants</h3>
@@ -401,7 +401,7 @@
             <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires R² = 0.8. These are rather extremely ambitious values (requiring to explain 80% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.15&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdValue=0.6'">Explore this example yourself →</button>
+        <button class="example-button" data-url="index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.15&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdValue=0.6">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
 
         <h3>Example 4: Risk Prediction: Suicide Attempts</h3>
         <p> Can we predict who will attempt suicide using electronic health records?</p> 
@@ -426,7 +426,7 @@
             <li>Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Electronic%20health%20records&thresholdValue=0.05'">Explore this example yourself →</button>
+        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Electronic%20health%20records&thresholdValue=0.05">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
 
         <h3>Example 5: Risk Prediction: Transition to Psychosis</h3>
         <p> How promising is MMN for predicting transition to psychosis within clinical high-risk (CHR) cohorts?</p>
@@ -447,7 +447,7 @@
             <li>Improving measurement reliability (e.g., ICC ≈ 0.8) boosts performance to ROC-AUC = 0.70, PR-AUC = 0.36, PPV = 0.26, Sensitivity = 0.78, and ΔNB = 0.026 at the same threshold.</li>
         </ol>
 
-        <button class="example-button" style="width: 270px;" onclick="window.location.href='index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdValue=0.15'">Explore this example yourself →</button>
+        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdValue=0.15">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
    
     </div>
 
@@ -543,6 +543,13 @@
             
             // Initialize TOC active section tracking
             initTocTracking();
+            
+            // Initialize example buttons
+            document.querySelectorAll('.example-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    window.location.href = btn.dataset.url;
+                });
+            });
         });
         
         // TOC active section tracking
@@ -550,7 +557,15 @@
             const tocLinks = document.querySelectorAll('.toc-sidebar a');
             const tocSidebar = document.querySelector('.toc-sidebar');
             const footer = document.querySelector('footer');
+            const firstSection = document.querySelector('.guide-section');
             const sections = [];
+            
+            // Get the initial position aligned with first section
+            const firstSectionTop = firstSection ? firstSection.offsetTop : 200;
+            const stickyTop = 80; // Fixed top position when sticky
+            
+            // Set initial top position
+            tocSidebar.style.top = firstSectionTop + 'px';
             
             // Gather all section elements
             tocLinks.forEach(link => {
@@ -569,6 +584,18 @@
                 
                 // Update progress indicator
                 tocSidebar.style.setProperty('--scroll-progress', scrollProgress + '%');
+                
+                // Adjust top position: follows content initially, then sticks at 80px
+                const scrollY = window.scrollY;
+                const dynamicTop = firstSectionTop - scrollY;
+                
+                if (dynamicTop > stickyTop) {
+                    // Still above sticky threshold - follow the content
+                    tocSidebar.style.top = dynamicTop + 'px';
+                } else {
+                    // At or past sticky threshold - stick at 80px
+                    tocSidebar.style.top = stickyTop + 'px';
+                }
                 
                 // Hide sidebar when it would overlap with footer
                 if (footer) {

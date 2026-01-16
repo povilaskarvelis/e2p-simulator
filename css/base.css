@@ -690,23 +690,37 @@ input.slider-value,
 .r-squared-container button,
 .dca-container button,
 .example-button {
-    background-color: #222222;
+    background-color: #333;
     color: white;
-    border: none;
-    padding: 12px 0;
-    border-radius: 8px;
+    border: 1px solid #444;
+    padding: 12px 10px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1em;
-    flex: 1;
+    font-size: 0.9em;
+    font-weight: 500;
+    width: 280px;
     text-align: center;
     min-height: 44px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.example-button::before {
+    content: "✨ ";
+    margin-right: 4px;
+    opacity: 0.8;
 }
 
 .mahalanobis-container button:hover,
 .r-squared-container button:hover,
-.dca-container button:hover,
-.example-button:hover {
+.dca-container button:hover {
     background-color: #666;
+}
+
+.example-button:hover {
+    background-color: #000;
+    border-color: #000;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 #reset-mahalanobis,
@@ -860,9 +874,9 @@ body.get-started-page {
 }
 
 .guide-section {
-    margin-bottom: 40px;
+        margin-bottom: 40px;
     padding-right: 0px;
-}
+    }
 
 .guide-section h2 {
     color: #333;
@@ -892,8 +906,18 @@ body.get-started-page {
         font-size: 1rem;
     }
 
+.guide-section a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.guide-section a:hover {
+    color: #1e40af;
+    text-decoration: underline;
+}
+
 .screenshot {
-    max-width: 100%;
+    max-width: 80%;
     border: 1px solid #ddd;
     border-radius: 4px;
     margin: 20px 0;
@@ -1156,17 +1180,15 @@ input[type="range"]::-webkit-slider-thumb {
 .toc-sidebar {
     position: fixed;
     top: 80px;
-    right: 30px;
-    width: 140px;
+    left: 25px;
+    width: 130px;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
-    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: transparent;
+    padding: 0;
     z-index: 100;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.3s ease, top 0.15s ease;
+    border-right: 1px solid #ddd;
 }
 
 .toc-sidebar h3 {
@@ -1186,41 +1208,33 @@ input[type="range"]::-webkit-slider-thumb {
 
 .toc-sidebar a {
     display: block;
-    padding: 8px 12px;
-    margin: 2px 0;
-    color: #555;
+    padding: 6px 12px 6px 0;
+    margin: 0;
+    color: #888;
     text-decoration: none;
-    font-size: 0.85em;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    border-right: 3px solid transparent;
-    border-left: none;
+    font-size: 0.8em;
+    transition: color 0.2s ease;
     text-align: right;
 }
 
 .toc-sidebar a:hover {
-    background: rgba(3, 102, 214, 0.08);
-    color: #0366d6;
-    border-right-color: rgba(3, 102, 214, 0.3);
+    color: #333;
 }
 
 .toc-sidebar a.active {
-    background: rgba(3, 102, 214, 0.12);
-    color: #0366d6;
-    font-weight: 500;
-    border-right-color: #0366d6;
+    color: #000;
+    font-weight: 600;
 }
 
-/* Progress indicator */
+/* Progress indicator - line on the right */
 .toc-sidebar::before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    width: 3px;
+    width: 2px;
     height: var(--scroll-progress, 0%);
-    background: linear-gradient(180deg, #0366d6, #28a745);
-    border-radius: 0 3px 3px 0;
+    background: #333;
     transition: height 0.1s ease-out;
 }
 
