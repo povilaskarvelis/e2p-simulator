@@ -1276,8 +1276,8 @@ input[type="range"]::-webkit-slider-thumb {
     scroll-behavior: smooth;
 }
 
-/* Hide TOC on very small screens to prevent overlap */
-@media (max-width: 1000px) {
+/* Hide TOC on small screens and mobile/touch devices */
+@media (max-width: 1000px), (pointer: coarse), (hover: none) {
     .toc-sidebar {
         display: none;
     }
@@ -1292,6 +1292,61 @@ input[type="range"]::-webkit-slider-thumb {
     #dca-diagram .screenshot {
         max-width: 280px !important;
         width: 280px !important;
+    }
+}
+
+/* Better mobile experience for touch devices */
+@media (pointer: coarse), (hover: none) {
+    body.get-started-page {
+        min-width: 320px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 15px !important;
+        margin: 0 !important;
+    }
+    
+    .guide-section {
+        padding-right: 0 !important;
+    }
+    
+    .guide-section p,
+    .guide-section li {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    
+    .guide-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .guide-section h3 {
+        font-size: 1.2rem;
+    }
+    
+    /* Images scale to screen width on mobile */
+    .screenshot {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+    
+    /* Inline images also scale on mobile */
+    #aucs-diagram,
+    #dca-diagram {
+        float: none !important;
+        text-align: center;
+        margin: 20px 0 !important;
+    }
+    
+    #aucs-diagram .screenshot,
+    #dca-diagram .screenshot {
+        max-width: 90% !important;
+        width: auto !important;
+    }
+    
+    /* Example buttons full width on mobile */
+    .example-button {
+        width: 100% !important;
     }
 }
 
