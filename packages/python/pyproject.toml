@@ -49,6 +49,20 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
 ]
+cli = [
+    "typer>=0.9.0",
+]
+mcp = [
+    "mcp>=1.0.0",
+]
+all = [
+    "typer>=0.9.0",
+    "mcp>=1.0.0",
+]
+
+[project.scripts]
+e2p = "e2p.cli:main"
+e2p-mcp = "e2p.mcp_server:main"
 
 [project.urls]
 Homepage = "https://github.com/pkarvelis/e2p"

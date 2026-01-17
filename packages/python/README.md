@@ -10,16 +10,121 @@ Estimate real-world predictive utility from effect sizes or empirical data.
 
 ```bash
 # From GitHub
-pip install git+https://github.com/pkarvelis/e2p.git#subdirectory=packages/python
+pip install git+https://github.com/povilaskarvelis/e2p-simulator.git#subdirectory=packages/python
+
+# With CLI support
+pip install "e2p[cli] @ git+https://github.com/povilaskarvelis/e2p-simulator.git#subdirectory=packages/python"
+
+# With MCP server (for AI agents)
+pip install "e2p[mcp] @ git+https://github.com/povilaskarvelis/e2p-simulator.git#subdirectory=packages/python"
+
+# Everything
+pip install "e2p[all] @ git+https://github.com/povilaskarvelis/e2p-simulator.git#subdirectory=packages/python"
 
 # From source (development mode)
-pip install -e packages/python/
-
-# Or when published to PyPI
-pip install e2p
+pip install -e packages/python/          # Core only
+pip install -e "packages/python/[all]"   # With CLI and MCP
 ```
 
-## Quick Start
+## Command-Line Interface
+
+After installing with `pip install e2p[cli]`:
+
+```bash
+# Full parametric analysis
+e2p parametric --cohens-d 0.8 --base-rate 0.1 --threshold 0.5
+
+# JSON output for scripting
+e2p parametric --cohens-d 0.8 --base-rate 0.1 --output json
+
+# Effect size conversions
+e2p convert --from auc --value 0.75      # AUC → Cohen's d
+e2p convert --from or --value 3.0        # OR → Cohen's d
+e2p convert --to auc --value 0.8         # Cohen's d → AUC
+
+# Individual metrics
+e2p roc-auc --cohens-d 0.8
+e2p pr-auc --cohens-d 0.8 --base-rate 0.05
+
+# Help
+e2p --help
+e2p parametric --help
+```
+
+## MCP Server (AI Agent Integration)
+
+MCP (Model Context Protocol) allows AI assistants like Claude to use e2p tools directly. The server runs locally on your machine.
+
+### Setup Instructions
+
+**Step 1: Install the package with MCP support**
+
+```bash
+pip install "e2p[mcp] @ git+https://github.com/povilaskarvelis/e2p-simulator.git#subdirectory=packages/python"
+```
+
+**Step 2: Find your Python path**
+
+```bash
+which python
+```
+
+This will output something like `/Users/yourname/.venvs/e2p/bin/python` or `/usr/local/bin/python3`.
+
+**Step 3: Configure Cursor**
+
+Edit `~/.cursor/mcp.json` (create it if it doesn't exist):
+
+```json
+{
+  "mcpServers": {
+    "e2p": {
+      "command": "/path/from/step2/python",
+      "args": ["-m", "e2p.mcp_server"]
+    }
+  }
+}
+```
+
+Replace `/path/from/step2/python` with the actual path from Step 2.
+
+**Step 4: Restart Cursor**
+
+Quit Cursor completely (Cmd+Q on Mac) and reopen it.
+
+**Step 5: Verify**
+
+Go to Cursor Settings → MCP. You should see `e2p` listed with a green status.
+
+### Usage
+
+Once configured, just ask Claude in Cursor:
+
+- "Use e2p to compute metrics for Cohen's d = 0.8 at 10% base rate"
+- "Convert ROC-AUC of 0.75 to Cohen's d using e2p"
+- "What's the PR-AUC for d=0.5 at 5% prevalence?"
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `parametric_binary` | Full analysis from Cohen's d |
+| `parametric_continuous` | Full analysis from Pearson's r |
+| `convert_effect_size` | Convert between d, AUC, OR, U3, r |
+| `compute_roc_auc` | ROC-AUC from Cohen's d |
+| `compute_pr_auc` | PR-AUC from Cohen's d + base rate |
+| `find_threshold` | Find optimal classification threshold |
+| `apply_reliability_attenuation` | Model ICC/kappa effects |
+
+### Troubleshooting
+
+**"mcp is required" error**: Run `pip install mcp` in the same environment.
+
+**Server not connecting**: Make sure the Python path in `mcp.json` points to the environment where e2p is installed.
+
+**Test manually**: Run `python -m e2p.mcp_server` in terminal. If it starts without errors (no output, just waits), the server works. Press Ctrl+C to stop.
+
+## Quick Start (Python API)
 
 ### Parametric Analysis (from effect sizes)
 
