@@ -337,7 +337,7 @@
         
         To further clarify how the tool can be used and to demonstrate its utility we provide some specific examples.
 
-        <h3>Example 1: Diagnostic Prediction: FDA-Cleared Biomarker for Alzheimer's Disease</h3>
+        <h3>Example 1. Diagnostic Prediction: FDA-Cleared Biomarker for Alzheimer's Disease</h3>
         <p> Recently, <a href="https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease" target="_blank">FDA has cleared</a> plasma p-tau217/Aβ42 ratio for assessing amyloid positivity, which is a key criterion for Alzheimer's diagnosis. Let us unpack this example in E2P Simulator as an anchor for all other examples. We will use the <a href="https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf" target="_blank">report</a> that FDA clearance was based on as a reference for the parameters.
             
         </p>
@@ -361,7 +361,7 @@
 
         <button class="example-button" data-url="index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdValue=1.53">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
 
-        <h3>Example 2: Diagnostic Prediction: Depression</h3>
+        <h3>Example 2. Diagnostic Prediction: Depression</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
         <ol>
             <li>In the Binary outcome mode:
@@ -377,14 +377,14 @@
 
             <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and in turn much better predictive performance, ROC-AUC = 0.87 and PR-AUC = 0.46, and PPV = 0.27, Sensitivity = 0.74, and ΔNB = 0.046 at p<sub>t</sub> = 0.1, highlighting how much improvement in diagnostic prediction could be achieved simply by improving measurement reliability.</li>
 
-            <li>Now let's say we are serious about precision psychiatry and we want to achieve a PR-AUC of 0.8. Using the tool, we can find that it would require ROC-AUC = 0.96. It would be rather unrealistic to expect a single biomarker to achieve this effect size. Using the multivariable simulator, you can explore how many predictors with smaller d values would be required to achieve a desired prediction performance.</li>
+            <li>We can further explore what it would take to achieve some higher threshold of performance, e.g., PR-AUC of 0.8. Using the tool, we can find that it would require ROC-AUC = 0.96. It would be rather unrealistic to expect a single biomarker to achieve this effect size. Using the multivariable simulator, you can explore how many predictors with smaller d values would be required to achieve a desired prediction performance.</li>
 
         </ol>
         
         <button class="example-button" data-url="index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdValue=1.67">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
         
 
-        <h3>Example 3: Treatment Response Prediction: Antidepressants</h3>
+        <h3>Example 3. Treatment Response Prediction: Antidepressants</h3>
         <p> Can we predict who will respond to antidepressant treatment using task-based brain activity measures?</p>
         <ol>
             <li>Select Continuous outcome mode:</li>
@@ -397,16 +397,13 @@
 
             <li>This will yield ROC-AUC = 0.73 and PR-AUC = 0.33, indicating rather modest predictive performance, as shown by the low PR-AUC. At p<sub>t</sub> = 0.2, which reflects the relative harms of antidepressant side effects, this would result in Sensitivity = 0.54, PPV = 0.29, and ΔNB = 0.031, which means that 46% of those who would benefit from treatment would not receive treatment, 71% of those given treatment would not benefit from it, and we would get additional 3.1 true responders per 100 people who receive antidepressants. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.87 and PR-AUC = 0.57, which at p<sub>t</sub> = 0.2 would give Sensitivity = 0.74, PPV = 0.42, and ΔNB = 0.073.</li>
 
-            <li>If we want to once again be serious about precision psychiatry and aim for PR-AUC of 0.8, we will find it requires R² = 0.8. These are rather extremely ambitious values (requiring to explain 80% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
+            <li>If we want to, again, explore what it would take to achieve PR-AUC of 0.8, we will find it requires R² = 0.8. These are rather extremely ambitious values (requiring to explain 80% of variance in symptom improvement). This helps demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction - doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
         <button class="example-button" data-url="index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.15&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdValue=0.6">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
 
-        <h3>Example 4: Risk Prediction: Suicide Attempts</h3>
-        <p> Can we predict who will attempt suicide using electronic health records?</p> 
-            
-        <p>
-            One of the largest prospective suicide prediction studies (<a href="https://doi.org/10.1097/MLR.0000000000001445" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
+        <h3>Example 4. Risk Prediction: Suicide Attempts</h3>
+        <p>Clinicians rate prediction of suicidality as the highest priority for AI tool development in mental health (<a href="https://doi.org/10.1186/s12888-025-06957-3" target="_blank">Fischer et al., 2025</a>). Can we predict who will attempt suicide using electronic health records? One of the largest prospective suicide prediction studies (<a href="https://doi.org/10.1097/MLR.0000000000001445" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
         </p>
         <ol>
             <li>In the Binary outcome mode:
@@ -427,23 +424,22 @@
 
         <button class="example-button" data-url="index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Electronic%20health%20records&thresholdValue=0.05">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
 
-        <h3>Example 5: Risk Prediction: Transition to Psychosis</h3>
-        <p> How promising is MMN for predicting transition to psychosis within clinical high-risk (CHR) cohorts?</p>
+        <h3>Example 5. Risk Prediction: Transition to Psychosis</h3>
+        <p>Mismatch negativity (MMN) is among the most promising biomarkers for predicting transition to psychosis within clinical high-risk (CHR) cohorts. The largest longitudinal study (<a href="https://doi.org/10.1001/jamapsychiatry.2022.1417" target="_blank">Hamilton et al., 2022</a>) found that converters showed the largest MMN deficit in the double-deviant condition, with d = 0.43. The average 24-month transition rate in CHR cohorts is about 19% (<a href="https://doi.org/10.1001/jamapsychiatry.2021.0830" target="_blank">Salazar de Pablo et al., 2021</a>), test-retest reliability for double-deviant MMN is ICC ≈ 0.5 (<a href="https://doi.org/10.1016/j.clinph.2020.09.027" target="_blank">Roach et al., 2020</a>), and inter-rater reliability for DSM-5 psychosis spectrum diagnoses is κ = 0.46 (<a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>). How promising is MMN for this application?</p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set the base rate to 19% (average 24-month conversion rate in CHR cohorts).</li>
-                    <li>Set the outcome (grouping) reliability to 0.46 (DSM-5 psychosis spectrum κ).</li>
-                    <li>Set the predictor reliability for both groups to 0.5 (double-deviant MMN test-retest reliability).</li>
-                    <li>Set the observed effect size to d = 0.43, yielding ROC-AUC = 0.62 and PR-AUC = 0.27.</li>
+                    <li>Set the base rate to 19% (average 24-month conversion rate in CHR cohorts; <a href="https://doi.org/10.1001/jamapsychiatry.2021.0830" target="_blank">Salazar de Pablo et al., 2021</a>).</li>
+                    <li>Set the outcome (grouping) reliability to 0.46 (DSM-5 psychosis spectrum κ; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>).</li>
+                    <li>Set the predictor reliability for both groups to 0.5 (double-deviant MMN test-retest reliability; <a href="https://doi.org/10.1016/j.clinph.2020.09.027" target="_blank">Roach et al., 2020</a>).</li>
+                    <li>Set the observed effect size to d = 0.43.</li>
                 </ul>
             </li>
 
-            <li>At p<sub>t</sub> = 0.15 (low-cost monitoring), the simulator produces PPV = 0.22, Sensitivity = 0.81, and ΔNB = 0.010, matching the incremental utility reported in the longitudinal study.</li>
+            <li>This yields ROC-AUC = 0.62 and PR-AUC = 0.27, indicating modest predictive performance. At a decision threshold of p<sub>t</sub> = 0.15, which corresponds to relatively low-cost interventions such as increased monitoring, the net benefit is ΔNB = 0.010, with PPV = 0.22 and sensitivity = 0.81.</li>
 
-            <li>Accounting for attenuation shows the underlying true effect is d ≈ 0.75, highlighting how modest discrimination partly reflects limited measurement fidelity.</li>
-
-            <li>Improving measurement reliability (e.g., ICC ≈ 0.8) boosts performance to ROC-AUC = 0.70, PR-AUC = 0.36, PPV = 0.26, Sensitivity = 0.78, and ΔNB = 0.026 at the same threshold.</li>
+            <li>Improving measurement reliability could improve performance up to d = 0.75, ROC-AUC = 0.70, PR-AUC = 0.36; at p<sub>t</sub> = 0.15 this would give PPV = 0.26, Sensitivity = 0.78, and ΔNB = 0.026, offering a substantial improvement but still overall modest predictive performance.</li>
+        
         </ol>
 
         <button class="example-button" data-url="index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdValue=0.15">Explore this example yourself&nbsp;&nbsp;&nbsp;→</button>
@@ -487,9 +483,13 @@
             
             <li>Elliott, M. L., Knodt, A. R., Ireland, D., Morris, M. L., Poulton, R., Ramrakha, S., Sison, M. L., Moffitt, T. E., Caspi, A., & Hariri, A. R. (2020). What is the test-retest reliability of common task-functional MRI measures? New empirical evidence and a meta-analysis. <em>Psychological Science, 31</em>(7), 792-806. <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">https://doi.org/10.1177/0956797620916786</a></li>
             
+            <li>Fischer, L., Mann, P. A., Nguyen, M.-H. H., Becker, S., Khodadadi, S., Schulz, A., Edwin Thanarajah, S., Repple, J., Hahn, T., Reif, A., Salamikhanshan, A., Kittel-Schneider, S., Rief, W., Mulert, C., Hofmann, S. G., Dannlowski, U., Kircher, T., Bernhard, F. P., & Jamalabadi, H. (2025). AI for mental health: clinician expectations and priorities in computational psychiatry. <em>BMC Psychiatry, 25</em>(1), 584. <a href="https://doi.org/10.1186/s12888-025-06957-3" target="_blank">https://doi.org/10.1186/s12888-025-06957-3</a></li>
+            
             <li>Food and Drug Administration. (2025). FDA Clears First Blood Test Used in Diagnosing Alzheimer's Disease. <em>FDA News Release</em>. <a href="https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease" target="_blank">https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease</a></li>
             
             <li>Food and Drug Administration. (2025). 510(k) Premarket Notification: Lumipulse G p-Tau 217/β-Amyloid 1-42 Plasma Ratio. <em>FDA 510(k) Summary, K242706</em>. <a href="https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf" target="_blank">https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf</a></li>
+            
+            <li>Hamilton, H. K., Roach, B. J., Bachman, P. M., Belger, A., Carrión, R. E., Duncan, E., Johannesen, J. K., Light, G. A., Niznikiewicz, M. A., Addington, J., Bearden, C. E., Cadenhead, K. S., Cannon, T. D., Cornblatt, B. A., McGlashan, T. H., Perkins, D. O., Seidman, L. J., Tsuang, M. T., Walker, E. F., ... Mathalon, D. H. (2022). Mismatch negativity in response to auditory deviance and risk for future psychosis in youth at clinical high risk for psychosis. <em>JAMA Psychiatry, 79</em>(8), 780-789. <a href="https://doi.org/10.1001/jamapsychiatry.2022.1417" target="_blank">https://doi.org/10.1001/jamapsychiatry.2022.1417</a></li>
             
             <li>Harn, N. R., Hunt, S. L., Hill, J., Vidoni, E., Perry, M., & Burns, J. M. (2017). Augmenting amyloid PET interpretations with quantitative information improves consistency of early amyloid detection. <em>Clinical Nuclear Medicine, 42</em>(8), 577-581. <a href="https://doi.org/10.1097/RLU.0000000000001693" target="_blank">https://doi.org/10.1097/RLU.0000000000001693</a></li>
             
@@ -508,6 +508,10 @@
             <li>Regier, D. A., Narrow, W. E., Clarke, D. E., Kraemer, H. C., Kuramoto, S. J., Kuhl, E. A., & Kupfer, D. J. (2013). DSM-5 field trials in the United States and Canada, Part II: Test-retest reliability of selected categorical diagnoses. <em>American Journal of Psychiatry, 170</em>(1), 59-70. <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">https://doi.org/10.1176/appi.ajp.2012.12070999</a></li>
             
             <li>Riley, R. D., Ensor, J., Snell, K. I. E., Harrell Jr, F. E., Martin, G. P., Reitsma, J. B., Moons, K. G. M., Collins, G., & van Smeden, M. (2020). Calculating the sample size required for developing a clinical prediction model. <em>BMJ, 368</em>, m441. <a href="https://doi.org/10.1136/bmj.m441" target="_blank">https://doi.org/10.1136/bmj.m441</a></li>
+            
+            <li>Roach, B. J., Carrión, R. E., Hamilton, H. K., Bachman, P., Belger, A., Duncan, E., Johannesen, J., Light, G. A., Niznikiewicz, M., Addington, J., Bearden, C. E., Cadenhead, K. S., Cannon, T. D., Cornblatt, B. A., McGlashan, T. H., Perkins, D. O., Seidman, L. J., Tsuang, M. T., Walker, E. F., ... Mathalon, D. H. (2020). Reliability of mismatch negativity event-related potentials in a multisite, traveling subjects study. <em>Clinical Neurophysiology, 131</em>(12), 2899-2909. <a href="https://doi.org/10.1016/j.clinph.2020.09.027" target="_blank">https://doi.org/10.1016/j.clinph.2020.09.027</a></li>
+            
+            <li>Salazar de Pablo, G., Radua, J., Pereira, J., Bonoldi, I., Arienti, V., Besana, F., Soardo, L., Cabras, A., Fortea, L., Catalan, A., Vaquer Alicea, J., Raballo, A., Barrone, C., Mazzarini, L., Puig, O., González de Artaza, M., Barca, M., Papera, S., ... Fusar-Poli, P. (2021). Probability of transition to psychosis in individuals at clinical high risk: An updated meta-analysis. <em>JAMA Psychiatry, 78</em>(9), 970-978. <a href="https://doi.org/10.1001/jamapsychiatry.2021.0830" target="_blank">https://doi.org/10.1001/jamapsychiatry.2021.0830</a></li>
             
             <li>Shorey, S., Ng, E. D., & Wong, C. H. J. (2022). Global prevalence of depression and elevated depressive symptoms among adolescents: A systematic review and meta-analysis. <em>British Journal of Clinical Psychology, 61</em>(2), 287-305. <a href="https://doi.org/10.1111/bjc.12333" target="_blank">https://doi.org/10.1111/bjc.12333</a></li>
             
