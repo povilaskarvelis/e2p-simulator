@@ -15,6 +15,7 @@ source(file.path(script_dir, "R/utils.R"))
 source(file.path(script_dir, "R/binary.R"))
 source(file.path(script_dir, "R/continuous.R"))
 source(file.path(script_dir, "R/plotting.R"))
+source(file.path(script_dir, "R/parametric.R"))
 cat("Package loaded.\n")
 
 # ============================================================================
@@ -167,6 +168,77 @@ plot_binary(controls_deatt, cases_deatt,
             group1_label = "Controls (deattenuated)",
             group2_label = "Cases (deattenuated)",
             main = "E2P Deattenuated Analysis (reliability 0.60 -> 1.00)")
+
+# ============================================================================
+# DEMO 4: Parametric Analysis (No Empirical Data Needed)
+# ============================================================================
+cat("\n")
+cat("=", rep("=", 69), "\n", sep = "")
+cat("DEMO 4: Parametric Analysis (No Empirical Data Needed)\n")
+cat("=", rep("=", 69), "\n", sep = "")
+
+cat("\nCompute metrics directly from effect sizes (idealized distributions).\n")
+cat("No data required - uses analytical formulas.\n")
+
+# Binary outcome from Cohen's d
+cat("\n--- Parametric Binary (from Cohen's d) ---\n")
+cat("  Cohen's d = 0.8\n")
+cat("  Base rate = 10%\n")
+cat("  Threshold prob = 50%\n\n")
+
+results_param_binary <- e2p_parametric_binary(
+  cohens_d = 0.8,
+  base_rate = 0.1,
+  threshold_prob = 0.5
+)
+
+cat(sprintf("  ROC-AUC:     %.3f\n", results_param_binary$roc_auc))
+cat(sprintf("  PR-AUC:      %.3f\n", results_param_binary$pr_auc))
+cat(sprintf("  Sensitivity: %.3f\n", results_param_binary$sensitivity))
+cat(sprintf("  Specificity: %.3f\n", results_param_binary$specificity))
+cat(sprintf("  PPV:         %.3f\n", results_param_binary$ppv))
+cat(sprintf("  NPV:         %.3f\n", results_param_binary$npv))
+
+# With reliability attenuation
+cat("\n--- With Measurement Unreliability ---\n")
+cat("  ICC (both groups) = 0.7\n")
+cat("  Kappa (labels) = 0.8\n\n")
+
+results_param_attenuated <- e2p_parametric_binary(
+  cohens_d = 0.8,
+  base_rate = 0.1,
+  threshold_prob = 0.5,
+  icc1 = 0.7,
+  icc2 = 0.7,
+  kappa = 0.8,
+  view = "observed"
+)
+
+cat(sprintf("  True d:      %.3f\n", results_param_attenuated$cohens_d_true))
+cat(sprintf("  Observed d:  %.3f\n", results_param_attenuated$cohens_d_observed))
+cat(sprintf("  ROC-AUC:     %.3f (was %.3f with perfect reliability)\n", 
+            results_param_attenuated$roc_auc, results_param_binary$roc_auc))
+
+# Continuous outcome from Pearson's r
+cat("\n--- Parametric Continuous (from Pearson's r) ---\n")
+cat("  Pearson r = 0.5\n")
+cat("  Base rate = 10%\n\n")
+
+results_param_cont <- e2p_parametric_continuous(
+  pearson_r = 0.5,
+  base_rate = 0.1
+)
+
+cat(sprintf("  ROC-AUC:     %.3f\n", results_param_cont$roc_auc))
+cat(sprintf("  Sensitivity: %.3f\n", results_param_cont$sensitivity))
+cat(sprintf("  PPV:         %.3f\n", results_param_cont$ppv))
+
+# Find optimal threshold
+cat("\n--- Optimal Threshold Finding ---\n")
+opt_youden <- find_optimal_threshold_parametric(0.8, 0.1, metric = "youden")
+opt_f1 <- find_optimal_threshold_parametric(0.8, 0.1, metric = "f1")
+cat(sprintf("  Optimal threshold (max Youden's J): %.3f\n", opt_youden))
+cat(sprintf("  Optimal threshold (max F1):         %.3f\n", opt_f1))
 
 cat("\n")
 cat("=", rep("=", 69), "\n", sep = "")
