@@ -13,6 +13,9 @@
     "cypress": "^14.2.1",
     "http-server": "^14.1.1"
   },
+  "overrides": {
+    "lodash": "^4.17.23"
+  },
   "main": "index.js",
   "keywords": [],
   "author": "",
