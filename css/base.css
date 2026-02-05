@@ -1232,7 +1232,7 @@ input[type="range"]::-webkit-slider-thumb {
     margin: 0;
     color: #888;
     text-decoration: none;
-    font-size: 0.8em;
+    font-size: 1em;
     transition: color 0.2s ease;
     text-align: right;
 }
@@ -1384,18 +1384,26 @@ input[type="range"]::-webkit-slider-thumb {
     }
 }
 
-/* Don't center get-started page so left edge stays fixed when resizing */
+/* Keep content centered like the main page */
 @media (min-width: 1001px) {
     .get-started-page {
-        margin-left: 165px !important;
+        margin-left: auto !important;
         margin-right: auto !important;
     }
 }
 
-/* On small screens where TOC is hidden, remove the left margin */
-@media (max-width: 1000px) {
-    .get-started-page {
-        margin-left: auto !important;
-        margin-right: auto !important;
+/* Reserve space for TOC only on intermediate widths */
+@media (min-width: 1001px) and (max-width: 1400px) {
+    .get-started-page h1,
+    .get-started-page .description,
+    .get-started-page .guide-section {
+        padding-left: 150px;
+    }
+}
+
+/* Position TOC in the left margin on large screens */
+@media (min-width: 1401px) {
+    .toc-sidebar {
+        left: calc(50% - 850px);
     }
 }
