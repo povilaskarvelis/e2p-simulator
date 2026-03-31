@@ -20,6 +20,10 @@ Thumbs.db
 *.Rcheck/
 *.tar.gz
 .Rproj.user
+.Rhistory
+
+# Python local install metadata (pip install -e)
+*.egg-info/
 
 # renv (keep renv.lock, ignore local library/cache)
 **/renv/library/
