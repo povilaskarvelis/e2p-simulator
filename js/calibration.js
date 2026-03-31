@@ -325,6 +325,139 @@ function predictRisk(x) {
     return numerator / denominator;
 }
 
+function computePosteriorProbability(x, distParams) {
+    const likelihood0 = normalPDF(x, distParams.group0.mean, distParams.group0.stdDev);
+    const likelihood1 = normalPDF(x, distParams.group1.mean, distParams.group1.stdDev);
+    const prior0 = 1 - distParams.baseRate;
+    const prior1 = distParams.baseRate;
+    const denominator = likelihood0 * prior0 + likelihood1 * prior1;
+    
+    return denominator > 1e-300 ? (likelihood1 * prior1) / denominator : distParams.baseRate;
+}
+
+function computeMarginalDensity(x, distParams) {
+    const likelihood0 = normalPDF(x, distParams.group0.mean, distParams.group0.stdDev);
+    const likelihood1 = normalPDF(x, distParams.group1.mean, distParams.group1.stdDev);
+    return likelihood0 * (1 - distParams.baseRate) + likelihood1 * distParams.baseRate;
+}
+
+function getCalibrationXRange() {
+    const testParams = state.testData.distParams;
+    const deployParams = state.deploymentData.distParams;
+    const groups = [
+        testParams.group0,
+        testParams.group1,
+        deployParams.group0,
+        deployParams.group1
+    ];
+    
+    return {
+        xMin: Math.min(...groups.map(group => group.mean - 8 * group.stdDev)),
+        xMax: Math.max(...groups.map(group => group.mean + 8 * group.stdDev))
+    };
+}
+
+function buildCalibrationRawPoints(nPoints = 5000) {
+    const { xMin, xMax } = getCalibrationXRange();
+    const testParams = state.testData.distParams;
+    const deployParams = state.deploymentData.distParams;
+    const rawPoints = [];
+    
+    for (let i = 0; i < nPoints; i++) {
+        const x = xMin + (xMax - xMin) * i / (nPoints - 1);
+        const predicted = computePosteriorProbability(x, testParams);
+        const observed = computePosteriorProbability(x, deployParams);
+        const weight = computeMarginalDensity(x, deployParams);
+        
+        if (weight > 1e-300) {
+            rawPoints.push({ x, predicted, observed, weight });
+        }
+    }
+    
+    return rawPoints;
+}
+
+function calculateScoreSpaceCalibrationCurve(rawPoints, nCurvePoints = 400) {
+    if (rawPoints.length < 2) {
+        return [];
+    }
+    
+    const sortedByX = rawPoints
+        .slice()
+        .sort((a, b) => a.x - b.x);
+    
+    const predictedValues = sortedByX.map(point => point.predicted);
+    const minPred = Math.max(0, Math.min(...predictedValues));
+    const maxPred = Math.min(1, Math.max(...predictedValues));
+    const scoreSpan = maxPred - minPred;
+    
+    if (scoreSpan < 1e-8) {
+        return [];
+    }
+    
+    // Stay slightly away from score extrema where ds/dx approaches zero.
+    const scorePadding = Math.max(1e-4, scoreSpan / 1000);
+    const scoreMin = minPred + scorePadding;
+    const scoreMax = maxPred - scorePadding;
+    
+    if (scoreMax <= scoreMin) {
+        return [];
+    }
+    
+    const curve = [];
+    
+    for (let i = 0; i < nCurvePoints; i++) {
+        const score = scoreMin + (scoreMax - scoreMin) * i / (nCurvePoints - 1);
+        let branchWeightSum = 0;
+        let observedWeightSum = 0;
+        
+        for (let j = 0; j < sortedByX.length - 1; j++) {
+            const leftPoint = sortedByX[j];
+            const rightPoint = sortedByX[j + 1];
+            const deltaPred = rightPoint.predicted - leftPoint.predicted;
+            
+            if (Math.abs(deltaPred) < 1e-12) {
+                continue;
+            }
+            
+            const lowerPred = Math.min(leftPoint.predicted, rightPoint.predicted);
+            const upperPred = Math.max(leftPoint.predicted, rightPoint.predicted);
+            
+            if (score < lowerPred || score > upperPred) {
+                continue;
+            }
+            
+            const alpha = (score - leftPoint.predicted) / deltaPred;
+            if (alpha < 0 || alpha > 1) {
+                continue;
+            }
+            
+            const x = leftPoint.x + alpha * (rightPoint.x - leftPoint.x);
+            const observed = leftPoint.observed + alpha * (rightPoint.observed - leftPoint.observed);
+            const density = leftPoint.weight + alpha * (rightPoint.weight - leftPoint.weight);
+            const slope = deltaPred / (rightPoint.x - leftPoint.x);
+            const branchWeight = density / Math.max(Math.abs(slope), 1e-10);
+            
+            if (!Number.isFinite(x) || !Number.isFinite(branchWeight) || branchWeight <= 0) {
+                continue;
+            }
+            
+            branchWeightSum += branchWeight;
+            observedWeightSum += observed * branchWeight;
+        }
+        
+        if (branchWeightSum > 0) {
+            curve.push({
+                predicted: score,
+                observed: observedWeightSum / branchWeightSum,
+                weight: branchWeightSum
+            });
+        }
+    }
+    
+    return curve;
+}
+
 // ============================================================================
 // Calibration Calculations
 // ============================================================================
@@ -344,53 +477,52 @@ function calculateCalibration() {
 }
 
 function calculateAnalyticalCalibrationCurve() {
-    // Generate smooth calibration curve by computing predicted and true probabilities
-    // across a fine grid of X values, then plotting true vs predicted
-    const xMin = -4;
-    const xMax = Math.max(6, state.testEffectSize + 4, state.deploymentEffectSize + 4);
-    const nPoints = 500; // Fine grid for smooth curve
-    
-    const testParams = state.testData.distParams;
-    const deployParams = state.deploymentData.distParams;
-    
-    const points = [];
-    
-    for (let i = 0; i < nPoints; i++) {
-        const x = xMin + (xMax - xMin) * i / (nPoints - 1);
-        
-        // Predicted probability from test set parameters
-        const likelihood0_test = normalPDF(x, testParams.group0.mean, testParams.group0.stdDev);
-        const likelihood1_test = normalPDF(x, testParams.group1.mean, testParams.group1.stdDev);
-        const prior0_test = 1 - testParams.baseRate;
-        const prior1_test = testParams.baseRate;
-        const denom_test = likelihood0_test * prior0_test + likelihood1_test * prior1_test;
-        const pPred = denom_test > 1e-300 ? (likelihood1_test * prior1_test) / denom_test : testParams.baseRate;
-        
-        // True probability from deployment set parameters
-        const likelihood0_deploy = normalPDF(x, deployParams.group0.mean, deployParams.group0.stdDev);
-        const likelihood1_deploy = normalPDF(x, deployParams.group1.mean, deployParams.group1.stdDev);
-        const prior0_deploy = 1 - deployParams.baseRate;
-        const prior1_deploy = deployParams.baseRate;
-        const denom_deploy = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
-        const pTrue = denom_deploy > 1e-300 ? (likelihood1_deploy * prior1_deploy) / denom_deploy : deployParams.baseRate;
-        
-        // Weight by the marginal density in deployment set (for sorting/filtering)
-        const weight = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
-        
-        if (weight > 1e-300) {
-            points.push({
-                x: x,
-                predicted: pPred,
-                observed: pTrue,
-                weight: weight
-            });
-        }
+    // Compute the calibration curve directly in score space:
+    // observed risk at score s is E[Y | P_test(Y=1|X)=s] under deployment.
+    const rawPoints = buildCalibrationRawPoints();
+    return calculateScoreSpaceCalibrationCurve(rawPoints);
+}
+
+function interpolateCalibrationCurve(predictedScore, analyticalCurve) {
+    if (!analyticalCurve || analyticalCurve.length === 0) {
+        return predictedScore;
     }
     
-    // Sort by predicted probability for a smooth curve
-    points.sort((a, b) => a.predicted - b.predicted);
+    if (predictedScore <= analyticalCurve[0].predicted) {
+        return analyticalCurve[0].observed;
+    }
     
-    return points;
+    const lastPoint = analyticalCurve[analyticalCurve.length - 1];
+    if (predictedScore >= lastPoint.predicted) {
+        return lastPoint.observed;
+    }
+    
+    for (let i = 0; i < analyticalCurve.length - 1; i++) {
+        const leftPoint = analyticalCurve[i];
+        const rightPoint = analyticalCurve[i + 1];
+        
+        if (predictedScore < leftPoint.predicted || predictedScore > rightPoint.predicted) {
+            continue;
+        }
+        
+        const span = rightPoint.predicted - leftPoint.predicted;
+        if (span <= 1e-12) {
+            return leftPoint.observed;
+        }
+        
+        const alpha = (predictedScore - leftPoint.predicted) / span;
+        return leftPoint.observed + alpha * (rightPoint.observed - leftPoint.observed);
+    }
+    
+    return lastPoint.observed;
+}
+
+function getThresholdCalibrationMarker() {
+    const x = state.thresholdValue;
+    const predicted = computePosteriorProbability(x, state.testData.distParams);
+    const observed = interpolateCalibrationCurve(predicted, state.calibrationData.analyticalCurve);
+    
+    return { x, predicted, observed };
 }
 
 function calculateCalibrationMetrics() {
@@ -408,8 +540,7 @@ function calculateCalibrationMetrics() {
 function calculateAnalyticalMetrics() {
     // Compute all calibration metrics analytically using known distribution parameters
     // Generate a fine grid of x values covering the range of both distributions
-    const xMin = -4;
-    const xMax = Math.max(6, state.testEffectSize + 4, state.deploymentEffectSize + 4);
+    const { xMin, xMax } = getCalibrationXRange();
     const nPoints = 1000; // Fine grid for accurate calculation
     const dx = (xMax - xMin) / nPoints;
     
@@ -756,24 +887,11 @@ function plotCalibration() {
         hovertemplate: 'Predicted: %{x:.3f}<br>Observed: %{y:.3f}<extra></extra>'
     };
     
-    // Calculate initial marker position at threshold
-    const testParams = state.testData.distParams;
-    const deployParams = state.deploymentData.distParams;
-    const x = state.thresholdValue;
-    
-    const likelihood0_test = normalPDF(x, testParams.group0.mean, testParams.group0.stdDev);
-    const likelihood1_test = normalPDF(x, testParams.group1.mean, testParams.group1.stdDev);
-    const prior0_test = 1 - testParams.baseRate;
-    const prior1_test = testParams.baseRate;
-    const denom_test = likelihood0_test * prior0_test + likelihood1_test * prior1_test;
-    const pPred = denom_test > 1e-300 ? (likelihood1_test * prior1_test) / denom_test : testParams.baseRate;
-    
-    const likelihood0_deploy = normalPDF(x, deployParams.group0.mean, deployParams.group0.stdDev);
-    const likelihood1_deploy = normalPDF(x, deployParams.group1.mean, deployParams.group1.stdDev);
-    const prior0_deploy = 1 - deployParams.baseRate;
-    const prior1_deploy = deployParams.baseRate;
-    const denom_deploy = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
-    const pObs = denom_deploy > 1e-300 ? (likelihood1_deploy * prior1_deploy) / denom_deploy : deployParams.baseRate;
+    // Marker position at threshold, projected onto the score-space calibration curve
+    const markerPoint = getThresholdCalibrationMarker();
+    const x = markerPoint.x;
+    const pPred = markerPoint.predicted;
+    const pObs = markerPoint.observed;
     
     // Threshold marker
     const thresholdMarker = {
@@ -1047,26 +1165,10 @@ function updateThresholdOnDeploymentPlot() {
 }
 
 function updateCalibrationMarker() {
-    // Calculate predicted and observed probabilities at threshold
-    const testParams = state.testData.distParams;
-    const deployParams = state.deploymentData.distParams;
-    const x = state.thresholdValue;
-    
-    // Predicted probability from test set
-    const likelihood0_test = normalPDF(x, testParams.group0.mean, testParams.group0.stdDev);
-    const likelihood1_test = normalPDF(x, testParams.group1.mean, testParams.group1.stdDev);
-    const prior0_test = 1 - testParams.baseRate;
-    const prior1_test = testParams.baseRate;
-    const denom_test = likelihood0_test * prior0_test + likelihood1_test * prior1_test;
-    const pPred = denom_test > 1e-300 ? (likelihood1_test * prior1_test) / denom_test : testParams.baseRate;
-    
-    // Observed probability from deployment set
-    const likelihood0_deploy = normalPDF(x, deployParams.group0.mean, deployParams.group0.stdDev);
-    const likelihood1_deploy = normalPDF(x, deployParams.group1.mean, deployParams.group1.stdDev);
-    const prior0_deploy = 1 - deployParams.baseRate;
-    const prior1_deploy = deployParams.baseRate;
-    const denom_deploy = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
-    const pObs = denom_deploy > 1e-300 ? (likelihood1_deploy * prior1_deploy) / denom_deploy : deployParams.baseRate;
+    const markerPoint = getThresholdCalibrationMarker();
+    const x = markerPoint.x;
+    const pPred = markerPoint.predicted;
+    const pObs = markerPoint.observed;
     
     // Update calibration plot with marker
     const plotDiv = document.getElementById('calibration-plot');
