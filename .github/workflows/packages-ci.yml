@@ -36,9 +36,12 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Install R dependencies
-        run: |
-          Rscript -e 'install.packages(c("testthat"), repos = "https://cloud.r-project.org")'
+      # Installs Imports/Suggests from packages/r/e2p/DESCRIPTION into the same
+      # library R CMD check uses (--as-cran requires suggested packages).
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: packages/r/e2p
 
       - name: R CMD build
         working-directory: packages/r/e2p
