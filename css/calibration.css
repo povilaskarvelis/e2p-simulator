@@ -2,8 +2,7 @@
    Calibration Module Styles (Minimal - extends base.css)
    ========================================================================== */
 
-/* Dataset section headers with colored borders */
-/* Colors match the main module palette: gray (#888888) and teal (#008080) */
+/* Dataset section blocks (test vs deployment) */
 .dataset-section {
     margin-bottom: 20px;
 }
@@ -12,15 +11,6 @@
     margin: 0 0 15px 0;
     font-size: 1.1rem;
     color: #333;
-    padding-left: 10px;
-}
-
-.dataset-section.test-set h3 {
-    border-left: 4px solid #888888;
-}
-
-.dataset-section.deployment-set h3 {
-    border-left: 4px solid #008080;
 }
 
 /* Calibration-specific container adjustments */

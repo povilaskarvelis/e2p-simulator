@@ -240,21 +240,11 @@
     margin: 0 0 15px 0;
     font-size: 1.1rem;
     color: #333;
-    padding-left: 10px;
-}
-
-.calib-dataset-title--test {
-    border-left: 4px solid #888888;
-}
-
-.calib-dataset-title--deploy {
-    border-left: 4px solid #008080;
 }
 
 .calib-callout {
     padding: 15px;
     background-color: #fff3cd;
-    border-left: 4px solid #ffc107;
     border-radius: 4px;
     font-size: 0.9rem;
     color: #856404;
