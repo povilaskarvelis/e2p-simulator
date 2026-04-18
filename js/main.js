@@ -1,21 +1,4 @@
-// Parse URL parameters
-function parseURLParams() {
-    const params = {};
-    const queryString = window.location.search.substring(1);
-    const pairs = queryString.split('&');
-    
-    for (let i = 0; i < pairs.length; i++) {
-        if (!pairs[i]) continue;
-        
-        const pair = pairs[i].split('=');
-        const key = decodeURIComponent(pair[0]);
-        const value = decodeURIComponent(pair[1] || '');
-        
-        params[key] = value;
-    }
-    
-    return params;
-}
+// parseURLParams is defined in url-params.js (loaded before this script)
 
 // Initialize version switching
 document.addEventListener('DOMContentLoaded', function() {

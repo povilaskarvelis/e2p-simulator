@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="description" content="An interactive tool for estimating real-world predictive utility of research findings">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>E2P Simulator | From Effect Size to Real-World Predictive Utility</title>
     
     <!-- Google tag (gtag.js) -->
@@ -33,8 +32,7 @@
     <link rel="stylesheet" href="css/continuous.css">
     <link rel="stylesheet" href="css/calibration.css">
     
-    <!-- MathJax for professional equation rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <!-- MathJax: single Promise polyfill for older browsers (auto applies if needed) -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
     <script>
     window.MathJax = {
@@ -617,7 +615,6 @@
         <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
-                    <p style="display: none;">AUC: <span id="auc-value-cont">0.00</span></p>
                     <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
                     <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
@@ -1130,6 +1127,7 @@
     <script src="js/shared-plugins.js"></script>
     <!-- Load our module scripts -->
     <script src="js/utils.js"></script>
+    <script src="js/url-params.js"></script>
     <script src="js/binary.js"></script>
     <script src="js/continuous.js"></script>
     <!-- Latest release version from GitHub -->

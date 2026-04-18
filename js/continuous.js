@@ -757,12 +757,6 @@ function plotROC() {
         // Maybe draw empty plots?
         Plotly.purge(SELECTORS.rocPlot);
         Plotly.purge(SELECTORS.prPlot);
-        // Clear dashboard too
-        const aucElement = document.getElementById("auc-value-cont");
-        if (aucElement) {
-            aucElement.textContent = 'N/A';
-        }
-        // ... clear other dashboard values
         return;
     }
     // Build ROC and PR curves using a single sweep on a subsample for stability
@@ -833,7 +827,6 @@ function plotROC() {
     // Update dashboard values
     // Update dashboard values - only for metrics that exist
     const metricsToUpdate = {
-        "auc-value-cont": auc,
         "accuracy-value-cont": currentMetrics.accuracy,
         "sensitivity-value-cont": currentMetrics.sensitivity,
         "specificity-value-cont": currentMetrics.specificity,

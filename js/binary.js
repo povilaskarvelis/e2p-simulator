@@ -28,18 +28,7 @@ let xScale, yScale;
 let plotGroup;
 let width, height;
 
-// Utility functions
-function parseURLParams() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const params = {};
-    
-    for (const [key, value] of urlParams.entries()) {
-        params[key] = value;
-    }
-    
-    return params;
-}
+// parseURLParams is defined in url-params.js (loaded before this script)
 
 function getBaseRateFraction() {
     return percentageToFraction(document.getElementById('base-rate-slider').value);
