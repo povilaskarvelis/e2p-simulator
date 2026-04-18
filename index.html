@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="css/binary.css">
     <link rel="stylesheet" href="css/continuous.css">
     <link rel="stylesheet" href="css/calibration.css">
+    <link rel="stylesheet" href="css/index-patterns.css">
     
     <!-- MathJax: single Promise polyfill for older browsers (auto applies if needed) -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
@@ -68,8 +69,8 @@
 <body>
     <!-- Header -->
     <header class="site-header">
-        <a href="index.html" class="site-title" style="display: inline-flex; align-items: center;">
-            <img src="images/favicon.png" alt="E2P Simulator Logo" style="height: 32px; width: 32px; margin-right: 8px;">E2P Simulator
+        <a href="index.html" class="site-title index-header-brand">
+            <img src="images/favicon.png" alt="E2P Simulator Logo" class="index-header-logo">E2P Simulator
         </a>
         <div class="header-right">
             <nav class="site-nav">
@@ -88,16 +89,16 @@
     <div class="description">
         <p><strong>E2P Simulator</strong> estimates real-world predictive utility of research findings by accounting for measurement reliability and outcome base rates. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly for individual differences research, biomarker studies, diagnostic tool validation, predictive modeling, and precision medicine/psychiatry.</p>
 
-        <p>See <a href="get-started.html" style="color: #0366d6; text-decoration: none;" target="_blank">Get Started</a> guide for more details.</p>
+        <p>See <a href="get-started.html" class="index-text-link" target="_blank">Get Started</a> guide for more details.</p>
 
-        <p>Developed by <a href="https://povilaskarvelis.github.io/" style="color: #0366d6; text-decoration: none;" target="_blank">Povilas Karvelis</a></p>
+        <p>Developed by <a href="https://povilaskarvelis.github.io/" class="index-text-link" target="_blank">Povilas Karvelis</a></p>
 
     </div>
     
     <!-- Binary Container -->
     <div id="binary-container">
         <!-- Toggle buttons centered and side by side -->
-        <div style="display: flex; justify-content: center; margin-bottom: 15px; gap: 20px;">
+        <div class="index-toggle-row">
             <div class="toggle-group">
                 <div class="toggle-label">Outcomes</div>
                 <div class="toggle-buttons">
@@ -122,53 +123,53 @@
                 <div class="slider-container">
                     <!-- Cohen's d and other metrics -->
                     <div>
-                        <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="1.34" style="width: 100%; margin-bottom: 10px;">
+                        <input type="range" id="difference-slider" min="0" max="5" step="0.01" value="1.34" class="index-range-full">
                         
                         <!-- Continuous Metrics -->
-                        <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 30px;">
-                            <div class="metrics-header" style="margin-bottom: 8px;">
+                        <div class="index-metric-stack index-metric-stack--mb30">
+                            <div class="metrics-header index-metrics-header">
                                 <span></span>
                                 <span>True</span>
                                 <span>Obs.</span>
                             </div>
 
                             <!-- Cohen's d -->
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="index-metric-row">
                                 <span class="slider-label" data-tooltip="Standardized mean difference between groups">Cohen's d</span>
                                 <input type="number" id="true-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1.34">
                                 <input type="number" id="observed-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1.34" readonly>
                             </div>
 
                             <!-- Cohen's U3 -->
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="index-metric-row">
                                 <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
                                 <input type="number" id="true-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84">
                                 <input type="number" id="observed-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84" readonly>
                             </div>
 
                             <!-- Odds Ratio -->
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="index-metric-row">
                                 <span class="slider-label" data-tooltip="Ratio of odds of being in group 1 vs group 2">Odds Ratio</span>
                                 <input type="number" id="true-odds-ratio-bin" class="metrics-input" min="1" max = "8681" step="0.5" value="1">
                                 <input type="number" id="observed-odds-ratio-bin" class="metrics-input" readonly>
                             </div>
 
                             <!-- Log Odds Ratio -->
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="index-metric-row">
                                 <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
                                 <input type="number" id="true-log-odds-ratio-bin" class="metrics-input" max = "9.07"step="0.05" value="0">
                                 <input type="number" id="observed-log-odds-ratio-bin" class="metrics-input" readonly>
                             </div>
 
                             <!-- Point-biserial r -->
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="index-metric-row">
                                 <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and a binary variable">Point-biserial r<sub>pb</sub></span>
                                 <input type="number" id="true-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0">
                                 <input type="number" id="observed-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0" readonly>
                             </div>
 
                             <!-- Eta squared -->
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="index-metric-row">
                                 <span class="slider-label" data-tooltip="Eta squared: proportion of variance explained by group membership">η² (r<sub>pb</sub>²)</span>
                                 <input type="number" id="true-eta-squared-bin" class="metrics-input" min="0" max="0.86" step="0.01" value="0">
                                 <input type="number" id="observed-eta-squared-bin" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
@@ -177,24 +178,24 @@
                     </div>
                     
                     <!-- Reliability Controls -->
-                    <div style="margin-top: 20px; margin-bottom: 15px;">
+                    <div class="index-reliability-block">
                         <!-- Group 1 Reliability -->
                         <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <div class="index-slider-label-row">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>1</sub></span>
                             <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Group 2 Reliability -->
-                        <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" class="index-range-mt15">
+                        <div class="index-slider-label-row">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>2</sub></span>
                             <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Classification Reliability -->
-                        <input type="range" id="kappa-slider" min="0" max="1" step="0.01" value="0.5" style="margin-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <input type="range" id="kappa-slider" min="0" max="1" step="0.01" value="0.5" class="index-range-mt15">
+                        <div class="index-slider-label-row">
                             <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Outcome reliability, <i>&kappa;</i></span>
                             <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                         </div>
@@ -203,7 +204,7 @@
                     <!-- Base Rate -->
                     <div>
                         <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="45">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div class="index-slider-label-row index-slider-label-row--mt5">
                             <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate, \(\phi\) (%)</span>
                             <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
                         </div>
@@ -212,12 +213,12 @@
             </div>
 
             <!-- Plot 1: Overlapping distributions -->
-            <div class="main-plot-section" style="position: relative;">
+            <div class="main-plot-section">
                 <!-- Toggle buttons removed from here -->
                 <div id="overlap-plot" class="plot"></div>
-                <div class="threshold-buttons" style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
-                    <button id="max-j-button" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;min-width:70px;" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
-                    <button id="max-f1-button" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;min-width:70px;" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
+                <div class="threshold-buttons">
+                    <button id="max-j-button" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
+                    <button id="max-f1-button" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
                 </div>
             </div>
 
@@ -225,19 +226,19 @@
                 <div class="results-container">
                     <div class="roc-pr-section">
                                                 <div class="plot-container">
-                        <a href="get-started.html#roc-curves" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
-                            <div id="roc-plot" style="height: 100%; width: 100%;"></div>
+                        <a href="get-started.html#roc-curves" class="half-plot index-plot-link" target="_blank">
+                            <div id="roc-plot" class="index-plot-fill"></div>
                         </a>
-                        <a href="get-started.html#precision-recall" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
-                            <div id="pr-plot" style="height: 100%; width: 100%;"></div>
+                        <a href="get-started.html#precision-recall" class="half-plot index-plot-link" target="_blank">
+                            <div id="pr-plot" class="index-plot-fill"></div>
                         </a>
                     </div>
                 </div>
                 
                 <div class="dca-section">
                     <div class="plot-container">
-                        <a href="get-started.html#dca-analysis" class="full-plot" style="text-decoration: none; color: inherit;" target="_blank">
-                            <div id="dca-plot" style="height: 100%; width: 100%;" data-tooltip="Decision curve analysis (DCA)"></div>
+                        <a href="get-started.html#dca-analysis" class="full-plot index-plot-link" target="_blank">
+                            <div id="dca-plot" class="index-plot-fill" data-tooltip="Decision curve analysis (DCA)"></div>
                         </a>
                     </div>
                 </div>
@@ -245,7 +246,7 @@
         </div>
 
         <!-- Results dashboard -->
-        <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
+        <a href="get-started.html#understanding-metrics" class="index-dashboard-link" target="_blank">
             <div id="dashboard" class="dashboard">
                 <div class="dashboard-metrics">
                     <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
@@ -261,9 +262,9 @@
         </a>
         
         <!-- Predictive Metrics dashboard (Binary) -->
-        <details class="metrics-collapsible" style="margin-top: 15px;">
-            <summary class="metrics-summary" style="cursor: pointer; color: #666666; font-size: 0.9em; list-style: none; text-align: center;">Show more metrics</summary>
-            <div class="dashboard" style="margin-top: 10px;">
+        <details class="metrics-collapsible index-metrics-collapsible">
+            <summary class="metrics-summary index-metrics-summary">Show more metrics</summary>
+            <div class="dashboard index-dashboard-panel">
                 <div class="dashboard-metrics">
                     <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
                     <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
@@ -281,7 +282,7 @@
         <div class="equations-container">
             <!-- Reliability attenuation -->
             <div class="equation-box wide">
-                <a href="https://doi.org/10.3389/fpsyg.2025.1592658" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://doi.org/10.3389/fpsyg.2025.1592658" class="index-equation-link" target="_blank">
                     <p class="equation-title">Cohen's d attenuation by reliability</p>
                     <div class="equation-content">
                         \[d_{obs} = d_{true} \sqrt{\frac{2ICC_1ICC_2}{ICC_1+ICC_2}\sin\left(\frac{\pi}{2}\kappa\right)}\]
@@ -291,7 +292,7 @@
             
             <!-- d to Log Odds Ratio -->
             <div class="equation-box">
-                <a href="https://psycnet.apa.org/buy/2003-10163-006" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://psycnet.apa.org/buy/2003-10163-006" class="index-equation-link" target="_blank">
                     <p class="equation-title">d to Log Odds Ratio</p>
                     <div class="equation-content">
                         \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
@@ -301,7 +302,7 @@
             
             <!-- d to AUC -->
             <div class="equation-box">
-                <a href="https://psycnet.apa.org/record/2008-02525-002" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://psycnet.apa.org/record/2008-02525-002" class="index-equation-link" target="_blank">
                     <p class="equation-title">d to ROC-AUC</p>
                     <div class="equation-content">
                         \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
@@ -311,7 +312,7 @@
 
             <!-- d to U3 -->
             <div class="equation-box">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" class="index-equation-link" target="_blank">
                     <p class="equation-title">d to U3</p>
                     <div class="equation-content">
                         \[U_3 = \Phi(d)\]
@@ -321,7 +322,7 @@
             
             <!-- d to Point-biserial r -->
             <div class="equation-box">
-                <a href="https://psycnet.apa.org/record/2006-22258-004" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://psycnet.apa.org/record/2006-22258-004" class="index-equation-link" target="_blank">
                     <p class="equation-title">d to Point-biserial r</p>
                     <div class="equation-content">
                         \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{\phi(1-\phi)}}}\]
@@ -332,10 +333,10 @@
         </div>
 
         <!-- Mahalanobis D Calculator -->
-        <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">From Single to Multiple Predictors</h2>
-        <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+        <h2 class="calculator-title">From Single to Multiple Predictors</h2>
+        <div class="description index-calculator-desc">
             <p>
-                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level predictive performance. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC, and to PR-AUC by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.<br/> See <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level predictive performance. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC, and to PR-AUC by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects.<br/> See <a href="get-started.html#multivariable" target="_blank" class="index-text-link">Get Started</a> for more details.
             </p>
         </div>
 
@@ -352,15 +353,15 @@
                 
                 <div class="form-container">
                     <div>
-                        <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 5px;">
-                            <div class="slider-container" style="margin-bottom: 0;">
+                        <div class="index-metric-stack index-metric-stack--mb5">
+                            <div class="slider-container index-slider-container--flush-b">
                                 <input type="range" id="targetRocAuc-slider" min="0.5" max="1" step="0.01" value="0.96" class="slider">
                                 <div class="slider-value-container">
                                     <span class="slider-label">Target ROC-AUC</span>
                                     <input type="number" id="targetRocAuc" step="0.01" value="0.96" class="slider-value">
                                 </div>
                             </div>
-                            <div class="slider-value-container" style="margin-top: 0;">
+                            <div class="slider-value-container index-slider-value--flush-t">
                                 <span class="slider-label">Target PR-AUC</span>
                                 <input type="number" id="target-pr-auc" class="metrics-input" step="any" readonly="">
                             </div>
@@ -403,7 +404,7 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 10px;">
+                    <div class="index-button-row">
                         <button id="record-mahalanobis">Record curve</button>
                         <button id="reset-mahalanobis">Reset</button>
                     </div>
@@ -411,11 +412,11 @@
             </div>
             <div class="section">
                 <div id="chartContainer">
-                    <div id="rocAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="rocAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    <div id="rocAucPlotWrapper" class="index-chart-wrap">
+                        <canvas id="rocAucPlot" class="index-chart-canvas"></canvas>
                     </div>
-                    <div id="prAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="prAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    <div id="prAucPlotWrapper" class="index-chart-wrap">
+                        <canvas id="prAucPlot" class="index-chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -423,9 +424,9 @@
     </div> 
     
     <!-- Continuous Container -->
-    <div id="continuous-container" style="display: none;">
+    <div id="continuous-container" class="u-hidden">
         <!-- Toggle buttons centered and side by side -->
-        <div style="display: flex; justify-content: center; margin-bottom: 15px; gap: 20px;">
+        <div class="index-toggle-row">
             <div class="toggle-group">
                 <div class="toggle-label">Outcomes</div>
                 <div class="toggle-buttons">
@@ -449,25 +450,25 @@
             <div class="slider-section">
                 <div class="slider-container">
                     <!-- True and Observed Effects -->
-                    <input type="range" id="effect-slider-cont" min="0" max="1" step="0.01" value="0.50" style="width: 100%; margin-bottom: 10px;">
+                    <input type="range" id="effect-slider-cont" min="0" max="1" step="0.01" value="0.50" class="index-range-full">
 
                     <!-- Continuous Metrics -->
-                    <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 20px;">
-                        <div class="metrics-header" style="margin-bottom: 8px;">
+                    <div class="index-metric-stack index-metric-stack--mb20">
+                        <div class="metrics-header index-metrics-header">
                             <span></span>
                             <span>True</span>
                             <span>Obs.</span>
                         </div>
 
                         <!-- Pearson's r -->
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Linear correlation between predictor and outcome">Pearson's r</span>
                             <input type="number" id="true-pearson-r-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.50">
                             <input type="number" id="observed-pearson-r-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.50" readonly>
                         </div>
 
                         <!-- R² -->
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Proportion of variance in outcome explained by predictor">R²</span>
                             <input type="number" id="true-R-squared-cont" class="metrics-input" min="0" max="1" step="0.01" value="0">
                             <input type="number" id="observed-R-squared-cont" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
@@ -476,81 +477,81 @@
 
                     <!-- Reliability X -->
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div class="index-slider-label-row index-slider-label-row--mt5">
                         <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>x</sub></span>
                         <input type="number" id="reliability-x-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
 
                     <!-- Reliability Y -->
                     <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div class="index-slider-label-row index-slider-label-row--mt5">
                         <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
                         <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
 
                     <!-- Base Rate -->
-                    <div style="margin-top: 10px; margin-bottom: 20px;">
+                    <div class="index-base-rate-block">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <div class="index-slider-label-row index-slider-label-row--mt10">
                             <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
                             <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
                         </div>
                     </div>
                     
-                    <hr class="input-separator" style="margin: 20px 0 15px;">
+                    <hr class="input-separator index-hr-spaced">
                     
                     <!-- Binary Metrics -->
-                    <div style="display: flex; flex-direction: column; gap: 0px; margin-bottom: 15px;">
-                        <div class="metrics-header" style="margin-bottom: 5px;">
+                    <div class="index-metric-stack index-metric-stack--mb15">
+                        <div class="metrics-header index-metrics-header--tight">
                             <span></span>
                             <span>True</span>
                             <span>Obs.</span>
                         </div>
 
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Standardized mean difference between groups (using pooled standard deviation)">Cohen's d</span>
                             <input type="number" id="true-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
                             <input type="number" id="observed-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
                         </div>
                         
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances (using non-pooled standard deviation)">Cohen's d*</span>
                             <input type="number" id="true-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
                             <input type="number" id="observed-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
                         </div>
                         
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
                             <input type="number" id="true-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
                             <input type="number" id="observed-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
                         </div>
                         
                         <!-- Point-biserial r -->
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and binary group membership">Point-biserial r<sub>pb</sub></span>
                             <input type="number" id="true-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
                             <input type="number" id="observed-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
                         </div>
                         
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r<sub>rb</sub></span>
                             <input type="number" id="true-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
                             <input type="number" id="observed-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
                         </div>
 
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Mean difference divided by standard deviation of group 1">Glass's &Delta;</span>
                             <input type="number" id="true-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
                             <input type="number" id="observed-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
                         </div>
 
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
                             <input type="number" id="true-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
                             <input type="number" id="observed-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
                         </div>
 
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
                             <input type="number" id="true-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
                             <input type="number" id="observed-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
@@ -558,7 +559,7 @@
                     </div>
                     
                     <!-- Precise Estimates Toggle -->
-                    <div class="precise-toggle-container" style="margin-top: 25px;">
+                    <div class="precise-toggle-container index-precise-toggle">
                         <label for="precise-estimates-checkbox-cont" class="precise-toggle-label">Get precise estimates (slow)</label>
                         <label class="toggle-switch">
                             <input type="checkbox" id="precise-estimates-checkbox-cont">
@@ -570,19 +571,19 @@
             </div>
 
             <!-- Column 2: Plots -->
-            <div class="main-plot-section" style="position: relative;">
+            <div class="main-plot-section">
                 <!-- Toggle buttons removed from here -->
                 <div class="plots-stack">
                     <div class="scatter-plots">
-                        <div id="scatter-plot-true-cont" class="plot" style="display: none;"></div>
+                        <div id="scatter-plot-true-cont" class="plot index-plot-hidden"></div>
                         <div id="scatter-plot-observed-cont" class="plot"></div>
                     </div>
                     <div class="distribution-plots">
-                        <div id="distribution-plot-true-cont" class="plot" style="display: none;"></div>
+                        <div id="distribution-plot-true-cont" class="plot index-plot-hidden"></div>
                         <div id="distribution-plot-observed-cont" class="plot"></div>
-                        <div class="threshold-buttons" style="position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px;">
-                            <button id="max-j-button-cont" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
-                            <button id="max-f1-button-cont" class="toggle-button" style="font-size:0.9rem;padding:6px 12px;" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
+                        <div class="threshold-buttons">
+                            <button id="max-j-button-cont" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
+                            <button id="max-f1-button-cont" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
                         </div>
                     </div>
                 </div>
@@ -592,19 +593,19 @@
             <div class="results-container">
                 <div class="roc-pr-section">
                     <div class="plot-container">
-                        <a href="get-started.html#roc-curves" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
-                            <div id="roc-plot-cont" style="height: 100%; width: 100%;"></div>
+                        <a href="get-started.html#roc-curves" class="half-plot index-plot-link" target="_blank">
+                            <div id="roc-plot-cont" class="index-plot-fill"></div>
                         </a>
-                        <a href="get-started.html#precision-recall" class="half-plot" style="text-decoration: none; color: inherit;" target="_blank">
-                            <div id="pr-plot-cont" style="height: 100%; width: 100%;"></div>
+                        <a href="get-started.html#precision-recall" class="half-plot index-plot-link" target="_blank">
+                            <div id="pr-plot-cont" class="index-plot-fill"></div>
                         </a>
                     </div>
                 </div>
                 
                 <div class="dca-section">
                     <div class="plot-container">
-                        <a href="get-started.html#dca-analysis" class="full-plot" style="text-decoration: none; color: inherit;" target="_blank">
-                            <div id="dca-plot-cont" style="height: 100%; width: 100%;" data-tooltip="Decision curve analysis (DCA)"></div>
+                        <a href="get-started.html#dca-analysis" class="full-plot index-plot-link" target="_blank">
+                            <div id="dca-plot-cont" class="index-plot-fill" data-tooltip="Decision curve analysis (DCA)"></div>
                         </a>
                     </div>
                 </div>
@@ -612,7 +613,7 @@
         </div>
 
         <!-- Results dashboard -->
-        <a href="get-started.html#understanding-metrics" style="text-decoration: none; color: inherit;" target="_blank">
+        <a href="get-started.html#understanding-metrics" class="index-dashboard-link" target="_blank">
             <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
                     <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
@@ -629,9 +630,9 @@
         </a>
 
         <!-- Predictive Metrics dashboard (Continuous) -->
-        <details class="metrics-collapsible" style="margin-top: 10px;">
-            <summary class="metrics-summary" style="cursor: pointer; color: #666666; font-size: 0.9em; list-style: none; text-align: center;">Show more metrics</summary>
-            <div class="dashboard" style="margin-top: 10px;">
+        <details class="metrics-collapsible index-metrics-collapsible--tight">
+            <summary class="metrics-summary index-metrics-summary">Show more metrics</summary>
+            <div class="dashboard index-dashboard-panel">
                 <div class="dashboard-metrics">
                     <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
                     <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
@@ -649,7 +650,7 @@
         <div class="equations-container">
             <!-- Reliability attenuation -->
             <div class="equation-box wider">
-                <a href="https://psycnet.apa.org/record/2006-10257-005" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://psycnet.apa.org/record/2006-10257-005" class="index-equation-link" target="_blank">
                     <p class="equation-title">Reliability attenuation of Pearson's r</p>
                     <div class="equation-content">
                         \[r_{obs} = r_{true} \sqrt{ICC_x \cdot ICC_y}\]
@@ -659,7 +660,7 @@
             
             <!-- Cohen's d -->
             <div class="equation-box wider">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" class="index-equation-link" target="_blank">
                     <p class="equation-title">Cohen's d</p>
                     <div class="equation-content">
                         \[d = \frac{\mu_2 - \mu_1}{\sqrt{\frac{(n_1-1)\sigma_1^2 + (n_2-1)\sigma_2^2}{n_1+n_2-2}}}\]
@@ -669,7 +670,7 @@
             
             <!-- Cohen's d* -->
             <div class="equation-box">
-                <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" class="index-equation-link" target="_blank">
                     <p class="equation-title">Cohen's d*</p>
                     <div class="equation-content">
                         \[d^* = \frac{\mu_2 - \mu_1}{\sqrt{\frac{\sigma_1^2 + \sigma_2^2}{2}}}\]
@@ -679,7 +680,7 @@
 
             <!-- r to rank-biserial r -->
             <div class="equation-box">
-                <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" class="index-equation-link" target="_blank">
                     <p class="equation-title">Rank-biserial correlation</p>
                     <div class="equation-content">
                         \[r_{rb} = \frac{2(\bar{Y}_1 - \bar{Y}_0)}{n}\]
@@ -689,7 +690,7 @@
             
             <!-- Glass's delta -->
             <div class="equation-box">
-                <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" style="text-decoration: none; color: inherit;" target="_blank">
+                <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" class="index-equation-link" target="_blank">
                     <p class="equation-title">Glass's Δ</p>
                     <div class="equation-content">
                         \[\Delta = \frac{\mu_2 - \mu_1}{\sigma_1}\]
@@ -699,10 +700,10 @@
         </div>
 
         <!-- Multiple R² Calculator -->
-        <div style="margin-top: 50px;"></div>
-        <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">From Single to Multiple Predictors</h2>
-        <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
-            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of predictive performance. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. <br/> See <a href="get-started.html#multivariable" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.</p>
+        <div class="index-section-spacer"></div>
+        <h2 class="calculator-title">From Single to Multiple Predictors</h2>
+        <div class="description index-calculator-desc">
+            <p>While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of predictive performance. The combined effect is estimated by first computing total variance explained (R²) and then by dichotomizing the data based on the base rate to compute PR-AUC. For simplicity, the model assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. <br/> See <a href="get-started.html#multivariable" target="_blank" class="index-text-link">Get Started</a> for more details.</p>
         </div>
 
         <!-- Multiple R² Calculator Container -->
@@ -718,15 +719,15 @@
                 
                 <div class="form-container">
                     <div>
-                        <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 5px;">
-                            <div class="slider-container" style="margin-bottom: 0;">
+                        <div class="index-metric-stack index-metric-stack--mb5">
+                            <div class="slider-container index-slider-container--flush-b">
                                 <input type="range" id="target-r2-slider" min="0.1" max="0.99" step="0.01" value="0.8" class="slider">
                                 <div class="slider-value-container">
                                     <span class="slider-label">Target R²</span>
                                     <input type="number" id="target-r2" min="0.1" max="0.99" step="0.01" value="0.8" class="slider-value">
                                 </div>
                             </div>
-                            <div class="slider-value-container" style="margin-top: 0;">
+                            <div class="slider-value-container index-slider-value--flush-t">
                                 <span class="slider-label">Target PR-AUC</span>
                                 <input type="number" id="r2-target-pr-auc" class="metrics-input" step="any" readonly="">
                             </div>
@@ -771,7 +772,7 @@
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 10px;">
+                    <div class="index-button-row">
                         <button id="record-r2">Record curve</button>
                         <button id="reset-r2">Reset</button>
                     </div>
@@ -780,11 +781,11 @@
             
             <div class="section">
                 <div id="r2PlotContainer">
-                    <div id="r2PlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="r2Plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    <div id="r2PlotWrapper" class="index-chart-wrap">
+                        <canvas id="r2Plot" class="index-chart-canvas"></canvas>
                     </div>
-                    <div id="r2PrAucPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="r2PrAucPlot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                    <div id="r2PrAucPlotWrapper" class="index-chart-wrap">
+                        <canvas id="r2PrAucPlot" class="index-chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -792,11 +793,11 @@
     </div>
     
     <!-- Required Sample Size Calculators (Binary and Continuous) -->
-    <div style="margin-top: 50px;"></div>
-    <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">Required Sample Size for Multivariable Models</h2>
-    <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+    <div class="index-section-spacer"></div>
+    <h2 class="calculator-title">Required Sample Size for Multivariable Models</h2>
+    <div class="description index-calculator-desc">
         <p>
-            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to ensure a minimum number of events per variable (EPV). However, more principled criteria that are based on desired model performance - such as minimizing overfitting or prediction error - can provide more accurate estimates. <br/> See <a href="get-started.html#sample-size" target="_blank" style="color: #0366d6; text-decoration: none;">Get Started</a> for more details.
+            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to ensure a minimum number of events per variable (EPV). However, more principled criteria that are based on desired model performance - such as minimizing overfitting or prediction error - can provide more accurate estimates. <br/> See <a href="get-started.html#sample-size" target="_blank" class="index-text-link">Get Started</a> for more details.
         </p>
     </div>
 
@@ -863,7 +864,7 @@
                 <!-- Mean absolute prediction error (MAPE) criterion -->
                 <div class="equation-box flat">
                     <p class="equation-title">Mean Absolute Prediction Error (MAPE) criterion (p ≤ 30)</p>
-                    <p class="equation-title" style="margin-top:0;">(minimizes prediction error)</p>
+                    <p class="equation-title equation-title--tight">(minimizes prediction error)</p>
                     <div class="equation-content">\[N = \mathrm{exp}\left(\dfrac{-0.508 + 0.259\ln(\phi) + 0.504\ln(P) - \ln(\delta)}{0.544}\right)\]</div>
                 </div>
                 <div class="slider-container">
@@ -884,8 +885,8 @@
                 </div>
                 <div class="content-bubble plot-bubble">
                     <div class="chart-legend"></div>
-                    <div id="ssbPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="ssbPlot" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+                    <div id="ssbPlotWrapper" class="index-chart-wrap">
+                        <canvas id="ssbPlot" class="index-chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -893,7 +894,7 @@
     </div>
 
     <!-- Continuous Outcome: Required Sample Size -->
-    <div class="container ss-cont-container" id="ss-cont-container" style="display: none;">
+    <div class="container ss-cont-container u-hidden" id="ss-cont-container">
         <div class="section sliders">
             <div class="form-container">
                 <div class="slider-container">
@@ -957,8 +958,8 @@
                 </div>
                 <div class="content-bubble plot-bubble">
                     <div class="chart-legend"></div>
-                    <div id="sscPlotWrapper" style="position: relative; flex-grow: 1; min-height: 0;">
-                        <canvas id="sscPlot" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+                    <div id="sscPlotWrapper" class="index-chart-wrap">
+                        <canvas id="sscPlot" class="index-chart-canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -966,9 +967,9 @@
     </div>
 
     <!-- Calibration Exploration Module -->
-    <div style="margin-top: 50px;"></div>
-    <h2 style="text-align: center; font-size: 2rem;" class="calculator-title">Calibration: From Test Set to Deployment</h2>
-    <div class="description" style="text-align: center; padding: 0 10px; margin-bottom: 20px;">
+    <div class="index-section-spacer"></div>
+    <h2 class="calculator-title">Calibration: From Test Set to Deployment</h2>
+    <div class="description index-calculator-desc">
         <p>
             Models trained and validated on test sets often encounter different conditions when deployed in real-world settings. This module explores how differences in measurement reliability and outcome base rates between test and deployment environments affect model calibration. A well-calibrated model's predicted probabilities should match observed outcome frequencies in the deployment set.
         </p>
@@ -981,7 +982,7 @@
             <div class="form-container">
                 <!-- Test Set Parameters -->
                 <div class="dataset-section test-set">
-                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #333; border-left: 4px solid #888888; padding-left: 10px;">Test Set</h3>
+                    <h3 class="calib-dataset-title calib-dataset-title--test">Test Set</h3>
                     
                     <div class="slider-container">
                         <input type="range" id="calib-test-effectsize-slider" min="0.1" max="5" step="0.1" value="2.5" class="slider">
@@ -1028,7 +1029,7 @@
 
                 <!-- Deployment Set Parameters -->
                 <div class="dataset-section deployment-set">
-                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #333; border-left: 4px solid #008080; padding-left: 10px;">Deployment Set</h3>
+                    <h3 class="calib-dataset-title calib-dataset-title--deploy">Deployment Set</h3>
                     
                     <div class="slider-container">
                         <input type="range" id="calib-deploy-effectsize-slider" min="0.1" max="5" step="0.1" value="2.5" class="slider">
@@ -1074,8 +1075,8 @@
                 <hr class="input-separator">
 
                 <!-- Info Box -->
-                <div style="padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; font-size: 0.9rem; color: #856404;">
-                    <strong style="display: block; margin-bottom: 5px;">What to look for:</strong>
+                <div class="calib-callout">
+                    <strong>What to look for:</strong>
                     Perfect calibration appears as points along the diagonal line. Deviations indicate miscalibration: points above the line mean the model underestimates risk, points below mean it overestimates risk.
                 </div>
             </div>
@@ -1083,39 +1084,39 @@
 
         <!-- Plots Section (Right) -->
         <div class="section">
-                <div id="calibrationPlotContainer" style="display: flex; flex-direction: column; gap: 15px; height: 100%;">
+                <div id="calibrationPlotContainer" class="calib-plot-column">
                     <!-- Test Set Distributions (25% height) -->
-                    <div id="calibration-test-plot-wrapper" style="position: relative; flex: 1; min-height: 0;">
-                        <div id="calibration-test-plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                    <div id="calibration-test-plot-wrapper" class="calib-plot-slot">
+                        <div id="calibration-test-plot" class="calib-plot-inner"></div>
                     </div>
 
                     <!-- Deployment Set Distributions (25% height) -->
-                    <div id="calibration-deploy-plot-wrapper" style="position: relative; flex: 1; min-height: 0;">
-                        <div id="calibration-deploy-plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                    <div id="calibration-deploy-plot-wrapper" class="calib-plot-slot">
+                        <div id="calibration-deploy-plot" class="calib-plot-inner"></div>
                     </div>
 
                     <!-- Calibration Plot (50% height) -->
-                    <div id="calibration-plot-wrapper" style="position: relative; flex: 2; min-height: 0;">
-                        <div id="calibration-plot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                    <div id="calibration-plot-wrapper" class="calib-plot-slot calib-plot-slot--wide">
+                        <div id="calibration-plot" class="calib-plot-inner"></div>
                     </div>
                 
                 <!-- Calibration Metrics -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px 0; font-size: 1.1rem;">
-                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
-                        <span style="color: #666; font-weight: 500;" data-tooltip="Lower is better; measures overall prediction accuracy">Brier:</span>
-                        <span style="color: #333; font-weight: 700;" id="calib-brier-score">0.000</span>
+                <div class="calib-metrics-grid">
+                    <div class="calib-metric-cell">
+                        <span class="calib-metric-label" data-tooltip="Lower is better; measures overall prediction accuracy">Brier:</span>
+                        <span class="calib-metric-value" id="calib-brier-score">0.000</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
-                        <span style="color: #666; font-weight: 500;" data-tooltip="Expected Calibration Error; lower is better">ECE:</span>
-                        <span style="color: #333; font-weight: 700;" id="calib-ece">0.000</span>
+                    <div class="calib-metric-cell">
+                        <span class="calib-metric-label" data-tooltip="Expected Calibration Error; lower is better">ECE:</span>
+                        <span class="calib-metric-value" id="calib-ece">0.000</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
-                        <span style="color: #666; font-weight: 500;" data-tooltip="Slope of calibration curve; 1.0 is ideal">Slope:</span>
-                        <span style="color: #333; font-weight: 700;" id="calib-slope">1.000</span>
+                    <div class="calib-metric-cell">
+                        <span class="calib-metric-label" data-tooltip="Slope of calibration curve; 1.0 is ideal">Slope:</span>
+                        <span class="calib-metric-value" id="calib-slope">1.000</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
-                        <span style="color: #666; font-weight: 500;" data-tooltip="Intercept of calibration curve; 0.0 is ideal">Intercept:</span>
-                        <span style="color: #333; font-weight: 700;" id="calib-intercept">0.000</span>
+                    <div class="calib-metric-cell">
+                        <span class="calib-metric-label" data-tooltip="Intercept of calibration curve; 0.0 is ideal">Intercept:</span>
+                        <span class="calib-metric-value" id="calib-intercept">0.000</span>
                     </div>
                 </div>
             </div>
@@ -1128,6 +1129,7 @@
     <!-- Load our module scripts -->
     <script src="js/utils.js"></script>
     <script src="js/url-params.js"></script>
+    <script src="js/slider-bind.js"></script>
     <script src="js/binary.js"></script>
     <script src="js/continuous.js"></script>
     <!-- Latest release version from GitHub -->
@@ -1149,15 +1151,15 @@
     <script src="js/calibration.js"></script>
 
     <!-- Footer -->
-    <footer style="text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #eee;">
-        <p style="color: #666; font-size: 0.9em;">
+    <footer class="index-footer">
+        <p class="index-footer-line">
             E2P Simulator is open source software. 
-            <a href="https://github.com/povilaskarvelis/e2p-simulator" style="color: #0366d6; text-decoration: none;">View on GitHub</a> | 
-            <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" style="color: #0366d6; text-decoration: none;">MIT License</a> | 
+            <a href="https://github.com/povilaskarvelis/e2p-simulator" class="index-footer-link">View on GitHub</a> | 
+            <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" class="index-footer-link">MIT License</a> | 
             <span id="version-info">Version: <span id="version-number">Loading...</span></span>
         </p>
-        <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-            Developed by <a href="https://povilaskarvelis.github.io/" style="color: #0366d6; text-decoration: none;" target="_blank">Povilas Karvelis</a>
+        <p class="index-footer-line--spaced">
+            Developed by <a href="https://povilaskarvelis.github.io/" class="index-footer-link" target="_blank">Povilas Karvelis</a>
         </p>
     </footer>
 

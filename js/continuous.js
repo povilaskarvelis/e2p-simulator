@@ -1138,30 +1138,13 @@ function setupEventListeners() {
         updatePlots();
     });
 
-    // Reliability sliders and inputs
-    const reliabilityXSlider = document.getElementById("reliability-x-slider-cont");
-    const reliabilityXInput = document.getElementById("reliability-x-number-cont");
-    const reliabilityYSlider = document.getElementById("reliability-y-slider-cont");
-    const reliabilityYInput = document.getElementById("reliability-y-number-cont");
-
-    reliabilityXSlider.addEventListener("input", (e) => {
-        const value = parseFloat(e.target.value);
-        reliabilityXInput.value = value.toFixed(2);
-        updatePlots();
+    bindRangeNumberPair("reliability-x-slider-cont", "reliability-x-number-cont", {
+        decimals: 2,
+        onSync: () => updatePlots()
     });
-    reliabilityXInput.addEventListener("change", () => {
-        reliabilityXSlider.value = reliabilityXInput.value;
-        updatePlots();
-    });
-
-    reliabilityYSlider.addEventListener("input", (e) => {
-        const value = parseFloat(e.target.value);
-        reliabilityYInput.value = value.toFixed(2);
-        updatePlots();
-    });
-    reliabilityYInput.addEventListener("change", () => {
-        reliabilityYSlider.value = reliabilityYInput.value;
-        updatePlots();
+    bindRangeNumberPair("reliability-y-slider-cont", "reliability-y-number-cont", {
+        decimals: 2,
+        onSync: () => updatePlots()
     });
 
     // Precise Estimates Checkbox

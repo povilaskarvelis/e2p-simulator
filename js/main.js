@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const ssCont = document.getElementById('ss-cont-container');
             if (!ssBinary || !ssCont) return;
             if (mode === 'binary') {
-                ssBinary.style.display = 'flex';
-                ssCont.style.display = 'none';
+                ssBinary.classList.remove('u-hidden');
+                ssCont.classList.add('u-hidden');
             } else if (mode === 'continuous') {
-                ssBinary.style.display = 'none';
-                ssCont.style.display = 'flex';
+                ssBinary.classList.add('u-hidden');
+                ssCont.classList.remove('u-hidden');
             }
         } catch (e) {
             console.error('Error toggling sample size sections:', e);
@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show binary mode
                 binaryButtons.forEach(btn => btn.classList.add('active'));
                 continuousButtons.forEach(btn => btn.classList.remove('active'));
-                binaryContainer.style.display = 'block';
-                continuousContainer.style.display = 'none';
+                binaryContainer.classList.remove('u-hidden');
+                continuousContainer.classList.add('u-hidden');
                 toggleSampleSizeSections('binary');
                 
                 // Set binary mode parameters
@@ -100,8 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show continuous mode
                 continuousButtons.forEach(btn => btn.classList.add('active'));
                 binaryButtons.forEach(btn => btn.classList.remove('active'));
-                binaryContainer.style.display = 'none';
-                continuousContainer.style.display = 'block';
+                binaryContainer.classList.add('u-hidden');
+                continuousContainer.classList.remove('u-hidden');
                 toggleSampleSizeSections('continuous');
                 
                 // Pass initial threshold if provided
@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
             continuousButtons.forEach(btn => btn.classList.remove('active'));
             
             // Show binary container, hide continuous
-            binaryContainer.style.display = 'block';
-            continuousContainer.style.display = 'none';
+            binaryContainer.classList.remove('u-hidden');
+            continuousContainer.classList.add('u-hidden');
             toggleSampleSizeSections('binary');
         });
     });
@@ -193,8 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
             binaryButtons.forEach(btn => btn.classList.remove('active'));
             
             // Show continuous container, hide binary
-            binaryContainer.style.display = 'none';
-            continuousContainer.style.display = 'block';
+            binaryContainer.classList.add('u-hidden');
+            continuousContainer.classList.remove('u-hidden');
             toggleSampleSizeSections('continuous');
             
             // Initialize continuous version if not already done

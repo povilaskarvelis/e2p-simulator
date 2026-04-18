@@ -936,51 +936,13 @@ function setupEventListeners() {
             cohensU3: document.getElementById("true-cohens-u3-bin")
         };
 
-        // Reliability controls
-        const reliabilityControls = {
-            icc1Slider: document.getElementById("icc1-slider"),
-            icc1Input: document.getElementById("icc1-number"),
-            icc2Slider: document.getElementById("icc2-slider"),
-            icc2Input: document.getElementById("icc2-number"),
-            kappaSlider: document.getElementById("kappa-slider"),
-            kappaInput: document.getElementById("kappa-number")
+        const refreshFromReliability = () => {
+            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
+            updateMetricsFromD(trueD);
         };
-
-        // ICC1 listeners
-        reliabilityControls.icc1Slider.addEventListener("input", () => {
-            reliabilityControls.icc1Input.value = parseFloat(reliabilityControls.icc1Slider.value).toFixed(2);
-            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-            updateMetricsFromD(trueD);
-        });
-        reliabilityControls.icc1Input.addEventListener("change", () => {
-            reliabilityControls.icc1Slider.value = reliabilityControls.icc1Input.value;
-            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-            updateMetricsFromD(trueD);
-        });
-
-        // ICC2 listeners
-        reliabilityControls.icc2Slider.addEventListener("input", () => {
-            reliabilityControls.icc2Input.value = parseFloat(reliabilityControls.icc2Slider.value).toFixed(2);
-            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-            updateMetricsFromD(trueD);
-        });
-        reliabilityControls.icc2Input.addEventListener("change", () => {
-            reliabilityControls.icc2Slider.value = reliabilityControls.icc2Input.value;
-            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-            updateMetricsFromD(trueD);
-        });
-
-        // Kappa listeners
-        reliabilityControls.kappaSlider.addEventListener("input", () => {
-            reliabilityControls.kappaInput.value = parseFloat(reliabilityControls.kappaSlider.value).toFixed(2);
-            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-            updateMetricsFromD(trueD);
-        });
-        reliabilityControls.kappaInput.addEventListener("change", () => {
-            reliabilityControls.kappaSlider.value = reliabilityControls.kappaInput.value;
-            const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
-            updateMetricsFromD(trueD);
-        });
+        bindRangeNumberPair("icc1-slider", "icc1-number", { decimals: 2, onSync: refreshFromReliability });
+        bindRangeNumberPair("icc2-slider", "icc2-number", { decimals: 2, onSync: refreshFromReliability });
+        bindRangeNumberPair("kappa-slider", "kappa-number", { decimals: 2, onSync: refreshFromReliability });
 
         // Add event listeners to all true metric inputs
         trueMetricInputs.d.addEventListener("change", () => {

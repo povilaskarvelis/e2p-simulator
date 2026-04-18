@@ -1,0 +1,321 @@
+/* ==========================================================================
+   index.html — patterns moved out of inline styles
+   ========================================================================== */
+
+/* Toggled by main.js instead of inline display */
+.u-hidden {
+    display: none !important;
+}
+
+#binary-container {
+    display: block;
+}
+
+#continuous-container {
+    display: block;
+}
+
+#ss-binary-container,
+#ss-cont-container {
+    display: flex;
+}
+
+.index-header-brand {
+    display: inline-flex;
+    align-items: center;
+}
+
+.index-header-logo {
+    height: 32px;
+    width: 32px;
+    margin-right: 8px;
+}
+
+.index-text-link {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+.index-text-link:hover {
+    text-decoration: underline;
+}
+
+.index-toggle-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    gap: 20px;
+}
+
+.index-metric-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.index-metric-stack--mb30 {
+    margin-bottom: 30px;
+}
+
+.index-metric-stack--mb20 {
+    margin-bottom: 20px;
+}
+
+.index-metric-stack--mb15 {
+    margin-bottom: 15px;
+}
+
+.index-metric-stack--mb5 {
+    margin-bottom: 5px;
+}
+
+.index-metric-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.index-metrics-header {
+    margin-bottom: 8px;
+}
+
+.index-metrics-header--tight {
+    margin-bottom: 5px;
+}
+
+.index-reliability-block {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.index-slider-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.index-slider-label-row--mt5 {
+    margin-top: 5px;
+}
+
+.index-slider-label-row--mt10 {
+    margin-top: 10px;
+}
+
+.index-range-full {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.index-range-mt15 {
+    margin-top: 15px;
+}
+
+.index-base-rate-block {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.index-plot-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.index-plot-fill {
+    height: 100%;
+    width: 100%;
+}
+
+.index-dashboard-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.index-metrics-collapsible {
+    margin-top: 15px;
+}
+
+.index-metrics-collapsible--tight {
+    margin-top: 10px;
+}
+
+.index-metrics-summary {
+    cursor: pointer;
+    color: #666666;
+    font-size: 0.9em;
+    list-style: none;
+    text-align: center;
+}
+
+.index-dashboard-panel {
+    margin-top: 10px;
+}
+
+.index-equation-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.index-section-spacer {
+    margin-top: 50px;
+}
+
+.index-calculator-desc {
+    text-align: center;
+    padding: 0 10px;
+    margin-bottom: 20px;
+}
+
+.index-slider-container--flush-b {
+    margin-bottom: 0;
+}
+
+.index-slider-value--flush-t {
+    margin-top: 0;
+}
+
+.index-button-row {
+    display: flex;
+    gap: 10px;
+}
+
+.index-chart-wrap {
+    position: relative;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.index-chart-wrap--flex2 {
+    flex: 2;
+    min-height: 0;
+    position: relative;
+}
+
+.index-chart-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.index-hr-spaced {
+    margin: 20px 0 15px;
+}
+
+.index-precise-toggle {
+    margin-top: 25px;
+}
+
+.index-plot-hidden {
+    display: none;
+}
+
+.index-footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+}
+
+.index-footer-line {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.index-footer-line--spaced {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.index-footer-link {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+/* Dataset section titles (calibration) */
+.calib-dataset-title {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    color: #333;
+    padding-left: 10px;
+}
+
+.calib-dataset-title--test {
+    border-left: 4px solid #888888;
+}
+
+.calib-dataset-title--deploy {
+    border-left: 4px solid #008080;
+}
+
+.calib-callout {
+    padding: 15px;
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #856404;
+}
+
+.calib-callout strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.calib-plot-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+}
+
+.calib-plot-slot {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.calib-plot-slot--wide {
+    flex: 2;
+}
+
+.calib-plot-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.calib-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 1.1rem;
+}
+
+.calib-metric-cell {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.calib-metric-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.calib-metric-value {
+    color: #333;
+    font-weight: 700;
+}
+
+.equation-title--tight {
+    margin-top: 0;
+}
