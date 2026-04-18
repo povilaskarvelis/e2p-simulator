@@ -40,9 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
         if (isMobile) {
             document.body.classList.add('is-mobile');
-            console.log('Mobile device detected, adding is-mobile class.');
-        } else {
-             console.log('Desktop device detected.');
         }
     } catch (e) {
         console.error("Error during mobile detection:", e);

@@ -1299,8 +1299,6 @@ function init() {
     plotDeploymentDistributions();
     plotCalibration();
     updateMetricsDisplay();
-    
-    console.log("Calibration module initialized");
 }
 
 // Initialize when DOM is ready

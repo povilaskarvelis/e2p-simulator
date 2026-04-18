@@ -51,15 +51,6 @@ const DCAModule = {
                 thresholds
             } = data;
             
-            // Debug: log the current threshold and metrics
-            console.log('DCA Debug:', {
-                currentThreshold: data.currentThreshold,
-                currentMetrics: data.currentMetrics ? {
-                    sensitivity: data.currentMetrics.sensitivity,
-                    specificity: data.currentMetrics.specificity
-                } : 'undefined'
-            });
-            
             // Calculate net benefit across threshold probabilities using current model performance
             // Use higher precision when precise estimates are enabled
             const usePrecise = data.usePreciseEstimates || false;

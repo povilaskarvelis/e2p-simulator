@@ -1222,15 +1222,12 @@ function setupEventListeners() {
 
 // Main initialization function - Now much smaller and focused on orchestration
 function initializeContinuous(initialThreshold) {
-    console.log("Initializing continuous version");
-    
     // Clean up any existing state
     cleanupContinuous();
     
     // Set initial threshold if provided (after cleanup which resets it to 0)
     if (initialThreshold !== undefined) {
         thresholdValue = initialThreshold;
-        console.log(`Setting threshold to ${initialThreshold}`);
     }
     
     // Initialize DCA module if available
