@@ -159,8 +159,6 @@ function computePredictiveMetrics(threshold, data) {
     const dor = lrPlus / lrMinus;
     const youden = sensitivity + specificity - 1;
     const gMean = Math.sqrt(sensitivity * specificity);
-    const nnd = 1 / (sensitivity + specificity - 1);
-    const nnm = 1 / ((1 - specificity) + (1 - sensitivity));
 
     // Cohen's kappa (chance-corrected agreement) using observed marginals
     const pYesTrue = data.filter(d => d.trueClass === 1).length / data.length;
@@ -195,8 +193,6 @@ function computePredictiveMetrics(threshold, data) {
         dor,
         youden,
         gMean,
-        nnd,
-        nnm,
         postTestProbPlus,
         postTestProbMinus,
         kappa,

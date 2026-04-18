@@ -558,20 +558,21 @@
         <p style="color: #666; font-size: 0.9em;">
             E2P Simulator is open source software. 
             <a href="https://github.com/povilaskarvelis/e2p-simulator" style="color: #0366d6; text-decoration: none;">View on GitHub</a> | 
-            <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" style="color: #0366d6; text-decoration: none;">MIT License</a>
+            <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" style="color: #0366d6; text-decoration: none;">MIT License</a> | 
+            <span id="version-info">Version: <span id="version-number">Loading...</span></span>
         </p>
         <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
             Developed by <a href="https://povilaskarvelis.github.io/" style="color: #0366d6; text-decoration: none;" target="_blank">Povilas Karvelis</a>
         </p>
     </footer>
 
+    <script src="js/version.js"></script>
     <!-- Load minimal scripts for get-started page -->
     <script>
         // Minimal initialization for get-started page
         document.addEventListener('DOMContentLoaded', function() {
-            // Only fetch version info, no binary/continuous initialization needed
             fetchVersionInfo();
-            
+
             // Initialize TOC active section tracking
             initTocTracking();
             
@@ -673,37 +674,6 @@
             
             // Initial update
             updateActiveSection();
-        }
-        
-        // Copy the version fetch function from main.js
-        async function fetchVersionInfo() {
-            try {
-                const response = await fetch('https://api.github.com/repos/povilaskarvelis/e2p-simulator/releases/latest');
-                if (response.ok) {
-                    const data = await response.json();
-                    const versionNumber = data.tag_name || data.name;
-                    
-                    // Update the version display
-                    const versionElement = document.getElementById('version-number');
-                    if (versionElement && versionNumber) {
-                        versionElement.textContent = versionNumber;
-                        versionElement.style.color = '#0366d6'; // GitHub blue color
-                    }
-                } else {
-                    // If API call fails, hide the version info or show fallback
-                    const versionInfo = document.getElementById('version-info');
-                    if (versionInfo) {
-                        versionInfo.style.display = 'none';
-                    }
-                }
-            } catch (error) {
-                console.log('Could not fetch version info:', error);
-                // Hide version info if fetch fails
-                const versionInfo = document.getElementById('version-info');
-                if (versionInfo) {
-                    versionInfo.style.display = 'none';
-                }
-            }
         }
     </script>
 </body>

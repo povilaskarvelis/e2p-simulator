@@ -234,37 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setFormValues(urlParams);
     }
     
-    // Fetch and display version information
+    // Fetch and display version information (defined in version.js)
     fetchVersionInfo();
-}); 
-
-// Function to fetch the latest release version from GitHub
-async function fetchVersionInfo() {
-    try {
-        const response = await fetch('https://api.github.com/repos/povilaskarvelis/e2p-simulator/releases/latest');
-        if (response.ok) {
-            const data = await response.json();
-            const versionNumber = data.tag_name || data.name;
-            
-            // Update the version display
-            const versionElement = document.getElementById('version-number');
-            if (versionElement && versionNumber) {
-                versionElement.textContent = versionNumber;
-                versionElement.style.color = '#0366d6'; // GitHub blue color
-            }
-        } else {
-            // If API call fails, hide the version info or show fallback
-            const versionInfo = document.getElementById('version-info');
-            if (versionInfo) {
-                versionInfo.style.display = 'none';
-            }
-        }
-    } catch (error) {
-        console.log('Could not fetch version info:', error);
-        // Hide version info if fetch fails
-        const versionInfo = document.getElementById('version-info');
-        if (versionInfo) {
-            versionInfo.style.display = 'none';
-        }
-    }
-}
+});

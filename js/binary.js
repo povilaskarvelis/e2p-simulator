@@ -85,8 +85,6 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
     const dor = lrPlus / lrMinus;
     const youden = sensitivity + specificity - 1;
     const gMean = Math.sqrt(sensitivity * specificity);
-    const nnd = 1 / (sensitivity + specificity - 1);
-    const nnm = 1 / ((1 - specificity) + (1 - sensitivity));
 
     // Cohen's kappa (chance-corrected agreement)
     const pYesTrue = baseRate;
@@ -121,8 +119,6 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
         dor,
         youden,
         gMean,
-        nnd,
-        nnm,
         postTestProbPlus,
             postTestProbMinus,
             kappa
