@@ -20,15 +20,53 @@
     display: flex;
 }
 
-.index-header-brand {
-    display: inline-flex;
-    align-items: center;
+/* Compact page intro — brand lives in the header */
+.page-intro {
+    text-align: center;
+    margin: 0 auto 36px;
+    padding: 0 16px;
 }
 
-.index-header-logo {
-    height: 32px;
-    width: 32px;
-    margin-right: 8px;
+.page-intro-title {
+    margin: 0 0 20px;
+    color: #333;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.page-intro-lead {
+    max-width: 850px;
+    margin: 0 auto 16px;
+    color: #555;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.page-intro-meta {
+    max-width: 850px;
+    margin: 0 auto 12px;
+    color: #555;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.page-intro-meta--credit {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.workbench-start {
+    margin-bottom: 4px;
+}
+
+.workbench {
+    padding-bottom: 0;
+}
+
+.workbench .equations-container {
+    margin-bottom: 8px;
 }
 
 .index-text-link {
@@ -45,6 +83,109 @@
     justify-content: center;
     margin-bottom: 15px;
     gap: 20px;
+}
+
+/* Shared sliding segmented controls */
+.global-mode-row {
+    display: flex;
+    justify-content: center;
+    margin: 6px 0 22px;
+}
+
+.global-mode,
+.plot-effects-toggle {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    padding: 4px;
+    gap: 0;
+    border: 1px solid #d8d8d8;
+    background: #f0f0f0;
+}
+
+.global-mode {
+    border-radius: 26px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.plot-effects-toggle {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    z-index: 4;
+    border-radius: 20px;
+    background: rgba(240, 240, 240, 0.96);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Sliding thumb */
+.global-mode::before,
+.plot-effects-toggle::before {
+    content: "";
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    border-radius: 999px;
+    background: #333333;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.global-mode:has(.continuous-mode.active)::before,
+.plot-effects-toggle:has(.toggle-button:last-child.active)::before {
+    transform: translateX(100%);
+}
+
+.global-mode-btn,
+.plot-effects-toggle .toggle-button {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none;
+    margin: 0;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    color: #8a8a8a;
+    transition: color 0.2s ease;
+}
+
+.global-mode-btn {
+    font-size: 1.15rem;
+    padding: 10px 30px;
+    min-width: 145px;
+    border-radius: 22px;
+}
+
+.plot-effects-toggle .toggle-button {
+    font-size: 0.85rem;
+    padding: 5px 12px;
+    border-radius: 16px;
+    min-width: 72px;
+}
+
+.global-mode-btn:hover:not(.active),
+.plot-effects-toggle .toggle-button:hover:not(.active) {
+    color: #555555;
+}
+
+.global-mode-btn.active,
+.plot-effects-toggle .toggle-button.active {
+    color: #ffffff;
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Effects = local to the density / main plot card */
+.main-plot-section {
+    position: relative;
 }
 
 .index-metric-stack {
@@ -235,7 +376,8 @@ input[type="range"].threshold-pt-slider::-moz-range-thumb {
 .index-metrics-summary {
     display: block;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 18px;
+    margin-bottom: 18px;
     padding: 0;
     border: none;
     background: transparent;
@@ -246,6 +388,12 @@ input[type="range"].threshold-pt-slider::-moz-range-thumb {
     text-align: center;
 }
 
+/* Keep equal air above/below the toggle (equations also carry margin-top). */
+.metrics-toggle + .equations-container,
+.index-metrics-summary + .equations-container {
+    margin-top: 0;
+}
+
 .metrics-toggle:hover,
 .index-metrics-summary:hover {
     color: #333333;
@@ -253,6 +401,157 @@ input[type="range"].threshold-pt-slider::-moz-range-thumb {
 
 .simulator-export-region {
     width: 100%;
+}
+
+/* Interactive tutorial */
+/* Allow vertical scroll so steps can be centered in view; lock sideways drift. */
+html.tour-active {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+html.tour-active [data-tooltip]:before,
+html.tour-active [data-tooltip]:after {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+.tour-root {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    pointer-events: none;
+}
+
+.tour-backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: auto;
+    background: transparent;
+}
+
+/* Hole cutout lives in the overlay stacking context (not on the page target),
+   so the popover can sit cleanly above the dimming. */
+.tour-spotlight {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 12px;
+    border: 3px solid #222222;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+    z-index: 1;
+    box-sizing: border-box;
+}
+
+.tour-popover {
+    position: fixed;
+    z-index: 2;
+    pointer-events: auto;
+    width: min(420px, calc(100vw - 24px));
+    background: #ffffff;
+    color: #333333;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    padding: 16px 16px 14px;
+    border: 1px solid #e5e5e5;
+}
+
+.tour-popover-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.tour-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #222222;
+    line-height: 1.3;
+}
+
+.tour-progress {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: #888888;
+}
+
+.tour-body {
+    margin: 0 0 14px;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #444444;
+}
+
+.tour-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.tour-actions-right {
+    display: flex;
+    gap: 8px;
+}
+
+.tour-btn {
+    appearance: none;
+    border: 1px solid #cccccc;
+    background: #ffffff;
+    color: #333333;
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.tour-btn:hover:not(:disabled) {
+    background: #f3f3f3;
+}
+
+.tour-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.tour-btn-next {
+    background: #222222;
+    border-color: #222222;
+    color: #ffffff;
+}
+
+.tour-btn-next:hover:not(:disabled) {
+    background: #000000;
+}
+
+.tour-btn-skip {
+    border-color: transparent;
+    color: #666666;
+}
+
+.tour-btn-skip:hover:not(:disabled) {
+    background: transparent;
+    color: #222222;
+    text-decoration: underline;
+}
+
+.tour-nav-btn {
+    border: none;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tour-inline-btn {
+    display: inline;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    cursor: pointer;
 }
 
 /* Suppress hover tooltips / Plotly chrome while exporting */
@@ -323,12 +622,55 @@ html.is-exporting .modebar-container {
     color: inherit;
 }
 
-.index-section-spacer {
-    margin-top: 50px;
+/* Section chapters: alternating bands + clearer title hierarchy.
+   Bands stay inside the page column (no 100vw) so tooltips aren't clipped. */
+.page-chapter {
+    margin: 28px -20px 0;
+    padding: 40px 20px;
+    background-color: #eef1f4;
+    box-sizing: border-box;
+    scroll-margin-top: 20px;
+}
+
+/* Clear break before the first shaded module; title stays near the band edge. */
+.workbench + .page-chapter {
+    margin-top: 48px;
+    padding-top: 32px;
+}
+
+.page-chapter--alt {
+    background-color: #f6f7f9;
+}
+
+.page-chapter .calculator-title {
+    margin: 0 0 14px !important;
+    padding: 0 !important;
+    border-top: none !important;
+    text-align: left !important;
+    font-size: 1.85rem !important;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #222;
+}
+
+.page-chapter .index-calculator-desc {
+    text-align: left;
+    max-width: 780px;
+    margin: 0 0 32px !important;
+    padding: 0;
+    color: #555;
+}
+
+.page-chapter .mahalanobis-container,
+.page-chapter .r-squared-container,
+.page-chapter .ss-binary-container,
+.page-chapter .ss-cont-container,
+.page-chapter .calibration-container {
+    margin-bottom: 0;
 }
 
 .index-calculator-desc {
-    text-align: center;
     padding: 0 10px;
     margin-bottom: 20px;
 }
