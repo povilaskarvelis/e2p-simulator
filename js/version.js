@@ -1,29 +1,38 @@
 /**
- * Fetches the latest GitHub release tag and updates #version-number.
- * Hides #version-info if the request fails or the element is missing.
+ * Site version shown in the header/footer.
+ * Kept in sync with the latest git release tag; GitHub API may override it.
+ */
+const SITE_VERSION = 'v1.2.0';
+
+function setVersionDisplays(versionNumber) {
+    if (!versionNumber) return;
+
+    document.querySelectorAll('[data-version]').forEach((el) => {
+        el.textContent = versionNumber;
+        el.hidden = false;
+        if (!el.classList.contains('site-version')) {
+            el.style.color = '#0366d6';
+        }
+    });
+}
+
+/**
+ * Fills every [data-version] element. Uses a local fallback immediately,
+ * then upgrades from the latest GitHub release when available.
  */
 async function fetchVersionInfo() {
+    setVersionDisplays(SITE_VERSION);
+
     try {
         const response = await fetch('https://api.github.com/repos/povilaskarvelis/e2p-simulator/releases/latest');
-        if (response.ok) {
-            const data = await response.json();
-            const versionNumber = data.tag_name || data.name;
+        if (!response.ok) return;
 
-            const versionElement = document.getElementById('version-number');
-            if (versionElement && versionNumber) {
-                versionElement.textContent = versionNumber;
-                versionElement.style.color = '#0366d6';
-            }
-        } else {
-            const versionInfo = document.getElementById('version-info');
-            if (versionInfo) {
-                versionInfo.style.display = 'none';
-            }
+        const data = await response.json();
+        const versionNumber = data.tag_name || data.name;
+        if (versionNumber) {
+            setVersionDisplays(versionNumber);
         }
     } catch (error) {
-        const versionInfo = document.getElementById('version-info');
-        if (versionInfo) {
-            versionInfo.style.display = 'none';
-        }
+        // Keep the local fallback already shown.
     }
 }

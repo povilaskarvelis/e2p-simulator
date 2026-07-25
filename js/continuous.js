@@ -1053,14 +1053,6 @@ function plotROC(options = {}) {
     if (!rocInitialized) {
         Plotly.newPlot(SELECTORS.rocPlot, [rocTrace, thresholdMarker], rocLayout, config);
         Plotly.newPlot(SELECTORS.prPlot, [prTrace, prThresholdMarker], prLayout, config);
-
-        document.getElementById(SELECTORS.rocPlot).addEventListener('click', () => {
-            window.open('get-started.html#threshold-metrics', '_blank');
-        });
-        document.getElementById(SELECTORS.prPlot).addEventListener('click', () => {
-            window.open('get-started.html#threshold-metrics', '_blank');
-        });
-
         rocInitialized = true;
     } else {
         Plotly.react(SELECTORS.rocPlot, [rocTrace, thresholdMarker], rocLayout, config);

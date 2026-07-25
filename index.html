@@ -348,6 +348,15 @@
         </div>
 
         <!-- Mahalanobis D Calculator Container -->
+        <div class="export-bar">
+            <button type="button" class="export-button" data-export-target="mahalanobis-export-region" data-export-name="multivariable" aria-label="Export image" title="Export a faithful screenshot (share this tab when asked)">
+                <span>Export</span>
+                <svg class="export-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 3v10m0 0l3.5-3.5M12 13L8.5 9.5M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="simulator-export-region export-capture-frame" id="mahalanobis-export-region">
         <div class="container mahalanobis-container">
             <div class="section sliders">
                 <!-- Mahalanobis D equation box -->
@@ -428,6 +437,7 @@
                 </div>
             </div>
         </div>
+        </div><!-- /#mahalanobis-export-region -->
         </div>
         </section>
     </div> 
@@ -698,6 +708,15 @@
         </div>
 
         <!-- Multiple R² Calculator Container -->
+        <div class="export-bar">
+            <button type="button" class="export-button" data-export-target="r2-export-region" data-export-name="multivariable" aria-label="Export image" title="Export a faithful screenshot (share this tab when asked)">
+                <span>Export</span>
+                <svg class="export-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 3v10m0 0l3.5-3.5M12 13L8.5 9.5M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="simulator-export-region export-capture-frame" id="r2-export-region">
         <div class="container r-squared-container">
             <div class="section sliders">
                 <!-- Multiple R² equation box -->
@@ -781,6 +800,7 @@
                 </div>
             </div>
         </div>
+        </div><!-- /#r2-export-region -->
         </div>
         </section>
     </div>
@@ -1158,7 +1178,7 @@
             E2P Simulator is open source software. 
             <a href="https://github.com/povilaskarvelis/e2p-simulator" class="index-footer-link">View on GitHub</a> | 
             <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" class="index-footer-link">MIT License</a> | 
-            <span id="version-info">Version: <span id="version-number">Loading...</span></span>
+            <span id="version-info" data-version-info>Version: <span data-version>v1.2.0</span></span>
         </p>
         <p class="index-footer-line--spaced">
             Developed by <a href="https://povilaskarvelis.github.io/" class="index-footer-link" target="_blank">Povilas Karvelis</a>

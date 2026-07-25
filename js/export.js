@@ -81,7 +81,7 @@
 
         // Floating "inspector" / inspect overlays from browser tooling or extensions.
         document.querySelectorAll('body *').forEach((el) => {
-            if (el.closest('#binary-export-region, #continuous-export-region')) return;
+            if (el.closest('.simulator-export-region')) return;
             const label = (
                 (el.getAttribute && (el.getAttribute('aria-label') || el.getAttribute('title'))) ||
                 ''
@@ -243,7 +243,8 @@
 
         try {
             const canvas = await captureElement(target);
-            const mode = targetId.includes('continuous') ? 'continuous' : 'binary';
+            const mode = button.getAttribute('data-export-name')
+                || (targetId.includes('continuous') ? 'continuous' : 'binary');
             downloadCanvas(canvas, 'e2p-' + mode + '-' + timestampSlug() + '.png');
         } catch (err) {
             if (err && (err.name === 'NotAllowedError' || err.name === 'AbortError')) {
