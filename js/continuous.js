@@ -1123,8 +1123,15 @@ function updatePlots(options = {}) {
     const quality = options.quality || "full";
     const visibleOnly = !!options.visibleOnly;
 
-    // Get current values
-    const trueR = parseFloat(document.getElementById("true-pearson-r-cont").value);
+    // Get current values (r=1 is singular under perfect reliability)
+    const MAX_PEARSON_R = 0.99;
+    let trueR = parseFloat(document.getElementById("true-pearson-r-cont").value);
+    if (!isNaN(trueR) && trueR > MAX_PEARSON_R) {
+        trueR = MAX_PEARSON_R;
+        document.getElementById("true-pearson-r-cont").value = trueR.toFixed(2);
+        const effectSlider = document.getElementById("effect-slider-cont");
+        if (effectSlider) effectSlider.value = trueR;
+    }
     const reliabilityX = parseFloat(document.getElementById("reliability-x-number-cont").value);
     const reliabilityY = parseFloat(document.getElementById("reliability-y-number-cont").value);
 
@@ -1295,15 +1302,21 @@ function setupEventListeners() {
     const effectInput = document.getElementById("true-pearson-r-cont");
     const rSquaredInput = document.getElementById("true-R-squared-cont"); 
     
+    const MAX_PEARSON_R = 0.99;
+    const clampPearsonR = (r) => Math.min(Math.max(r, 0), MAX_PEARSON_R);
+
     effectSlider.addEventListener("input", (e) => {
-        const sliderValue = parseFloat(e.target.value);
+        const sliderValue = clampPearsonR(parseFloat(e.target.value));
         effectInput.value = sliderValue.toFixed(2);
         scheduleInteractiveUpdate();
     });
     effectSlider.addEventListener("change", scheduleSettledUpdate);
     
     effectInput.addEventListener("change", () => {
-        effectSlider.value = effectInput.value;
+        const r = clampPearsonR(parseFloat(effectInput.value));
+        if (isNaN(r)) return;
+        effectInput.value = r.toFixed(2);
+        effectSlider.value = r;
         requestImmediateFullUpdate();
     });
     
@@ -1311,7 +1324,7 @@ function setupEventListeners() {
     rSquaredInput.addEventListener("change", () => {
         const rSquared = parseFloat(rSquaredInput.value);
         if (!isNaN(rSquared) && rSquared >= 0 && rSquared <= 1) {
-            const r = Math.sqrt(rSquared);
+            const r = clampPearsonR(Math.sqrt(rSquared));
             effectInput.value = r.toFixed(2);
             effectSlider.value = r; // Update slider value too
             requestImmediateFullUpdate();

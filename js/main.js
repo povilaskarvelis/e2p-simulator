@@ -162,11 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (params.effectSizeR) {
-                    // Convert R² to r
-                    document.getElementById('effect-slider-cont').value = parseFloat(params.effectSizeR);
-                    
-                    // Set true Pearson's r directly to match the R² value
-                    document.getElementById('true-pearson-r-cont').value = parseFloat(params.effectSizeR).toFixed(2);
+                    const r = Math.min(Math.max(parseFloat(params.effectSizeR), 0), 0.99);
+                    document.getElementById('effect-slider-cont').value = r;
+                    document.getElementById('true-pearson-r-cont').value = r.toFixed(2);
                 }
 
                 // Sync update after params (avoid debounced input racing thresholdProb)

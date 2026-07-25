@@ -466,7 +466,7 @@
             <div class="slider-section">
                 <div class="slider-container">
                     <!-- True and Observed Effects -->
-                    <input type="range" id="effect-slider-cont" min="0" max="1" step="0.01" value="0.50" class="index-range-full">
+                    <input type="range" id="effect-slider-cont" min="0" max="0.99" step="0.01" value="0.50" class="index-range-full">
 
                     <!-- Continuous Metrics -->
                     <div class="index-metric-stack index-metric-stack--mb20">
@@ -479,8 +479,8 @@
                         <!-- Pearson's r -->
                         <div class="index-metric-row">
                             <span class="slider-label" data-tooltip="Linear correlation between predictor and outcome">Pearson's r</span>
-                            <input type="number" id="true-pearson-r-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.50">
-                            <input type="number" id="observed-pearson-r-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.50" readonly>
+                            <input type="number" id="true-pearson-r-cont" class="metrics-input" min="0" max="0.99" step="0.01" value="0.50">
+                            <input type="number" id="observed-pearson-r-cont" class="metrics-input" min="0" max="0.99" step="0.01" value="0.50" readonly>
                         </div>
 
                         <!-- R² -->
