@@ -137,7 +137,8 @@
     min-height: auto;
     max-width: none;
     width: 100%;
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* Dashboard paragraph styling */

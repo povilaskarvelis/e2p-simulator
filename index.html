@@ -116,6 +116,15 @@
             </div>
         </div>
         
+        <div class="export-bar">
+            <button type="button" class="export-button" data-export-target="binary-export-region" aria-label="Export image" title="Export a faithful screenshot (share this tab when asked)">
+                <span>Export</span>
+                <svg class="export-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 3v10m0 0l3.5-3.5M12 13L8.5 9.5M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="simulator-export-region export-capture-frame" id="binary-export-region">
         <!-- Main layout container -->
         <div class="main-container">
             <!-- Column 1: Sliders -->
@@ -251,24 +260,18 @@
         </div>
 
         <!-- Results dashboard -->
-        <div id="dashboard" class="dashboard">
-            <div class="dashboard-metrics">
-                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
-                <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
-                <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
-                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
-                <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
-                <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
-                <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
-                <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
-            </div>
-        </div>
-        
-        <!-- Predictive Metrics dashboard (Binary) -->
-        <details class="metrics-collapsible index-metrics-collapsible">
-            <summary class="metrics-summary index-metrics-summary">Show more metrics</summary>
-            <div class="dashboard index-dashboard-panel">
+            <div id="dashboard" class="dashboard">
                 <div class="dashboard-metrics">
+                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
+                    <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
+                    <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
+                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
+                    <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
+                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
+                    <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
+                    <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
+                </div>
+                <div class="dashboard-metrics dashboard-metrics-extra" hidden>
                     <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
                     <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
                     <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
@@ -279,7 +282,8 @@
                     <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value">0.00</span></p>
                 </div>
             </div>
-        </details>
+        </div>
+        <button type="button" class="metrics-toggle index-metrics-summary" data-dashboard="dashboard">Show more metrics</button>
         
         <!-- Equations Section -->
         <div class="equations-container">
@@ -447,6 +451,15 @@
             </div>
         </div>
         
+        <div class="export-bar">
+            <button type="button" class="export-button" data-export-target="continuous-export-region" aria-label="Export image" title="Export a faithful screenshot (share this tab when asked)">
+                <span>Export</span>
+                <svg class="export-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 3v10m0 0l3.5-3.5M12 13L8.5 9.5M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="simulator-export-region export-capture-frame" id="continuous-export-region">
         <!-- Main layout container -->
         <div class="main-container">
             <!-- Column 1: Sliders -->
@@ -609,25 +622,19 @@
         </div>
 
         <!-- Results dashboard -->
-        <div id="dashboard-cont" class="dashboard">
-            <div class="dashboard-metrics">
-                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
-                <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
-                <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
-                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
-
-                <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
-                <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
-                <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
-                <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
-            </div>
-        </div>
-
-        <!-- Predictive Metrics dashboard (Continuous) -->
-        <details class="metrics-collapsible index-metrics-collapsible--tight">
-            <summary class="metrics-summary index-metrics-summary">Show more metrics</summary>
-            <div class="dashboard index-dashboard-panel">
+            <div id="dashboard-cont" class="dashboard">
                 <div class="dashboard-metrics">
+                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
+                    <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
+                    <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
+                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+
+                    <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
+                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
+                    <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
+                    <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
+                </div>
+                <div class="dashboard-metrics dashboard-metrics-extra" hidden>
                     <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
                     <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
                     <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
@@ -638,7 +645,8 @@
                     <p data-tooltip="Cohen's kappa: chance-corrected agreement">Cohen’s κ: <span id="kappa-value-cont">0.00</span></p>
                 </div>
             </div>
-        </details>
+        </div>
+        <button type="button" class="metrics-toggle index-metrics-summary" data-dashboard="dashboard-cont">Show more metrics</button>
 
         <!-- Equations Section for Continuous -->
         <div class="equations-container">
@@ -1130,6 +1138,7 @@
     <script src="js/version.js"></script>
     <!-- Load main.js last since it depends on the other scripts -->
     <script src="js/main.js"></script>
+    <script src="js/export.js"></script>
     <!-- Add this with your other script tags -->
     <script src="js/mahalanobis.js"></script>
     <!-- Add this before the closing body tag -->

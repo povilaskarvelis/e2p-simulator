@@ -213,24 +213,109 @@ input[type="range"].threshold-pt-slider::-moz-range-thumb {
     z-index: 10001;
 }
 
-.index-metrics-collapsible {
-    margin-top: 15px;
+/* Extra metrics stay inside the card; the toggle sits outside below it.
+   Use !important so container `.dashboard-metrics { display: flex }` rules
+   cannot override the HTML hidden attribute. */
+.dashboard-metrics-extra[hidden] {
+    display: none !important;
 }
 
-.index-metrics-collapsible--tight {
-    margin-top: 10px;
+/* Space above the divider vs below it: keep both rows evenly separated.
+   Use ID-qualified selectors so continuous's metrics rules cannot zero out
+   the padding under the line. */
+#binary-container .dashboard.is-expanded .dashboard-metrics-extra:not([hidden]),
+#continuous-container .dashboard.is-expanded .dashboard-metrics-extra:not([hidden]) {
+    display: flex;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e5e5;
 }
 
+.metrics-toggle,
 .index-metrics-summary {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 0;
+    border: none;
+    background: transparent;
     cursor: pointer;
     color: #666666;
     font-size: 0.9em;
-    list-style: none;
+    font-family: inherit;
     text-align: center;
 }
 
-.index-dashboard-panel {
-    margin-top: 10px;
+.metrics-toggle:hover,
+.index-metrics-summary:hover {
+    color: #333333;
+}
+
+.simulator-export-region {
+    width: 100%;
+}
+
+/* Suppress hover tooltips / Plotly chrome while exporting */
+html.is-exporting [data-tooltip]:before,
+html.is-exporting [data-tooltip]:after {
+    display: none !important;
+    content: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+html.is-exporting .hoverlayer,
+html.is-exporting .hovertext,
+html.is-exporting .plotly-notifier,
+html.is-exporting .modebar,
+html.is-exporting .modebar-container {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Zero-height slot so Export does not push panels down */
+.export-bar {
+    position: relative;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    z-index: 5;
+}
+
+.export-button {
+    position: absolute;
+    right: 8px;
+    bottom: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #666666;
+    font-size: 0.9em;
+    font-family: inherit;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.export-button:hover:not(:disabled) {
+    color: #333333;
+    text-decoration: underline;
+}
+
+.export-button:disabled {
+    opacity: 0.55;
+    cursor: wait;
+    text-decoration: none;
+}
+
+.export-button-icon {
+    width: 14px;
+    height: 14px;
+    display: block;
+    flex-shrink: 0;
 }
 
 .index-equation-link {
