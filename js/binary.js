@@ -114,55 +114,6 @@ function computeMetricsForBinaryDistributions(d, baseRate, sigma1, sigma2, thres
     };
 }
 
-// Helper function to find optimal threshold for Youden's J or F1
-function findOptimalThresholdBinary(metricType = 'youden') {
-    // Iterative hill-climbing search with shrinking step for very high precision
-    try {
-        const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
-        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
-        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
-        const kappa = parseFloat(document.getElementById('kappa-slider').value);
-        
-        // Compute the observed distributions
-        const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
-        const ddif = (currentView === 'true') ? trueD : obsD;
-
-        const baseRate = getBaseRateFraction();
-
-        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
-        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
-
-        // Helper to evaluate metric value at a given threshold
-        const metricAt = t => {
-            const m = computeMetricsForBinaryDistributions(ddif, baseRate, sigma1, sigma2, t);
-            return metricType === 'f1' ? m.f1Score : m.youden;
-        };
-
-        // Use ternary search for unimodal optimization (more robust than hill-climb)
-        let left = -8;
-        let right = 8;
-        const EPSILON = 1e-6;
-
-        while (right - left > EPSILON) {
-            const third = (right - left) / 3;
-            const m1 = left + third;
-            const m2 = right - third;
-            
-            if (metricAt(m1) < metricAt(m2)) {
-                left = m1;
-            } else {
-                right = m2;
-            }
-        }
-
-        const bestT = (left + right) / 2;
-        return parseFloat(bestT.toFixed(5));
-    } catch (err) {
-        console.error('Error finding optimal threshold:', err);
-        return 0;
-    }
-}
-
 // Drawing functions
 function drawDistributions(d) {
     try {
@@ -380,8 +331,9 @@ function drawThreshold(d) {
                 updatePtDisplay();
             }));
 
-        // Ensure the threshold group is always on top
+        // Threshold above distributions, but under legend text
         thresholdMerge.raise();
+        plotGroup.selectAll(".legend-group").raise();
     } catch (error) {
         console.error("Error drawing threshold:", error);
     }
@@ -602,6 +554,7 @@ function plotROC(d) {
             TPR: TPR,
             // Pass current threshold and metrics for marker positioning
             currentThreshold: thresholdValue,
+            currentThresholdProb: computePtFromThreshold(thresholdValue),
             currentMetrics: metrics,
             // Pass threshold range for proper scaling
             thresholdRange: { min: -5.5, max: 6 }
@@ -748,13 +701,34 @@ function computeThresholdFromPt(targetPt) {
     }
 }
 
-// Update the p_t input display based on current threshold
+const SCORE_SLIDER_MIN = -5.5;
+const SCORE_SLIDER_MAX = 6;
+
+// Sync left-panel controls: slider ↔ score threshold; number ↔ implied p_t.
+// Param scrubbing keeps the score (and slider) fixed and only refreshes p_t.
 function updatePtDisplay() {
+    const pt = computePtFromThreshold(thresholdValue);
+    const clampedPt = Math.min(Math.max(pt, 0.01), 0.99);
     const ptInput = document.getElementById('pt-input');
-    if (ptInput) {
-        const pt = computePtFromThreshold(thresholdValue);
-        ptInput.value = pt.toFixed(2);
+    const scoreSlider = document.getElementById('threshold-slider');
+    if (ptInput) ptInput.value = clampedPt.toFixed(2);
+    if (scoreSlider) {
+        const score = Math.min(Math.max(thresholdValue, SCORE_SLIDER_MIN), SCORE_SLIDER_MAX);
+        scoreSlider.value = score.toFixed(2);
     }
+}
+
+function setThresholdFromScore(score) {
+    thresholdValue = Math.min(Math.max(score, SCORE_SLIDER_MIN), SCORE_SLIDER_MAX);
+    updatePlots();
+}
+
+function setThresholdFromPtControls(pt) {
+    pt = Math.min(Math.max(pt, 0.01), 0.99);
+    const ptInput = document.getElementById('pt-input');
+    if (ptInput) ptInput.value = pt.toFixed(2);
+    thresholdValue = computeThresholdFromPt(pt);
+    updatePlots();
 }
 
 // Effect size and metric conversion functions
@@ -802,7 +776,7 @@ function updateMetricsFromD(d) {
         document.getElementById("observed-eta-squared-bin").value = obsEtaSquared.toFixed(2);
         document.getElementById("observed-cohens-u3-bin").value = obsCohensU3.toFixed(2);
         
-        // Update plots
+        // Update plots (score threshold stays fixed; implied p_t refreshes)
         updatePlots();
     } catch (error) {
         console.error("Error updating metrics from d:", error);
@@ -860,7 +834,8 @@ function updatePlots() {
         const trueD = parseFloat(document.getElementById("true-difference-number-bin").value);
         const kappa = parseFloat(document.getElementById("kappa-slider").value);
         
-        // Calculate observed mean difference using only kappa
+        // Generative reliability model (equiv. to UI d_obs formula):
+        // kappa attenuates mean separation; ICC inflates sigma in plot helpers.
         const dObs = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));
         
         // Use appropriate mean difference value based on current view
@@ -871,7 +846,7 @@ function updatePlots() {
         drawThreshold(ddiff);
         plotROC(ddiff);
         
-        // Update p_t display to reflect current threshold
+        // Score threshold is fixed across param scrubbing; refresh implied p_t
         updatePtDisplay();
     } catch (error) {
         console.error("Error updating plots:", error);
@@ -970,47 +945,21 @@ function setupEventListeners() {
             updateMetricsFromCohensU3(trueMetricInputs.cohensU3.value);
         });
 
-        // Optimal threshold buttons
-        const maxJBtn = document.getElementById('max-j-button');
-        const maxF1Btn = document.getElementById('max-f1-button');
-
-        if (maxJBtn) {
-            maxJBtn.addEventListener('click', () => {
-                thresholdValue = findOptimalThresholdBinary('youden');
-                updatePlots();
-                updatePtDisplay();
-            });
-        }
-
-        if (maxF1Btn) {
-            maxF1Btn.addEventListener('click', () => {
-                thresholdValue = findOptimalThresholdBinary('f1');
-                updatePlots();
-                updatePtDisplay();
-            });
-        }
-
-        // p_t input for precise threshold setting
+        // Slider ↔ score (red line); number ↔ p_t
         const ptInput = document.getElementById('pt-input');
+        const scoreSlider = document.getElementById('threshold-slider');
+        if (scoreSlider) {
+            scoreSlider.addEventListener('input', () => {
+                const score = parseFloat(scoreSlider.value);
+                if (isNaN(score)) return;
+                setThresholdFromScore(score);
+            });
+        }
         if (ptInput) {
             ptInput.addEventListener('change', () => {
                 let pt = parseFloat(ptInput.value);
                 if (isNaN(pt)) return;
-                // Clamp to valid range
-                pt = Math.min(Math.max(pt, 0.001), 0.999);
-                ptInput.value = pt.toFixed(2);
-                // Convert p_t to threshold and update
-                thresholdValue = computeThresholdFromPt(pt);
-                updatePlots();
-            });
-            
-            // Also handle input event for more responsive feedback
-            ptInput.addEventListener('input', () => {
-                let pt = parseFloat(ptInput.value);
-                if (isNaN(pt) || pt <= 0 || pt >= 1) return;
-                // Convert p_t to threshold and update
-                thresholdValue = computeThresholdFromPt(pt);
-                updatePlots();
+                setThresholdFromPtControls(pt);
             });
         }
 

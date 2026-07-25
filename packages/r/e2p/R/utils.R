@@ -38,8 +38,9 @@ transform_for_target_reliability <- function(x, r_current, r_target,
 
 #' Adjust between-group separation for target label reliability (kappa)
 #'
-#' Mirrors the webapp's attenuation relationship:
-#' d_observed = d_true * sqrt(sin(pi/2 * kappa))
+#' Mirrors the webapp's generative mean-attenuation relationship:
+#' Delta_mu_obs = d_true * sqrt(sin(pi/2 * kappa))
+#' (ICC separately inflates within-group sigma.)
 #'
 #' @param group1 Numeric vector for controls/negatives
 #' @param group2 Numeric vector for cases/positives

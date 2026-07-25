@@ -68,28 +68,71 @@ def _normal_cdf(x: float, mean: float = 0.0, std: float = 1.0) -> float:
     return stats.norm.cdf(x, loc=mean, scale=std)
 
 
-def attenuate_d(
+def attenuate_mean_difference(
     true_d: float,
     kappa: float = 1.0,
 ) -> float:
     """
-    Compute observed Cohen's d from true d given diagnostic reliability (kappa).
-    
-    The attenuation formula is: d_obs = d_true * sqrt(sin(pi/2 * kappa))
-    
+    Attenuate between-group mean separation by diagnostic reliability (kappa).
+
+    Generative decomposition used by plots/metrics:
+    Delta_mu_obs = d_true * sqrt(sin(pi/2 * kappa)), with ICC applied via sigma
+    inflation (sigma = 1/sqrt(ICC)). Together these yield the full standardized
+    observed d from :func:`attenuate_d`.
+
+    Parameters
+    ----------
+    true_d : float
+        True (latent) Cohen's d (mean difference when true sigma = 1).
+    kappa : float
+        Diagnostic/label reliability (0-1). Default 1.0 (perfect).
+
+    Returns
+    -------
+    float
+        Observed mean difference (not yet re-standardized by ICC).
+    """
+    return true_d * np.sqrt(np.sin(np.pi / 2 * kappa))
+
+
+def attenuate_d(
+    true_d: float,
+    kappa: float = 1.0,
+    icc1: float = 1.0,
+    icc2: float = 1.0,
+) -> float:
+    """
+    Compute standardized observed Cohen's d from true d and reliability.
+
+    Matches the web UI / Frontiers formula:
+
+        d_obs = d_true * sqrt( (2*ICC1*ICC2)/(ICC1+ICC2) * sin(pi/2 * kappa) )
+
+    This is algebraically equivalent to attenuating the mean by kappa and
+    inflating within-group SDs by ICC (sigma = 1/sqrt(ICC)).
+
     Parameters
     ----------
     true_d : float
         True (latent) Cohen's d.
     kappa : float
         Diagnostic/label reliability (0-1). Default 1.0 (perfect).
-    
+    icc1 : float
+        Measurement reliability (ICC) for group 1. Default 1.0.
+    icc2 : float
+        Measurement reliability (ICC) for group 2. Default 1.0.
+
     Returns
     -------
     float
-        Observed (attenuated) Cohen's d.
+        Observed (attenuated) standardized Cohen's d.
     """
-    return true_d * np.sqrt(np.sin(np.pi / 2 * kappa))
+    if not 0 < icc1 <= 1:
+        raise ValueError("icc1 must be in (0, 1]")
+    if not 0 < icc2 <= 1:
+        raise ValueError("icc2 must be in (0, 1]")
+    icc_factor = (2.0 * icc1 * icc2) / (icc1 + icc2)
+    return true_d * np.sqrt(icc_factor * np.sin(np.pi / 2 * kappa))
 
 
 def compute_sigma_from_icc(icc: float) -> float:
@@ -522,7 +565,13 @@ def d_to_cohens_u3(d: float) -> float:
 
 
 def r_to_d(r: float) -> float:
-    """Convert Pearson's r to Cohen's d (approximate)."""
+    """
+    Convert Pearson's r to Cohen's d via d = 2r / sqrt(1 - r^2).
+
+    This is the equal-groups continuous conversion used for simple effect-size
+    translation. It is *not* the dichotomized bivariate-normal Cohen's d used
+    by ``e2p_parametric_continuous`` (see ``e2p.bivariate.effect_sizes``).
+    """
     if abs(r) >= 1:
         return np.sign(r) * np.inf
     return 2 * r / np.sqrt(1 - r**2)
@@ -688,31 +737,30 @@ def e2p_parametric_binary(
     if not 0 < kappa <= 1:
         raise ValueError("kappa must be in (0, 1]")
     
-    # Compute observed d (attenuated by kappa)
-    d_observed = attenuate_d(cohens_d, kappa)
-    
-    # Compute standard deviations based on ICC
+    # Standardized observed d (full ICC + kappa formula; matches web UI)
+    d_observed = attenuate_d(cohens_d, kappa, icc1, icc2)
+
+    # Generative path: kappa shrinks mean separation; ICC inflates sigma
+    d_mean = cohens_d if view == 'true' else attenuate_mean_difference(cohens_d, kappa)
     sigma1 = 1.0 if view == 'true' else compute_sigma_from_icc(icc1)
     sigma2 = 1.0 if view == 'true' else compute_sigma_from_icc(icc2)
-    
-    # Use appropriate d based on view
-    d_eff = cohens_d if view == 'true' else d_observed
-    
+
     # Find threshold from threshold_prob
-    threshold_value = compute_threshold_from_pt(d_eff, threshold_prob, base_rate, sigma1, sigma2)
-    
+    threshold_value = compute_threshold_from_pt(d_mean, threshold_prob, base_rate, sigma1, sigma2)
+
     # Compute all metrics
-    metrics = compute_binary_metrics(d_eff, base_rate, threshold_value, sigma1, sigma2)
-    
+    metrics = compute_binary_metrics(d_mean, base_rate, threshold_value, sigma1, sigma2)
+
     # Compute discrimination metrics
-    roc_auc = compute_roc_auc_parametric(d_eff, sigma1, sigma2)
-    pr_auc = compute_pr_auc_parametric(d_eff, base_rate, sigma1, sigma2)
-    
-    # Compute effect size conversions
-    odds_ratio = d_to_odds_ratio(d_eff)
-    log_odds_ratio = d_to_log_odds_ratio(d_eff)
-    cohens_u3 = d_to_cohens_u3(d_eff)
-    pb_r = d_to_point_biserial_r(d_eff, base_rate)
+    roc_auc = compute_roc_auc_parametric(d_mean, sigma1, sigma2)
+    pr_auc = compute_pr_auc_parametric(d_mean, base_rate, sigma1, sigma2)
+
+    # Effect-size conversions use standardized d (full observed d in observed view)
+    d_for_es = cohens_d if view == 'true' else d_observed
+    odds_ratio = d_to_odds_ratio(d_for_es)
+    log_odds_ratio = d_to_log_odds_ratio(d_for_es)
+    cohens_u3 = d_to_cohens_u3(d_for_es)
+    pb_r = d_to_point_biserial_r(d_for_es, base_rate)
     eta_squared = pb_r ** 2
     
     return ParametricResults(
@@ -760,11 +808,17 @@ def e2p_parametric_continuous(
     view: Literal['true', 'observed'] = 'observed',
 ) -> ParametricResults:
     """
-    Compute E2P metrics from Pearson's r assuming idealized normal distributions.
-    
-    This mirrors the JavaScript simulator's continuous mode. The continuous outcome Y
-    is dichotomized at the base_rate percentile, then binary metrics are computed.
-    
+    Compute E2P metrics from Pearson's r under the bivariate-normal model.
+
+    Mirrors the JavaScript simulator's continuous mode:
+
+        X, Y ~ BVN(0, 0, 1, 1, r)
+        positive class = top ``base_rate`` of Y
+        score = X
+
+    Metrics use truncated-BVN quadrature (not an r → d conversion into the
+    equal-variance binary normal model).
+
     Parameters
     ----------
     pearson_r : float
@@ -772,8 +826,8 @@ def e2p_parametric_continuous(
     base_rate : float
         Proportion of cases (top base_rate of Y are classified as positive).
     threshold_prob : float
-        Threshold probability p_t for computing threshold-dependent metrics (0-1).
-        Default 0.5.
+        Threshold probability p_t = P(positive | X = t) for threshold-dependent
+        metrics (0-1). Default 0.5.
     reliability_x : float
         Measurement reliability of predictor X. Default 1.0 (perfect).
     reliability_y : float
@@ -781,17 +835,21 @@ def e2p_parametric_continuous(
     view : {'true', 'observed'}
         Whether to compute metrics for 'true' (latent) or 'observed' distributions.
         Default 'observed'.
-    
+
     Returns
     -------
     ParametricResults
-        Dataclass containing all computed metrics.
-    
+        Dataclass containing all computed metrics. ``cohens_d_*`` are the
+        dichotomized pooled Cohen's d values under the BVN model (matching the
+        web simulator's primary Cohen's d field).
+
     Example
     -------
     >>> results = e2p_parametric_continuous(pearson_r=0.5, base_rate=0.1)
     >>> print(f"ROC-AUC: {results.roc_auc:.3f}")
     """
+    from . import bivariate
+
     # Validate inputs
     if not -1 < pearson_r < 1:
         raise ValueError("pearson_r must be between -1 and 1 (exclusive)")
@@ -803,46 +861,35 @@ def e2p_parametric_continuous(
         raise ValueError("reliability_x must be in (0, 1]")
     if not 0 < reliability_y <= 1:
         raise ValueError("reliability_y must be in (0, 1]")
-    
-    # Compute observed r (attenuated by reliabilities)
+
+    # Observed r attenuated by classical test-theory reliabilities
     r_observed = pearson_r * np.sqrt(reliability_x * reliability_y)
-    
-    # Use appropriate r based on view
     r_eff = pearson_r if view == 'true' else r_observed
-    
-    # Convert r to Cohen's d for the dichotomized outcome
-    # This is an approximation that works well for continuous-to-binary conversion
-    d_eff = r_to_d(r_eff)
-    
-    # For continuous mode, ICC adjustments don't apply the same way
-    # The separation comes from the correlation itself
-    sigma1 = 1.0
-    sigma2 = 1.0
-    
-    # Find threshold from threshold_prob
-    threshold_value = compute_threshold_from_pt(d_eff, threshold_prob, base_rate, sigma1, sigma2)
-    
-    # Compute all metrics
-    metrics = compute_binary_metrics(d_eff, base_rate, threshold_value, sigma1, sigma2)
-    
-    # Compute discrimination metrics
-    roc_auc = compute_roc_auc_parametric(d_eff, sigma1, sigma2)
-    pr_auc = compute_pr_auc_parametric(d_eff, base_rate, sigma1, sigma2)
-    
-    # Compute effect size conversions
-    odds_ratio = d_to_odds_ratio(d_eff)
-    log_odds_ratio = d_to_log_odds_ratio(d_eff)
-    cohens_u3 = d_to_cohens_u3(d_eff)
-    pb_r = d_to_point_biserial_r(d_eff, base_rate)
+
+    curves = bivariate.discrimination_curves(r_eff, base_rate)
+    es_eff = bivariate.effect_sizes(r_eff, base_rate, auc=curves["auc"])
+    es_true = bivariate.effect_sizes(pearson_r, base_rate)
+    es_obs = bivariate.effect_sizes(r_observed, base_rate)
+
+    # Match web continuous UI: OR / U3 / point-biserial from nonpooled d_a
+    da = es_eff["da"]
+    odds_ratio = d_to_odds_ratio(da)
+    log_odds_ratio = d_to_log_odds_ratio(da)
+    cohens_u3 = es_eff["cohens_u3"]
+    pb_r = d_to_point_biserial_r(da, base_rate)
     eta_squared = pb_r ** 2
-    
-    # Convert back to d for results
-    d_true = r_to_d(pearson_r)
-    d_observed = r_to_d(r_observed)
-    
+
+    threshold_value = bivariate.threshold_from_pt(r_eff, base_rate, threshold_prob)
+    metrics = bivariate.predictive_metrics(
+        r_eff,
+        base_rate,
+        threshold_value,
+        threshold_prob=threshold_prob,
+    )
+
     return ParametricResults(
-        cohens_d_true=d_true,
-        cohens_d_observed=d_observed,
+        cohens_d_true=es_true["d"],
+        cohens_d_observed=es_obs["d"],
         base_rate=base_rate,
         threshold_prob=threshold_prob,
         icc1=reliability_x,
@@ -853,8 +900,8 @@ def e2p_parametric_continuous(
         cohens_u3=cohens_u3,
         point_biserial_r=pb_r,
         eta_squared=eta_squared,
-        roc_auc=roc_auc,
-        pr_auc=pr_auc,
+        roc_auc=curves["auc"],
+        pr_auc=curves["prauc"],
         threshold_value=threshold_value,
         sensitivity=metrics['sensitivity'],
         specificity=metrics['specificity'],

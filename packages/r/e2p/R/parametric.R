@@ -68,7 +68,10 @@ d_to_point_biserial_r <- function(d, base_rate) {
 
 #' Convert Pearson's r to Cohen's d
 #'
-#' Uses the formula: d = 2r / sqrt(1 - r^2)
+#' Uses the formula: d = 2r / sqrt(1 - r^2). This is the equal-groups continuous
+#' conversion for simple effect-size translation. It is \emph{not} the
+#' dichotomized bivariate-normal Cohen's d used by
+#' \code{e2p_parametric_continuous}.
 #'
 #' @param r Pearson correlation coefficient
 #' @return Cohen's d (numeric)
@@ -156,18 +159,50 @@ cohens_u3_to_d <- function(u3) {
 # Attenuation Functions
 # =============================================================================
 
-#' Attenuate Cohen's d by Diagnostic Reliability (Kappa)
+#' Attenuate Between-Group Mean Separation by Kappa
 #'
-#' The attenuation formula is: d_obs = d_true * sqrt(sin(pi/2 * kappa))
+#' Generative decomposition used by plots/metrics:
+#' Delta_mu_obs = d_true * sqrt(sin(pi/2 * kappa)), with ICC applied via sigma
+#' inflation (sigma = 1/sqrt(ICC)). Together these yield the full standardized
+#' observed d from [attenuate_d()].
+#'
+#' @param true_d True (latent) Cohen's d (mean difference when true sigma = 1)
+#' @param kappa Diagnostic/label reliability (0-1). Default 1.0 (perfect)
+#' @return Observed mean difference (not yet re-standardized by ICC)
+#' @export
+#' @examples
+#' attenuate_mean_difference(1.0, kappa = 0.7)
+attenuate_mean_difference <- function(true_d, kappa = 1.0) {
+  true_d * sqrt(sin(pi / 2 * kappa))
+}
+
+#' Attenuate Cohen's d by Measurement and Diagnostic Reliability
+#'
+#' Compute standardized observed Cohen's d from true d and reliability.
+#' Matches the web UI / Frontiers formula:
+#' d_obs = d_true * sqrt( (2*ICC1*ICC2)/(ICC1+ICC2) * sin(pi/2 * kappa) )
+#'
+#' This is algebraically equivalent to attenuating the mean by kappa and
+#' inflating within-group SDs by ICC (sigma = 1/sqrt(ICC)).
 #'
 #' @param true_d True (latent) Cohen's d
 #' @param kappa Diagnostic/label reliability (0-1). Default 1.0 (perfect)
-#' @return Observed (attenuated) Cohen's d
+#' @param icc1 Measurement reliability (ICC) for group 1. Default 1.0
+#' @param icc2 Measurement reliability (ICC) for group 2. Default 1.0
+#' @return Observed (attenuated) standardized Cohen's d
 #' @export
 #' @examples
 #' attenuate_d(1.0, kappa = 0.7)
-attenuate_d <- function(true_d, kappa = 1.0) {
-  true_d * sqrt(sin(pi / 2 * kappa))
+#' attenuate_d(1.0, kappa = 0.7, icc1 = 0.5, icc2 = 0.5)
+attenuate_d <- function(true_d, kappa = 1.0, icc1 = 1.0, icc2 = 1.0) {
+  if (icc1 <= 0 || icc1 > 1) {
+    stop("icc1 must be in (0, 1]")
+  }
+  if (icc2 <= 0 || icc2 > 1) {
+    stop("icc2 must be in (0, 1]")
+  }
+  icc_factor <- (2 * icc1 * icc2) / (icc1 + icc2)
+  true_d * sqrt(icc_factor * sin(pi / 2 * kappa))
 }
 
 #' Compute Standard Deviation from ICC (Measurement Reliability)
@@ -531,31 +566,30 @@ e2p_parametric_binary <- function(cohens_d, base_rate,
     stop("kappa must be in (0, 1]")
   }
 
-  # Compute observed d (attenuated by kappa)
-  d_observed <- attenuate_d(cohens_d, kappa)
+  # Standardized observed d (full ICC + kappa formula; matches web UI)
+  d_observed <- attenuate_d(cohens_d, kappa, icc1, icc2)
 
-  # Compute standard deviations based on ICC
+  # Generative path: kappa shrinks mean separation; ICC inflates sigma
+  d_mean <- if (view == "true") cohens_d else attenuate_mean_difference(cohens_d, kappa)
   sigma1 <- if (view == "true") 1.0 else compute_sigma_from_icc(icc1)
   sigma2 <- if (view == "true") 1.0 else compute_sigma_from_icc(icc2)
 
-  # Use appropriate d based on view
-  d_eff <- if (view == "true") cohens_d else d_observed
-
   # Find threshold from threshold_prob
-  threshold_value <- compute_threshold_from_pt_parametric(d_eff, threshold_prob, base_rate, sigma1, sigma2)
+  threshold_value <- compute_threshold_from_pt_parametric(d_mean, threshold_prob, base_rate, sigma1, sigma2)
 
   # Compute all metrics
-  metrics <- compute_binary_metrics_parametric(d_eff, base_rate, threshold_value, sigma1, sigma2)
+  metrics <- compute_binary_metrics_parametric(d_mean, base_rate, threshold_value, sigma1, sigma2)
 
   # Compute discrimination metrics
-  roc_auc <- compute_roc_auc_parametric(d_eff, sigma1, sigma2)
-  pr_auc <- compute_pr_auc_parametric(d_eff, base_rate, sigma1, sigma2)
+  roc_auc <- compute_roc_auc_parametric(d_mean, sigma1, sigma2)
+  pr_auc <- compute_pr_auc_parametric(d_mean, base_rate, sigma1, sigma2)
 
-  # Compute effect size conversions
-  odds_ratio <- d_to_odds_ratio(d_eff)
-  log_odds_ratio <- d_to_log_odds_ratio(d_eff)
-  cohens_u3 <- d_to_cohens_u3(d_eff)
-  pb_r <- d_to_point_biserial_r(d_eff, base_rate)
+  # Effect-size conversions use standardized d (full observed d in observed view)
+  d_for_es <- if (view == "true") cohens_d else d_observed
+  odds_ratio <- d_to_odds_ratio(d_for_es)
+  log_odds_ratio <- d_to_log_odds_ratio(d_for_es)
+  cohens_u3 <- d_to_cohens_u3(d_for_es)
+  pb_r <- d_to_point_biserial_r(d_for_es, base_rate)
   eta_squared <- pb_r^2
 
   structure(
@@ -607,16 +641,19 @@ e2p_parametric_binary <- function(cohens_d, base_rate,
 
 #' Compute E2P Metrics from Pearson's r (Parametric Continuous)
 #'
-#' This mirrors the JavaScript simulator's continuous mode. The continuous outcome Y
-#' is dichotomized at the base_rate percentile, then binary metrics are computed.
+#' Mirrors the JavaScript simulator's continuous mode under the bivariate-normal
+#' model: \eqn{X,Y \sim BVN(0,0,1,1,r)}, positive class = top \code{base_rate}
+#' of Y, score = X. Metrics use truncated-BVN quadrature (not an r-to-d
+#' conversion into the equal-variance binary normal model).
 #'
 #' @param pearson_r True Pearson correlation between predictor X and outcome Y
 #' @param base_rate Proportion of cases (top base_rate of Y are classified as positive)
-#' @param threshold_prob Threshold probability p_t for threshold-dependent metrics (0-1). Default 0.5
+#' @param threshold_prob Threshold probability p_t = P(positive | X = t) (0-1). Default 0.5
 #' @param reliability_x Measurement reliability of predictor X. Default 1.0 (perfect)
 #' @param reliability_y Measurement reliability of outcome Y. Default 1.0 (perfect)
 #' @param view Whether to compute metrics for "true" (latent) or "observed" distributions. Default "observed"
-#' @return S3 object of class "e2p_parametric_results" containing all computed metrics
+#' @return S3 object of class "e2p_parametric_results" containing all computed metrics.
+#'   \code{cohens_d_*} are dichotomized pooled Cohen's d under the BVN model.
 #' @export
 #' @examples
 #' results <- e2p_parametric_continuous(pearson_r = 0.5, base_rate = 0.1)
@@ -644,45 +681,33 @@ e2p_parametric_continuous <- function(pearson_r, base_rate,
     stop("reliability_y must be in (0, 1]")
   }
 
-  # Compute observed r (attenuated by reliabilities)
   r_observed <- pearson_r * sqrt(reliability_x * reliability_y)
-
-  # Use appropriate r based on view
   r_eff <- if (view == "true") pearson_r else r_observed
 
-  # Convert r to Cohen's d for the dichotomized outcome
-  d_eff <- r_to_d(r_eff)
+  curves <- .bvn_discrimination_curves(r_eff, base_rate)
+  es_eff <- .bvn_effect_sizes(r_eff, base_rate, auc = curves$auc)
+  es_true <- .bvn_effect_sizes(pearson_r, base_rate)
+  es_obs <- .bvn_effect_sizes(r_observed, base_rate)
 
-  # For continuous mode, ICC adjustments don't apply the same way
-  sigma1 <- 1.0
-  sigma2 <- 1.0
-
-  # Find threshold from threshold_prob
-  threshold_value <- compute_threshold_from_pt_parametric(d_eff, threshold_prob, base_rate, sigma1, sigma2)
-
-  # Compute all metrics
-  metrics <- compute_binary_metrics_parametric(d_eff, base_rate, threshold_value, sigma1, sigma2)
-
-  # Compute discrimination metrics
-  roc_auc <- compute_roc_auc_parametric(d_eff, sigma1, sigma2)
-  pr_auc <- compute_pr_auc_parametric(d_eff, base_rate, sigma1, sigma2)
-
-  # Compute effect size conversions
-  odds_ratio <- d_to_odds_ratio(d_eff)
-  log_odds_ratio <- d_to_log_odds_ratio(d_eff)
-  cohens_u3 <- d_to_cohens_u3(d_eff)
-  pb_r <- d_to_point_biserial_r(d_eff, base_rate)
+  # Match web continuous UI: OR / U3 / point-biserial from nonpooled d_a
+  da <- es_eff$da
+  odds_ratio <- d_to_odds_ratio(da)
+  log_odds_ratio <- d_to_log_odds_ratio(da)
+  cohens_u3 <- es_eff$cohens_u3
+  pb_r <- d_to_point_biserial_r(da, base_rate)
   eta_squared <- pb_r^2
 
-  # Convert back to d for results
-  d_true <- r_to_d(pearson_r)
-  d_observed <- r_to_d(r_observed)
+  threshold_value <- .bvn_threshold_from_pt(r_eff, base_rate, threshold_prob)
+  metrics <- .bvn_predictive_metrics(
+    r_eff, base_rate, threshold_value,
+    threshold_prob = threshold_prob
+  )
 
   structure(
     list(
       # Input parameters
-      cohens_d_true = d_true,
-      cohens_d_observed = d_observed,
+      cohens_d_true = es_true$d,
+      cohens_d_observed = es_obs$d,
       pearson_r_true = pearson_r,
       pearson_r_observed = r_observed,
       base_rate = base_rate,
@@ -699,8 +724,8 @@ e2p_parametric_continuous <- function(pearson_r, base_rate,
       eta_squared = eta_squared,
 
       # Discrimination metrics
-      roc_auc = roc_auc,
-      pr_auc = pr_auc,
+      roc_auc = curves$auc,
+      pr_auc = curves$prauc,
 
       # Threshold-dependent metrics
       threshold_value = threshold_value,

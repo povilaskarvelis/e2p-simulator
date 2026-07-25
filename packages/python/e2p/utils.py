@@ -84,10 +84,12 @@ def transform_groups_for_target_kappa(
 
     This mirrors the webapp's attenuation relationship (see `js/binary.js`):
 
-        d_observed = d_true * sqrt( sin(pi/2 * kappa) )
+        Delta_mu_obs = d_true * sqrt( sin(pi/2 * kappa) )
 
-    Interpreting kappa as attenuating the *between-group separation* (not the
-    within-group variability), we can map kappa changes onto a mean-shift
+    (ICC separately inflates within-group sigma; together they yield the full
+    standardized d_obs used by the web UI.) Interpreting kappa as attenuating
+    the *between-group separation* (not the within-group variability), we can
+    map kappa changes onto a mean-shift
     transformation that increases/decreases the difference in group means while
     preserving each group's within-group deviations.
 

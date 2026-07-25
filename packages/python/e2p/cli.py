@@ -116,7 +116,8 @@ def parametric_continuous(
     output: str = typer.Option("summary", "--output", "-o", help="Output format: 'summary', 'json', or 'full'"),
 ):
     """
-    Compute predictive metrics from Pearson's r using parametric assumptions.
+    Compute predictive metrics from Pearson's r under the bivariate-normal model
+    (same truncated-BVN quadrature as the web simulator continuous mode).
     
     Example:
         e2p parametric-continuous --pearson-r 0.4 --base-rate 0.1

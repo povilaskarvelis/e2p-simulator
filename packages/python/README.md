@@ -3,7 +3,7 @@
 Estimate real-world predictive utility from effect sizes or empirical data.
 
 **Two approaches:**
-- **Parametric**: Compute metrics directly from effect sizes (Cohen's d, Pearson's r, ROC-AUC, odds ratio) assuming idealized normal distributions
+- **Parametric**: Compute metrics directly from effect sizes — Cohen's d via equal-variance normals (binary), Pearson's r via the bivariate-normal continuous model used by the web simulator
 - **Empirical**: Compute metrics from actual data with bootstrap confidence intervals
 
 ## Installation
@@ -233,6 +233,7 @@ print(results)
 ### Parametric Analysis
 - **Effect size conversions**: Cohen's d ↔ OR, log(OR), U3, point-biserial r, ROC-AUC
 - **Discrimination metrics**: ROC-AUC, PR-AUC from effect sizes
+- **Continuous (Pearson's r)**: Truncated bivariate-normal quadrature matching the web simulator (not an r→d binary approximation)
 - **Threshold optimization**: Find optimal thresholds (Youden's J, F1)
 - **Reliability modeling**: ICC and kappa attenuation
 - **Fast computation**: No simulation needed

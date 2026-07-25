@@ -899,7 +899,7 @@ function plotCalibration() {
         y: [pObs],
         type: 'scatter',
         mode: 'markers',
-        marker: { color: 'red', size: 10 },
+        marker: { color: "red", size: 10 },
         showlegend: false,
         hovertemplate: `Threshold: ${x.toFixed(2)}<br>Predicted: ${pPred.toFixed(3)}<br>Observed: ${pObs.toFixed(3)}<extra></extra>`
     };
@@ -1179,7 +1179,7 @@ function updateCalibrationMarker() {
         y: [pObs],
         type: 'scatter',
         mode: 'markers',
-        marker: { color: 'red', size: 10 },
+        marker: { color: "red", size: 10 },
         showlegend: false,
         hovertemplate: `Threshold: ${x.toFixed(2)}<br>Predicted: ${pPred.toFixed(3)}<br>Observed: ${pObs.toFixed(3)}<extra></extra>`
     };

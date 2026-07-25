@@ -96,15 +96,15 @@ def parametric_continuous(
     view: str = "observed",
 ) -> dict:
     """
-    Compute predictive metrics from Pearson's r using parametric assumptions.
+    Compute predictive metrics from Pearson's r under the bivariate-normal model.
     
-    Use this when you have a correlation coefficient and want to estimate
-    classification performance when predicting a dichotomized outcome.
+    Uses the same truncated-BVN quadrature as the web simulator continuous mode
+    (X,Y ~ BVN with correlation r; positive class = top base_rate of Y).
     
     Args:
         pearson_r: Pearson correlation coefficient (-1 to 1)
         base_rate: Prevalence of the positive class (0 to 1)
-        threshold_prob: Decision threshold probability (0 to 1, default 0.5)
+        threshold_prob: Decision threshold probability p_t (0 to 1, default 0.5)
         reliability_x: Reliability of X predictor (0 to 1, default 1.0)
         reliability_y: Reliability of Y outcome (0 to 1, default 1.0)
         view: "true" for latent metrics or "observed" for attenuated metrics
@@ -283,9 +283,9 @@ def apply_reliability_attenuation(
     Returns:
         Dictionary with true d, observed d, and reliability parameters
     """
-    observed_d = attenuate_d(true_d, kappa)
+    observed_d = attenuate_d(true_d, kappa, icc1=icc, icc2=icc)
     sigma = compute_sigma_from_icc(icc) if icc < 1.0 else 1.0
-    
+
     return {
         "true_d": true_d,
         "observed_d": observed_d,

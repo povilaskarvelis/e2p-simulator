@@ -54,11 +54,11 @@
 }
 
 .index-metric-stack--mb30 {
-    margin-bottom: 30px;
+    margin-bottom: 12px;
 }
 
 .index-metric-stack--mb20 {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .index-metric-stack--mb15 {
@@ -84,8 +84,8 @@
 }
 
 .index-reliability-block {
-    margin-top: 20px;
-    margin-bottom: 15px;
+    margin-top: 4px;
+    margin-bottom: 10px;
 }
 
 .index-slider-label-row {
@@ -109,17 +109,71 @@
 }
 
 .index-range-mt15 {
-    margin-top: 15px;
+    margin-top: 10px;
+}
+
+/* Decision threshold: red dot matching the plot threshold line. */
+.slider-container input[type="range"].threshold-pt-slider,
+input[type="range"].threshold-pt-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    height: 16px;
+    accent-color: red;
+}
+
+.slider-container input[type="range"].threshold-pt-slider::-webkit-slider-runnable-track,
+input[type="range"].threshold-pt-slider::-webkit-slider-runnable-track {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+}
+
+.slider-container input[type="range"].threshold-pt-slider::-webkit-slider-thumb,
+input[type="range"].threshold-pt-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: red;
+    border: none;
+    cursor: pointer;
+}
+
+.slider-container input[type="range"].threshold-pt-slider::-moz-range-track,
+input[type="range"].threshold-pt-slider::-moz-range-track {
+    height: 4px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 2px;
+}
+
+.slider-container input[type="range"].threshold-pt-slider::-moz-range-progress,
+input[type="range"].threshold-pt-slider::-moz-range-progress {
+    height: 4px;
+    background: transparent;
+}
+
+.slider-container input[type="range"].threshold-pt-slider::-moz-range-thumb,
+input[type="range"].threshold-pt-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: red;
+    border: none;
+    cursor: pointer;
+}
+
+.slider-container .threshold-pt-input,
+.threshold-pt-input {
+    border-color: red;
 }
 
 .index-base-rate-block {
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.index-plot-link {
-    text-decoration: none;
-    color: inherit;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .index-plot-fill {
@@ -127,9 +181,36 @@
     width: 100%;
 }
 
-.index-dashboard-link {
-    text-decoration: none;
-    color: inherit;
+/* Plot tooltips: sit above the plot so they don't cover the curves.
+   Raise stacking so DCA's tooltip isn't hidden under the ROC/PR card. */
+#roc-plot[data-tooltip],
+#pr-plot[data-tooltip],
+#dca-plot[data-tooltip],
+#roc-plot-cont[data-tooltip],
+#pr-plot-cont[data-tooltip],
+#dca-plot-cont[data-tooltip] {
+    position: relative;
+    z-index: 2;
+}
+
+.dca-section {
+    position: relative;
+}
+
+.dca-section:hover {
+    z-index: 5;
+}
+
+#roc-plot[data-tooltip]:before,
+#pr-plot[data-tooltip]:before,
+#dca-plot[data-tooltip]:before,
+#roc-plot-cont[data-tooltip]:before,
+#pr-plot-cont[data-tooltip]:before,
+#dca-plot-cont[data-tooltip]:before {
+    bottom: 100%;
+    top: auto;
+    margin-bottom: -4px;
+    z-index: 10001;
 }
 
 .index-metrics-collapsible {
@@ -201,7 +282,7 @@
 }
 
 .index-hr-spaced {
-    margin: 20px 0 15px;
+    margin: 10px 0 10px;
 }
 
 .index-precise-toggle {

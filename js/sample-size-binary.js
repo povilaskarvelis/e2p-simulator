@@ -127,12 +127,10 @@
         const r2cs = Math.max(0.0001, Math.min(0.9, val('ssb-r2cs')));
         const prevInput = val('ssb-prevalence');
         const S = Math.max(0.7, Math.min(0.99, val('ssb-shrinkage')));
-        const delta = Math.max(0.001, Math.min(0.2, val('ssb-delta')));
-        // mean risk precision inputs removed
         const targetEPP = Math.max(1, val('ssb-epp')) || 10;
-        const targetMAPE = Math.max(0.001, val('ssb-mape') || 0.05);
+        const targetMAPE = Math.max(0.001, Math.min(0.2, val('ssb-mape') || 0.05));
 
-        if (p == null || r2cs == null || prevInput == null || S == null || delta == null) return;
+        if (p == null || r2cs == null || prevInput == null || S == null || targetMAPE == null) return;
         const prevPct = Math.max(0.001, Math.min(0.999, percentageToFraction(prevInput)));
 
         const nS = computeShrinkageN(p, S, r2cs);
@@ -210,8 +208,6 @@
             ['ssb-r2cs-slider','ssb-r2cs'],
             ['ssb-prevalence-slider','ssb-prevalence'],
             ['ssb-shrinkage-slider','ssb-shrinkage'],
-            ['ssb-delta-slider','ssb-delta'],
-            ['ssb-margin-slider','ssb-margin'],
             ['ssb-epp-slider','ssb-epp'],
             ['ssb-mape-slider','ssb-mape'],
         ];

@@ -50,6 +50,7 @@ export(log_odds_ratio_to_d)
 export(cohens_u3_to_d)
 # Parametric - attenuation and utilities
 export(attenuate_d)
+export(attenuate_mean_difference)
 export(compute_sigma_from_icc)
 export(compute_roc_auc_parametric)
 export(compute_pr_auc_parametric)

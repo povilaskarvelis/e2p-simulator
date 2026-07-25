@@ -209,6 +209,15 @@
                             <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
                         </div>
                     </div>
+
+                    <!-- Threshold probability -->
+                    <div>
+                        <input type="range" id="threshold-slider" min="-5.5" max="6" step="0.01" value="0" class="index-range-mt15 threshold-pt-slider">
+                        <div class="index-slider-label-row">
+                            <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
+                            <input type="number" id="pt-input" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -216,50 +225,44 @@
             <div class="main-plot-section">
                 <!-- Toggle buttons removed from here -->
                 <div id="overlap-plot" class="plot"></div>
-                <div class="threshold-buttons">
-                    <button id="max-j-button" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
-                    <button id="max-f1-button" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
-                </div>
             </div>
 
                         <!-- Plot 2: ROC, PR and DCA curves -->
                 <div class="results-container">
                     <div class="roc-pr-section">
                                                 <div class="plot-container">
-                        <a href="get-started.html#roc-curves" class="half-plot index-plot-link" target="_blank">
-                            <div id="roc-plot" class="index-plot-fill"></div>
-                        </a>
-                        <a href="get-started.html#precision-recall" class="half-plot index-plot-link" target="_blank">
-                            <div id="pr-plot" class="index-plot-fill"></div>
-                        </a>
+                        <div class="half-plot">
+                            <div id="roc-plot" class="index-plot-fill" data-tooltip="ROC curve; AUC measures discrimination independent of base rate"></div>
+                        </div>
+                        <div class="half-plot">
+                            <div id="pr-plot" class="index-plot-fill" data-tooltip="Precision-Recall curve; AUC reflects base-rate–dependent predictive performance"></div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="dca-section">
                     <div class="plot-container">
-                        <a href="get-started.html#dca-analysis" class="full-plot index-plot-link" target="_blank">
-                            <div id="dca-plot" class="index-plot-fill" data-tooltip="Decision curve analysis (DCA)"></div>
-                        </a>
+                        <div class="full-plot">
+                            <div id="dca-plot" class="index-plot-fill" data-tooltip="Decision Curve Analysis; net benefit across decision thresholds"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Results dashboard -->
-        <a href="get-started.html#understanding-metrics" class="index-dashboard-link" target="_blank">
-            <div id="dashboard" class="dashboard">
-                <div class="dashboard-metrics">
-                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
-                    <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
-                    <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
-                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
-                    <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
-                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
-                    <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
-                    <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
-                </div>
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-metrics">
+                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
+                <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
+                <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value">0.00</span></p>
+                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value">0.00</span></p>
+                <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="precision-value">0.00</span></p>
+                <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value">0.00</span></p>
+                <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
+                <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
             </div>
-        </a>
+        </div>
         
         <!-- Predictive Metrics dashboard (Binary) -->
         <details class="metrics-collapsible index-metrics-collapsible">
@@ -497,6 +500,13 @@
                             <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
                         </div>
                     </div>
+
+                    <!-- Threshold probability -->
+                    <input type="range" id="threshold-slider-cont" min="-4" max="4" step="0.01" value="0" class="threshold-pt-slider">
+                    <div class="index-slider-label-row index-slider-label-row--mt5">
+                        <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
+                        <input type="number" id="pt-input-cont" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                    </div>
                     
                     <hr class="input-separator index-hr-spaced">
                     
@@ -557,16 +567,6 @@
                             <input type="number" id="observed-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
                         </div>
                     </div>
-                    
-                    <!-- Precise Estimates Toggle -->
-                    <div class="precise-toggle-container index-precise-toggle">
-                        <label for="precise-estimates-checkbox-cont" class="precise-toggle-label">Get precise estimates (slow)</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="precise-estimates-checkbox-cont">
-                            <span class="toggle-slider"></span>
-                            <span class="toggle-knob"></span>
-                        </label>
-                    </div>
                 </div>
             </div>
 
@@ -581,10 +581,6 @@
                     <div class="distribution-plots">
                         <div id="distribution-plot-true-cont" class="plot index-plot-hidden"></div>
                         <div id="distribution-plot-observed-cont" class="plot"></div>
-                        <div class="threshold-buttons">
-                            <button id="max-j-button-cont" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize Youden's J index">max&nbsp;J</button>
-                            <button id="max-f1-button-cont" class="toggle-button threshold-action" data-tooltip="Set threshold to maximize F1 score">max&nbsp;F1</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -593,41 +589,39 @@
             <div class="results-container">
                 <div class="roc-pr-section">
                     <div class="plot-container">
-                        <a href="get-started.html#roc-curves" class="half-plot index-plot-link" target="_blank">
-                            <div id="roc-plot-cont" class="index-plot-fill"></div>
-                        </a>
-                        <a href="get-started.html#precision-recall" class="half-plot index-plot-link" target="_blank">
-                            <div id="pr-plot-cont" class="index-plot-fill"></div>
-                        </a>
+                        <div class="half-plot">
+                            <div id="roc-plot-cont" class="index-plot-fill" data-tooltip="ROC curve; AUC measures discrimination independent of base rate"></div>
+                        </div>
+                        <div class="half-plot">
+                            <div id="pr-plot-cont" class="index-plot-fill" data-tooltip="Precision-Recall curve; AUC reflects base-rate–dependent predictive performance"></div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="dca-section">
                     <div class="plot-container">
-                        <a href="get-started.html#dca-analysis" class="full-plot index-plot-link" target="_blank">
-                            <div id="dca-plot-cont" class="index-plot-fill" data-tooltip="Decision curve analysis (DCA)"></div>
-                        </a>
+                        <div class="full-plot">
+                            <div id="dca-plot-cont" class="index-plot-fill" data-tooltip="Decision Curve Analysis; net benefit across decision thresholds"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Results dashboard -->
-        <a href="get-started.html#understanding-metrics" class="index-dashboard-link" target="_blank">
-            <div id="dashboard-cont" class="dashboard">
-                <div class="dashboard-metrics">
-                    <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
-                    <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
-                    <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
-                    <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
+        <div id="dashboard-cont" class="dashboard">
+            <div class="dashboard-metrics">
+                <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
+                <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
+                <p data-tooltip="Specificity; also called True Negative Rate (TNR)">Specificity: <span id="specificity-value-cont">0.00</span></p>
+                <p data-tooltip="Balanced Accuracy">BA: <span id="balanced-accuracy-value-cont">0.00</span></p>
 
-                    <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
-                    <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
-                    <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
-                    <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
-                </div>
+                <p data-tooltip="Positive Predictive Value; also called Precision">PPV: <span id="ppv-value-cont">0.00</span></p>
+                <p data-tooltip="Negative Predictive Value">NPV: <span id="npv-value-cont">0.00</span></p>
+                <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
+                <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
             </div>
-        </a>
+        </div>
 
         <!-- Predictive Metrics dashboard (Continuous) -->
         <details class="metrics-collapsible index-metrics-collapsible--tight">

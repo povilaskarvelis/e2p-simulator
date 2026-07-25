@@ -27,6 +27,7 @@ from e2p import (
     compute_pr_auc_parametric,
     find_optimal_threshold,
     attenuate_d,
+    attenuate_mean_difference,
     compute_sigma_from_icc,
     d_to_odds_ratio,
     d_to_log_odds_ratio,
@@ -259,15 +260,30 @@ class TestAttenuation:
     """Test reliability attenuation functions."""
     
     def test_attenuate_d(self):
-        """Test Cohen's d attenuation by kappa."""
+        """Test full ICC+kappa attenuation and kappa-only mean path."""
         true_d = 1.0
         kappa = 0.7
-        # d_obs = d_true * sqrt(sin(pi/2 * kappa))
-        expected_d_obs = true_d * np.sqrt(np.sin(np.pi / 2 * kappa))
-        assert np.isclose(attenuate_d(true_d, kappa), expected_d_obs, rtol=1e-10)
-        
-        # Perfect kappa should not attenuate
-        assert np.isclose(attenuate_d(true_d, 1.0), true_d, rtol=1e-10)
+        # Default ICC=1 => kappa-only standardized d
+        expected_kappa_only = true_d * np.sqrt(np.sin(np.pi / 2 * kappa))
+        assert np.isclose(attenuate_d(true_d, kappa), expected_kappa_only, rtol=1e-10)
+        assert np.isclose(attenuate_mean_difference(true_d, kappa), expected_kappa_only, rtol=1e-10)
+
+        # Full formula with ICC
+        icc1 = icc2 = 0.5
+        expected_full = true_d * np.sqrt(
+            (2 * icc1 * icc2) / (icc1 + icc2) * np.sin(np.pi / 2 * kappa)
+        )
+        assert np.isclose(attenuate_d(true_d, kappa, icc1, icc2), expected_full, rtol=1e-10)
+
+        # Generative path: mean/kappa + sigma/ICC equals full standardized d
+        d_mean = attenuate_mean_difference(true_d, kappa)
+        sigma1 = compute_sigma_from_icc(icc1)
+        sigma2 = compute_sigma_from_icc(icc2)
+        d_std = d_mean / np.sqrt((sigma1**2 + sigma2**2) / 2)
+        assert np.isclose(d_std, expected_full, rtol=1e-10)
+
+        # Perfect reliability should not attenuate
+        assert np.isclose(attenuate_d(true_d, 1.0, 1.0, 1.0), true_d, rtol=1e-10)
     
     def test_compute_sigma_from_icc(self):
         """Test sigma computation from ICC."""
@@ -449,6 +465,13 @@ class TestParametricBinary:
         
         # Observed should have attenuated performance
         assert true_results.roc_auc >= obs_results.roc_auc
+
+        # Reported observed d uses full ICC+kappa formula (matches web UI)
+        expected_d_obs = attenuate_d(0.8, kappa=0.8, icc1=0.7, icc2=0.7)
+        assert np.isclose(obs_results.cohens_d_observed, expected_d_obs, rtol=1e-10)
+        assert np.isclose(true_results.cohens_d_observed, expected_d_obs, rtol=1e-10)
+        # Observed-view OR/U3 should track full standardized d, not kappa-only mean
+        assert np.isclose(obs_results.odds_ratio, d_to_odds_ratio(expected_d_obs), rtol=1e-10)
     
     def test_input_validation(self):
         """Test that invalid inputs raise errors."""
@@ -461,7 +484,7 @@ class TestParametricBinary:
 
 
 class TestParametricContinuous:
-    """Test e2p_parametric_continuous function."""
+    """Test e2p_parametric_continuous function (bivariate-normal model)."""
     
     def test_basic_computation(self):
         """Test basic parametric continuous computation."""
@@ -475,6 +498,24 @@ class TestParametricContinuous:
         assert 0 <= results.roc_auc <= 1
         assert 0 <= results.sensitivity <= 1
         assert 0 <= results.specificity <= 1
+    
+    def test_matches_web_bivariate_reference(self):
+        """Parity with js/utils.js StatUtils.bivariate* at r=0.5, base_rate=0.1, p_t=0.5."""
+        results = e2p_parametric_continuous(
+            pearson_r=0.5,
+            base_rate=0.1,
+            threshold_prob=0.5,
+            view='true',
+        )
+        # Reference values from Node eval of js/utils.js (curvePoints=400, yNodes=140)
+        assert results.roc_auc == pytest.approx(0.77115, abs=2e-3)
+        assert results.pr_auc == pytest.approx(0.28688, abs=5e-3)
+        assert results.cohens_d_true == pytest.approx(1.01958, abs=2e-3)
+        assert results.threshold_value == pytest.approx(2.56310, abs=2e-3)
+        assert results.sensitivity == pytest.approx(0.02963, abs=2e-3)
+        assert results.specificity == pytest.approx(0.99753, abs=2e-3)
+        # Must NOT match the old r→d binary approximation (AUC ≈ 0.793)
+        assert results.roc_auc < 0.785
     
     def test_reliability_attenuation(self):
         """Test that reliability attenuates performance."""

@@ -41,6 +41,27 @@ let currentLabeledData = [];
 let trueMetrics = {};
 let observedMetrics = {};
 let xScale, yScale;
+let currentTrueR = 0.5;
+let currentObservedR = 0.5;
+let currentAnalysisR = 0.5;
+
+// Hybrid architecture:
+// - Metrics / ROC / PR / DCA / densities / joint contours: bivariate-normal analytics
+// - Monte Carlo sample for legacy rank-biserial + light scatter overlay on contours
+const RANK_BISERIAL_SAMPLE_SIZE = 4000;
+const SCATTER_VIZ_POINTS = 1600; // light point cloud over contours for interpretability
+const PLOT_POINTS_FULL = 4000; // unused for contours; kept for any residual helpers
+const SETTLE_DELAY_MS = 100;
+
+let pendingUpdateRaf = null;
+let settleTimer = null;
+let pendingThresholdMetricsRaf = null;
+let trueDataGenCache = null;
+let observedDataGenCache = null;
+let hiddenViewDrawPending = false;
+let lastPlotsQuality = "full";
+// Cached ROC/PR curve geometry so threshold drags only move markers / metrics
+let cachedCurveState = null;
 
 // Utility functions
 function computeObservedR(trueR, reliabilityX, reliabilityY) {
@@ -51,13 +72,78 @@ function getBaseRateFraction() {
     return percentageToFraction(document.getElementById("base-rate-slider-cont").value);
 }
 
-// Helper function to generate data points and labeled data
-function generateLabeledData(r) {
-    // Check the state of the precise estimates checkbox
-    const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
-    // Corrected numPoints logic from previous user interaction if needed
-    const numPoints = preciseCheckbox && preciseCheckbox.checked ? 800000 : 10000; 
-    const numPlotPoints = 4000; // Keep plot points lower for performance
+function getQuadratureOptions(quality) {
+    // Interactive scrubbing uses a slightly lighter grid; settled updates use full resolution.
+    // Both are far more accurate than the old Monte Carlo path at display precision.
+    if (quality === "interactive") {
+        return { curvePoints: 240, yNodes: 100 };
+    }
+    return { curvePoints: 400, yNodes: 150 };
+}
+
+function getRankBiserialSampleSize() {
+    return RANK_BISERIAL_SAMPLE_SIZE;
+}
+
+function cancelPendingPlotUpdates() {
+    if (pendingUpdateRaf != null) {
+        cancelAnimationFrame(pendingUpdateRaf);
+        pendingUpdateRaf = null;
+    }
+    if (settleTimer != null) {
+        clearTimeout(settleTimer);
+        settleTimer = null;
+    }
+}
+
+function cancelPendingThresholdMetrics() {
+    if (pendingThresholdMetricsRaf != null) {
+        cancelAnimationFrame(pendingThresholdMetricsRaf);
+        pendingThresholdMetricsRaf = null;
+    }
+}
+
+// Threshold line follows the pointer every event; metrics/plots update once per frame
+// on the current cached sample (full precision of whatever is loaded — never coarsened).
+function scheduleThresholdMetricsUpdate() {
+    if (pendingThresholdMetricsRaf != null) return;
+    pendingThresholdMetricsRaf = requestAnimationFrame(() => {
+        pendingThresholdMetricsRaf = null;
+        plotROC({ thresholdOnly: true });
+    });
+}
+
+// Coalesce parameter scrubbing to one update per frame; settle redraws both views
+// at full quadrature resolution (viz sample stays light either way).
+function scheduleInteractiveUpdate() {
+    if (settleTimer != null) clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+        settleTimer = null;
+        cancelPendingPlotUpdates();
+        updatePlots({ quality: "full", visibleOnly: false });
+    }, SETTLE_DELAY_MS);
+
+    if (pendingUpdateRaf != null) return;
+    pendingUpdateRaf = requestAnimationFrame(() => {
+        pendingUpdateRaf = null;
+        updatePlots({ quality: "interactive", visibleOnly: true });
+    });
+}
+
+function scheduleSettledUpdate() {
+    cancelPendingPlotUpdates();
+    updatePlots({ quality: "full", visibleOnly: false });
+}
+
+function requestImmediateFullUpdate() {
+    cancelPendingPlotUpdates();
+    updatePlots({ quality: "full", visibleOnly: false });
+}
+
+// Tiny sample used only for the legacy rank-biserial UI definition
+function generateLabeledData(r, options = {}) {
+    const numPoints = options.numPoints != null ? options.numPoints : getRankBiserialSampleSize();
+    const numPlotPoints = PLOT_POINTS_FULL;
     const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
     const baseRate = getBaseRateFraction();
 
@@ -200,80 +286,60 @@ function computePredictiveMetrics(threshold, data) {
     };
 }
 
-// Find optimal threshold on current simulated data for a given metric ('youden' or 'f1')
-function findOptimalThresholdContinuous(metricType = 'youden') {
+function computePtFromThresholdContinuous(threshold) {
     try {
-        if (!currentLabeledData || currentLabeledData.length === 0) {
-            return thresholdValue;
-        }
-
-        // Build sweep arrays on a subsample to avoid heavy computation on very large datasets
-        const MAX_OPT_POINTS = isPreciseModeEnabled() ? 200000 : 50000; // higher cap in precise mode
-        const { xs, labels, posSuffix, negSuffix, posTotal, negTotal } = buildSweepData(currentLabeledData, MAX_OPT_POINTS);
-        const n = xs.length;
-        if (n === 0) return thresholdValue;
-
-        // Scan candidate thresholds at a controlled resolution
-        const MAX_CANDIDATES = isPreciseModeEnabled() ? 4000 : 2000;
-        const stepIdx = Math.max(1, Math.floor(n / MAX_CANDIDATES));
-
-        let bestMetric = -Infinity;
-        let bestThreshold = xs[0];
-
-        for (let i = 0; i < n; i += stepIdx) {
-            const TP = posSuffix[i];
-            const FP = negSuffix[i];
-            const FN = posTotal - TP;
-            const TN = negTotal - FP;
-
-            const sensitivity = TP / (TP + FN) || 0;
-            const specificity = TN / (TN + FP) || 0;
-            const ppv = TP / (TP + FP) || 0;
-            const youden = sensitivity + specificity - 1;
-            const f1 = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
-
-            const value = (metricType === 'f1') ? f1 : youden;
-            if (value > bestMetric) {
-                bestMetric = value;
-                bestThreshold = xs[i];
-            }
-        }
-
-        // Optional refinement around the coarse optimum using a larger sweep for stability
-        const REFINE_POINTS = isPreciseModeEnabled() ? Math.min(currentLabeledData.length, 400000) : 120000;
-        const refineSweep = buildSweepData(currentLabeledData, REFINE_POINTS);
-        if (refineSweep.xs.length > 0) {
-            const { xs: rx, posSuffix: rps, negSuffix: rns, posTotal: rpt, negTotal: rnt } = refineSweep;
-            const idx = lowerBound(rx, bestThreshold);
-            const windowSize = isPreciseModeEnabled() ? Math.min(10000, Math.max(2000, Math.floor(rx.length / 150))) : Math.min(5000, Math.max(1000, Math.floor(rx.length / 200)));
-            const start = Math.max(0, idx - windowSize);
-            const end = Math.min(rx.length - 1, idx + windowSize);
-            let localBest = -Infinity;
-            let localBestIdx = idx;
-            for (let i = start; i <= end; i++) {
-                const TP = rps[i];
-                const FP = rns[i];
-                const FN = rpt - TP;
-                const TN = rnt - FP;
-                const sensitivity = TP / (TP + FN) || 0;
-                const specificity = TN / (TN + FP) || 0;
-                const ppv = TP / (TP + FP) || 0;
-                const youden = sensitivity + specificity - 1;
-                const f1 = 2 * (ppv * sensitivity) / (ppv + sensitivity) || 0;
-                const value = (metricType === 'f1') ? f1 : youden;
-                if (value > localBest) {
-                    localBest = value;
-                    localBestIdx = i;
-                }
-            }
-            bestThreshold = rx[localBestIdx];
-        }
-
-        return bestThreshold;
+        return StatUtils.bivariatePosteriorProb(
+            currentAnalysisR,
+            getBaseRateFraction(),
+            threshold
+        );
     } catch (err) {
-        console.error('Error finding optimal threshold (continuous):', err);
+        console.error('Error computing continuous p_t from threshold:', err);
+        return 0.5;
+    }
+}
+
+function computeThresholdFromPtContinuous(targetPt) {
+    try {
+        return StatUtils.bivariateThresholdFromPt(
+            currentAnalysisR,
+            getBaseRateFraction(),
+            targetPt
+        );
+    } catch (err) {
+        console.error('Error computing continuous threshold from p_t:', err);
         return thresholdValue;
     }
+}
+
+const SCORE_SLIDER_MIN_CONT = -4;
+const SCORE_SLIDER_MAX_CONT = 4;
+
+// Sync left-panel controls: slider ↔ score threshold; number ↔ implied p_t.
+// Param scrubbing keeps the score (and slider) fixed and only refreshes p_t.
+function updatePtDisplayContinuous() {
+    const pt = computePtFromThresholdContinuous(thresholdValue);
+    const clampedPt = Math.min(Math.max(pt, 0.01), 0.99);
+    const ptInput = document.getElementById('pt-input-cont');
+    const scoreSlider = document.getElementById('threshold-slider-cont');
+    if (ptInput) ptInput.value = clampedPt.toFixed(2);
+    if (scoreSlider) {
+        const score = Math.min(Math.max(thresholdValue, SCORE_SLIDER_MIN_CONT), SCORE_SLIDER_MAX_CONT);
+        scoreSlider.value = score.toFixed(2);
+    }
+}
+
+function setThresholdFromScoreContinuous(score) {
+    thresholdValue = Math.min(Math.max(score, SCORE_SLIDER_MIN_CONT), SCORE_SLIDER_MAX_CONT);
+    updateThreshold(thresholdValue);
+}
+
+function setThresholdFromPtControlsContinuous(pt) {
+    pt = Math.min(Math.max(pt, 0.01), 0.99);
+    const ptInput = document.getElementById('pt-input-cont');
+    if (ptInput) ptInput.value = pt.toFixed(2);
+    thresholdValue = computeThresholdFromPtContinuous(pt);
+    updateThreshold(thresholdValue); // refreshes p_t number + score slider
 }
 
 // Helper: Build sorted arrays and suffix counts for a fast sweep; subsamples if needed
@@ -321,13 +387,11 @@ function lowerBound(arr, value) {
     return Math.max(0, Math.min(arr.length - 1, left));
 }
 
-function isPreciseModeEnabled() {
-    const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
-    return !!(preciseCheckbox && preciseCheckbox.checked);
-}
-
 // Cleanup function for switching views
 function cleanupContinuous() {
+    cancelPendingPlotUpdates();
+    cancelPendingThresholdMetrics();
+
     // Reset state and clean up plots (existing cleanup)
     Plotly.purge(SELECTORS.rocPlot);
     Plotly.purge(SELECTORS.prPlot); 
@@ -351,22 +415,23 @@ function cleanupContinuous() {
     currentView = "observed";
     trueLabeledData = [];
     observedLabeledData = [];
+    trueDataGenCache = null;
+    observedDataGenCache = null;
+    hiddenViewDrawPending = false;
+    lastPlotsQuality = "full";
+    cachedCurveState = null;
+    currentTrueR = 0.5;
+    currentObservedR = 0.5;
+    currentAnalysisR = 0.5;
 }
 
 // Drawing functions
-function drawScatterPlot(r, type, plotDataGen) {
-    // Use pre-generated data
-    const { tealData, grayData, sortedData, thresholdIndex, numPlotPoints, numPoints, fullData } = plotDataGen;
+function drawJointContours(r, type, options = {}) {
+    drawDistributions(r, type, { esMetrics: options.esMetrics || null });
 
-    // Subsample for plotting (using full generated data)
-    // Ensure fullData is used for subsampling if plotData isn't directly passed or suitable
-    const plotData = fullData.filter((_, i) => i % Math.max(1, Math.floor(numPoints / numPlotPoints)) === 0);
-
-    // Use full dataset for metric calculations (passed directly)
-    drawDistributions(tealData.map(d => d.x), grayData.map(d => d.x), type);
-
-    const scatterXScale = d3.scaleLinear().domain([-4, 4]).range([PLOT_CONFIG.margin.left, PLOT_CONFIG.margin.left + PLOT_AREA.width]);
-    const scatterYScale = d3.scaleLinear().domain([-4, 4]).range([PLOT_CONFIG.margin.top + PLOT_AREA.height, PLOT_CONFIG.margin.top]);
+    const domain = [-4, 4];
+    const scatterXScale = d3.scaleLinear().domain(domain).range([PLOT_CONFIG.margin.left, PLOT_CONFIG.margin.left + PLOT_AREA.width]);
+    const scatterYScale = d3.scaleLinear().domain(domain).range([PLOT_CONFIG.margin.top + PLOT_AREA.height, PLOT_CONFIG.margin.top]);
 
     const svgScatter = d3.select(`#${type === "true" ? SELECTORS.scatterPlotTrue : SELECTORS.scatterPlotObserved}`)
         .selectAll("svg")
@@ -374,18 +439,16 @@ function drawScatterPlot(r, type, plotDataGen) {
         .join("svg")
         .attr("width", "100%")
         .attr("height", "100%")
-        // Use standard viewBox, remove width/height attributes if they existed
         .attr("viewBox", `0 0 ${PLOT_CONFIG.viewBoxWidth} ${PLOT_CONFIG.viewBoxHeight}`)
         .attr("preserveAspectRatio", "xMidYMid meet")
         .style("display", "block")
         .style("max-width", "100%");
 
-    // Axes - Use viewBox dimensions for positioning
     svgScatter.selectAll(".x-axis")
         .data([null])
         .join("g")
         .attr("class", "x-axis")
-        .attr("transform", `translate(0,${PLOT_CONFIG.margin.top + PLOT_AREA.height})`) 
+        .attr("transform", `translate(0,${PLOT_CONFIG.margin.top + PLOT_AREA.height})`)
         .call(d3.axisBottom(scatterXScale).ticks(5).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
             .attr("stroke-width", PLOT_CONFIG.tickWidth)
@@ -397,7 +460,7 @@ function drawScatterPlot(r, type, plotDataGen) {
         .data([null])
         .join("g")
         .attr("class", "y-axis")
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left},0)`) 
+        .attr("transform", `translate(${PLOT_CONFIG.margin.left},0)`)
         .call(d3.axisLeft(scatterYScale).ticks(5).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
             .attr("stroke-width", PLOT_CONFIG.tickWidth)
@@ -405,119 +468,198 @@ function drawScatterPlot(r, type, plotDataGen) {
         .call(g => g.selectAll("path.domain")
             .attr("stroke-width", PLOT_CONFIG.tickWidth));
 
-    // Axis labels - Adjust positioning based on viewBox
     const urlParams = parseURLParams();
     const xAxisLabel = urlParams.xaxisLabel || "Predictor";
     const yAxisScatterLabel = urlParams.yaxisScatterLabel || "Outcome";
 
-    svgScatter.selectAll(".x-label")
-        .data([null])
-        .join("foreignObject")
-        .attr("class", "x-label")
-        .attr("x", PLOT_CONFIG.margin.left + PLOT_AREA.width / 2 - 150) 
-        .attr("y", PLOT_CONFIG.margin.top + PLOT_AREA.height + 35) 
-        .attr("width", 300)
-        .attr("height", 40)
-        .append("xhtml:div")
-        .attr("contenteditable", true)
-        .style("text-align", "center")
-        .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
-        .style("color", "black")
-        .text(xAxisLabel);
+    // Avoid duplicating editable labels on redraw
+    if (svgScatter.select(".x-label").empty()) {
+        svgScatter.append("foreignObject")
+            .attr("class", "x-label")
+            .attr("x", PLOT_CONFIG.margin.left + PLOT_AREA.width / 2 - 150)
+            .attr("y", PLOT_CONFIG.margin.top + PLOT_AREA.height + 35)
+            .attr("width", 300)
+            .attr("height", 40)
+            .append("xhtml:div")
+            .attr("contenteditable", true)
+            .style("text-align", "center")
+            .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
+            .style("color", "black")
+            .text(xAxisLabel);
+    }
 
-    svgScatter.selectAll(".y-label")
-        .data([null])
-        .join("foreignObject")
-        .attr("class", "y-label")
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left - 90}, ${PLOT_CONFIG.margin.top + PLOT_AREA.height / 2 + 175}) rotate(-90)`)
-        .attr("width", 350)
-        .attr("height", 40)
-        .append("xhtml:div")
-        .attr("contenteditable", true)
-        .style("text-align", "center")
-        .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
-        .style("color", "black")
-        .text(yAxisScatterLabel);
+    if (svgScatter.select(".y-label").empty()) {
+        svgScatter.append("foreignObject")
+            .attr("class", "y-label")
+            .attr("transform", `translate(${PLOT_CONFIG.margin.left - 90}, ${PLOT_CONFIG.margin.top + PLOT_AREA.height / 2 + 175}) rotate(-90)`)
+            .attr("width", 350)
+            .attr("height", 40)
+            .append("xhtml:div")
+            .attr("contenteditable", true)
+            .style("text-align", "center")
+            .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
+            .style("color", "black")
+            .text(yAxisScatterLabel);
+    }
 
-    // Points - Use updated scales
-    svgScatter.selectAll(".scatter-point")
-        .data(plotData.map(d => ({
-            ...d,
-            color: d.y > sortedData[thresholdIndex]?.y ? "teal" : "gray",
-        })), d => `${d.x}-${d.y}`)
-        .join(
-            enter => enter.append("circle")
-                .attr("class", "scatter-point")
-                .attr("r", 7) 
-                .attr("fill", d => d.color)
-                .attr("opacity", 0.5)
-                .attr("cx", d => scatterXScale(d.x))
-                .attr("cy", d => scatterYScale(d.y)),
-            update => update
-                .transition().duration(100) // Smooth transition
-                .attr("cx", d => scatterXScale(d.x))
-                .attr("cy", d => scatterYScale(d.y)),
-            exit => exit.remove()
-        );
+    // Clip plot contents to the axes frame, and class coloring to the outer contour
+    let defs = svgScatter.select("defs");
+    if (defs.empty()) defs = svgScatter.append("defs");
+    const clipId = `joint-clip-${type}`;
+    const ellipseClipId = `joint-ellipse-clip-${type}`;
+
+    defs.selectAll(`#${clipId}`).data([null]).join("clipPath")
+        .attr("id", clipId)
+        .selectAll("rect").data([null]).join("rect")
+        .attr("x", PLOT_CONFIG.margin.left)
+        .attr("y", PLOT_CONFIG.margin.top)
+        .attr("width", PLOT_AREA.width)
+        .attr("height", PLOT_AREA.height);
+
+    svgScatter.selectAll(".joint-layer").remove();
+    const layer = svgScatter.append("g")
+        .attr("class", "joint-layer")
+        .attr("clip-path", `url(#${clipId})`);
+
+    const baseRate = getBaseRateFraction();
+    const c = StatUtils.bivariateClassCutoff(baseRate);
+    const cClamped = Math.max(domain[0], Math.min(domain[1], c));
+
+    const line = d3.line()
+        .x(d => scatterXScale(d.x))
+        .y(d => scatterYScale(d.y))
+        .curve(d3.curveLinearClosed);
+
+    // Outermost contour defines where case/control coloring is visible
+    const levels = [6.25, 4, 2.25, 1]; // outer → inner
+    const outerPts = StatUtils.bivariateContourEllipse(r, levels[0], 180);
+
+    defs.selectAll(`#${ellipseClipId}`).data([null]).join("clipPath")
+        .attr("id", ellipseClipId)
+        .selectAll("path").data([null]).join("path")
+        .attr("d", line(outerPts));
+
+    // Case / control fill only inside the joint distribution contour
+    const shaded = layer.append("g")
+        .attr("class", "joint-shaded")
+        .attr("clip-path", `url(#${ellipseClipId})`);
+
+    shaded.append("rect")
+        .attr("class", "joint-region joint-region-case")
+        .attr("x", scatterXScale(domain[0]))
+        .attr("y", scatterYScale(domain[1]))
+        .attr("width", scatterXScale(domain[1]) - scatterXScale(domain[0]))
+        .attr("height", Math.max(0, scatterYScale(cClamped) - scatterYScale(domain[1])))
+        .attr("fill", "teal")
+        .attr("opacity", 0.28);
+
+    shaded.append("rect")
+        .attr("class", "joint-region joint-region-control")
+        .attr("x", scatterXScale(domain[0]))
+        .attr("y", scatterYScale(cClamped))
+        .attr("width", scatterXScale(domain[1]) - scatterXScale(domain[0]))
+        .attr("height", Math.max(0, scatterYScale(domain[0]) - scatterYScale(cClamped)))
+        .attr("fill", "#777777")
+        .attr("opacity", 0.22);
+
+    // Dichotomization boundary only across the colored distribution
+    shaded.append("line")
+        .attr("class", "class-boundary")
+        .attr("x1", scatterXScale(domain[0]))
+        .attr("x2", scatterXScale(domain[1]))
+        .attr("y1", scatterYScale(cClamped))
+        .attr("y2", scatterYScale(cClamped))
+        .attr("stroke", "teal")
+        .attr("stroke-width", 3)
+        .attr("stroke-dasharray", "10,8")
+        .attr("opacity", 0.95);
+
+    // Contour strokes on top (outermost already used for clip)
+    levels.forEach((level, idx) => {
+        const pts = idx === 0 ? outerPts : StatUtils.bivariateContourEllipse(r, level, 160);
+        layer.append("path")
+            .attr("class", "joint-contour")
+            .attr("d", line(pts))
+            .attr("fill", "none")
+            .attr("stroke", "#333333")
+            .attr("stroke-width", 2.2 - idx * 0.25)
+            .attr("opacity", 0.5 + idx * 0.08);
+    });
+
+    // Light scatter above contours. Drawn outside the clipped layer and filtered so
+    // each glyph is fully inside the outer ellipse (no half-cut circles).
+    svgScatter.selectAll(".joint-scatter").remove();
+    const sample = options.samplePoints || [];
+    if (sample.length > 0) {
+        const pointRadiusPx = 6.5;
+        const rr = Math.min(Math.max(r, -0.999999), 0.999999);
+        const oneMinusR2 = Math.max(1e-12, 1 - rr * rr);
+        const domainSpan = domain[1] - domain[0];
+        const rDataX = pointRadiusPx * domainSpan / PLOT_AREA.width;
+        const rDataY = pointRadiusPx * domainSpan / PLOT_AREA.height;
+        // Worst-case Mahalanobis growth for a Euclidean step of size ~rData
+        const rData = Math.max(rDataX, rDataY);
+        const mahalPad = rData / Math.sqrt(Math.max(1e-6, 1 - Math.abs(rr)));
+        const outerRho = Math.sqrt(levels[0]);
+        const maxRho = Math.max(0, outerRho - mahalPad);
+        const maxQ = maxRho * maxRho;
+
+        const fullyInside = sample.filter(d => {
+            if (d.x < domain[0] + rDataX || d.x > domain[1] - rDataX) return false;
+            if (d.y < domain[0] + rDataY || d.y > domain[1] - rDataY) return false;
+            const q = (d.x * d.x - 2 * rr * d.x * d.y + d.y * d.y) / oneMinusR2;
+            return q <= maxQ;
+        });
+        const stride = Math.max(1, Math.ceil(fullyInside.length / SCATTER_VIZ_POINTS));
+        const plotPoints = fullyInside.filter((_, i) => i % stride === 0);
+
+        svgScatter.append("g")
+            .attr("class", "joint-scatter")
+            .selectAll(".scatter-point")
+            .data(plotPoints, d => `${d.x}-${d.y}-${d.trueClass}`)
+            .join("circle")
+            .attr("class", "scatter-point")
+            .attr("r", pointRadiusPx)
+            .attr("cx", d => scatterXScale(d.x))
+            .attr("cy", d => scatterYScale(d.y))
+            .attr("fill", d => (d.trueClass === 1 ? "teal" : "#666666"))
+            .attr("opacity", 0.35);
+    }
 }
 
-function drawDistributions(tealX, grayX, type) {
-    // First, clear any existing SVG to avoid duplicate plots
+function drawDistributions(r, type, options = {}) {
+    // Clear any existing SVG to avoid duplicate plots
     d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`).selectAll("svg").remove();
-    
-    // Use same x-axis range as scatter plot
+
     const xRange = [-4, 4];
     xScale.domain(xRange);
-    
+
     const baseRate = getBaseRateFraction();
-    const greenScale = baseRate;
-    const blueScale = 1 - baseRate;
+    const dens = StatUtils.bivariateGroupDensities(r, baseRate, {
+        xMin: xRange[0],
+        xMax: xRange[1],
+        xPoints: 181,
+        yNodes: 140
+    });
+    const tealDensity = dens.caseDensity;
+    const grayDensity = dens.controlDensity;
 
-    // Create histograms instead of KDE
-    const binCount = 70; // Number of bins for the histogram
-    const histogramGenerator = d3.histogram()
-        .domain(xRange)
-        .thresholds(d3.range(xRange[0], xRange[1], (xRange[1] - xRange[0]) / binCount));
-    
-    // Generate histogram data
-    const tealBins = histogramGenerator(tealX);
-    const grayBins = histogramGenerator(grayX);
-    
-    // Convert bins to density format (normalize by total count and bin width)
-    const tealTotal = tealX.length;
-    const grayTotal = grayX.length;
-    const binWidth = tealBins[0].x1 - tealBins[0].x0;
-    
-    // Convert to density format compatible with existing visualization
-    const tealDensity = tealBins.map(bin => ({
-        x: (bin.x0 + bin.x1) / 2, // Use bin midpoint for x
-        y: (bin.length / tealTotal / binWidth) * greenScale // Normalize by count and bin width
-    }));
-    
-    const grayDensity = grayBins.map(bin => ({
-        x: (bin.x0 + bin.x1) / 2, // Use bin midpoint for x
-        y: (bin.length / grayTotal / binWidth) * blueScale // Normalize by count and bin width
-    }));
+    // Prefer analytical bivariate effect sizes when provided
+    const esMetrics = options.esMetrics || StatUtils.bivariateEffectSizes(r, baseRate);
 
-    // Compute all effect size metrics
-    const esMetrics = computeEffectSizeMetrics(tealX, grayX);
-    
-    // Update UI displays
     document.getElementById(`${type}-rank-biserial-cont`).value = esMetrics.rankBiserial.toFixed(2);
     document.getElementById(`${type}-glass-d-cont`).value = esMetrics.glassD.toFixed(2);
 
-    // Create metrics object for the existing updateMetricsFromD function
-    const metrics = { 
-        d: esMetrics.d, 
-        da: esMetrics.da, 
+    const metrics = {
+        d: esMetrics.d,
+        da: esMetrics.da,
         cohensU3: esMetrics.cohensU3,
-        meanTeal: esMetrics.meanTeal, 
-        meanGray: esMetrics.meanGray, 
-        varianceTeal: esMetrics.varianceTeal, 
-        varianceGray: esMetrics.varianceGray 
+        meanTeal: esMetrics.meanTeal,
+        meanGray: esMetrics.meanGray,
+        varianceTeal: esMetrics.varianceTeal,
+        varianceGray: esMetrics.varianceGray
     };
-    
-    // Store metrics and update UI
+
     if (type === "true") {
         trueMetrics = metrics;
     } else if (type === "observed") {
@@ -526,34 +668,27 @@ function drawDistributions(tealX, grayX, type) {
 
     updateMetricsFromD(metrics, type);
 
-    const maxYTeal = d3.max(tealDensity, d => d.y);
-    const maxYGray = d3.max(grayDensity, d => d.y);
-    const maxY = Math.max(maxYTeal, maxYGray, 0.1); // Ensure maxY is not 0
-    
-    // Update yScale domain based on actual data, range uses viewBox
+    const maxYTeal = d3.max(tealDensity, d => d.y) || 0;
+    const maxYGray = d3.max(grayDensity, d => d.y) || 0;
+    const maxY = Math.max(maxYTeal, maxYGray, 0.1);
+
     yScale.domain([0, maxY * 1.1]).range([PLOT_CONFIG.margin.top + PLOT_AREA.height, PLOT_CONFIG.margin.top]);
-    
-    // Update xScale range based on viewBox
     xScale.range([PLOT_CONFIG.margin.left, PLOT_CONFIG.margin.left + PLOT_AREA.width]);
 
-    // Create the SVG container
-    const svgDistributions = d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`)
-        // Remove previous SVG if exists
-        .select("svg").remove(); 
+    d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`)
+        .select("svg").remove();
     const newSvg = d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`)
-        .append("svg") // Append new SVG
+        .append("svg")
         .attr("width", "100%")
         .attr("height", "100%")
-        // Use standard viewBox
         .attr("viewBox", `0 0 ${PLOT_CONFIG.viewBoxWidth} ${PLOT_CONFIG.viewBoxHeight}`)
         .attr("preserveAspectRatio", "xMidYMid meet")
         .style("display", "block")
         .style("max-width", "100%");
-    
-    // Add x-axis - Use viewBox dimensions
+
     newSvg.append("g")
         .attr("class", "x-axis")
-        .attr("transform", `translate(0,${PLOT_CONFIG.margin.top + PLOT_AREA.height})`) 
+        .attr("transform", `translate(0,${PLOT_CONFIG.margin.top + PLOT_AREA.height})`)
         .call(d3.axisBottom(xScale).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
             .attr("stroke-width", PLOT_CONFIG.tickWidth)
@@ -561,10 +696,9 @@ function drawDistributions(tealX, grayX, type) {
         .call(g => g.selectAll("path.domain")
             .attr("stroke-width", PLOT_CONFIG.tickWidth));
 
-    // Add y-axis - Use viewBox dimensions
     newSvg.append("g")
         .attr("class", "y-axis")
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left},0)`) 
+        .attr("transform", `translate(${PLOT_CONFIG.margin.left},0)`)
         .call(d3.axisLeft(yScale).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
             .attr("stroke-width", PLOT_CONFIG.tickWidth)
@@ -572,32 +706,26 @@ function drawDistributions(tealX, grayX, type) {
         .call(g => g.selectAll("path.domain")
             .attr("stroke-width", PLOT_CONFIG.tickWidth));
 
-    const binWidthPixels = (xScale(tealBins[0].x1) - xScale(tealBins[0].x0)); // Calculate bin width in pixels for rect width
-    
-    // Draw distributions as true histograms (bar charts)
-    newSvg.selectAll(".gray-bar")
-        .data(grayDensity)
-        .join("rect")
-        .attr("class", "distribution gray-distribution gray-bar")
-        .attr("x", d => xScale(d.x - binWidth/2))
-        .attr("y", d => yScale(d.y))
-        .attr("width", binWidthPixels)
-        .attr("height", d => Math.max(0, yScale(0) - yScale(d.y))) // Ensure height >= 0
-        .attr("fill", "black")
-        .attr("opacity", 0.3);
-        
-    newSvg.selectAll(".teal-bar")
-        .data(tealDensity)
-        .join("rect")
-        .attr("class", "distribution teal-distribution teal-bar")
-        .attr("x", d => xScale(d.x - binWidth/2))
-        .attr("y", d => yScale(d.y))
-        .attr("width", binWidthPixels)
-        .attr("height", d => Math.max(0, yScale(0) - yScale(d.y))) // Ensure height >= 0
-        .attr("fill", "teal")
-        .attr("opacity", 0.4);
+    // Smooth analytical densities (same visual language as binary mode)
+    const area = d3.area()
+        .x(d => xScale(d.x))
+        .y0(yScale(0))
+        .y1(d => yScale(d.y));
 
-    // Axis labels - Adjust positioning based on viewBox
+    newSvg.append("path")
+        .attr("class", "distribution gray-distribution")
+        .datum(grayDensity)
+        .attr("fill", "black")
+        .attr("opacity", 0.3)
+        .attr("d", area);
+
+    newSvg.append("path")
+        .attr("class", "distribution teal-distribution")
+        .datum(tealDensity)
+        .attr("fill", "teal")
+        .attr("opacity", 0.4)
+        .attr("d", area);
+
     const urlParamsDist = parseURLParams();
     const xAxisLabelDist = urlParamsDist.xaxisLabel || "Predictor";
 
@@ -605,8 +733,8 @@ function drawDistributions(tealX, grayX, type) {
         .data([null])
         .join("foreignObject")
         .attr("class", "x-label")
-        .attr("x", PLOT_CONFIG.margin.left + PLOT_AREA.width / 2 - 150) // Centered
-        .attr("y", PLOT_CONFIG.margin.top + PLOT_AREA.height + 35) // Below axis
+        .attr("x", PLOT_CONFIG.margin.left + PLOT_AREA.width / 2 - 150)
+        .attr("y", PLOT_CONFIG.margin.top + PLOT_AREA.height + 35)
         .attr("width", 300)
         .attr("height", 40)
         .append("xhtml:div")
@@ -620,8 +748,7 @@ function drawDistributions(tealX, grayX, type) {
         .data([null])
         .join("foreignObject")
         .attr("class", "y-label")
-        // Rotate around top-left corner of text area, adjust x/y
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left - 90}, ${PLOT_CONFIG.margin.top + PLOT_AREA.height / 2 + 125}) rotate(-90)`) // Adjusted Y for centering
+        .attr("transform", `translate(${PLOT_CONFIG.margin.left - 90}, ${PLOT_CONFIG.margin.top + PLOT_AREA.height / 2 + 125}) rotate(-90)`)
         .attr("width", 300)
         .attr("height", 40)
         .append("xhtml:div")
@@ -629,11 +756,8 @@ function drawDistributions(tealX, grayX, type) {
         .style("text-align", "center")
         .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
         .style("color", "black")
-        .text("Count");
+        .text("Probability density");
 
-    // Removed variance ratio annotation display
-
-    // Legend - Adjust positioning based on viewBox
     const urlParams = parseURLParams();
     const label1 = urlParams.label1 || "Group 1";
     const label2 = urlParams.label2 || "Group 2";
@@ -648,7 +772,6 @@ function drawDistributions(tealX, grayX, type) {
         .attr("width", 400)
         .attr("height", 40);
 
-    // Add editable group labels
     legendEnter.append("xhtml:div")
         .attr("contenteditable", true)
         .style("font-size", `${PLOT_CONFIG.fontSize.legendText}px`)
@@ -658,13 +781,10 @@ function drawDistributions(tealX, grayX, type) {
         .text(d => d);
 
     legendEnter.merge(legend)
-        .attr("x", PLOT_CONFIG.margin.left + 100) // Position relative to margin
-        .attr("y", (d, i) => PLOT_CONFIG.margin.top + i * 34 + 30); // Position relative to margin
+        .attr("x", PLOT_CONFIG.margin.left + 100)
+        .attr("y", (d, i) => PLOT_CONFIG.margin.top + i * 34 + 30);
 
-    // Remove any existing threshold before redrawing
     newSvg.selectAll(".threshold-group").remove();
-
-    // Draw threshold after distributions
     drawThreshold(metrics, type);
 }
 
@@ -689,16 +809,22 @@ function drawThreshold(metrics, type) {
                 let newThreshold = xScale.invert(event.x + offsetX);
                 newThreshold = Math.max(xScale.domain()[0], Math.min(xScale.domain()[1], newThreshold));
                 thresholdValue = newThreshold;
-                plotROC();
-                drawThreshold(metrics, type); // Redraw the threshold itself
+                // Line tracks the pointer continuously (no discrete snap).
+                updateThresholdVisual(thresholdGroup);
+                // Metrics stay on the current sample at full precision; coalesce Plotly/DCA work.
+                updatePtDisplayContinuous();
+                scheduleThresholdMetricsUpdate();
+            })
+            .on("end", function () {
+                cancelPendingThresholdMetrics();
+                updatePtDisplayContinuous();
+                plotROC({ thresholdOnly: true });
             })
         );
 
     // Calculate plot area bounds based on viewBox and margins
     const plotTop = PLOT_CONFIG.margin.top;
     const plotBottom = PLOT_CONFIG.margin.top + PLOT_AREA.height;
-    const plotLeft = PLOT_CONFIG.margin.left;
-    const plotRight = PLOT_CONFIG.margin.left + PLOT_AREA.width;
 
     // Add or update the threshold line
     thresholdGroup.selectAll(".threshold-line")
@@ -747,85 +873,75 @@ function drawThreshold(metrics, type) {
         })
         .attr("fill", "red");
 
-    // Ensure the threshold group is always on top
+    // Threshold above distributions, but under legend text
     thresholdGroup.raise();
+    svg.selectAll(".legend-group").raise();
 }
 
-function plotROC() {
-    if (!currentLabeledData || currentLabeledData.length === 0) {
-        console.warn("plotROC called with no currentLabeledData.");
-        // Maybe draw empty plots?
-        Plotly.purge(SELECTORS.rocPlot);
-        Plotly.purge(SELECTORS.prPlot);
-        return;
-    }
-    // Build ROC and PR curves using a single sweep on a subsample for stability
-    const MAX_CURVE_POINTS_INPUT = isPreciseModeEnabled() ? 200000 : 100000; // higher cap in precise mode
-    const sweep = buildSweepData(currentLabeledData, MAX_CURVE_POINTS_INPUT);
-    const { xs, posSuffix, negSuffix, posTotal, negTotal } = sweep;
-    const n = xs.length;
-    const targetCurvePoints = isPreciseModeEnabled() ? 900 : 500;
-    const stepIdx = Math.max(1, Math.floor(n / targetCurvePoints));
+// Update threshold line / hitbox / arrows in place (keeps the active drag gesture intact)
+function updateThresholdVisual(thresholdGroup) {
+    const group = thresholdGroup || d3.select(
+        `#${currentView === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved} .threshold-group`
+    );
+    if (group.empty()) return;
 
-    const FPR = [];
-    const TPR = [];
-    const precision = [];
-    const recall = [];
-    for (let i = 0; i < n; i += stepIdx) {
-        const TP = posSuffix[i];
-        const FP = negSuffix[i];
-        const FN = posTotal - TP;
-        const TN = negTotal - FP;
-        const sens = TP / (TP + FN) || 0;
-        const spec = TN / (TN + FP) || 0;
-        const fpr = 1 - spec;
-        const prec = TP / (TP + FP) || 0;
-        FPR.push(fpr);
-        TPR.push(sens);
-        precision.push(prec);
-        recall.push(sens);
-    }
+    const plotTop = PLOT_CONFIG.margin.top;
+    const plotBottom = PLOT_CONFIG.margin.top + PLOT_AREA.height;
+    const x = xScale(thresholdValue);
 
-    // Calculate AUC using trapezoidal rule on monotone FPR sequence
-    let auc = 0;
-    for (let i = 1; i < FPR.length; i++) {
-        auc += (FPR[i-1] - FPR[i]) * (TPR[i] + TPR[i-1]) / 2;  // Reversed the order of FPR difference
-    }
+    group.select(".threshold-line")
+        .attr("x1", x)
+        .attr("x2", x)
+        .attr("y1", plotTop)
+        .attr("y2", plotBottom);
 
-    // Calculate PR-AUC using trapezoidal rule with proper boundary handling
-    // Add boundary points and sort by recall for proper integration
-    const baseRate = currentLabeledData.filter(d => d.trueClass === 1).length / currentLabeledData.length;
-    
-    // Create array of recall-precision pairs
-    let prPoints = recall.map((r, i) => ({ recall: r, precision: precision[i] }));
-    
-    // Add crucial boundary points
-    prPoints.push({ recall: 0, precision: 1.0 });  // At highest threshold
-    prPoints.push({ recall: 1.0, precision: baseRate });  // At lowest threshold
-    
-    // Remove duplicates and sort by recall
-    const uniquePrPoints = [];
-    const seenRecalls = new Set();
-    for (const point of prPoints.sort((a, b) => a.recall - b.recall)) {
-        if (!seenRecalls.has(point.recall)) {
-            uniquePrPoints.push(point);
-            seenRecalls.add(point.recall);
-        }
-    }
-    
-    // Calculate PR-AUC with proper integration direction
-    let prauc = 0;
-    for (let i = 1; i < uniquePrPoints.length; i++) {
-        const deltaRecall = uniquePrPoints[i].recall - uniquePrPoints[i-1].recall;
-        const avgPrecision = (uniquePrPoints[i].precision + uniquePrPoints[i-1].precision) / 2;
-        prauc += deltaRecall * avgPrecision;
+    group.select(".threshold-hitbox")
+        .attr("x", x - 15);
+
+    const arrowSize = 15;
+    const arrowY = plotTop + 15;
+    const arrowData = [
+        { direction: "left", x: thresholdValue - 0.2, y: arrowY },
+        { direction: "right", x: thresholdValue + 0.2, y: arrowY },
+    ];
+    group.selectAll(".threshold-arrow")
+        .data(arrowData)
+        .attr("d", d => {
+            const ax = xScale(d.x);
+            const ay = d.y;
+            if (d.direction === "left") {
+                return `M${ax},${ay} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+            }
+            return `M${ax},${ay} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
+        });
+}
+
+function plotROC(options = {}) {
+    const quality = options.quality || "full";
+    const liveThresholdDrag = !!options.thresholdOnly;
+    const reuseCurves = !!(liveThresholdDrag || options.reuseCurves) && cachedCurveState;
+    const baseRate = getBaseRateFraction();
+    const r = currentAnalysisR;
+
+    let FPR, TPR, precision, recall, auc, prauc;
+
+    if (reuseCurves) {
+        ({ FPR, TPR, precision, recall, auc, prauc } = cachedCurveState);
+    } else {
+        const curves = StatUtils.bivariateDiscriminationCurves(r, baseRate, getQuadratureOptions(quality));
+        FPR = curves.FPR;
+        TPR = curves.TPR;
+        precision = curves.precision;
+        recall = curves.recall;
+        auc = curves.auc;
+        prauc = curves.prauc;
+        cachedCurveState = { FPR, TPR, precision, recall, auc, prauc, baseRate, r };
     }
 
-    // Get metrics at current threshold using full currentLabeledData (single pass)
-    const currentMetrics = computePredictiveMetrics(thresholdValue, currentLabeledData);
-    
-    // Update dashboard values
-    // Update dashboard values - only for metrics that exist
+    // Threshold metrics from bivariate quadrature (not Monte Carlo)
+    const yNodes = getQuadratureOptions(liveThresholdDrag ? "full" : quality).yNodes;
+    const currentMetrics = StatUtils.bivariatePredictiveMetrics(r, baseRate, thresholdValue, yNodes);
+
     const metricsToUpdate = {
         "accuracy-value-cont": currentMetrics.accuracy,
         "sensitivity-value-cont": currentMetrics.sensitivity,
@@ -845,15 +961,13 @@ function plotROC() {
         "kappa-value-cont": currentMetrics.kappa
     };
 
-    // Only update elements that exist
     Object.entries(metricsToUpdate).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
-            element.textContent = value.toFixed(2);
+            element.textContent = Number.isFinite(value) ? value.toFixed(2) : "∞";
         }
     });
-    
-    // ROC Plot
+
     const rocTrace = {
         x: FPR,
         y: TPR,
@@ -864,7 +978,7 @@ function plotROC() {
         fillcolor: "rgba(200, 200, 200, 0.4)",
         line: { color: "black" },
     };
-    
+
     const thresholdMarker = {
         x: [1 - currentMetrics.specificity],
         y: [currentMetrics.sensitivity],
@@ -872,7 +986,7 @@ function plotROC() {
         mode: "markers",
         marker: { color: "red", size: 10 },
     };
-    
+
     const rocLayout = {
         xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
         yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
@@ -891,8 +1005,7 @@ function plotROC() {
             align: "right",
         }]
     };
-    
-    // PR Plot - Use the sorted data to ensure correct curve
+
     const prTrace = {
         x: recall,
         y: precision,
@@ -903,7 +1016,7 @@ function plotROC() {
         fillcolor: "rgba(200, 200, 200, 0.4)",
         line: { color: "black" },
     };
-    
+
     const prThresholdMarker = {
         x: [currentMetrics.sensitivity],
         y: [currentMetrics.ppv],
@@ -911,7 +1024,7 @@ function plotROC() {
         mode: "markers",
         marker: { color: "red", size: 10 },
     };
-    
+
     const prLayout = {
         xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
         yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
@@ -930,8 +1043,8 @@ function plotROC() {
             align: prauc < 0.27 ? "right" : "left",
         }]
     };
-    
-    const config = { 
+
+    const config = {
         staticPlot: true,
         responsive: true,
         displayModeBar: false
@@ -940,43 +1053,35 @@ function plotROC() {
     if (!rocInitialized) {
         Plotly.newPlot(SELECTORS.rocPlot, [rocTrace, thresholdMarker], rocLayout, config);
         Plotly.newPlot(SELECTORS.prPlot, [prTrace, prThresholdMarker], prLayout, config);
-        
-        // Add click event listeners to navigate to get-started.html sections
+
         document.getElementById(SELECTORS.rocPlot).addEventListener('click', () => {
             window.open('get-started.html#threshold-metrics', '_blank');
         });
         document.getElementById(SELECTORS.prPlot).addEventListener('click', () => {
             window.open('get-started.html#threshold-metrics', '_blank');
         });
-        
+
         rocInitialized = true;
     } else {
         Plotly.react(SELECTORS.rocPlot, [rocTrace, thresholdMarker], rocLayout, config);
         Plotly.react(SELECTORS.prPlot, [prTrace, prThresholdMarker], prLayout, config);
     }
-    
-    // Plot DCA (only if container exists and DCA module is available)
+
     if (document.getElementById(SELECTORS.dcaPlot) && typeof DCAModule !== 'undefined') {
-        // Get base rate from current data
-        const baseRate = currentLabeledData.filter(d => d.trueClass === 1).length / currentLabeledData.length;
-        
-        // Get metrics at current threshold position
-        const currentMetrics = computePredictiveMetrics(thresholdValue, currentLabeledData);
-        
         DCAModule.plot('continuous', {
             sensitivity: currentMetrics.sensitivity,
             specificity: currentMetrics.specificity,
             baseRate: baseRate,
-            // Pass ROC curve data for proper DCA calculation
             FPR: FPR,
             TPR: TPR,
-            // Pass current threshold and metrics for marker positioning
             currentThreshold: thresholdValue,
+            currentThresholdProb: computePtFromThresholdContinuous(thresholdValue),
             currentMetrics: currentMetrics,
-            // Pass threshold range for proper scaling
             thresholdRange: { min: -4, max: 4 },
-            // Pass precise estimates flag for consistent precision
-            usePreciseEstimates: isPreciseModeEnabled()
+            // During live threshold drags, skip temporal smoothing so the marker tracks continuously.
+            usePreciseEstimates: false,
+            interactionMode: false,
+            disableSmoothing: liveThresholdDrag
         });
     }
 }
@@ -1014,7 +1119,10 @@ function togglePlotVisibility() {
 }
 
 // Function to update plots and metrics based on current state
-function updatePlots() {
+function updatePlots(options = {}) {
+    const quality = options.quality || "full";
+    const visibleOnly = !!options.visibleOnly;
+
     // Get current values
     const trueR = parseFloat(document.getElementById("true-pearson-r-cont").value);
     const reliabilityX = parseFloat(document.getElementById("reliability-x-number-cont").value);
@@ -1022,32 +1130,122 @@ function updatePlots() {
 
     // Calculate observed R
     const observedR = computeObservedR(trueR, reliabilityX, reliabilityY);
+    currentTrueR = trueR;
+    currentObservedR = observedR;
+    currentAnalysisR = (currentView === "true") ? trueR : observedR;
 
     // Update the readonly observed r and r-squared inputs
     document.getElementById("observed-pearson-r-cont").value = observedR.toFixed(2);
     document.getElementById("true-R-squared-cont").value = (trueR**2).toFixed(2);
     document.getElementById("observed-R-squared-cont").value = (observedR**2).toFixed(2);
 
-    // Generate data for BOTH true and observed
+    const baseRate = getBaseRateFraction();
+    const quad = getQuadratureOptions(quality);
+    // Analytical curves + effect sizes for both views
+    const trueCurves = StatUtils.bivariateDiscriminationCurves(trueR, baseRate, quad);
+    const observedCurves = StatUtils.bivariateDiscriminationCurves(observedR, baseRate, quad);
+    const trueES = StatUtils.bivariateEffectSizes(trueR, baseRate, { auc: trueCurves.auc });
+    const observedES = StatUtils.bivariateEffectSizes(observedR, baseRate, { auc: observedCurves.auc });
+
+    // Monte Carlo sample: rank-biserial + light scatter overlay
     const trueDataGen = generateLabeledData(trueR);
     const observedDataGen = generateLabeledData(observedR);
 
-    // Store globally
+    trueES.rankBiserial = computeEffectSizeMetrics(
+        trueDataGen.tealData.map(d => d.x),
+        trueDataGen.grayData.map(d => d.x)
+    ).rankBiserial;
+    observedES.rankBiserial = computeEffectSizeMetrics(
+        observedDataGen.tealData.map(d => d.x),
+        observedDataGen.grayData.map(d => d.x)
+    ).rankBiserial;
+
     trueLabeledData = trueDataGen.labeledData;
     observedLabeledData = observedDataGen.labeledData;
+    trueDataGenCache = trueDataGen;
+    observedDataGenCache = observedDataGen;
+    lastPlotsQuality = quality;
 
-    // Draw both plots using the generated data
-    drawScatterPlot(trueR, "true", trueDataGen);
-    drawScatterPlot(observedR, "observed", observedDataGen);
+    // Refresh hidden-view first, then visible view last (shared scales for threshold drag)
+    if (visibleOnly && currentView !== "true") {
+        drawDistributions(trueR, "true", { esMetrics: trueES });
+    }
+    if (visibleOnly && currentView !== "observed") {
+        drawDistributions(observedR, "observed", { esMetrics: observedES });
+    }
+    if (!visibleOnly || currentView === "true") {
+        drawJointContours(trueR, "true", {
+            esMetrics: trueES,
+            samplePoints: trueDataGen.labeledData
+        });
+    }
+    if (!visibleOnly || currentView === "observed") {
+        drawJointContours(observedR, "observed", {
+            esMetrics: observedES,
+            samplePoints: observedDataGen.labeledData
+        });
+    }
+    hiddenViewDrawPending = visibleOnly;
 
-    // Set the CURRENT data for ROC plot based on view
+    // Set the CURRENT data / analysis r for ROC plot based on view
     currentLabeledData = (currentView === "true") ? trueLabeledData : observedLabeledData;
+    currentAnalysisR = (currentView === "true") ? trueR : observedR;
 
-    // Update ROC/PR plots
-    plotROC();
+    // Seed curve cache for the active view so threshold drags stay cheap
+    const activeCurves = (currentView === "true") ? trueCurves : observedCurves;
+    cachedCurveState = {
+        FPR: activeCurves.FPR,
+        TPR: activeCurves.TPR,
+        precision: activeCurves.precision,
+        recall: activeCurves.recall,
+        auc: activeCurves.auc,
+        prauc: activeCurves.prauc,
+        baseRate,
+        r: currentAnalysisR
+    };
+
+    // Update ROC/PR/DCA from analytics (reuse curves just computed above)
+    plotROC({ quality, reuseCurves: true });
 
     // Ensure the correct scatter/distribution plots are visible
     togglePlotVisibility();
+
+    if (options.syncPt !== false) {
+        updatePtDisplayContinuous();
+    }
+}
+
+function ensureVisibleViewDrawn() {
+    if (!hiddenViewDrawPending) return;
+    const trueR = currentTrueR;
+    const observedR = currentObservedR;
+    const baseRate = getBaseRateFraction();
+
+    if (currentView === "true" && trueDataGenCache) {
+        const es = StatUtils.bivariateEffectSizes(trueR, baseRate, {
+            auc: cachedCurveState && cachedCurveState.r === trueR ? cachedCurveState.auc : undefined
+        });
+        es.rankBiserial = computeEffectSizeMetrics(
+            trueDataGenCache.tealData.map(d => d.x),
+            trueDataGenCache.grayData.map(d => d.x)
+        ).rankBiserial;
+        drawJointContours(trueR, "true", {
+            esMetrics: es,
+            samplePoints: trueDataGenCache.labeledData
+        });
+    } else if (currentView === "observed" && observedDataGenCache) {
+        const es = StatUtils.bivariateEffectSizes(observedR, baseRate, {
+            auc: cachedCurveState && cachedCurveState.r === observedR ? cachedCurveState.auc : undefined
+        });
+        es.rankBiserial = computeEffectSizeMetrics(
+            observedDataGenCache.tealData.map(d => d.x),
+            observedDataGenCache.grayData.map(d => d.x)
+        ).rankBiserial;
+        drawJointContours(observedR, "observed", {
+            esMetrics: es,
+            samplePoints: observedDataGenCache.labeledData
+        });
+    }
 }
 
 function initializePlots() {
@@ -1100,12 +1298,13 @@ function setupEventListeners() {
     effectSlider.addEventListener("input", (e) => {
         const sliderValue = parseFloat(e.target.value);
         effectInput.value = sliderValue.toFixed(2);
-        updatePlots();
+        scheduleInteractiveUpdate();
     });
+    effectSlider.addEventListener("change", scheduleSettledUpdate);
     
     effectInput.addEventListener("change", () => {
         effectSlider.value = effectInput.value;
-        updatePlots();
+        requestImmediateFullUpdate();
     });
     
     // Added listener for R^2 input
@@ -1115,7 +1314,7 @@ function setupEventListeners() {
             const r = Math.sqrt(rSquared);
             effectInput.value = r.toFixed(2);
             effectSlider.value = r; // Update slider value too
-            updatePlots();
+            requestImmediateFullUpdate();
         }
     });
 
@@ -1126,8 +1325,9 @@ function setupEventListeners() {
     baseRateSlider.addEventListener("input", () => {
         const percent = parseFloat(baseRateSlider.value);
         baseRateInput.value = isNaN(percent) ? "" : percent.toFixed(1);
-        updatePlots();
+        scheduleInteractiveUpdate();
     });
+    baseRateSlider.addEventListener("change", scheduleSettledUpdate);
 
     baseRateInput.addEventListener("change", () => {
         let percent = parseFloat(baseRateInput.value);
@@ -1135,23 +1335,25 @@ function setupEventListeners() {
         percent = Math.min(Math.max(percent, 0.1), 99.9);
         baseRateInput.value = percent.toFixed(1);
         baseRateSlider.value = percent;
-        updatePlots();
+        requestImmediateFullUpdate();
     });
 
     bindRangeNumberPair("reliability-x-slider-cont", "reliability-x-number-cont", {
         decimals: 2,
-        onSync: () => updatePlots()
+        onSync: (source) => {
+            if (source === "range") scheduleInteractiveUpdate();
+            else requestImmediateFullUpdate();
+        }
     });
     bindRangeNumberPair("reliability-y-slider-cont", "reliability-y-number-cont", {
         decimals: 2,
-        onSync: () => updatePlots()
+        onSync: (source) => {
+            if (source === "range") scheduleInteractiveUpdate();
+            else requestImmediateFullUpdate();
+        }
     });
-
-    // Precise Estimates Checkbox
-    const preciseCheckbox = document.getElementById("precise-estimates-checkbox-cont");
-    if (preciseCheckbox) { // Check if the element exists
-        preciseCheckbox.addEventListener("change", updatePlots);
-    }
+    document.getElementById("reliability-x-slider-cont").addEventListener("change", scheduleSettledUpdate);
+    document.getElementById("reliability-y-slider-cont").addEventListener("change", scheduleSettledUpdate);
 
     // Plot toggle buttons
     const trueButton = document.getElementById("true-button-cont");
@@ -1163,9 +1365,13 @@ function setupEventListeners() {
         trueButton.classList.add("active");
         observedButton.classList.remove("active");
         updateMetricsHighlighting("true");
-        currentLabeledData = trueLabeledData; // Switch data source
-        togglePlotVisibility(); // Handles scatter/distribution visibility
-        plotROC(); // Update ROC/PR plot with current data & threshold
+        currentLabeledData = trueLabeledData;
+        currentAnalysisR = currentTrueR;
+        cachedCurveState = null; // rebuild analytical curves for this view
+        ensureVisibleViewDrawn();
+        togglePlotVisibility();
+        plotROC({ quality: lastPlotsQuality });
+        updatePtDisplayContinuous();
     });
 
     observedButton.addEventListener("click", () => {
@@ -1174,24 +1380,30 @@ function setupEventListeners() {
         observedButton.classList.add("active");
         trueButton.classList.remove("active");
         updateMetricsHighlighting("observed");
-        currentLabeledData = observedLabeledData; // Switch data source
-        togglePlotVisibility(); // Handles scatter/distribution visibility
-        plotROC(); // Update ROC/PR plot with current data & threshold
+        currentLabeledData = observedLabeledData;
+        currentAnalysisR = currentObservedR;
+        cachedCurveState = null;
+        ensureVisibleViewDrawn();
+        togglePlotVisibility();
+        plotROC({ quality: lastPlotsQuality });
+        updatePtDisplayContinuous();
     });
 
-    // Maximize buttons for continuous: use real simulated data
-    const maxJBtnCont = document.getElementById('max-j-button-cont');
-    const maxF1BtnCont = document.getElementById('max-f1-button-cont');
-    if (maxJBtnCont) {
-        maxJBtnCont.addEventListener('click', () => {
-            const bestT = findOptimalThresholdContinuous('youden');
-            updateThreshold(bestT);
+    // Slider ↔ score (red line); number ↔ p_t
+    const ptInputCont = document.getElementById('pt-input-cont');
+    const scoreSliderCont = document.getElementById('threshold-slider-cont');
+    if (scoreSliderCont) {
+        scoreSliderCont.addEventListener('input', () => {
+            const score = parseFloat(scoreSliderCont.value);
+            if (isNaN(score)) return;
+            setThresholdFromScoreContinuous(score);
         });
     }
-    if (maxF1BtnCont) {
-        maxF1BtnCont.addEventListener('click', () => {
-            const bestT = findOptimalThresholdContinuous('f1');
-            updateThreshold(bestT);
+    if (ptInputCont) {
+        ptInputCont.addEventListener('change', () => {
+            let pt = parseFloat(ptInputCont.value);
+            if (isNaN(pt)) return;
+            setThresholdFromPtControlsContinuous(pt);
         });
     }
 }
@@ -1230,18 +1442,23 @@ function initializeContinuous(initialThreshold) {
 }
 
 // Function to update threshold value and redraw
-function updateThreshold(newThreshold) {
+function updateThreshold(newThreshold, options = {}) {
     thresholdValue = newThreshold;
+    cancelPendingThresholdMetrics();
     // Update ROC/PR/DCA based on existing currentLabeledData without regenerating data
-    plotROC();
+    plotROC({ thresholdOnly: !!cachedCurveState });
     // Redraw the threshold line on the active distribution plot
     const type = (currentView === "true") ? "true" : "observed";
     const metrics = (type === "true") ? trueMetrics : observedMetrics;
     drawThreshold(metrics, type);
+    if (options.syncPt !== false) {
+        updatePtDisplayContinuous();
+    }
 }
 
 // Export for main.js
 window.initializeContinuous = initializeContinuous;
 window.cleanupContinuous = cleanupContinuous;
 window.updateThreshold = updateThreshold;
+window.requestImmediateFullUpdate = requestImmediateFullUpdate;
 })();

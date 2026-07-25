@@ -31,6 +31,7 @@ from .parametric import (
     compute_pr_auc_parametric,
     find_optimal_threshold,
     attenuate_d,
+    attenuate_mean_difference,
     compute_sigma_from_icc,
     # d -> other effect sizes
     d_to_odds_ratio,
@@ -68,6 +69,7 @@ __all__ = [
     'compute_pr_auc_parametric',
     'find_optimal_threshold',
     'attenuate_d',
+    'attenuate_mean_difference',
     'compute_sigma_from_icc',
     # d -> other effect sizes
     'd_to_odds_ratio',

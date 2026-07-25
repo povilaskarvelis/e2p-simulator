@@ -87,20 +87,24 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#continuous-button').click();
     
     // Store initial state of plots
-    let initialDistributionBarHeight, initialScatterCx;
+    let initialDistributionBarHeight, initialContourPath;
     let initialRocAucText, initialPrAucText;
-    // Select the first teal bar in the observed distribution plot
-    const distributionBarSelector = '#distribution-plot-observed-cont .teal-bar'; 
-    // Corrected scatter plot point selector
-    const scatterPointSelector = '#scatter-plot-observed-cont .scatter-point'; 
+    // Select the teal analytical density path in the observed distribution plot
+    const distributionBarSelector = '#distribution-plot-observed-cont .teal-distribution'; 
+    const contourSelector = '#scatter-plot-observed-cont .joint-contour';
+    const scatterSelector = '#scatter-plot-observed-cont .scatter-point';
 
-    // Get initial distribution plot bar height
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').then(h => { initialDistributionBarHeight = h; });
+    // Contours plus a light scatter overlay
+    cy.get(contourSelector).should('have.length.greaterThan', 0);
+    cy.get(scatterSelector).should('have.length.greaterThan', 0);
+
+    // Get initial distribution plot path
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
       
-    // Get initial scatter plot cx attribute
-    cy.get(scatterPointSelector).first()
-      .should('have.attr', 'cx').then(cx => { initialScatterCx = cx; });
+    // Get initial joint contour path
+    cy.get(contourSelector).first()
+      .should('have.attr', 'd').then(d => { initialContourPath = d; });
 
     // Get initial ROC and PR AUC annotations
     cy.get('#roc-plot-cont').then($div => { 
@@ -116,23 +120,23 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Change Pearson's r value and check for plot changes
     cy.get('#effect-slider-cont').invoke('val', 0.75).trigger('input');
     checkNumericValue('#true-pearson-r-cont', '0.75');
-    // Check distribution bar height
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').and('not.equal', initialDistributionBarHeight);
+    // Check distribution path changed
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
 
     // Check ROC annotation
     cy.get('#roc-plot-cont').then($div => {
       const newRocAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
       expect(newRocAucText).to.not.equal(initialRocAucText);
     });
-    // Check scatter cx attribute
-    cy.get(scatterPointSelector).first()
-      .should('have.attr', 'cx').and('not.equal', initialScatterCx);
+    // Check joint contour changed
+    cy.get(contourSelector).first()
+      .should('have.attr', 'd').and('not.equal', initialContourPath);
 
     
     // Store state again before changing reliability value
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').then(h => { initialDistributionBarHeight = h; });
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
     cy.get('#pr-plot-cont').then($div => {
       initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
       // expect(initialPrAucText).to.exist;
@@ -141,9 +145,9 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Change X reliability value and check for plot changes
     cy.get('#reliability-x-slider-cont').invoke('val', 0.85).trigger('input');
     checkNumericValue('#reliability-x-number-cont', '0.85');
-    // Check distribution bar height
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').and('not.equal', initialDistributionBarHeight);
+    // Check distribution path
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
     // Check PR annotation
     cy.get('#pr-plot-cont').then($div => {
       const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
@@ -151,8 +155,8 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     });
       
     // Store state again before changing Y reliability value
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').then(h => { initialDistributionBarHeight = h; });
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
     cy.get('#pr-plot-cont').then($div => {
       initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
       // expect(initialPrAucText).to.exist;
@@ -161,9 +165,9 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Change Y reliability value and check for plot changes
     cy.get('#reliability-y-slider-cont').invoke('val', 0.85).trigger('input');
     checkNumericValue('#reliability-y-number-cont', '0.85');
-    // Check distribution bar height
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').and('not.equal', initialDistributionBarHeight);
+    // Check distribution path
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
     // Check PR annotation
     cy.get('#pr-plot-cont').then($div => {
       const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
@@ -171,8 +175,8 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     });
     
     // Store state again before changing base rate
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').then(h => { initialDistributionBarHeight = h; });
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
     cy.get('#pr-plot-cont').then($div => {
       initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
       // expect(initialPrAucText).to.exist;
@@ -181,9 +185,9 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Change base rate value and check for plot changes
     cy.get('#base-rate-slider-cont').invoke('val', 65.0).trigger('input');
     checkNumericValue('#base-rate-number-cont', '65.0');
-    // Check distribution bar height
-    cy.get(distributionBarSelector).first()
-      .should('have.attr', 'height').and('not.equal', initialDistributionBarHeight);
+    // Check distribution path
+    cy.get(distributionBarSelector)
+      .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
     // Check PR annotation
     cy.get('#pr-plot-cont').then($div => {
       const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
@@ -198,14 +202,10 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Select "True" effects mode 
     cy.get('#true-button-cont').click();
     
-    // Turn on precise estimates - force check as input is hidden
-    cy.get('#precise-estimates-checkbox-cont').check({ force: true });
-    
     // Set Pearson's r to 0.69 using the number input
     cy.get('#true-pearson-r-cont').clear().type('0.69').blur(); // Input r and lose focus
     
-    // Wait for calculations (especially precise estimates)
-    cy.wait(2000);
+    cy.wait(300);
     
     // Check related true metrics are calculated correctly
     checkNumericValue('#true-R-squared-cont', '0.48', 0.1);
@@ -232,12 +232,9 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#reliability-y-slider-cont').invoke('val', 0.42).trigger('input');
     
     // Set Base Rate
-    cy.get('#base-rate-slider-cont').invoke('val', 66.6).trigger('input');
+    cy.get('#base-rate-slider-cont').invoke('val', 66.6).trigger('input').trigger('change');
 
-    // Turn on precise estimates - force check as input is hidden
-    cy.get('#precise-estimates-checkbox-cont').check({ force: true });
-    // Wait for calculations to update
-    cy.wait(2000);
+    cy.wait(300);
     
     // Check related OBSERVED metrics are calculated correctly
     checkNumericValue('#observed-R-squared-cont', '0.08', 0.1);
@@ -261,13 +258,9 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#true-pearson-r-cont').clear().type('0.69').trigger('change'); // Use trigger('change') instead of blur()
 
     // Set Base Rate
-    cy.get('#base-rate-slider-cont').invoke('val', 66.6).trigger('input');
-    
-    // Turn on precise estimates - force check as input is hidden
-    cy.get('#precise-estimates-checkbox-cont').check({ force: true });
+    cy.get('#base-rate-slider-cont').invoke('val', 66.6).trigger('input').trigger('change');
 
-    // Wait for calculations (especially precise estimates)
-    cy.wait(2000);
+    cy.wait(300);
 
     // Expected predictive values with tolerance
     const tolerance = 0.1;
@@ -314,13 +307,9 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#reliability-y-slider-cont').invoke('val', 0.42).trigger('input');
 
     // Set Base Rate
-    cy.get('#base-rate-slider-cont').invoke('val', 66.6).trigger('input');
-    
-    // Turn on precise estimates - force check as input is hidden
-    cy.get('#precise-estimates-checkbox-cont').check({ force: true });
+    cy.get('#base-rate-slider-cont').invoke('val', 66.6).trigger('input').trigger('change');
 
-    // Wait for calculations (especially precise estimates)
-    cy.wait(2000);
+    cy.wait(300);
 
     // Expected predictive values with tolerance
     const tolerance = 0.1;

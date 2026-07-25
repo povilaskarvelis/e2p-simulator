@@ -46,6 +46,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Apply score or p_t from URL after model params are in place (p_t preferred).
+    function applyThresholdFromParams(params, mode) {
+        const ptRaw = params.thresholdProb != null ? params.thresholdProb : params.pt;
+        const pt = ptRaw != null ? parseFloat(ptRaw) : NaN;
+        if (!isNaN(pt)) {
+            const ptInputId = mode === 'continuous' ? 'pt-input-cont' : 'pt-input';
+            const ptInput = document.getElementById(ptInputId);
+            if (ptInput) {
+                ptInput.value = Math.min(Math.max(pt, 0.01), 0.99).toFixed(2);
+                ptInput.dispatchEvent(new Event('change'));
+            }
+            return;
+        }
+        if (params.thresholdValue == null) return;
+        const score = parseFloat(params.thresholdValue);
+        if (isNaN(score)) return;
+        if (mode === 'continuous' && typeof window.updateThreshold === 'function') {
+            window.updateThreshold(score);
+        } else {
+            const scoreSlider = document.getElementById('threshold-slider');
+            if (scoreSlider) {
+                scoreSlider.value = score;
+                scoreSlider.dispatchEvent(new Event('input'));
+            }
+        }
+    }
+
     // Set form values based on URL parameters
     function setFormValues(params) {
         // Check if mode is specified
@@ -91,10 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('difference-slider').dispatchEvent(new Event('input'));
                 }
 
-                // Pass initial threshold if provided
-                const initialThreshold = params.thresholdValue ? parseFloat(params.thresholdValue) : undefined;
-                // (Re)Initialize binary with potentially new threshold
-                initializeBinary(initialThreshold);
+                initializeBinary();
+                applyThresholdFromParams(params, 'binary');
 
             } else if (params.mode === 'continuous') {
                 // Show continuous mode
@@ -104,18 +129,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 continuousContainer.classList.remove('u-hidden');
                 toggleSampleSizeSections('continuous');
                 
-                // Pass initial threshold if provided
-                const initialThreshold = params.thresholdValue ? parseFloat(params.thresholdValue) : undefined;
-                
-                // Initialize continuous version if needed
+                // Initialize continuous first, then apply params, then threshold/p_t
                 if (!continuousInitialized) {
-                    initializeContinuous(initialThreshold);
+                    initializeContinuous();
                     continuousInitialized = true;
-                } else if (initialThreshold !== undefined) {
-                    // If already initialized but we have a new threshold, update it
-                    if (typeof window.updateThreshold === 'function') {
-                        window.updateThreshold(initialThreshold);
-                    }
                 }
                 
                 // Set continuous mode parameters
@@ -145,10 +162,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Set true Pearson's r directly to match the R² value
                     document.getElementById('true-pearson-r-cont').value = parseFloat(params.effectSizeR).toFixed(2);
-                    
-                    // Trigger update to recalculate all metrics
-                    document.getElementById('effect-slider-cont').dispatchEvent(new Event('input'));
                 }
+
+                // Sync update after params (avoid debounced input racing thresholdProb)
+                if (typeof window.requestImmediateFullUpdate === 'function') {
+                    window.requestImmediateFullUpdate();
+                } else {
+                    document.getElementById('effect-slider-cont').dispatchEvent(new Event('change'));
+                }
+
+                applyThresholdFromParams(params, 'continuous');
             }
         }
     }
@@ -199,11 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Initialize continuous version if not already done
             if (!continuousInitialized) {
-                // Check for URL threshold parameter
-                const urlParams = parseURLParams();
-                const initialThreshold = urlParams.thresholdValue ? parseFloat(urlParams.thresholdValue) : undefined;
-                initializeContinuous(initialThreshold);
+                initializeContinuous();
                 continuousInitialized = true;
+                applyThresholdFromParams(parseURLParams(), 'continuous');
             }
         });
     });

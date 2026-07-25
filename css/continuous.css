@@ -8,6 +8,14 @@
     max-height: none;
 }
 
+/* Full-width divider above derived (non-input) effect-size metrics */
+#continuous-container .slider-section .index-hr-spaced {
+    margin: 12px -20px 10px;
+    width: calc(100% + 40px);
+    height: 1px;
+    background-color: #ccc;
+}
+
 /* Plot dimensions and layout */
 #continuous-container .plot {
     width: 100%;
