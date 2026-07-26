@@ -116,8 +116,9 @@ const DCAModule = {
                 deltaNB.push(predictorNB - bestDefaultNB);
             }
             
-            // Marker / ΔNB at the current decision: prefer explicit Bayes p_t from the
-            // simulator controls; fall back to reverse-inference only if absent.
+            // Marker = net benefit of the current cut at its p_t. Far left ≈ Treat All
+            // (including negative); far right ≈ Treat None (zero); no flooring onto another
+            // strategy — that pulls the marker off the line it should stay on.
             let currentDeltaNB = 0;
             let formattedDeltaNB = "0.000";
             let currentThresholdProb = 0;
@@ -130,28 +131,13 @@ const DCAModule = {
 
                 if (data.currentThresholdProb != null && isFinite(data.currentThresholdProb)) {
                     currentThresholdProb = Math.min(Math.max(data.currentThresholdProb, ptMin), ptMax);
-                } else if (FPR && TPR && FPR.length > 0) {
-                    // Legacy fallback: find pt where this ROC point sits on the NB envelope
-                    let bestPt = 0.5;
-                    let bestMatch = Infinity;
-                    for (let i = 0; i < thresholdProbs.length; i++) {
-                        const pt = thresholdProbs[i];
-                        const odds = pt / (1 - pt);
-                        const targetNB = (sens * baseRate) - ((1 - spec) * (1 - baseRate) * odds);
-                        const diff = Math.abs(targetNB - netBenefits[i]);
-                        if (diff < bestMatch) {
-                            bestMatch = diff;
-                            bestPt = pt;
-                        }
-                    }
-                    currentThresholdProb = bestPt;
                 } else {
                     currentThresholdProb = 0.5;
                 }
 
                 const odds = currentThresholdProb / (1 - currentThresholdProb);
-                markerNetBenefit = (sens * baseRate) - ((1 - spec) * (1 - baseRate) * odds);
                 const treatAllNB = baseRate - ((1 - baseRate) * odds);
+                markerNetBenefit = (sens * baseRate) - ((1 - spec) * (1 - baseRate) * odds);
                 currentDeltaNB = markerNetBenefit - Math.max(treatAllNB, 0);
                 DCAModule.lastPtValue = currentThresholdProb;
             } else {
@@ -199,8 +185,6 @@ const DCAModule = {
                 showlegend: true,
             };
             
-            // Marker at the chosen p_t with NB of the *current* operating point
-            // (equals the envelope when the score threshold is the Bayes rule for that p_t)
             let thresholdMarker = null;
             if (data.currentMetrics !== undefined && markerNetBenefit != null) {
                 thresholdMarker = {

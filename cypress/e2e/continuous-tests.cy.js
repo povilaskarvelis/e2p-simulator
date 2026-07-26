@@ -212,7 +212,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     checkNumericValue('#true-cohens-d-cont', '1.32', 0.1);
     checkNumericValue('#true-cohens-da-cont', '1.32', 0.1);
     checkNumericValue('#true-pb-r-cont', '0.55', 0.1);
-    checkNumericValue('#true-rank-biserial-cont', '0.32', 0.1);
+    checkNumericValue('#true-rank-biserial-cont', '0.65', 0.1);
     checkNumericValue('#true-glass-d-cont', '1.32', 0.1);
     checkNumericValue('#true-odds-ratio-cont', '10.91', 0.3);
     checkNumericValue('#true-log-odds-ratio-cont', '2.39', 0.2);
@@ -241,7 +241,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     checkNumericValue('#observed-cohens-d-cont', '0.49', 0.1);
     checkNumericValue('#observed-cohens-da-cont', '0.49', 0.1);
     checkNumericValue('#observed-pb-r-cont', '0.23', 0.1);
-    checkNumericValue('#observed-rank-biserial-cont', '0.09', 0.1);
+    checkNumericValue('#observed-rank-biserial-cont', '0.27', 0.1);
     checkNumericValue('#observed-glass-d-cont', '0.49', 0.1);
     checkNumericValue('#observed-odds-ratio-cont', '2.43', 0.3);
     checkNumericValue('#observed-log-odds-ratio-cont', '0.89', 0.2);

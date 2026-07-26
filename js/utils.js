@@ -34,8 +34,18 @@ const StatUtils = {
         return d / Math.sqrt(d * d + 1/(p * (1-p)));
     },
     
+    // Equal-groups conversion, kept for parity with the Python/R `r_to_d`.
+    // For the exact inverse of dToR at an arbitrary base rate use pointBiserialToD.
     rToD: function(r) {
         return 2 * r / Math.sqrt(1 - r * r);
+    },
+
+    // Exact inverse of dToR: recovers d from a point-biserial r at base rate p.
+    // Reduces to rToD when p = 0.5.
+    pointBiserialToD: function(r, p) {
+        if (Math.abs(r) >= 1) return Math.sign(r) * Infinity;
+        const pp = Math.min(Math.max(p, 1e-12), 1 - 1e-12);
+        return r / Math.sqrt(pp * (1 - pp) * (1 - r * r));
     },
 
     // Simple numerical integration using trapezoidal rule
@@ -73,6 +83,53 @@ const StatUtils = {
             x = (((((a[1] * r2 + a[2]) * r2 + a[3]) * r2 + a[4]) * r2 + a[5]) * r2 + a[6]) * r / (((((b[1] * r2 + b[2]) * r2 + b[3]) * r2 + b[4]) * r2 + b[5]) * r2 + 1);
         }
         return x;
+    },
+
+    // -------------------------------------------------------------------------
+    // Two-normal binary model (matches binary.js):
+    //   controls ~ N(0, sigma0²), cases ~ N(mu, sigma1²), prior P(case) = baseRate
+    // -------------------------------------------------------------------------
+
+    // P(case | X = x) by Bayes' theorem.
+    twoNormalPosterior: function(x, mu, sigma0, sigma1, baseRate) {
+        const p = Math.min(Math.max(baseRate, 1e-12), 1 - 1e-12);
+        const f0 = this.normalPDF(x, 0, sigma0);
+        const f1 = this.normalPDF(x, mu, sigma1);
+        const den = f1 * p + f0 * (1 - p);
+        return den === 0 ? 0.5 : (f1 * p) / den;
+    },
+
+    // Solve P(case | X = x) = targetPt for x, returning { roots } in ascending order.
+    //
+    // With equal SDs the posterior increases monotonically and there is exactly one
+    // solution. Unequal SDs make the posterior log-odds quadratic in x, so it turns
+    // around: a target can then be met at two scores, one either side of the turning
+    // point, or at none at all, because the posterior's range is bounded by its value at
+    // that turning point. Callers must therefore handle an empty list.
+    twoNormalScoresForPosterior: function(targetPt, mu, sigma0, sigma1, baseRate) {
+        const p = Math.min(Math.max(baseRate, 1e-12), 1 - 1e-12);
+        const pt = Math.min(Math.max(targetPt, 1e-12), 1 - 1e-12);
+        const prec0 = 1 / (sigma0 * sigma0);
+        const prec1 = 1 / (sigma1 * sigma1);
+
+        // logit(pt) - logit(posterior(x)) = a x² + b x + c
+        const a = (prec1 - prec0) / 2;
+        const b = -mu * prec1;
+        const c = (mu * mu * prec1) / 2
+            + Math.log(pt / (1 - pt))
+            + Math.log((1 - p) / p)
+            + Math.log(sigma1 / sigma0);
+
+        if (Math.abs(a) < 1e-12) {
+            if (Math.abs(b) < 1e-12) return { roots: [] };
+            return { roots: [-c / b] };
+        }
+
+        const disc = b * b - 4 * a * c;
+        if (disc < 0) return { roots: [] };
+
+        const sq = Math.sqrt(disc);
+        return { roots: [(-b - sq) / (2 * a), (-b + sq) / (2 * a)].sort((x, y) => x - y) };
     },
 
     // -------------------------------------------------------------------------

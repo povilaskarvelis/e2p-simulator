@@ -149,7 +149,89 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     checkNumericValue('#true-pb-r-bin', '0.40', 0.02);
     checkNumericValue('#true-eta-squared-bin', '0.16', 0.02);
   });
-  
+
+  it('inverts point-biserial r and eta squared using the base rate in binary mode', () => {
+    cy.get('#binary-button').click();
+    cy.get('#true-button-bin').click();
+
+    // Base rate 20%: the r -> d inversion must account for the base rate, so a typed r
+    // has to survive the round trip rather than being rewritten to a different value.
+    cy.get('#base-rate-slider').invoke('val', 20.0).trigger('input');
+
+    cy.get('#true-pb-r-bin').clear().type('0.30').blur();
+    checkNumericValue('#true-pb-r-bin', '0.30', 0.02);
+    checkNumericValue('#true-difference-number-bin', '0.79', 0.02);
+    checkNumericValue('#true-eta-squared-bin', '0.09', 0.02);
+
+    // The eta squared field feeds the same inversion via r = sqrt(eta squared)
+    cy.get('#true-eta-squared-bin').clear().type('0.16').blur();
+    checkNumericValue('#true-eta-squared-bin', '0.16', 0.02);
+    checkNumericValue('#true-pb-r-bin', '0.40', 0.02);
+    checkNumericValue('#true-difference-number-bin', '1.09', 0.02);
+
+    // Lower base rate requires a larger d for the same r
+    cy.get('#base-rate-slider').invoke('val', 5.0).trigger('input');
+    cy.get('#true-pb-r-bin').clear().type('0.30').blur();
+    checkNumericValue('#true-pb-r-bin', '0.30', 0.02);
+    checkNumericValue('#true-difference-number-bin', '1.44', 0.02);
+
+    // An r that would imply d beyond the slider range is clamped, and the slider and
+    // number field must still agree
+    cy.get('#true-pb-r-bin').clear().type('0.93').blur();
+    checkNumericValue('#true-difference-number-bin', '5', 0.01);
+    checkNumericValue('#difference-slider', '5', 0.01);
+  });
+
+  it('resolves the p_t input to a score whose posterior matches it in binary mode', () => {
+    cy.get('#binary-button').click();
+    cy.get('#observed-button-bin').click();
+
+    // kappa = 1 leaves the mean separation equal to d, so the two ICCs are the only
+    // thing driving the group SDs apart.
+    cy.get('#base-rate-slider').invoke('val', 20.0).trigger('input');
+    cy.get('#kappa-slider').invoke('val', 1.0).trigger('input');
+    cy.get('#difference-slider').invoke('val', 1.0).trigger('input');
+
+    const setPt = (value) => cy.get('#pt-input').invoke('val', value).trigger('change');
+    const setIccs = (icc1, icc2) => {
+      cy.get('#icc1-slider').invoke('val', icc1).trigger('input');
+      cy.get('#icc2-slider').invoke('val', icc2).trigger('input');
+    };
+
+    // Equal reliabilities: the posterior rises monotonically, so p_t inverts exactly
+    setIccs(0.5, 0.5);
+    setPt(0.6);
+    checkNumericValue('#pt-input', '0.60', 0.01);
+    checkNumericValue('#threshold-slider', '4.08', 0.05);
+
+    // Unequal reliabilities make the posterior non-monotone. A reachable p_t still
+    // inverts exactly, onto the branch where the posterior rises with the score.
+    setIccs(0.6, 0.8);
+    setPt(0.3);
+    checkNumericValue('#pt-input', '0.30', 0.01);
+    checkNumericValue('#threshold-slider', '1.16', 0.05);
+
+    // Past the posterior's ceiling no score achieves the request, so the threshold is
+    // left where it was and the field snaps back to the p_t still in force. Taking a
+    // nearby substitute instead would place the operating point off every reference
+    // strategy in the decision curve.
+    setPt(0.8);
+    checkNumericValue('#pt-input', '0.30', 0.01);
+    checkNumericValue('#threshold-slider', '1.16', 0.05);
+
+    // Reversing the ICCs dips the posterior instead of peaking it, so the rising
+    // branch now lies above the turning point
+    setIccs(0.9, 0.5);
+    setPt(0.5);
+    checkNumericValue('#pt-input', '0.50', 0.01);
+    checkNumericValue('#threshold-slider', '2.10', 0.05);
+
+    // Same guard on the other side: this posterior has a floor, not a ceiling
+    setPt(0.02);
+    checkNumericValue('#pt-input', '0.50', 0.01);
+    checkNumericValue('#threshold-slider', '2.10', 0.05);
+  });
+
   it('correctly calculates attenuated effect size metrics in binary mode', () => {
     // Test that changing the difference slider updates the corresponding input fields
     

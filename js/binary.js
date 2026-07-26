@@ -604,121 +604,78 @@ function inverseNormalCDF(p) {
     return 0; // fallback
 }
 
+// Distribution parameters of the currently displayed view: group 1 (negative) is
+// centred on 0, group 2 (positive) on mu. ICC inflates each group's sigma, so the
+// two sigmas differ whenever ICC1 !== ICC2.
+function getBinaryDistParams() {
+    const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
+    const icc1 = parseFloat(document.getElementById('icc1-slider').value);
+    const icc2 = parseFloat(document.getElementById('icc2-slider').value);
+    const kappa = parseFloat(document.getElementById('kappa-slider').value);
+    const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));
+    return {
+        mu: (currentView === 'true') ? trueD : obsD,
+        sigma0: currentView === 'true' ? 1 : 1 / Math.sqrt(icc1),
+        sigma1: currentView === 'true' ? 1 : 1 / Math.sqrt(icc2),
+        baseRate: getBaseRateFraction()
+    };
+}
+
 // Compute p_t (probability of positive class) at a given threshold
 // p_t = P(positive | x = threshold) using Bayes' theorem
 function computePtFromThreshold(threshold) {
     try {
-        const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
-        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
-        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
-        const kappa = parseFloat(document.getElementById('kappa-slider').value);
-        const baseRate = getBaseRateFraction();
-        
-        // Compute the observed distributions parameters
-        const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
-        const ddif = (currentView === 'true') ? trueD : obsD;
-        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
-        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
-        
-        // Compute PDFs at threshold
-        const pdf1 = StatUtils.normalPDF(threshold, 0, sigma1);      // Group 1 (negative)
-        const pdf2 = StatUtils.normalPDF(threshold, ddif, sigma2);   // Group 2 (positive)
-        
-        // Bayes' theorem: p_t = (pdf2 * baseRate) / (pdf1 * (1-baseRate) + pdf2 * baseRate)
-        const numerator = pdf2 * baseRate;
-        const denominator = pdf1 * (1 - baseRate) + pdf2 * baseRate;
-        
-        if (denominator === 0) return 0.5; // fallback
-        
-        return numerator / denominator;
+        const { mu, sigma0, sigma1, baseRate } = getBinaryDistParams();
+        return StatUtils.twoNormalPosterior(threshold, mu, sigma0, sigma1, baseRate);
     } catch (err) {
         console.error('Error computing p_t from threshold:', err);
         return 0.5;
     }
 }
 
-// Find threshold from p_t using bisection search
+// Score whose posterior equals p_t (closed form). Null if no score reaches that p_t
+// (only happens when the group SDs differ and the request is past the posterior's peak).
 function computeThresholdFromPt(targetPt) {
     try {
-        const trueD = parseFloat(document.getElementById('true-difference-number-bin').value);
-        const icc1 = parseFloat(document.getElementById('icc1-slider').value);
-        const icc2 = parseFloat(document.getElementById('icc2-slider').value);
-        const kappa = parseFloat(document.getElementById('kappa-slider').value);
-        const baseRate = getBaseRateFraction();
-        
-        // Compute the observed distributions parameters
-        const obsD = trueD * Math.sqrt(Math.sin((Math.PI/2) * kappa));        
-        const ddif = (currentView === 'true') ? trueD : obsD;
-        const sigma1 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc1);
-        const sigma2 = currentView === 'true' ? 1 : 1 / Math.sqrt(icc2);
-        
-        // Helper to compute p_t at a given threshold
-        const ptAt = t => {
-            const pdf1 = StatUtils.normalPDF(t, 0, sigma1);
-            const pdf2 = StatUtils.normalPDF(t, ddif, sigma2);
-            const numerator = pdf2 * baseRate;
-            const denominator = pdf1 * (1 - baseRate) + pdf2 * baseRate;
-            return denominator === 0 ? 0.5 : numerator / denominator;
-        };
-        
-        // p_t is monotonically increasing with threshold (higher threshold = more likely positive)
-        // Use bisection search
-        let left = -8;
-        let right = 8;
-        const EPSILON = 1e-6;
-        const MAX_ITER = 100;
-        
-        for (let i = 0; i < MAX_ITER; i++) {
-            const mid = (left + right) / 2;
-            const ptMid = ptAt(mid);
-            
-            if (Math.abs(ptMid - targetPt) < EPSILON) {
-                return mid;
-            }
-            
-            if (ptMid < targetPt) {
-                left = mid;
-            } else {
-                right = mid;
-            }
-            
-            if (right - left < EPSILON) break;
-        }
-        
-        return (left + right) / 2;
+        const { mu, sigma0, sigma1, baseRate } = getBinaryDistParams();
+        const { roots } = StatUtils.twoNormalScoresForPosterior(targetPt, mu, sigma0, sigma1, baseRate);
+        if (roots.length === 0) return null;
+        // Prefer the root on the ascending-risk branch when there are two.
+        const a = (1 / (sigma1 * sigma1) - 1 / (sigma0 * sigma0)) / 2;
+        return a > 0 ? roots[0] : roots[roots.length - 1];
     } catch (err) {
         console.error('Error computing threshold from p_t:', err);
-        return 0;
+        return null;
     }
 }
 
 const SCORE_SLIDER_MIN = -5.5;
 const SCORE_SLIDER_MAX = 6;
 
-// Sync left-panel controls: slider ↔ score threshold; number ↔ implied p_t.
-// Param scrubbing keeps the score (and slider) fixed and only refreshes p_t.
+// Sync left-panel controls: slider ↔ score; number ↔ posterior p_t at that score.
 function updatePtDisplay() {
-    const pt = computePtFromThreshold(thresholdValue);
-    const clampedPt = Math.min(Math.max(pt, 0.01), 0.99);
+    const pt = clamp(computePtFromThreshold(thresholdValue), 0.01, 0.99);
     const ptInput = document.getElementById('pt-input');
     const scoreSlider = document.getElementById('threshold-slider');
-    if (ptInput) ptInput.value = clampedPt.toFixed(2);
+    if (ptInput) ptInput.value = pt.toFixed(2);
     if (scoreSlider) {
-        const score = Math.min(Math.max(thresholdValue, SCORE_SLIDER_MIN), SCORE_SLIDER_MAX);
-        scoreSlider.value = score.toFixed(2);
+        scoreSlider.value = clamp(thresholdValue, SCORE_SLIDER_MIN, SCORE_SLIDER_MAX).toFixed(2);
     }
 }
 
 function setThresholdFromScore(score) {
-    thresholdValue = Math.min(Math.max(score, SCORE_SLIDER_MIN), SCORE_SLIDER_MAX);
+    thresholdValue = clamp(score, SCORE_SLIDER_MIN, SCORE_SLIDER_MAX);
     updatePlots();
 }
 
 function setThresholdFromPtControls(pt) {
-    pt = Math.min(Math.max(pt, 0.01), 0.99);
-    const ptInput = document.getElementById('pt-input');
-    if (ptInput) ptInput.value = pt.toFixed(2);
-    thresholdValue = computeThresholdFromPt(pt);
+    pt = clamp(pt, 0.01, 0.99);
+    const score = computeThresholdFromPt(pt);
+    if (score !== null) {
+        thresholdValue = clamp(score, SCORE_SLIDER_MIN, SCORE_SLIDER_MAX);
+    }
+    // Unreachable p_t: leave the score alone; updatePlots rewrites the field to the
+    // posterior still in force so the input never disagrees with the line.
     updatePlots();
 }
 
@@ -730,7 +687,13 @@ function updateMetricsFromD(d) {
         const icc2 = parseFloat(document.getElementById("icc2-slider").value);
         const kappa = parseFloat(document.getElementById("kappa-slider").value);
         const baseRate = getBaseRateFraction();
-        
+
+        // A metric typed into any of the effect-size fields can imply a d outside the
+        // control range (e.g. a high point-biserial r at a low base rate). Clamp here so
+        // the slider and the number field cannot end up showing different values.
+        const dSlider = document.getElementById("difference-slider");
+        d = clamp(d, parseFloat(dSlider.min), parseFloat(dSlider.max));
+
         // Calculate attenuated d
         const dObs = d * Math.sqrt((2 * icc1 * icc2) / (icc1 + icc2) * Math.sin((Math.PI/2) * kappa));
 
@@ -799,8 +762,8 @@ function updateMetricsFromLogOddsRatio(logOddsRatio) {
 function updateMetricsFromR(r) {
     try {
         r = parseFloat(r);
-        if (isNaN(r) || r >= 1 || r <= 0) return;
-        const d = (2 * r) / Math.sqrt(1 - r ** 2);
+        if (isNaN(r) || r >= 1 || r < 0) return;
+        const d = StatUtils.pointBiserialToD(r, getBaseRateFraction());
         updateMetricsFromD(d);
     } catch (error) {
         console.error("Error updating metrics from r:", error);

@@ -47,8 +47,8 @@ let currentAnalysisR = 0.5;
 
 // Hybrid architecture:
 // - Metrics / ROC / PR / DCA / densities / joint contours: bivariate-normal analytics
-// - Monte Carlo sample for legacy rank-biserial + light scatter overlay on contours
-const RANK_BISERIAL_SAMPLE_SIZE = 4000;
+// - Monte Carlo sample only for the light scatter overlay on the contour plot
+const SCATTER_SAMPLE_SIZE = 4000;
 const SCATTER_VIZ_POINTS = 1600; // light point cloud over contours for interpretability
 const PLOT_POINTS_FULL = 4000; // unused for contours; kept for any residual helpers
 const SETTLE_DELAY_MS = 100;
@@ -81,8 +81,8 @@ function getQuadratureOptions(quality) {
     return { curvePoints: 400, yNodes: 150 };
 }
 
-function getRankBiserialSampleSize() {
-    return RANK_BISERIAL_SAMPLE_SIZE;
+function getScatterSampleSize() {
+    return SCATTER_SAMPLE_SIZE;
 }
 
 function cancelPendingPlotUpdates() {
@@ -140,9 +140,9 @@ function requestImmediateFullUpdate() {
     updatePlots({ quality: "full", visibleOnly: false });
 }
 
-// Tiny sample used only for the legacy rank-biserial UI definition
+// Tiny sample used only for the scatter overlay on the joint-contour plot
 function generateLabeledData(r, options = {}) {
-    const numPoints = options.numPoints != null ? options.numPoints : getRankBiserialSampleSize();
+    const numPoints = options.numPoints != null ? options.numPoints : getScatterSampleSize();
     const numPlotPoints = PLOT_POINTS_FULL;
     const meanX = 0, meanY = 0, stdDevX = 1, stdDevY = 1;
     const baseRate = getBaseRateFraction();
@@ -168,46 +168,6 @@ function generateLabeledData(r, options = {}) {
 
     // Return necessary data components
     return { labeledData, tealData, grayData, sortedData, thresholdIndex, numPlotPoints, numPoints, fullData };
-}
-
-// Function to compute all effect size metrics
-function computeEffectSizeMetrics(tealX, grayX) {
-    // Compute basic statistics
-    const meanTeal = d3.mean(tealX);
-    const meanGray = d3.mean(grayX);
-    const varianceTeal = d3.variance(tealX);
-    const varianceGray = d3.variance(grayX);
-    const nTeal = tealX.length;
-    const nGray = grayX.length;
-
-    // Cohen's d with pooled standard deviation
-    const pooledSD = Math.sqrt(((nGray - 1) * varianceGray + (nTeal - 1) * varianceTeal) / (nGray + nTeal - 2));
-    const d = (meanTeal - meanGray) / pooledSD;
-
-    // Compute rank-biserial correlation
-    const allData = [...tealX, ...grayX].sort(d3.ascending);
-    const tealRankSum = d3.sum(tealX.map(x => d3.bisect(allData, x)));
-    const rankBiserial = 2 * (tealRankSum / nTeal - (nTeal + nGray + 1) / 2) / (nTeal + nGray);
-
-    // Adjust for unequal variances and sample sizes
-    const nonpooledSD = Math.sqrt((varianceGray + varianceTeal) / 2);
-    const da = (meanTeal - meanGray) / nonpooledSD;
-    const glassD = (meanTeal - meanGray) / Math.sqrt(varianceGray);
-
-    // Cohen's U3 = proportion of Group 2 that exceeds the median of Group 1
-    const cohensU3 = StatUtils.normalCDF(da, 0, 1); // Using da (non-pooled) for consistency
-
-    return {
-        d,
-        rankBiserial,
-        da, 
-        glassD,
-        cohensU3,
-        meanTeal,
-        meanGray,
-        varianceTeal,
-        varianceGray
-    };
 }
 
 // Function to compute metrics at a given threshold
@@ -1146,18 +1106,9 @@ function updatePlots(options = {}) {
     const trueES = StatUtils.bivariateEffectSizes(trueR, baseRate, { auc: trueCurves.auc });
     const observedES = StatUtils.bivariateEffectSizes(observedR, baseRate, { auc: observedCurves.auc });
 
-    // Monte Carlo sample: rank-biserial + light scatter overlay
+    // Monte Carlo sample: light scatter overlay on the analytical contours
     const trueDataGen = generateLabeledData(trueR);
     const observedDataGen = generateLabeledData(observedR);
-
-    trueES.rankBiserial = computeEffectSizeMetrics(
-        trueDataGen.tealData.map(d => d.x),
-        trueDataGen.grayData.map(d => d.x)
-    ).rankBiserial;
-    observedES.rankBiserial = computeEffectSizeMetrics(
-        observedDataGen.tealData.map(d => d.x),
-        observedDataGen.grayData.map(d => d.x)
-    ).rankBiserial;
 
     trueLabeledData = trueDataGen.labeledData;
     observedLabeledData = observedDataGen.labeledData;
@@ -1224,10 +1175,6 @@ function ensureVisibleViewDrawn() {
         const es = StatUtils.bivariateEffectSizes(trueR, baseRate, {
             auc: cachedCurveState && cachedCurveState.r === trueR ? cachedCurveState.auc : undefined
         });
-        es.rankBiserial = computeEffectSizeMetrics(
-            trueDataGenCache.tealData.map(d => d.x),
-            trueDataGenCache.grayData.map(d => d.x)
-        ).rankBiserial;
         drawJointContours(trueR, "true", {
             esMetrics: es,
             samplePoints: trueDataGenCache.labeledData
@@ -1236,10 +1183,6 @@ function ensureVisibleViewDrawn() {
         const es = StatUtils.bivariateEffectSizes(observedR, baseRate, {
             auc: cachedCurveState && cachedCurveState.r === observedR ? cachedCurveState.auc : undefined
         });
-        es.rankBiserial = computeEffectSizeMetrics(
-            observedDataGenCache.tealData.map(d => d.x),
-            observedDataGenCache.grayData.map(d => d.x)
-        ).rankBiserial;
         drawJointContours(observedR, "observed", {
             esMetrics: es,
             samplePoints: observedDataGenCache.labeledData
