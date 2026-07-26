@@ -183,24 +183,24 @@
                     <!-- Reliability Controls -->
                     <div class="index-reliability-block" id="tour-reliability">
                         <!-- Group 1 Reliability -->
-                        <input type="range" id="icc1-slider" min="0" max="1" step="0.01" value="0.5">
+                        <input type="range" id="icc1-slider" min="0.01" max="1" step="0.01" value="0.5">
                         <div class="index-slider-label-row">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>1</sub></span>
-                            <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
+                            <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Group 2 Reliability -->
-                        <input type="range" id="icc2-slider" min="0" max="1" step="0.01" value="0.5" class="index-range-mt15">
+                        <input type="range" id="icc2-slider" min="0.01" max="1" step="0.01" value="0.5" class="index-range-mt15">
                         <div class="index-slider-label-row">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>2</sub></span>
-                            <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
+                            <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
                         </div>
                         
                         <!-- Classification Reliability -->
-                        <input type="range" id="kappa-slider" min="0" max="1" step="0.01" value="0.5" class="index-range-mt15">
+                        <input type="range" id="kappa-slider" min="0.01" max="1" step="0.01" value="0.5" class="index-range-mt15">
                         <div class="index-slider-label-row">
                             <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Outcome reliability, <i>&kappa;</i></span>
-                            <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
+                            <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
                         </div>
                     </div>
 
@@ -489,17 +489,17 @@
 
                     <div id="tour-reliability-cont">
                     <!-- Reliability X -->
-                    <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5">
+                    <input type="range" id="reliability-x-slider-cont" min="0.01" max="1" step="0.01" value="0.5">
                     <div class="index-slider-label-row index-slider-label-row--mt5">
                         <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>x</sub></span>
-                        <input type="number" id="reliability-x-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
+                        <input type="number" id="reliability-x-number-cont" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
                     </div>
 
                     <!-- Reliability Y -->
-                    <input type="range" id="reliability-y-slider-cont" min="0" max="1" step="0.01" value="0.5">
+                    <input type="range" id="reliability-y-slider-cont" min="0.01" max="1" step="0.01" value="0.5">
                     <div class="index-slider-label-row index-slider-label-row--mt5">
                         <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
-                        <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
+                        <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
                     </div>
                     </div>
 
@@ -839,26 +839,26 @@
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-test-icc1-slider" min="0" max="1" step="0.01" value="0.7" class="slider">
+                        <input type="range" id="calib-test-icc1-slider" min="0.01" max="1" step="0.01" value="0.7" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 1">Predictor reliability, ICC<sub>1</sub></span>
-                            <input type="number" id="calib-test-icc1-number" class="slider-value" min="0" max="1" step="0.01" value="0.70">
+                            <input type="number" id="calib-test-icc1-number" class="slider-value" min="0.01" max="1" step="0.01" value="0.70">
                         </div>
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-test-icc2-slider" min="0" max="1" step="0.01" value="0.7" class="slider">
+                        <input type="range" id="calib-test-icc2-slider" min="0.01" max="1" step="0.01" value="0.7" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 2">Predictor reliability, ICC<sub>2</sub></span>
-                            <input type="number" id="calib-test-icc2-number" class="slider-value" min="0" max="1" step="0.01" value="0.70">
+                            <input type="number" id="calib-test-icc2-number" class="slider-value" min="0.01" max="1" step="0.01" value="0.70">
                         </div>
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-test-kappa-slider" min="0" max="1" step="0.01" value="1.0" class="slider">
+                        <input type="range" id="calib-test-kappa-slider" min="0.01" max="1" step="0.01" value="1.0" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label" data-tooltip="Reliability of the group membership">Outcome reliability, <i>κ</i></span>
-                            <input type="number" id="calib-test-kappa-number" class="slider-value" min="0" max="1" step="0.01" value="1.00">
+                            <input type="number" id="calib-test-kappa-number" class="slider-value" min="0.01" max="1" step="0.01" value="1.00">
                         </div>
                     </div>
 
@@ -886,26 +886,26 @@
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-deploy-icc1-slider" min="0" max="1" step="0.01" value="0.4" class="slider">
+                        <input type="range" id="calib-deploy-icc1-slider" min="0.01" max="1" step="0.01" value="0.4" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 1">Predictor reliability, ICC<sub>1</sub></span>
-                            <input type="number" id="calib-deploy-icc1-number" class="slider-value" min="0" max="1" step="0.01" value="0.40">
+                            <input type="number" id="calib-deploy-icc1-number" class="slider-value" min="0.01" max="1" step="0.01" value="0.40">
                         </div>
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-deploy-icc2-slider" min="0" max="1" step="0.01" value="0.4" class="slider">
+                        <input type="range" id="calib-deploy-icc2-slider" min="0.01" max="1" step="0.01" value="0.4" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label" data-tooltip="Measurement reliability of the predictor in Group 2">Predictor reliability, ICC<sub>2</sub></span>
-                            <input type="number" id="calib-deploy-icc2-number" class="slider-value" min="0" max="1" step="0.01" value="0.40">
+                            <input type="number" id="calib-deploy-icc2-number" class="slider-value" min="0.01" max="1" step="0.01" value="0.40">
                         </div>
                     </div>
 
                     <div class="slider-container">
-                        <input type="range" id="calib-deploy-kappa-slider" min="0" max="1" step="0.01" value="1.0" class="slider">
+                        <input type="range" id="calib-deploy-kappa-slider" min="0.01" max="1" step="0.01" value="1.0" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label" data-tooltip="Reliability of the group membership">Outcome reliability, <i>κ</i></span>
-                            <input type="number" id="calib-deploy-kappa-number" class="slider-value" min="0" max="1" step="0.01" value="1.00">
+                            <input type="number" id="calib-deploy-kappa-number" class="slider-value" min="0.01" max="1" step="0.01" value="1.00">
                         </div>
                     </div>
 

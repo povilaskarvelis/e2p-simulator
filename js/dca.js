@@ -50,8 +50,10 @@ const DCAModule = {
             const usePrecise = data.usePreciseEstimates || false;
             const interactionMode = data.interactionMode || false;
             const disableSmoothing = data.disableSmoothing || false;
-            const ptMin = 0.001;
-            const ptMax = 0.95;  // Further reduce upper limit for smoother curves
+            // Match the p_t control range ([0.01, 0.99] in binary/continuous) so the
+            // annotation never reports a different threshold than the input.
+            const ptMin = 0.01;
+            const ptMax = 0.99;
             // Interactive scrubbing uses a coarse grid; precise mode uses a fine grid when settled
             const step = interactionMode ? 0.005 : (usePrecise ? 0.0001 : 0.001);
             

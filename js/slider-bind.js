@@ -26,7 +26,14 @@ function bindRangeNumberPair(rangeId, numberId, options) {
     });
 
     number.addEventListener(numberEvent, function () {
-        range.value = number.value;
+        let v = parseFloat(number.value);
+        if (isNaN(v)) return;
+        const min = parseFloat(range.min);
+        const max = parseFloat(range.max);
+        if (isFinite(min)) v = Math.max(min, v);
+        if (isFinite(max)) v = Math.min(max, v);
+        range.value = v;
+        number.value = format(range.value);
         if (opts.onSync) opts.onSync('number');
     });
 }
