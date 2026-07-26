@@ -10,11 +10,11 @@
     "test:continuous": "cypress run --spec cypress/e2e/continuous-tests.cy.js"
   },
   "devDependencies": {
-    "cypress": "^14.2.1",
+    "cypress": "^15.19.0",
     "http-server": "^14.1.1"
   },
   "overrides": {
-    "lodash": "^4.17.23"
+    "lodash": "^4.18.0"
   },
   "main": "index.js",
   "keywords": [],
