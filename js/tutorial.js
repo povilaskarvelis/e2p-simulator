@@ -1,67 +1,118 @@
-// Interactive concept tour for the main binary simulator.
+// Interactive concept tour for the main simulator (binary, then continuous).
 (function () {
     const STEPS = [
         {
-            // Pill only — not the full-width mode row
+            mode: 'binary',
+            // Pill only - not the full-width mode row
             selector: '#tour-outcomes .global-mode',
             pad: 14,
             title: 'Binary vs continuous outcomes',
-            body: 'Choose the outcome scale. Binary: two classes or a yes/no event (e.g. case vs control). Continuous: a graded measure (e.g. symptom score).'
+            body: 'The simulator has two modes. Binary is for two classes (e.g. case vs control); Continuous is for a graded score (e.g. symptom severity). First, let’s walk through Binary.'
         },
         {
+            mode: 'binary',
             selector: '#tour-effect-sizes',
             pad: 18,
             title: 'Effect size',
-            body: 'Set the group separation here. The same separation can be expressed with several metrics (Cohen’s d, U3, odds ratio, point-biserial r, and others)—change any one and the others update to match. The True and Observed columns show the value before and after measurement reliability is applied.'
+            body: 'Effect size is how strongly the two groups differ on the predictor. You can enter it as Cohen’s d, U3, an odds ratio, or any of the other metrics listed - they all describe the same difference, so editing one updates the rest. The True and Observed columns are explained in the next steps.'
         },
         {
+            mode: 'binary',
             selector: '#tour-reliability',
             pad: 18,
             title: 'Measurement reliability',
-            body: 'ICC₁ and ICC₂ are predictor reliability in each group; κ is outcome-label reliability. Lower reliability attenuates the observable effect and reduces predictive performance, even when the latent effect is large.'
+            body: 'ICC₁ and ICC₂ are the reliability of the predictor in each group; κ is the reliability of the outcome label (e.g. a diagnosis). The lower these are, the smaller the observed group difference becomes compared to the true one, and the less accurately the predictor can classify anyone.'
         },
         {
+            mode: 'binary',
             selector: '#tour-effects',
             pad: 16,
             minWidth: 176,
             minHeight: 48,
             title: 'True vs Observed',
-            body: 'Switch the plot and downstream results between True and Observed effect sizes. True is the ideal case with no measurement error; Observed applies the reliability settings from the previous step.'
+            body: 'This switches everything below between the true effect (what you would see with perfect measurement) and the observed effect (what remains given the reliability values above). Switching back and forth shows how much of the effect measurement error removes.'
         },
         {
+            mode: 'binary',
             selector: '#tour-base-rate',
             pad: 18,
             title: 'Base rate (prevalence)',
-            body: 'Base rate φ is the prevalence of group 2 in the target population (how common the outcome or class is). It changes how the same group separation translates into classification results.'
+            body: 'Base rate is how common group 2 is where you will actually use the predictor - not in your study sample. For a given effect size, ROC-AUC stays the same, but PPV does not: if the outcome is rare (e.g. 2%), most people you flag as positive can still be false positives. Set this to the real-world prevalence.'
         },
         {
+            mode: 'binary',
             selector: '#tour-threshold',
             pad: 18,
             title: 'Decision threshold',
-            body: 'Classification requires a cutoff. pₜ is the predicted probability of group 2 at that cutoff, trading false positives against false negatives. The preferred threshold depends on the relative costs of those errors.'
+            body: 'To classify anyone you need a cutoff. pₜ is the predicted probability of belonging to group 2 at that cutoff. A high pₜ requires strong evidence before calling someone positive, so you get fewer false positives but miss more real cases; a low pₜ does the opposite. Which one is right depends on how costly each type of error is.'
         },
         {
+            mode: 'binary',
             selector: '#binary-container .main-plot-section',
             pad: 14,
-            title: 'Score distributions',
-            body: 'This plot shows the predictor distributions for the two groups. The red line is the decision threshold: left of it is classified as group 1, right as group 2. Drag it (or set pₜ) to separate the groups as cleanly as possible.'
+            title: 'Group distributions',
+            body: 'Each curve shows how the predictor is distributed within a group. Where the curves overlap, the two groups are indistinguishable, and that overlap is what produces classification errors. The vertical line is the cutoff: everyone above it is classified as positive. Drag it, or change pₜ, to trade false positives against missed cases.'
         },
         {
+            mode: 'binary',
             selector: ['#binary-container .roc-pr-section', '#binary-container .dca-section'],
             pad: 10,
-            title: 'Discrimination and decisions',
-            body: 'ROC summarizes ranking ability independent of prevalence. PR emphasizes positive predictive performance when base rates matter. Decision curves compare model net benefit with treat-all and treat-none across thresholds.'
+            title: 'Discrimination and clinical utility',
+            body: 'The ROC curve summarizes how well the predictor separates the groups across all cutoffs, and its AUC does not depend on the base rate. The precision-recall curve does depend on it, so it shows what to expect for a rare outcome. The decision curve goes one step further and asks whether acting on the predictor beats treating everyone or no one.'
         },
         {
+            mode: 'binary',
             selector: '#dashboard',
             pad: 14,
             title: 'Performance metrics',
-            body: 'Metrics at the current threshold (accuracy, sensitivity, PPV, and others). Change reliability or base rate to see how they respond. Additional indices are under “Show more metrics.”'
+            body: 'These are the metrics at the current cutoff: sensitivity, specificity, PPV, NPV, and others. Changing reliability or base rate makes it clear that they do not move together - PPV in particular depends heavily on the base rate. More metrics are available under “Show more metrics.”'
+        },
+        {
+            mode: 'continuous',
+            selector: '#tour-outcomes .global-mode',
+            pad: 14,
+            title: 'Continuous mode',
+            body: 'In this mode the outcome is a graded measure, such as symptom severity or degree of treatment response, rather than a fixed class. Everything you just saw still applies, because the outcome gets split into two groups before the classification metrics are computed.'
+        },
+        {
+            mode: 'continuous',
+            selector: '#tour-effect-sizes-cont',
+            pad: 18,
+            title: 'Continuous effect size',
+            body: 'With two continuous variables the effect size is Pearson’s r, or equivalently R², the share of outcome variance the predictor explains. Editing one updates the other. As in binary mode, the Observed column is the value left after measurement error.'
+        },
+        {
+            mode: 'continuous',
+            selector: '#tour-reliability-cont',
+            pad: 18,
+            title: 'Reliability of predictor and outcome',
+            body: 'ICCₓ is the reliability of the predictor and ICCᵧ that of the outcome. Both attenuate the correlation you can observe, by a factor of √(ICCₓ × ICCᵧ), so an unreliable outcome limits prediction just as much as an unreliable predictor.'
+        },
+        {
+            mode: 'continuous',
+            selector: '#tour-base-rate-cont',
+            pad: 18,
+            title: 'Dichotomizing the outcome',
+            body: 'Decisions are usually binary even when the outcome is not, so the outcome is split into two groups here. The base rate sets where that split falls - a base rate of 20% treats the top 20% as responders, for example - and everything downstream follows from it.'
+        },
+        {
+            mode: 'continuous',
+            selector: '#continuous-container .main-plot-section',
+            pad: 14,
+            title: 'Scatter and group plots',
+            body: 'The scatter plot shows the association between predictor and outcome before anything is dichotomized. Below it are the predictor distributions for the two groups created by the split, with the same cutoff you worked with in binary mode.'
+        },
+        {
+            mode: 'continuous',
+            selector: ['#continuous-container .roc-pr-section', '#continuous-container .dca-section'],
+            pad: 10,
+            title: 'The same decision tools',
+            body: 'These curves work exactly as in binary mode, and they answer the question that matters in practice: how much use is a correlation of this size once you have to turn it into a yes or no decision about an individual?'
         },
         {
             selector: null,
             title: 'Next steps',
-            body: 'That covers the main controls. For worked examples and formulas, see Get Started.'
+            body: 'That covers the main Binary and Continuous controls. For worked examples and formulas, see Get Started.'
         }
     ];
 
@@ -70,15 +121,26 @@
     let isPositioning = false;
     let positionTimer = null;
 
-    function ensureBinaryMode() {
+    function ensureMode(mode) {
+        const wantContinuous = mode === 'continuous';
         const binaryBtn = document.getElementById('binary-button');
-        if (binaryBtn && !binaryBtn.classList.contains('active')) {
-            binaryBtn.click();
-        }
+        const continuousBtn = document.getElementById('continuous-button');
         const binaryContainer = document.getElementById('binary-container');
         const continuousContainer = document.getElementById('continuous-container');
-        if (binaryContainer) binaryContainer.classList.remove('u-hidden');
-        if (continuousContainer) continuousContainer.classList.add('u-hidden');
+
+        if (wantContinuous) {
+            if (continuousBtn && !continuousBtn.classList.contains('active')) {
+                continuousBtn.click();
+            }
+            if (binaryContainer) binaryContainer.classList.add('u-hidden');
+            if (continuousContainer) continuousContainer.classList.remove('u-hidden');
+        } else {
+            if (binaryBtn && !binaryBtn.classList.contains('active')) {
+                binaryBtn.click();
+            }
+            if (binaryContainer) binaryContainer.classList.remove('u-hidden');
+            if (continuousContainer) continuousContainer.classList.add('u-hidden');
+        }
     }
 
     function firstTarget(step) {
@@ -216,6 +278,9 @@
     function showStep(index) {
         stepIndex = index;
         const step = STEPS[index];
+        if (step.mode) {
+            ensureMode(step.mode);
+        }
         const target = firstTarget(step);
 
         ui.title.textContent = step.title;
@@ -241,22 +306,32 @@
             isPositioning = false;
         };
 
-        if (target) {
-            // Instant center — avoids the smooth-scroll wait that delayed the card
-            target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
-            requestAnimationFrame(() => {
-                requestAnimationFrame(finish);
-            });
+        // Mode switch can reflow layout; wait a beat before measuring.
+        const settleMs = step.mode ? 80 : 0;
+        const afterMode = () => {
+            const el = firstTarget(step);
+            if (el) {
+                el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(finish);
+                });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(finish);
+                });
+            }
+        };
+
+        if (settleMs) {
+            positionTimer = window.setTimeout(afterMode, settleMs);
         } else {
-            window.scrollTo({ top: 0, behavior: 'auto' });
-            requestAnimationFrame(() => {
-                requestAnimationFrame(finish);
-            });
+            afterMode();
         }
     }
 
     function openTour() {
-        ensureBinaryMode();
+        ensureMode('binary');
         document.documentElement.classList.add('tour-active');
         ui.root.hidden = false;
         showStep(0);

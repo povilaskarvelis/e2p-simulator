@@ -90,7 +90,7 @@
             <strong>E2P Simulator</strong> estimates real-world predictive utility of research findings by accounting for measurement reliability and outcome base rates. It is designed to help researchers interpret findings and plan studies across biomedical and behavioral sciences, particularly for individual differences research, biomarker studies, diagnostic tool validation, predictive modeling, and precision medicine/psychiatry.
         </p>
         <p class="page-intro-meta">
-            See <a href="get-started.html" class="index-text-link" target="_blank">Get Started</a> for details, or take the interactive <button type="button" class="index-text-link tour-inline-btn" data-start-tutorial>Tutorial</button>.
+            Take the interactive <button type="button" class="index-text-link tour-inline-btn" data-start-tutorial>Tutorial</button>, or see <a href="get-started.html" class="index-text-link" target="_blank">Get Started</a> for more details.
         </p>
         <p class="page-intro-meta page-intro-meta--credit">
             Developed by <a href="https://povilaskarvelis.github.io/" class="index-text-link" target="_blank">Povilas Karvelis</a>
@@ -460,6 +460,7 @@
             <div class="slider-section">
                 <div class="slider-container">
                     <!-- True and Observed Effects -->
+                    <div id="tour-effect-sizes-cont">
                     <input type="range" id="effect-slider-cont" min="0" max="0.99" step="0.01" value="0.50" class="index-range-full">
 
                     <!-- Continuous Metrics -->
@@ -484,7 +485,9 @@
                             <input type="number" id="observed-R-squared-cont" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
                         </div>
                     </div>
+                    </div>
 
+                    <div id="tour-reliability-cont">
                     <!-- Reliability X -->
                     <input type="range" id="reliability-x-slider-cont" min="0" max="1" step="0.01" value="0.5">
                     <div class="index-slider-label-row index-slider-label-row--mt5">
@@ -498,9 +501,10 @@
                         <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
                         <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0" max="1" step="0.01" value="0.5">
                     </div>
+                    </div>
 
                     <!-- Base Rate -->
-                    <div class="index-base-rate-block">
+                    <div class="index-base-rate-block" id="tour-base-rate-cont">
                         <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
                         <div class="index-slider-label-row index-slider-label-row--mt10">
                             <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
@@ -509,10 +513,12 @@
                     </div>
 
                     <!-- Threshold probability -->
+                    <div id="tour-threshold-cont">
                     <input type="range" id="threshold-slider-cont" min="-4" max="4" step="0.01" value="0" class="threshold-pt-slider">
                     <div class="index-slider-label-row index-slider-label-row--mt5">
                         <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
                         <input type="number" id="pt-input-cont" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                    </div>
                     </div>
                     
                     <hr class="input-separator index-hr-spaced">
