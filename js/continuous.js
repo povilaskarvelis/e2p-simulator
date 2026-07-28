@@ -62,6 +62,52 @@ let hiddenViewDrawPending = false;
 let lastPlotsQuality = "full";
 // Cached ROC/PR curve geometry so threshold drags only move markers / metrics
 let cachedCurveState = null;
+let continuousPlotResizeObserver = null;
+let continuousPlotResizeTimer = null;
+let lastObservedPlotStackWidth = 0;
+let lastObservedPlotStackHeight = 0;
+let continuousMainPlotRenderCache = {
+    true: null,
+    observed: null
+};
+
+function getContinuousPlotGeometry(plotId) {
+    const plot = document.getElementById(plotId);
+    const sizingElement = plot?.parentElement || plot;
+    const rect = sizingElement?.getBoundingClientRect();
+    const hasUsableSize = rect && rect.width > 0 && rect.height > 0;
+    const viewBoxWidth = PLOT_CONFIG.viewBoxWidth;
+    const viewBoxHeight = hasUsableSize
+        ? viewBoxWidth * (rect.height / rect.width)
+        : PLOT_CONFIG.viewBoxHeight;
+    const renderedWidth = hasUsableSize ? rect.width : viewBoxWidth;
+    const viewBoxUnitsPerCssPixel = viewBoxWidth / renderedWidth;
+    const toViewBoxUnits = cssPixels => cssPixels * viewBoxUnitsPerCssPixel;
+    const margin = {
+        top: toViewBoxUnits(16),
+        right: toViewBoxUnits(20),
+        bottom: toViewBoxUnits(42),
+        left: toViewBoxUnits(52)
+    };
+
+    return {
+        viewBoxWidth,
+        viewBoxHeight,
+        margin,
+        toViewBoxUnits,
+        fontSize: {
+            axisLabel: toViewBoxUnits(18),
+            legendText: toViewBoxUnits(16)
+        },
+        plotArea: {
+            width: viewBoxWidth - margin.left - margin.right,
+            height: Math.max(
+                1,
+                viewBoxHeight - margin.top - margin.bottom
+            )
+        }
+    };
+}
 
 // Utility functions
 function computeObservedR(trueR, reliabilityX, reliabilityY) {
@@ -352,6 +398,19 @@ function cleanupContinuous() {
     cancelPendingPlotUpdates();
     cancelPendingThresholdMetrics();
 
+    if (continuousPlotResizeObserver) {
+        continuousPlotResizeObserver.disconnect();
+        continuousPlotResizeObserver = null;
+    }
+    window.clearTimeout(continuousPlotResizeTimer);
+    continuousPlotResizeTimer = null;
+    lastObservedPlotStackWidth = 0;
+    lastObservedPlotStackHeight = 0;
+    continuousMainPlotRenderCache = {
+        true: null,
+        observed: null
+    };
+
     // Reset state and clean up plots (existing cleanup)
     Plotly.purge(SELECTORS.rocPlot);
     Plotly.purge(SELECTORS.prPlot); 
@@ -387,19 +446,41 @@ function cleanupContinuous() {
 
 // Drawing functions
 function drawJointContours(r, type, options = {}) {
-    drawDistributions(r, type, { esMetrics: options.esMetrics || null });
+    const distributionRenderData = drawDistributions(r, type, {
+        esMetrics: options.esMetrics || null,
+        densityData: options.densityData || null,
+        layoutOnly: !!options.layoutOnly
+    });
 
+    const scatterPlotId = type === "true"
+        ? SELECTORS.scatterPlotTrue
+        : SELECTORS.scatterPlotObserved;
+    const {
+        viewBoxWidth,
+        viewBoxHeight,
+        margin,
+        plotArea,
+        fontSize,
+        toViewBoxUnits
+    } =
+        getContinuousPlotGeometry(scatterPlotId);
     const domain = [-4, 4];
-    const scatterXScale = d3.scaleLinear().domain(domain).range([PLOT_CONFIG.margin.left, PLOT_CONFIG.margin.left + PLOT_AREA.width]);
-    const scatterYScale = d3.scaleLinear().domain(domain).range([PLOT_CONFIG.margin.top + PLOT_AREA.height, PLOT_CONFIG.margin.top]);
+    const scatterXScale = d3.scaleLinear()
+        .domain(domain)
+        .range([margin.left, margin.left + plotArea.width]);
+    const scatterYScale = d3.scaleLinear()
+        .domain(domain)
+        .range([margin.top + plotArea.height, margin.top]);
+    const tickSize = toViewBoxUnits(6);
+    const strokeWidth = toViewBoxUnits(1.2);
 
-    const svgScatter = d3.select(`#${type === "true" ? SELECTORS.scatterPlotTrue : SELECTORS.scatterPlotObserved}`)
+    const svgScatter = d3.select(`#${scatterPlotId}`)
         .selectAll("svg")
         .data([null])
         .join("svg")
         .attr("width", "100%")
         .attr("height", "100%")
-        .attr("viewBox", `0 0 ${PLOT_CONFIG.viewBoxWidth} ${PLOT_CONFIG.viewBoxHeight}`)
+        .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
         .attr("preserveAspectRatio", "xMidYMid meet")
         .style("display", "block")
         .style("max-width", "100%");
@@ -408,25 +489,25 @@ function drawJointContours(r, type, options = {}) {
         .data([null])
         .join("g")
         .attr("class", "x-axis")
-        .attr("transform", `translate(0,${PLOT_CONFIG.margin.top + PLOT_AREA.height})`)
+        .attr("transform", `translate(0,${margin.top + plotArea.height})`)
         .call(d3.axisBottom(scatterXScale).ticks(5).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth)
-            .attr("y2", PLOT_CONFIG.tickSize))
+            .attr("stroke-width", strokeWidth)
+            .attr("y2", tickSize))
         .call(g => g.selectAll("path.domain")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth));
+            .attr("stroke-width", strokeWidth));
 
     svgScatter.selectAll(".y-axis")
         .data([null])
         .join("g")
         .attr("class", "y-axis")
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left},0)`)
+        .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(scatterYScale).ticks(5).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth)
-            .attr("x2", -PLOT_CONFIG.tickSize))
+            .attr("stroke-width", strokeWidth)
+            .attr("x2", -tickSize))
         .call(g => g.selectAll("path.domain")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth));
+            .attr("stroke-width", strokeWidth));
 
     const urlParams = parseURLParams();
     const xAxisLabel = urlParams.xaxisLabel || "Predictor";
@@ -436,14 +517,9 @@ function drawJointContours(r, type, options = {}) {
     if (svgScatter.select(".x-label").empty()) {
         svgScatter.append("foreignObject")
             .attr("class", "x-label")
-            .attr("x", PLOT_CONFIG.margin.left + PLOT_AREA.width / 2 - 150)
-            .attr("y", PLOT_CONFIG.margin.top + PLOT_AREA.height + 35)
-            .attr("width", 300)
-            .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
-            .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
             .style("color", "black")
             .text(xAxisLabel);
     }
@@ -451,16 +527,36 @@ function drawJointContours(r, type, options = {}) {
     if (svgScatter.select(".y-label").empty()) {
         svgScatter.append("foreignObject")
             .attr("class", "y-label")
-            .attr("transform", `translate(${PLOT_CONFIG.margin.left - 90}, ${PLOT_CONFIG.margin.top + PLOT_AREA.height / 2 + 175}) rotate(-90)`)
-            .attr("width", 350)
-            .attr("height", 40)
             .append("xhtml:div")
             .attr("contenteditable", true)
             .style("text-align", "center")
-            .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
             .style("color", "black")
             .text(yAxisScatterLabel);
     }
+
+    const xLabelWidth = Math.min(plotArea.width, toViewBoxUnits(260));
+    const yLabelWidth = Math.min(plotArea.height, toViewBoxUnits(220));
+    const labelHeight = toViewBoxUnits(30);
+
+    svgScatter.select(".x-label")
+        .attr("x", margin.left + (plotArea.width - xLabelWidth) / 2)
+        .attr("y", margin.top + plotArea.height + toViewBoxUnits(8))
+        .attr("width", xLabelWidth)
+        .attr("height", labelHeight)
+        .select("div")
+        .style("font-size", `${fontSize.axisLabel}px`)
+        .style("line-height", `${labelHeight}px`);
+
+    svgScatter.select(".y-label")
+        .attr(
+            "transform",
+            `translate(${margin.left - toViewBoxUnits(48)}, ${margin.top + plotArea.height / 2 + yLabelWidth / 2}) rotate(-90)`
+        )
+        .attr("width", yLabelWidth)
+        .attr("height", labelHeight)
+        .select("div")
+        .style("font-size", `${fontSize.axisLabel}px`)
+        .style("line-height", `${labelHeight}px`);
 
     // Clip plot contents to the axes frame, and class coloring to the outer contour
     let defs = svgScatter.select("defs");
@@ -471,10 +567,10 @@ function drawJointContours(r, type, options = {}) {
     defs.selectAll(`#${clipId}`).data([null]).join("clipPath")
         .attr("id", clipId)
         .selectAll("rect").data([null]).join("rect")
-        .attr("x", PLOT_CONFIG.margin.left)
-        .attr("y", PLOT_CONFIG.margin.top)
-        .attr("width", PLOT_AREA.width)
-        .attr("height", PLOT_AREA.height);
+        .attr("x", margin.left)
+        .attr("y", margin.top)
+        .attr("width", plotArea.width)
+        .attr("height", plotArea.height);
 
     svgScatter.selectAll(".joint-layer").remove();
     const layer = svgScatter.append("g")
@@ -530,8 +626,8 @@ function drawJointContours(r, type, options = {}) {
         .attr("y1", scatterYScale(cClamped))
         .attr("y2", scatterYScale(cClamped))
         .attr("stroke", "teal")
-        .attr("stroke-width", 3)
-        .attr("stroke-dasharray", "10,8")
+        .attr("stroke-width", toViewBoxUnits(2))
+        .attr("stroke-dasharray", `${toViewBoxUnits(6)},${toViewBoxUnits(5)}`)
         .attr("opacity", 0.95);
 
     // Contour strokes on top (outermost already used for clip)
@@ -542,38 +638,44 @@ function drawJointContours(r, type, options = {}) {
             .attr("d", line(pts))
             .attr("fill", "none")
             .attr("stroke", "#333333")
-            .attr("stroke-width", 2.2 - idx * 0.25)
+            .attr("stroke-width", toViewBoxUnits(1.4 - idx * 0.15))
             .attr("opacity", 0.5 + idx * 0.08);
     });
 
-    // Light scatter above contours. Drawn outside the clipped layer and filtered so
-    // each glyph is fully inside the outer ellipse (no half-cut circles).
-    svgScatter.selectAll(".joint-scatter").remove();
+    // Light scatter above contours. Point elements persist across responsive
+    // relayouts so resizing cannot look like a newly sampled dataset.
     const sample = options.samplePoints || [];
+    const pointRadiusPx = toViewBoxUnits(3.5);
+    let plotPoints = Array.isArray(options.plotPoints)
+        ? options.plotPoints
+        : [];
     if (sample.length > 0) {
-        const pointRadiusPx = 6.5;
-        const rr = Math.min(Math.max(r, -0.999999), 0.999999);
-        const oneMinusR2 = Math.max(1e-12, 1 - rr * rr);
-        const domainSpan = domain[1] - domain[0];
-        const rDataX = pointRadiusPx * domainSpan / PLOT_AREA.width;
-        const rDataY = pointRadiusPx * domainSpan / PLOT_AREA.height;
-        // Worst-case Mahalanobis growth for a Euclidean step of size ~rData
-        const rData = Math.max(rDataX, rDataY);
-        const mahalPad = rData / Math.sqrt(Math.max(1e-6, 1 - Math.abs(rr)));
-        const outerRho = Math.sqrt(levels[0]);
-        const maxRho = Math.max(0, outerRho - mahalPad);
-        const maxQ = maxRho * maxRho;
+        if (!Array.isArray(options.plotPoints)) {
+            const rr = Math.min(Math.max(r, -0.999999), 0.999999);
+            const oneMinusR2 = Math.max(1e-12, 1 - rr * rr);
+            const domainSpan = domain[1] - domain[0];
+            const rDataX = pointRadiusPx * domainSpan / plotArea.width;
+            const rDataY = pointRadiusPx * domainSpan / plotArea.height;
+            // Worst-case Mahalanobis growth for a Euclidean step of size ~rData
+            const rData = Math.max(rDataX, rDataY);
+            const mahalPad = rData / Math.sqrt(Math.max(1e-6, 1 - Math.abs(rr)));
+            const outerRho = Math.sqrt(levels[0]);
+            const maxRho = Math.max(0, outerRho - mahalPad);
+            const maxQ = maxRho * maxRho;
 
-        const fullyInside = sample.filter(d => {
-            if (d.x < domain[0] + rDataX || d.x > domain[1] - rDataX) return false;
-            if (d.y < domain[0] + rDataY || d.y > domain[1] - rDataY) return false;
-            const q = (d.x * d.x - 2 * rr * d.x * d.y + d.y * d.y) / oneMinusR2;
-            return q <= maxQ;
-        });
-        const stride = Math.max(1, Math.ceil(fullyInside.length / SCATTER_VIZ_POINTS));
-        const plotPoints = fullyInside.filter((_, i) => i % stride === 0);
+            const fullyInside = sample.filter(d => {
+                if (d.x < domain[0] + rDataX || d.x > domain[1] - rDataX) return false;
+                if (d.y < domain[0] + rDataY || d.y > domain[1] - rDataY) return false;
+                const q = (d.x * d.x - 2 * rr * d.x * d.y + d.y * d.y) / oneMinusR2;
+                return q <= maxQ;
+            });
+            const stride = Math.max(1, Math.ceil(fullyInside.length / SCATTER_VIZ_POINTS));
+            plotPoints = fullyInside.filter((_, i) => i % stride === 0);
+        }
 
-        svgScatter.append("g")
+        svgScatter.selectAll(".joint-scatter")
+            .data([null])
+            .join("g")
             .attr("class", "joint-scatter")
             .selectAll(".scatter-point")
             .data(plotPoints, d => `${d.x}-${d.y}-${d.trueClass}`)
@@ -584,18 +686,41 @@ function drawJointContours(r, type, options = {}) {
             .attr("cy", d => scatterYScale(d.y))
             .attr("fill", d => (d.trueClass === 1 ? "teal" : "#666666"))
             .attr("opacity", 0.35);
+    } else {
+        svgScatter.selectAll(".joint-scatter").remove();
     }
+
+    continuousMainPlotRenderCache[type] = {
+        r,
+        esMetrics: distributionRenderData.esMetrics,
+        densityData: distributionRenderData.densityData,
+        samplePoints: sample,
+        plotPoints
+    };
 }
 
 function drawDistributions(r, type, options = {}) {
+    const distributionPlotId = type === "true"
+        ? SELECTORS.distributionPlotTrue
+        : SELECTORS.distributionPlotObserved;
+    const {
+        viewBoxWidth,
+        viewBoxHeight,
+        margin,
+        plotArea,
+        fontSize,
+        toViewBoxUnits
+    } =
+        getContinuousPlotGeometry(distributionPlotId);
+
     // Clear any existing SVG to avoid duplicate plots
-    d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`).selectAll("svg").remove();
+    d3.select(`#${distributionPlotId}`).selectAll("svg").remove();
 
     const xRange = [-4, 4];
     xScale.domain(xRange);
 
     const baseRate = getBaseRateFraction();
-    const dens = StatUtils.bivariateGroupDensities(r, baseRate, {
+    const dens = options.densityData || StatUtils.bivariateGroupDensities(r, baseRate, {
         xMin: xRange[0],
         xMax: xRange[1],
         xPoints: 181,
@@ -607,9 +732,6 @@ function drawDistributions(r, type, options = {}) {
     // Prefer analytical bivariate effect sizes when provided
     const esMetrics = options.esMetrics || StatUtils.bivariateEffectSizes(r, baseRate);
 
-    document.getElementById(`${type}-rank-biserial-cont`).value = esMetrics.rankBiserial.toFixed(2);
-    document.getElementById(`${type}-glass-d-cont`).value = esMetrics.glassD.toFixed(2);
-
     const metrics = {
         d: esMetrics.d,
         da: esMetrics.da,
@@ -620,51 +742,59 @@ function drawDistributions(r, type, options = {}) {
         varianceGray: esMetrics.varianceGray
     };
 
-    if (type === "true") {
-        trueMetrics = metrics;
-    } else if (type === "observed") {
-        observedMetrics = metrics;
-    }
+    if (!options.layoutOnly) {
+        document.getElementById(`${type}-rank-biserial-cont`).value = esMetrics.rankBiserial.toFixed(2);
+        document.getElementById(`${type}-glass-d-cont`).value = esMetrics.glassD.toFixed(2);
 
-    updateMetricsFromD(metrics, type);
+        if (type === "true") {
+            trueMetrics = metrics;
+        } else if (type === "observed") {
+            observedMetrics = metrics;
+        }
+
+        updateMetricsFromD(metrics, type);
+    }
 
     const maxYTeal = d3.max(tealDensity, d => d.y) || 0;
     const maxYGray = d3.max(grayDensity, d => d.y) || 0;
     const maxY = Math.max(maxYTeal, maxYGray, 0.1);
 
-    yScale.domain([0, maxY * 1.1]).range([PLOT_CONFIG.margin.top + PLOT_AREA.height, PLOT_CONFIG.margin.top]);
-    xScale.range([PLOT_CONFIG.margin.left, PLOT_CONFIG.margin.left + PLOT_AREA.width]);
+    yScale.domain([0, maxY * 1.1])
+        .range([margin.top + plotArea.height, margin.top]);
+    xScale.range([margin.left, margin.left + plotArea.width]);
+    const tickSize = toViewBoxUnits(6);
+    const strokeWidth = toViewBoxUnits(1.2);
 
-    d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`)
+    d3.select(`#${distributionPlotId}`)
         .select("svg").remove();
-    const newSvg = d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`)
+    const newSvg = d3.select(`#${distributionPlotId}`)
         .append("svg")
         .attr("width", "100%")
         .attr("height", "100%")
-        .attr("viewBox", `0 0 ${PLOT_CONFIG.viewBoxWidth} ${PLOT_CONFIG.viewBoxHeight}`)
+        .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
         .attr("preserveAspectRatio", "xMidYMid meet")
         .style("display", "block")
         .style("max-width", "100%");
 
     newSvg.append("g")
         .attr("class", "x-axis")
-        .attr("transform", `translate(0,${PLOT_CONFIG.margin.top + PLOT_AREA.height})`)
+        .attr("transform", `translate(0,${margin.top + plotArea.height})`)
         .call(d3.axisBottom(xScale).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth)
-            .attr("y2", PLOT_CONFIG.tickSize))
+            .attr("stroke-width", strokeWidth)
+            .attr("y2", tickSize))
         .call(g => g.selectAll("path.domain")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth));
+            .attr("stroke-width", strokeWidth));
 
     newSvg.append("g")
         .attr("class", "y-axis")
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left},0)`)
+        .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(yScale).tickFormat(() => ""))
         .call(g => g.selectAll(".tick line")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth)
-            .attr("x2", -PLOT_CONFIG.tickSize))
+            .attr("stroke-width", strokeWidth)
+            .attr("x2", -tickSize))
         .call(g => g.selectAll("path.domain")
-            .attr("stroke-width", PLOT_CONFIG.tickWidth));
+            .attr("stroke-width", strokeWidth));
 
     // Smooth analytical densities (same visual language as binary mode)
     const area = d3.area()
@@ -688,19 +818,23 @@ function drawDistributions(r, type, options = {}) {
 
     const urlParamsDist = parseURLParams();
     const xAxisLabelDist = urlParamsDist.xaxisLabel || "Predictor";
+    const xLabelWidth = Math.min(plotArea.width, toViewBoxUnits(260));
+    const yLabelWidth = Math.min(plotArea.height, toViewBoxUnits(220));
+    const labelHeight = toViewBoxUnits(30);
 
     newSvg.selectAll(".x-label")
         .data([null])
         .join("foreignObject")
         .attr("class", "x-label")
-        .attr("x", PLOT_CONFIG.margin.left + PLOT_AREA.width / 2 - 150)
-        .attr("y", PLOT_CONFIG.margin.top + PLOT_AREA.height + 35)
-        .attr("width", 300)
-        .attr("height", 40)
+        .attr("x", margin.left + (plotArea.width - xLabelWidth) / 2)
+        .attr("y", margin.top + plotArea.height + toViewBoxUnits(8))
+        .attr("width", xLabelWidth)
+        .attr("height", labelHeight)
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
-        .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
+        .style("font-size", `${fontSize.axisLabel}px`)
+        .style("line-height", `${labelHeight}px`)
         .style("color", "black")
         .text(xAxisLabelDist);
 
@@ -708,13 +842,14 @@ function drawDistributions(r, type, options = {}) {
         .data([null])
         .join("foreignObject")
         .attr("class", "y-label")
-        .attr("transform", `translate(${PLOT_CONFIG.margin.left - 90}, ${PLOT_CONFIG.margin.top + PLOT_AREA.height / 2 + 125}) rotate(-90)`)
-        .attr("width", 300)
-        .attr("height", 40)
+        .attr("transform", `translate(${margin.left - toViewBoxUnits(48)}, ${margin.top + plotArea.height / 2 + yLabelWidth / 2}) rotate(-90)`)
+        .attr("width", yLabelWidth)
+        .attr("height", labelHeight)
         .append("xhtml:div")
         .attr("contenteditable", true)
         .style("text-align", "center")
-        .style("font-size", `${PLOT_CONFIG.fontSize.axisLabel}px`)
+        .style("font-size", `${fontSize.axisLabel}px`)
+        .style("line-height", `${labelHeight}px`)
         .style("color", "black")
         .text("Probability density");
 
@@ -729,27 +864,38 @@ function drawDistributions(r, type, options = {}) {
     const legendEnter = legend.enter()
         .append("foreignObject")
         .attr("class", "legend-group")
-        .attr("width", 400)
-        .attr("height", 40);
+        .attr("width", Math.min(plotArea.width, toViewBoxUnits(190)))
+        .attr("height", toViewBoxUnits(24));
 
     legendEnter.append("xhtml:div")
         .attr("contenteditable", true)
-        .style("font-size", `${PLOT_CONFIG.fontSize.legendText}px`)
+        .style("font-size", `${fontSize.legendText}px`)
+        .style("line-height", `${toViewBoxUnits(20)}px`)
         .style("font-weight", "bold")
         .style("color", (d, i) => (i === 0 ? "#777777" : "teal"))
         .style("display", "inline")
         .text(d => d);
 
     legendEnter.merge(legend)
-        .attr("x", PLOT_CONFIG.margin.left + 100)
-        .attr("y", (d, i) => PLOT_CONFIG.margin.top + i * 34 + 30);
+        .attr("x", margin.left + toViewBoxUnits(45))
+        .attr("y", (d, i) => margin.top + i * toViewBoxUnits(18) + toViewBoxUnits(16));
 
     newSvg.selectAll(".threshold-group").remove();
     drawThreshold(metrics, type);
+
+    return {
+        esMetrics,
+        densityData: dens
+    };
 }
 
 function drawThreshold(metrics, type) {
-    const svg = d3.select(`#${type === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved}`).select("svg");
+    const distributionPlotId = type === "true"
+        ? SELECTORS.distributionPlotTrue
+        : SELECTORS.distributionPlotObserved;
+    const { margin, plotArea, toViewBoxUnits } =
+        getContinuousPlotGeometry(distributionPlotId);
+    const svg = d3.select(`#${distributionPlotId}`).select("svg");
     if (svg.empty()) return; // Don't draw if SVG doesn't exist
 
     // Remove existing threshold group before drawing a new one
@@ -783,8 +929,8 @@ function drawThreshold(metrics, type) {
         );
 
     // Calculate plot area bounds based on viewBox and margins
-    const plotTop = PLOT_CONFIG.margin.top;
-    const plotBottom = PLOT_CONFIG.margin.top + PLOT_AREA.height;
+    const plotTop = margin.top;
+    const plotBottom = margin.top + plotArea.height;
 
     // Add or update the threshold line
     thresholdGroup.selectAll(".threshold-line")
@@ -796,7 +942,7 @@ function drawThreshold(metrics, type) {
         .attr("y1", plotTop) // Use calculated plot area top
         .attr("y2", plotBottom) // Use calculated plot area bottom
         .attr("stroke", "red")
-        .attr("stroke-width", 7)
+        .attr("stroke-width", toViewBoxUnits(4))
         .attr("opacity", 0.9);
 
     // Add or update the hitbox for interaction
@@ -804,15 +950,15 @@ function drawThreshold(metrics, type) {
         .data([null])
         .join("rect")
         .attr("class", "threshold-hitbox")
-        .attr("x", xScale(thresholdValue) - 15)
-        .attr("width", 30)
+        .attr("x", xScale(thresholdValue) - toViewBoxUnits(10))
+        .attr("width", toViewBoxUnits(20))
         .attr("y", plotTop) // Use calculated plot area top
-        .attr("height", PLOT_AREA.height) // Use calculated plot area height
+        .attr("height", plotArea.height) // Use calculated plot area height
         .attr("fill", "transparent");
 
     // Add or update the arrows
-    const arrowSize = 15;
-    const arrowY = plotTop + 15; // Position near top of plot area
+    const arrowSize = toViewBoxUnits(8);
+    const arrowY = plotTop + toViewBoxUnits(8); // Position near top of plot area
     const arrowData = [
         { direction: "left", x: thresholdValue - 0.2, y: arrowY },
         { direction: "right", x: thresholdValue + 0.2, y: arrowY },
@@ -845,8 +991,13 @@ function updateThresholdVisual(thresholdGroup) {
     );
     if (group.empty()) return;
 
-    const plotTop = PLOT_CONFIG.margin.top;
-    const plotBottom = PLOT_CONFIG.margin.top + PLOT_AREA.height;
+    const distributionPlotId = currentView === "true"
+        ? SELECTORS.distributionPlotTrue
+        : SELECTORS.distributionPlotObserved;
+    const { margin, plotArea, toViewBoxUnits } =
+        getContinuousPlotGeometry(distributionPlotId);
+    const plotTop = margin.top;
+    const plotBottom = margin.top + plotArea.height;
     const x = xScale(thresholdValue);
 
     group.select(".threshold-line")
@@ -856,10 +1007,12 @@ function updateThresholdVisual(thresholdGroup) {
         .attr("y2", plotBottom);
 
     group.select(".threshold-hitbox")
-        .attr("x", x - 15);
+        .attr("x", x - toViewBoxUnits(10))
+        .attr("width", toViewBoxUnits(20))
+        .attr("height", plotArea.height);
 
-    const arrowSize = 15;
-    const arrowY = plotTop + 15;
+    const arrowSize = toViewBoxUnits(8);
+    const arrowY = plotTop + toViewBoxUnits(8);
     const arrowData = [
         { direction: "left", x: thresholdValue - 0.2, y: arrowY },
         { direction: "right", x: thresholdValue + 0.2, y: arrowY },
@@ -1190,6 +1343,56 @@ function ensureVisibleViewDrawn() {
     }
 }
 
+function redrawVisibleContinuousMainPlots() {
+    const continuousContainer = document.getElementById("continuous-container");
+    if (!continuousContainer || continuousContainer.classList.contains("u-hidden")) return;
+
+    const renderCache = continuousMainPlotRenderCache[currentView];
+    if (!renderCache) return;
+
+    drawJointContours(renderCache.r, currentView, {
+        esMetrics: renderCache.esMetrics,
+        densityData: renderCache.densityData,
+        samplePoints: renderCache.samplePoints,
+        plotPoints: renderCache.plotPoints,
+        layoutOnly: true
+    });
+
+    // The hidden view will derive fresh dimensions when it is next selected.
+    hiddenViewDrawPending = true;
+    togglePlotVisibility();
+}
+
+function setupContinuousPlotResizeObserver() {
+    const plotStack = document.querySelector("#continuous-container .plots-stack");
+    if (!plotStack || typeof ResizeObserver === "undefined") return;
+
+    continuousPlotResizeObserver = new ResizeObserver(entries => {
+        const rect = entries[0]?.contentRect;
+        if (!rect || rect.width < 1 || rect.height < 1) return;
+        if (
+            Math.abs(rect.width - lastObservedPlotStackWidth) < 0.5 &&
+            Math.abs(rect.height - lastObservedPlotStackHeight) < 0.5
+        ) {
+            return;
+        }
+
+        lastObservedPlotStackWidth = rect.width;
+        lastObservedPlotStackHeight = rect.height;
+
+        // Throttle rather than debounce: update throughout a live window drag,
+        // while coalescing the flood of resize notifications.
+        if (continuousPlotResizeTimer === null) {
+            continuousPlotResizeTimer = window.setTimeout(() => {
+                continuousPlotResizeTimer = null;
+                redrawVisibleContinuousMainPlots();
+            }, 40);
+        }
+    });
+
+    continuousPlotResizeObserver.observe(plotStack);
+}
+
 function initializePlots() {
     // Set the default active state
     const trueButton = document.getElementById("true-button-cont");
@@ -1387,6 +1590,7 @@ function initializeContinuous(initialThreshold) {
     
     // Initialize plots
     initializePlots();
+    setupContinuousPlotResizeObserver();
 }
 
 // Function to update threshold value and redraw

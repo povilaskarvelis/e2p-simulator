@@ -751,7 +751,7 @@ html.is-exporting .modebar-container {
 .calib-plot-column {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
     height: 100%;
 }
 

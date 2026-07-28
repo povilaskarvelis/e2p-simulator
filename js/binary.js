@@ -28,6 +28,7 @@ let xScale, yScale;
 let plotGroup;
 let width, height;
 let resizeAnimationFrame = null;
+let revealResizeAnimationFrame = null;
 
 // parseURLParams is defined in url-params.js (loaded before this script)
 
@@ -992,6 +993,32 @@ function handleResize() {
     });
 }
 
+function resizeBinaryPlotsAfterReveal() {
+    if (revealResizeAnimationFrame !== null) {
+        window.cancelAnimationFrame(revealResizeAnimationFrame);
+    }
+
+    // The first frame applies the display/grid change; the second measures the
+    // completed three-column layout before asking Plotly to resize.
+    revealResizeAnimationFrame = window.requestAnimationFrame(() => {
+        revealResizeAnimationFrame = window.requestAnimationFrame(() => {
+            revealResizeAnimationFrame = null;
+
+            const binaryContainer = document.getElementById("binary-container");
+            if (!binaryContainer || binaryContainer.classList.contains("u-hidden")) return;
+
+            [SELECTORS.rocPlot, SELECTORS.prPlot, SELECTORS.dcaPlot].forEach(plotId => {
+                const plot = document.getElementById(plotId);
+                if (plot?._fullLayout && Plotly?.Plots?.resize) {
+                    Plotly.Plots.resize(plot);
+                }
+            });
+
+            handleResize();
+        });
+    });
+}
+
 // Initialize SVG and scales
 function initializeSVG() {
     try {
@@ -1094,6 +1121,10 @@ function cleanupBinary() {
         window.cancelAnimationFrame(resizeAnimationFrame);
         resizeAnimationFrame = null;
     }
+    if (revealResizeAnimationFrame !== null) {
+        window.cancelAnimationFrame(revealResizeAnimationFrame);
+        revealResizeAnimationFrame = null;
+    }
 }
 
 // Initialize everything for the binary version
@@ -1137,4 +1168,5 @@ function initializeBinary(initialThreshold) {
 // Export for main.js
 window.initializeBinary = initializeBinary;
 window.cleanupBinary = cleanupBinary;
+window.resizeBinaryPlotsAfterReveal = resizeBinaryPlotsAfterReveal;
 })();

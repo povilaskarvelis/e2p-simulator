@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             binaryContainer.classList.remove('u-hidden');
             continuousContainer.classList.add('u-hidden');
             toggleSampleSizeSections('binary');
+            window.resizeBinaryPlotsAfterReveal?.();
         });
     });
 

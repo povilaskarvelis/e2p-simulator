@@ -198,10 +198,10 @@ body.get-started-page {
 }
 
 /* ==========================================================================
-   Tablet and compact laptop: two primary columns, result plots below
+   Compact desktop and tablet: two primary columns, result plots below
    ========================================================================== */
 
-@media (max-width: 1180px) {
+@media (max-width: 1370px) {
     .main-container,
     #binary-container .main-container,
     #continuous-container .main-container {
@@ -263,6 +263,19 @@ body.get-started-page {
 
     .calib-metrics-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* The binary controls wrap onto additional lines at the narrow end of the
+   two-column layout, so give that row enough room before the phone stack. */
+@media (min-width: 761px) and (max-width: 920px) {
+    #binary-container .main-container {
+        grid-template-rows: 680px 420px;
+    }
+
+    #binary-container .slider-section,
+    #binary-container .main-plot-section {
+        height: 680px;
     }
 }
 

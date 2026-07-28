@@ -679,7 +679,7 @@ function plotTestDistributions() {
         },
         showlegend: false,
         hovermode: 'closest',
-        margin: { t: 50, r: 30, b: 50, l: 60 },
+        margin: { t: 42, r: 30, b: 20, l: 60 },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white'
     };
@@ -708,8 +708,8 @@ function addAUCDisplay(plotDiv, rocAuc, prAuc) {
     const { svg, width } = overlay;
     const compact = width < 420;
     const textX = width - (compact ? 8 : 12);
-    const firstLineY = compact ? 22 : 26;
-    const lineHeight = compact ? 17 : 20;
+    const firstLineY = compact ? 18 : 22;
+    const lineHeight = compact ? 16 : 17;
     
     // Add ROC-AUC text in top right corner
     svg.append('text')
@@ -831,7 +831,7 @@ function plotDeploymentDistributions() {
         },
         showlegend: false,
         hovermode: 'closest',
-        margin: { t: 50, r: 30, b: 50, l: 60 },
+        margin: { t: 42, r: 30, b: 20, l: 60 },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white'
     };
@@ -921,7 +921,7 @@ function plotCalibration() {
             borderwidth: 1
         },
         hovermode: 'closest',
-        margin: { t: 50, r: 30, b: 50, l: 60 },
+        margin: { t: 24, r: 30, b: 50, l: 60 },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white'
     };
