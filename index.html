@@ -918,13 +918,6 @@
                     </div>
                 </div>
 
-                <hr class="input-separator">
-
-                <!-- Info Box -->
-                <div class="calib-callout">
-                    <strong>What to look for:</strong>
-                    Perfect calibration appears as points along the diagonal line. Deviations indicate miscalibration: points above the line mean the model underestimates risk, points below mean it overestimates risk.
-                </div>
             </div>
         </div>
 
@@ -949,19 +942,19 @@
                 <!-- Calibration Metrics -->
                 <div class="calib-metrics-grid">
                     <div class="calib-metric-cell">
-                        <span class="calib-metric-label" data-tooltip="Lower is better; measures overall prediction accuracy">Brier:</span>
+                        <span class="calib-metric-label" data-tooltip="Mean squared difference between predicted probability and binary outcome; lower is better">Brier:</span>
                         <span class="calib-metric-value" id="calib-brier-score">0.000</span>
                     </div>
                     <div class="calib-metric-cell">
-                        <span class="calib-metric-label" data-tooltip="Expected Calibration Error; lower is better">ECE:</span>
-                        <span class="calib-metric-value" id="calib-ece">0.000</span>
+                        <span class="calib-metric-label" data-tooltip="Integrated Calibration Index: average absolute distance between predicted risk and deployment event rate conditional on predicted risk; lower is better">ICI:</span>
+                        <span class="calib-metric-value" id="calib-ici">0.000</span>
                     </div>
                     <div class="calib-metric-cell">
-                        <span class="calib-metric-label" data-tooltip="Slope of calibration curve; 1.0 is ideal">Slope:</span>
+                        <span class="calib-metric-label" data-tooltip="Population logistic recalibration slope using logit(predicted risk); 1.0 is ideal">Slope:</span>
                         <span class="calib-metric-value" id="calib-slope">1.000</span>
                     </div>
                     <div class="calib-metric-cell">
-                        <span class="calib-metric-label" data-tooltip="Intercept of calibration curve; 0.0 is ideal">Intercept:</span>
+                        <span class="calib-metric-label" data-tooltip="Population logistic recalibration intercept using logit(predicted risk); 0.0 is ideal">Intercept:</span>
                         <span class="calib-metric-value" id="calib-intercept">0.000</span>
                     </div>
                 </div>
@@ -1025,10 +1018,13 @@
                     <div class="equation-content">\[N = \dfrac{p}{(S-1)\,\ln(1- R^2_{CS}/S)}\]</div>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="ssb-r2cs-slider" min="0.01" max="0.9" step="0.01" value="0.2" class="slider">
+                    <div class="ssb-r2cs-slider-wrap">
+                        <input type="range" id="ssb-r2cs-slider" min="0.01" max="0.9" step="0.01" value="0.2" class="slider" aria-describedby="ssb-r2cs-message">
+                        <div id="ssb-r2cs-message" class="ssb-slider-limit-message" role="status" aria-live="polite" hidden></div>
+                    </div>
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Anticipated Cox–Snell R² (for binary classification with continuous predictors, this equals η² shown on the main dashboard)">Anticipated R²<sub>cs</sub></span>
-                        <input type="number" id="ssb-r2cs" min="0.01" max="0.9" step="0.01" value="0.2" class="slider-value">
+                        <span class="slider-label" data-tooltip="Likelihood-based anticipated fit of the full binary-outcome model; this is not η² and its maximum depends on the outcome base rate">Anticipated R²<sub>cs</sub></span>
+                        <input type="number" id="ssb-r2cs" min="0.01" max="0.9" step="0.01" value="0.2" class="slider-value" aria-describedby="ssb-r2cs-message">
                     </div>
                 </div>
                 <div class="slider-container">
@@ -1153,6 +1149,7 @@
     <script src="js/shared-plugins.js"></script>
     <!-- Load our module scripts -->
     <script src="js/utils.js"></script>
+    <script src="js/statistical-core.js"></script>
     <script src="js/url-params.js"></script>
     <script src="js/slider-bind.js"></script>
     <script src="js/binary.js"></script>

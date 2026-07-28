@@ -194,7 +194,7 @@ function calculatePRAUC(distParams) {
 
 function generateDataset(effectSize, icc1, icc2, kappa, baseRate, sampleSize) {
     // Calculate the kappa effect on mean separation
-    const kappaFactor = Math.sin((Math.PI / 2) * kappa);
+    const kappaFactor = window.E2PStatCore.outcomeReliabilityFactor(kappa);
     const adjustedEffectSize = effectSize * kappaFactor;
     
     // Calculate group sizes based on base rate
@@ -257,8 +257,9 @@ function calculateDistributionParams(effectSize, icc1, icc2, kappa, baseRate) {
     
     // Kappa affects the separation between means (not ICC!)
     // Group 0 always has mean = 0
-    // Group 1 mean is scaled by kappa: sin(pi/2 * kappa)
-    const kappaFactor = Math.sin((Math.PI / 2) * kappa);
+    // Group 1 mean uses the same reliability attenuation as the main simulator:
+    // sqrt(sin(pi/2 * kappa)).
+    const kappaFactor = window.E2PStatCore.outcomeReliabilityFactor(kappa);
     const obsEffectSize = effectSize * kappaFactor;
     
     // Note: The observed Cohen's d will be attenuated by BOTH:
@@ -527,13 +528,16 @@ function getThresholdCalibrationMarker() {
 
 function calculateCalibrationMetrics() {
     // All metrics computed analytically using known distribution parameters
-    const { calibrationSlope, calibrationIntercept, brierScore, ece } = calculateAnalyticalMetrics();
+    const { calibrationSlope, calibrationIntercept, brierScore, ici } = calculateAnalyticalMetrics();
+
+    const formatMetric = (value) =>
+        Number.isFinite(value) ? value.toFixed(3) : '—';
     
     return {
-        brierScore: brierScore.toFixed(3),
-        ece: ece.toFixed(3),
-        calibrationSlope: calibrationSlope.toFixed(3),
-        calibrationIntercept: calibrationIntercept.toFixed(3)
+        brierScore: formatMetric(brierScore),
+        ici: formatMetric(ici),
+        calibrationSlope: formatMetric(calibrationSlope),
+        calibrationIntercept: formatMetric(calibrationIntercept)
     };
 }
 
@@ -547,18 +551,12 @@ function calculateAnalyticalMetrics() {
     const testParams = state.testData.distParams;
     const deployParams = state.deploymentData.distParams;
     
-    // For each x value, compute predicted probability (from test) and true probability (from deployment)
-    let sumPredicted = 0;
-    let sumTrue = 0;
-    let sumPredSquared = 0;
-    let sumTrueSquared = 0;
-    let sumPredTimesTrue = 0;
-    let sumBrier = 0;
-    let sumAbsCalibError = 0;
-    let totalWeight = 0;
+    // Each point represents the population expectation at x. These points are
+    // passed to the shared metric implementation so definitions remain testable.
+    const calibrationPoints = [];
     
     for (let i = 0; i < nPoints; i++) {
-        const x = xMin + i * dx;
+        const x = xMin + (i + 0.5) * dx;
         
         // Predicted probability from test set parameters
         const likelihood0_test = normalPDF(x, testParams.group0.mean, testParams.group0.stdDev);
@@ -580,47 +578,24 @@ function calculateAnalyticalMetrics() {
         const weight = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
         
         if (weight > 1e-300) {
-            sumPredicted += pPred * weight;
-            sumTrue += pTrue * weight;
-            sumPredSquared += pPred * pPred * weight;
-            sumTrueSquared += pTrue * pTrue * weight;
-            sumPredTimesTrue += pPred * pTrue * weight;
-            
-            // Brier score: E[(pPred - pTrue)^2]
-            sumBrier += Math.pow(pPred - pTrue, 2) * weight;
-            
-            // ECE: E[|pPred - pTrue|]
-            sumAbsCalibError += Math.abs(pPred - pTrue) * weight;
-            
-            totalWeight += weight;
+            calibrationPoints.push({
+                predicted: pPred,
+                observed: pTrue,
+                weight
+            });
         }
     }
     
-    if (totalWeight > 0) {
-        const meanPred = sumPredicted / totalWeight;
-        const meanTrue = sumTrue / totalWeight;
-        const covPredTrue = (sumPredTimesTrue / totalWeight) - (meanPred * meanTrue);
-        const varPred = (sumPredSquared / totalWeight) - (meanPred * meanPred);
-        
-        const slope = varPred > 1e-10 ? covPredTrue / varPred : 1;
-        const intercept = meanTrue - slope * meanPred;
-        const brierScore = sumBrier / totalWeight;
-        const ece = sumAbsCalibError / totalWeight;
-        
-        return { 
-            calibrationSlope: slope, 
-            calibrationIntercept: intercept,
-            brierScore: brierScore,
-            ece: ece
-        };
-    }
-    
-    return { 
-        calibrationSlope: 1, 
-        calibrationIntercept: 0,
-        brierScore: 0,
-        ece: 0
-    };
+    const integratedCalibrationIndex =
+        window.E2PStatCore.calculateNormalModelIci(
+            testParams,
+            deployParams
+        );
+
+    return window.E2PStatCore.calculatePopulationCalibrationMetrics(
+        calibrationPoints,
+        { integratedCalibrationIndex }
+    );
 }
 
 // ============================================================================
@@ -1204,7 +1179,7 @@ function updateMetricsDisplay() {
     
     // Update each metric value
     document.getElementById('calib-brier-score').textContent = metrics.brierScore;
-    document.getElementById('calib-ece').textContent = metrics.ece;
+    document.getElementById('calib-ici').textContent = metrics.ici;
     document.getElementById('calib-slope').textContent = metrics.calibrationSlope;
     document.getElementById('calib-intercept').textContent = metrics.calibrationIntercept;
 }
@@ -1310,4 +1285,3 @@ if (document.readyState === 'loading') {
 }
 
 })();
-

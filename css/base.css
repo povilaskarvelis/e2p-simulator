@@ -53,7 +53,8 @@ h1.page-intro-title {
     margin: -20px -20px 28px -20px;
     padding: 16px 20px;
     background-color: #ffffff;
-    border-bottom: 1px solid #d0d0d0;
+    border-bottom: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.045);
     box-sizing: border-box;
     position: relative;
     z-index: 20;
@@ -1164,6 +1165,40 @@ input[type="range"]::-webkit-slider-thumb {
     font-weight: 700;
     color: #000;
     line-height: 1;
+}
+
+.ssb-r2cs-slider-wrap {
+    position: relative;
+}
+
+.ssb-slider-limit-message {
+    position: absolute;
+    z-index: 4;
+    top: -17px;
+    right: 0;
+    max-width: calc(100% - 8px);
+    padding: 4px 7px;
+    border: 1px solid #c62828;
+    border-radius: 4px;
+    background: #ffebee;
+    color: #8e0000;
+    box-shadow: 0 2px 5px rgba(142, 0, 0, 0.16);
+    font-size: 0.78rem;
+    line-height: 1.25;
+    pointer-events: none;
+}
+
+.ssb-slider-limit-message::after {
+    content: '';
+    position: absolute;
+    right: 7px;
+    bottom: -5px;
+    width: 8px;
+    height: 8px;
+    background: #ffebee;
+    border-right: 1px solid #c62828;
+    border-bottom: 1px solid #c62828;
+    transform: rotate(45deg);
 }
 
 .summary-detail-header {

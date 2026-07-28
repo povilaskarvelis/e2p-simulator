@@ -43,8 +43,8 @@
     }
 
     // Criterion 3: optimism-based correction (n ≥ 1 + (p * (1 - R²)) / δ)
-    function computeOptimismN(p, R, delta){
-        return 1 + (p * (1 - R * R)) / delta;
+    function computeOptimismN(p, R2, delta){
+        return window.E2PStatCore.continuousOptimismSampleSize(p, R2, delta);
     }
 
 

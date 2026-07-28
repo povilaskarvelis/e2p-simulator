@@ -61,6 +61,44 @@
         if (el) el.textContent = text;
     }
 
+    function formatPercentage(proportion){
+        return Number((proportion * 100).toFixed(1)).toString();
+    }
+
+    function setCoxSnellMessage(validation, limit, prevalence, shrinkage){
+        const message = document.getElementById('ssb-r2cs-message');
+        const r2Input = document.getElementById('ssb-r2cs');
+        const r2Slider = document.getElementById('ssb-r2cs-slider');
+        const r2Value = val('ssb-r2cs');
+        const atLimit =
+            Number.isFinite(r2Value) &&
+            Number.isFinite(limit.selectableMaximum) &&
+            Math.abs(r2Value - limit.selectableMaximum) < 1e-12;
+        let messageText = '';
+
+        if (!validation.valid) {
+            messageText = validation.errors[0] || 'Enter a valid Cox–Snell R².';
+        } else if (atLimit && limit.limitingConstraint === 'base-rate') {
+            messageText =
+                `R²cs stops here: its maximum is ${limit.theoreticalMaximum.toFixed(3)} ` +
+                `at a ${formatPercentage(prevalence)}% base rate.`;
+        } else if (atLimit && limit.limitingConstraint === 'shrinkage') {
+            messageText =
+                `R²cs stops here: it must remain below S = ${shrinkage.toFixed(2)}.`;
+        }
+
+        if (message) {
+            message.hidden = messageText === '';
+            message.textContent = messageText;
+        }
+
+        [r2Input, r2Slider].forEach((element) => {
+            if (element) {
+                element.setAttribute('aria-invalid', validation.valid ? 'false' : 'true');
+            }
+        });
+    }
+
     function syncPair(sliderId, inputId){
         const s = document.getElementById(sliderId);
         const i = document.getElementById(inputId);
@@ -124,14 +162,64 @@
 
     function update(){
         const p = val('ssb-p');
-        const r2cs = Math.max(0.0001, Math.min(0.9, val('ssb-r2cs')));
         const prevInput = val('ssb-prevalence');
-        const S = Math.max(0.7, Math.min(0.99, val('ssb-shrinkage')));
+        const S = val('ssb-shrinkage');
         const targetEPP = Math.max(1, val('ssb-epp')) || 10;
         const targetMAPE = Math.max(0.001, Math.min(0.2, val('ssb-mape') || 0.05));
 
-        if (p == null || r2cs == null || prevInput == null || S == null || targetMAPE == null) return;
+        if (p == null || prevInput == null || S == null || targetMAPE == null) return;
         const prevPct = Math.max(0.001, Math.min(0.999, percentageToFraction(prevInput)));
+        const limit = window.E2PStatCore.selectableCoxSnellR2Limit(prevPct, S);
+        const r2Input = document.getElementById('ssb-r2cs');
+        const r2Slider = document.getElementById('ssb-r2cs-slider');
+
+        if (Number.isFinite(limit.selectableMaximum)) {
+            const maximum = limit.selectableMaximum.toFixed(2);
+            [r2Input, r2Slider].forEach((element) => {
+                if (element) element.max = maximum;
+            });
+
+            const currentR2 = val('ssb-r2cs');
+            if (
+                Number.isFinite(currentR2) &&
+                currentR2 > limit.selectableMaximum
+            ) {
+                r2Input.value = maximum;
+            }
+            if (Number.isFinite(currentR2) && r2Slider && r2Input) {
+                r2Slider.value = r2Input.value;
+                r2Input.value = r2Slider.value;
+            }
+        }
+
+        const r2cs = val('ssb-r2cs');
+        if (r2cs == null) {
+            const message = document.getElementById('ssb-r2cs-message');
+            if (message) message.hidden = true;
+            return;
+        }
+        const validation = window.E2PStatCore.validateCoxSnellInputs(r2cs, S, prevPct);
+        setCoxSnellMessage(validation, limit, prevPct, S);
+
+        if (!validation.valid) {
+            setHTML('ssb-n-s', '-');
+            setHTML('ssb-n-required', '-');
+            setHTML('ssb-events', '-');
+            setHTML('ssb-nonevents', '-');
+            setHTML('ssb-epp', '-');
+
+            const tableContainer = document.getElementById('ssb-results-table');
+            if (tableContainer) {
+                tableContainer.textContent = '';
+            }
+
+            const chartCanvas = document.getElementById('ssbPlot');
+            if (chartCanvas && chartCanvas._chart) {
+                chartCanvas._chart.destroy();
+                chartCanvas._chart = null;
+            }
+            return;
+        }
 
         const nS = computeShrinkageN(p, S, r2cs);
         const nMAPE = (p <= 30) ? computeMapeN(p, targetMAPE, prevPct) : 0;
@@ -222,6 +310,3 @@
 
     document.addEventListener('DOMContentLoaded', init);
 })();
-
-
-

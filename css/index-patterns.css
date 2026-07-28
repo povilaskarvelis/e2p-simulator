@@ -750,23 +750,10 @@ html.is-exporting .modebar-container {
     color: #333;
 }
 
-.calib-callout {
-    padding: 15px;
-    background-color: #fff3cd;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: #856404;
-}
-
-.calib-callout strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
 .calib-plot-column {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
     height: 100%;
 }
 
