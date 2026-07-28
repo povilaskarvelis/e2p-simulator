@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://e2p-simulator.com/sitemap.xml

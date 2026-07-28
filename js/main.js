@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const open = dashboard.classList.contains('is-expanded');
                 extra.hidden = !open;
                 toggle.textContent = open ? 'Show less metrics' : 'Show more metrics';
+                toggle.setAttribute('aria-controls', extra.id);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
             };
             sync();
             toggle.addEventListener('click', () => {

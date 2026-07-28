@@ -12,7 +12,7 @@ Usage:
 """
 
 from dataclasses import asdict
-from typing import Literal, Optional
+from typing import Literal
 
 try:
     from mcp.server.fastmcp import FastMCP
@@ -40,6 +40,10 @@ from e2p import (
     compute_sigma_from_icc,
 )
 
+EffectSizeType = Literal["d", "auc", "or", "log_or", "u3", "r"]
+ResultView = Literal["true", "observed"]
+ThresholdMetric = Literal["youden", "f1"]
+
 # Create the MCP server
 mcp = FastMCP("e2p")
 
@@ -52,7 +56,7 @@ def parametric_binary(
     icc1: float = 1.0,
     icc2: float = 1.0,
     kappa: float = 1.0,
-    view: str = "observed",
+    view: ResultView = "observed",
 ) -> dict:
     """
     Compute predictive metrics from Cohen's d using parametric assumptions.
@@ -93,7 +97,7 @@ def parametric_continuous(
     threshold_prob: float = 0.5,
     reliability_x: float = 1.0,
     reliability_y: float = 1.0,
-    view: str = "observed",
+    view: ResultView = "observed",
 ) -> dict:
     """
     Compute predictive metrics from Pearson's r under the bivariate-normal model.
@@ -126,8 +130,8 @@ def parametric_continuous(
 @mcp.tool()
 def convert_effect_size(
     value: float,
-    from_type: str,
-    to_type: str = "d",
+    from_type: EffectSizeType,
+    to_type: EffectSizeType = "d",
     base_rate: float = 0.5,
 ) -> dict:
     """
@@ -237,7 +241,7 @@ def compute_pr_auc(
 def find_threshold(
     cohens_d: float,
     base_rate: float,
-    metric: str = "youden",
+    metric: ThresholdMetric = "youden",
     sigma1: float = 1.0,
     sigma2: float = 1.0,
 ) -> dict:

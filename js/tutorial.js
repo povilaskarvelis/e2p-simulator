@@ -120,6 +120,7 @@
     let ui = null;
     let isPositioning = false;
     let positionTimer = null;
+    let tourTrigger = null;
 
     function ensureMode(mode) {
         const wantContinuous = mode === 'continuous';
@@ -330,18 +331,44 @@
         }
     }
 
-    function openTour() {
+    function openTour(trigger) {
+        if (ui && !ui.root.hidden) return;
+
+        tourTrigger =
+            trigger ||
+            (
+                document.activeElement instanceof HTMLElement
+                    ? document.activeElement
+                    : null
+            );
         ensureMode('binary');
         document.documentElement.classList.add('tour-active');
         ui.root.hidden = false;
         showStep(0);
+        requestAnimationFrame(() => {
+            ui.popover.focus({ preventScroll: true });
+        });
     }
 
-    function closeTour() {
+    function closeTour(restoreFocus = true) {
         document.documentElement.classList.remove('tour-active');
         if (ui) {
             ui.spotlight.hidden = true;
             ui.root.hidden = true;
+        }
+
+        const returnTarget = restoreFocus
+            ? (
+                tourTrigger && tourTrigger.isConnected
+                    ? tourTrigger
+                    : document.querySelector('[data-start-tutorial]')
+            )
+            : null;
+        tourTrigger = null;
+        if (returnTarget) {
+            requestAnimationFrame(() => {
+                returnTarget.focus({ preventScroll: true });
+            });
         }
     }
 
@@ -366,12 +393,12 @@
         root.innerHTML = [
             '<div class="tour-backdrop" data-tour-action="skip" aria-hidden="true"></div>',
             '<div class="tour-spotlight" hidden aria-hidden="true"></div>',
-            '<div class="tour-popover" role="dialog" aria-modal="true" aria-labelledby="tour-title">',
+            '<div class="tour-popover" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-body" tabindex="-1">',
             '  <div class="tour-popover-header">',
             '    <h2 id="tour-title" class="tour-title"></h2>',
             '    <span class="tour-progress"></span>',
             '  </div>',
-            '  <p class="tour-body"></p>',
+            '  <p id="tour-body" class="tour-body"></p>',
             '  <div class="tour-actions">',
             '    <button type="button" class="tour-btn tour-btn-skip" data-tour-action="skip">Skip</button>',
             '    <div class="tour-actions-right">',
@@ -414,9 +441,52 @@
 
         document.addEventListener('keydown', (e) => {
             if (!document.documentElement.classList.contains('tour-active')) return;
-            if (e.key === 'Escape') closeTour();
-            else if (e.key === 'ArrowRight' || e.key === 'Enter') next();
-            else if (e.key === 'ArrowLeft') back();
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeTour(false);
+                return;
+            }
+
+            if (e.key === 'Tab') {
+                const focusable = Array.from(
+                    ui.popover.querySelectorAll(
+                        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    )
+                );
+                if (focusable.length === 0) {
+                    e.preventDefault();
+                    ui.popover.focus();
+                    return;
+                }
+
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (
+                    e.shiftKey &&
+                    (
+                        document.activeElement === first ||
+                        document.activeElement === ui.popover
+                    )
+                ) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (
+                    !e.shiftKey &&
+                    document.activeElement === last
+                ) {
+                    e.preventDefault();
+                    first.focus();
+                }
+                return;
+            }
+
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                next();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                back();
+            }
         });
 
         const relayout = () => {
@@ -435,14 +505,14 @@
         document.querySelectorAll('[data-start-tutorial]').forEach((btn) => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                openTour();
+                openTour(e.currentTarget);
             });
         });
 
         try {
             const params = new URLSearchParams(window.location.search);
             if (params.get('tutorial') === '1' || params.get('tour') === '1') {
-                setTimeout(openTour, 400);
+                setTimeout(() => openTour(null), 400);
             }
         } catch (err) { /* ignore */ }
     }

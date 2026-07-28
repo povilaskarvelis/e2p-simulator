@@ -27,6 +27,7 @@ let currentView = "observed";
 let xScale, yScale;
 let plotGroup;
 let width, height;
+let resizeAnimationFrame = null;
 
 // parseURLParams is defined in url-params.js (loaded before this script)
 
@@ -945,37 +946,50 @@ function setupEventListeners() {
 
 // Handle window resize for responsiveness
 function handleResize() {
-    // Get updated dimensions
-    const bbox = d3.select(`#${SELECTORS.overlapPlot}`).node().getBoundingClientRect();
-    width = bbox.width;
-    height = bbox.height;
-    
-    // Update the SVG viewBox
-    d3.select(`#${SELECTORS.overlapPlot}`).select("svg")
-        .attr("viewBox", `0 0 ${width} ${height}`);
-    
-    // Update scales
-    xScale.range([0, width - PLOT_CONFIG.margin.left - PLOT_CONFIG.margin.right]);
-    yScale.range([height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom, 0]);
-    
-    // Update axes
-    plotGroup.select(".x-axis")
-        .attr("transform", `translate(0,${height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom})`)
-        .call(d3.axisBottom(xScale).tickFormat(() => ""));
-    
-    plotGroup.select(".y-axis")
-        .call(d3.axisLeft(yScale).tickFormat(() => ""));
-    
-    // Update axis labels
-    d3.select(`#${SELECTORS.overlapPlot}`).select(".x-label")
-        .attr("x", width / 2 - 150)
-        .attr("y", height - PLOT_CONFIG.margin.bottom / 2);
-    
-    d3.select(`#${SELECTORS.overlapPlot}`).select(".y-label")
-        .attr("x", -height / 2 - 80);
-    
-    // Redraw everything
-    updatePlots();
+    if (resizeAnimationFrame !== null) {
+        window.cancelAnimationFrame(resizeAnimationFrame);
+    }
+
+    resizeAnimationFrame = window.requestAnimationFrame(() => {
+        resizeAnimationFrame = null;
+
+        const plotNode = document.getElementById(SELECTORS.overlapPlot);
+        const svg = plotNode?.querySelector("svg");
+        if (!plotNode || !svg || !xScale || !yScale || !plotGroup) return;
+
+        const bbox = plotNode.getBoundingClientRect();
+        const nextWidth = Math.max(1, bbox.width);
+        const nextHeight = Math.max(1, bbox.height);
+
+        // Hidden modes briefly report a zero-sized box. Waiting for the next
+        // visible resize prevents corrupting the plot's scales.
+        if (bbox.width < 1 || bbox.height < 1) return;
+        if (Math.abs(nextWidth - width) < 0.5 && Math.abs(nextHeight - height) < 0.5) return;
+
+        width = nextWidth;
+        height = nextHeight;
+
+        d3.select(svg).attr("viewBox", `0 0 ${width} ${height}`);
+
+        xScale.range([0, width - PLOT_CONFIG.margin.left - PLOT_CONFIG.margin.right]);
+        yScale.range([height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom, 0]);
+
+        plotGroup.select(".x-axis")
+            .attr("transform", `translate(0,${height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom})`)
+            .call(d3.axisBottom(xScale).tickFormat(() => ""));
+
+        plotGroup.select(".y-axis")
+            .call(d3.axisLeft(yScale).tickFormat(() => ""));
+
+        d3.select(svg).select(".x-label")
+            .attr("x", width / 2 - 150)
+            .attr("y", height - PLOT_CONFIG.margin.bottom / 2);
+
+        d3.select(svg).select(".y-label")
+            .attr("x", -height / 2 - 80);
+
+        updatePlots();
+    });
 }
 
 // Initialize SVG and scales
@@ -986,8 +1000,8 @@ function initializeSVG() {
         
         // Set initial width and height variables - exactly as in original
         const bbox = d3.select(`#${SELECTORS.overlapPlot}`).node().getBoundingClientRect();
-        width = bbox.width;
-        height = bbox.height;
+        width = Math.max(1, bbox.width);
+        height = Math.max(1, bbox.height);
         
         // Create the SVG element - exactly as in original
         const svgDistributions = d3.select(`#${SELECTORS.overlapPlot}`)
@@ -1075,6 +1089,11 @@ function cleanupBinary() {
     thresholdValue = 0;
     rocInitialized = false;
     currentView = "observed";
+
+    if (resizeAnimationFrame !== null) {
+        window.cancelAnimationFrame(resizeAnimationFrame);
+        resizeAnimationFrame = null;
+    }
 }
 
 // Initialize everything for the binary version

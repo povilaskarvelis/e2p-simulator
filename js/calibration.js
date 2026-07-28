@@ -52,6 +52,8 @@ let state = {
     calibrationData: null
 };
 
+let calibrationResizeTimer = null;
+
 // ============================================================================
 // Utility Functions
 // ============================================================================
@@ -700,42 +702,58 @@ function addAUCDisplay(plotDiv, rocAuc, prAuc) {
     // Remove any existing AUC overlay
     d3.select(plotDiv).select('.auc-overlay').remove();
     
-    // Get the plotly plot dimensions
-    const plotlyPlot = plotDiv.querySelector('.plotly');
-    if (!plotlyPlot) return;
-    
-    // Create SVG overlay for AUC
-    const svg = d3.select(plotDiv)
-        .append('svg')
-        .attr('class', 'auc-overlay')
-        .style('position', 'absolute')
-        .style('top', '0')
-        .style('left', '0')
-        .style('width', '100%')
-        .style('height', '100%')
-        .style('pointer-events', 'none');
+    const overlay = createPlotOverlay(plotDiv, 'auc-overlay');
+    if (!overlay) return;
+
+    const { svg, width } = overlay;
+    const compact = width < 420;
+    const textX = width - (compact ? 8 : 12);
+    const firstLineY = compact ? 22 : 26;
+    const lineHeight = compact ? 17 : 20;
     
     // Add ROC-AUC text in top right corner
-    const rocAucText = svg.append('text')
+    svg.append('text')
         .attr('class', 'roc-auc-text')
-        .attr('x', '95%')
-        .attr('y', '60')
+        .attr('x', textX)
+        .attr('y', firstLineY)
         .attr('text-anchor', 'end')
-        .style('font-size', '14px')
+        .style('font-size', compact ? '12px' : '14px')
         .style('font-weight', 'bold')
         .style('fill', '#333')
         .text(`ROC-AUC: ${rocAuc.toFixed(3)}`);
     
     // Add PR-AUC text underneath ROC-AUC
-    const prAucText = svg.append('text')
+    svg.append('text')
         .attr('class', 'pr-auc-text')
-        .attr('x', '95%')
-        .attr('y', '80')
+        .attr('x', textX)
+        .attr('y', firstLineY + lineHeight)
         .attr('text-anchor', 'end')
-        .style('font-size', '14px')
+        .style('font-size', compact ? '12px' : '14px')
         .style('font-weight', 'bold')
         .style('fill', '#333')
         .text(`PR-AUC: ${prAuc.toFixed(3)}`);
+}
+
+function createPlotOverlay(plotDiv, className) {
+    const fullLayout = plotDiv?._fullLayout;
+    if (!fullLayout || !plotDiv.querySelector('.plotly')) return null;
+
+    const width = Math.max(1, fullLayout.width || plotDiv.clientWidth);
+    const height = Math.max(1, fullLayout.height || plotDiv.clientHeight);
+    const svg = d3.select(plotDiv)
+        .append('svg')
+        .attr('class', className)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('preserveAspectRatio', 'none')
+        .style('position', 'absolute')
+        .style('inset', '0')
+        .style('width', '100%')
+        .style('height', '100%')
+        .style('pointer-events', 'none');
+
+    return { svg, width, height, fullLayout };
 }
 
 function plotDeploymentDistributions() {
@@ -938,16 +956,9 @@ function drawThresholdOnTestPlot() {
     // Remove existing threshold if any
     d3.select(plotDiv).select('.threshold-overlay').remove();
     
-    // Create SVG overlay for threshold
-    const svg = d3.select(plotDiv)
-        .append('svg')
-        .attr('class', 'threshold-overlay')
-        .style('position', 'absolute')
-        .style('top', '0')
-        .style('left', '0')
-        .style('width', '100%')
-        .style('height', '100%')
-        .style('pointer-events', 'none');
+    const overlay = createPlotOverlay(plotDiv, 'threshold-overlay');
+    if (!overlay) return;
+    const { svg } = overlay;
     
     const thresholdGroup = svg.append('g')
         .attr('class', 'threshold-group')
@@ -955,9 +966,13 @@ function drawThresholdOnTestPlot() {
         .style('cursor', 'ew-resize');
     
     // Calculate x position for threshold
-    const xPos = xaxis.l2p(state.thresholdValue) + fullLayout.margin.l;
-    const yStart = fullLayout.margin.t;
-    const yEnd = fullLayout.height - fullLayout.margin.b;
+    const xOffset = Number.isFinite(xaxis._offset) ? xaxis._offset : fullLayout.margin.l;
+    const yStart = Number.isFinite(yaxis._offset) ? yaxis._offset : fullLayout.margin.t;
+    const yLength = Number.isFinite(yaxis._length)
+        ? yaxis._length
+        : fullLayout.height - fullLayout.margin.t - fullLayout.margin.b;
+    const xPos = xaxis.l2p(state.thresholdValue) + xOffset;
+    const yEnd = yStart + yLength;
     
     // Draw threshold line
     thresholdGroup.append('line')
@@ -981,14 +996,13 @@ function drawThresholdOnTestPlot() {
     // Add drag behavior
     thresholdGroup.call(d3.drag()
         .on('drag', function(event) {
-            const xDomain = xaxis.range;
             let newX = event.x;
             
             // Constrain to plot area
-            newX = Math.max(fullLayout.margin.l + xDomain[0], Math.min(fullLayout.margin.l + xaxis._length, newX));
+            newX = Math.max(xOffset, Math.min(xOffset + xaxis._length, newX));
             
             // Convert to data coordinates
-            const newThreshold = xaxis.p2d(newX - fullLayout.margin.l);
+            const newThreshold = xaxis.p2d(newX - xOffset);
             state.thresholdValue = newThreshold;
             
             // Update line position
@@ -1026,16 +1040,9 @@ function drawThresholdOnDeploymentPlot() {
     // Remove existing threshold if any
     d3.select(plotDiv).select('.threshold-overlay').remove();
     
-    // Create SVG overlay for threshold
-    const svg = d3.select(plotDiv)
-        .append('svg')
-        .attr('class', 'threshold-overlay')
-        .style('position', 'absolute')
-        .style('top', '0')
-        .style('left', '0')
-        .style('width', '100%')
-        .style('height', '100%')
-        .style('pointer-events', 'none');
+    const overlay = createPlotOverlay(plotDiv, 'threshold-overlay');
+    if (!overlay) return;
+    const { svg } = overlay;
     
     const thresholdGroup = svg.append('g')
         .attr('class', 'threshold-group')
@@ -1043,9 +1050,13 @@ function drawThresholdOnDeploymentPlot() {
         .style('cursor', 'ew-resize');
     
     // Calculate x position for threshold
-    const xPos = xaxis.l2p(state.thresholdValue) + fullLayout.margin.l;
-    const yStart = fullLayout.margin.t;
-    const yEnd = fullLayout.height - fullLayout.margin.b;
+    const xOffset = Number.isFinite(xaxis._offset) ? xaxis._offset : fullLayout.margin.l;
+    const yStart = Number.isFinite(yaxis._offset) ? yaxis._offset : fullLayout.margin.t;
+    const yLength = Number.isFinite(yaxis._length)
+        ? yaxis._length
+        : fullLayout.height - fullLayout.margin.t - fullLayout.margin.b;
+    const xPos = xaxis.l2p(state.thresholdValue) + xOffset;
+    const yEnd = yStart + yLength;
     
     // Draw threshold line
     thresholdGroup.append('line')
@@ -1069,14 +1080,13 @@ function drawThresholdOnDeploymentPlot() {
     // Add drag behavior
     thresholdGroup.call(d3.drag()
         .on('drag', function(event) {
-            const xDomain = xaxis.range;
             let newX = event.x;
             
             // Constrain to plot area
-            newX = Math.max(fullLayout.margin.l + xDomain[0], Math.min(fullLayout.margin.l + xaxis._length, newX));
+            newX = Math.max(xOffset, Math.min(xOffset + xaxis._length, newX));
             
             // Convert to data coordinates
-            const newThreshold = xaxis.p2d(newX - fullLayout.margin.l);
+            const newThreshold = xaxis.p2d(newX - xOffset);
             state.thresholdValue = newThreshold;
             
             // Update line position
@@ -1105,7 +1115,8 @@ function updateThresholdOnTestPlot() {
     if (!fullLayout) return;
     
     const xaxis = fullLayout.xaxis;
-    const xPos = xaxis.l2p(state.thresholdValue) + fullLayout.margin.l;
+    const xOffset = Number.isFinite(xaxis._offset) ? xaxis._offset : fullLayout.margin.l;
+    const xPos = xaxis.l2p(state.thresholdValue) + xOffset;
     
     const thresholdGroup = d3.select(plotDiv).select('.threshold-group');
     if (thresholdGroup.empty()) return;
@@ -1126,7 +1137,8 @@ function updateThresholdOnDeploymentPlot() {
     if (!fullLayout) return;
     
     const xaxis = fullLayout.xaxis;
-    const xPos = xaxis.l2p(state.thresholdValue) + fullLayout.margin.l;
+    const xOffset = Number.isFinite(xaxis._offset) ? xaxis._offset : fullLayout.margin.l;
+    const xPos = xaxis.l2p(state.thresholdValue) + xOffset;
     
     const thresholdGroup = d3.select(plotDiv).select('.threshold-group');
     if (thresholdGroup.empty()) return;
@@ -1274,6 +1286,42 @@ function init() {
     plotDeploymentDistributions();
     plotCalibration();
     updateMetricsDisplay();
+
+    window.addEventListener('resize', scheduleCalibrationResize);
+}
+
+function redrawCalibrationOverlays() {
+    const testPlot = document.getElementById('calibration-test-plot');
+    const deployPlot = document.getElementById('calibration-deploy-plot');
+
+    if (testPlot?._fullLayout && state.testData?.distParams) {
+        const testParams = state.testData.distParams;
+        addAUCDisplay(testPlot, calculateROCAUC(testParams), calculatePRAUC(testParams));
+        drawThresholdOnTestPlot();
+    }
+
+    if (deployPlot?._fullLayout && state.deploymentData?.distParams) {
+        const deployParams = state.deploymentData.distParams;
+        addAUCDisplay(deployPlot, calculateROCAUC(deployParams), calculatePRAUC(deployParams));
+        drawThresholdOnDeploymentPlot();
+    }
+}
+
+function scheduleCalibrationResize() {
+    window.clearTimeout(calibrationResizeTimer);
+    calibrationResizeTimer = window.setTimeout(async () => {
+        const plots = [
+            document.getElementById('calibration-test-plot'),
+            document.getElementById('calibration-deploy-plot'),
+            document.getElementById('calibration-plot')
+        ].filter(plot => plot?._fullLayout);
+
+        if (Plotly?.Plots?.resize) {
+            await Promise.all(plots.map(plot => Promise.resolve(Plotly.Plots.resize(plot))));
+        }
+
+        window.requestAnimationFrame(redrawCalibrationOverlays);
+    }, 120);
 }
 
 // Initialize when DOM is ready

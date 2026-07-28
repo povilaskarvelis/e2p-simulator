@@ -1,0 +1,667 @@
+/* ==========================================================================
+   Responsive layout
+
+   Desktop keeps the original three-column workbench. At narrower widths the
+   controls and primary plot share a row, then all panels stack on phones.
+   ========================================================================== */
+
+:root {
+    --page-gutter: clamp(12px, 2vw, 20px);
+    --layout-gap: clamp(12px, 1.5vw, 20px);
+    --card-padding: clamp(16px, 2vw, 25px);
+}
+
+html {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body,
+body.get-started-page {
+    width: 100% !important;
+    max-width: 1400px !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    padding: var(--page-gutter) !important;
+}
+
+/* Firefox previously received a separate fixed-width override. */
+@-moz-document url-prefix() {
+    body,
+    body.get-started-page {
+        width: 100% !important;
+        max-width: 1400px !important;
+        min-width: 0 !important;
+    }
+}
+
+.site-header {
+    width: calc(100% + var(--page-gutter) + var(--page-gutter));
+    margin:
+        calc(0px - var(--page-gutter))
+        calc(0px - var(--page-gutter))
+        28px;
+    padding: 16px var(--page-gutter);
+}
+
+.page-intro-title {
+    max-width: 1000px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    font-size: clamp(2rem, 3.1vw, 2.5rem);
+    white-space: normal;
+    text-wrap: balance;
+}
+
+.page-intro-lead,
+.page-intro-meta,
+.description,
+.page-chapter p,
+.guide-section p,
+.guide-section li {
+    overflow-wrap: anywhere;
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns:
+        minmax(280px, 0.95fr)
+        minmax(500px, 2.05fr)
+        minmax(280px, 0.95fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: var(--layout-gap);
+    flex-wrap: nowrap;
+    height: 600px;
+}
+
+#binary-container .main-container {
+    min-height: 570px;
+}
+
+#continuous-container .main-container {
+    height: 720px;
+    min-height: 680px;
+}
+
+.slider-section,
+.main-plot-section,
+.results-container,
+.roc-pr-section,
+.dca-section {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+}
+
+.slider-section {
+    padding: 20px;
+}
+
+.main-plot-section {
+    padding: 30px var(--card-padding) var(--card-padding);
+}
+
+#overlap-plot {
+    flex: 1 1 auto;
+    min-height: 0;
+    contain: size layout;
+    overflow: hidden !important;
+}
+
+#overlap-plot > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.results-container {
+    height: 100%;
+}
+
+.index-metric-row,
+.index-slider-label-row,
+.slider-value-container {
+    min-width: 0;
+}
+
+.slider-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.dashboard {
+    overflow-x: visible;
+}
+
+.dashboard-metrics > p:first-child[data-tooltip]:before {
+    left: 0;
+    transform: none;
+}
+
+.dashboard-metrics > p:last-child[data-tooltip]:before {
+    right: 0;
+    left: auto;
+    transform: none;
+}
+
+/* Calculator modules use explicit fractional columns without allowing the
+   inter-column gap to push their combined width past the page edge. */
+.mahalanobis-container,
+.r-squared-container,
+.dca-container,
+.ss-binary-container,
+.ss-cont-container,
+.calibration-container {
+    display: grid;
+    grid-template-columns: minmax(300px, 38fr) minmax(0, 62fr);
+    gap: var(--layout-gap);
+    align-items: stretch;
+}
+
+#ss-binary-container,
+#ss-cont-container {
+    display: grid;
+}
+
+.ss-binary-container .section.sliders,
+.ss-cont-container .section.sliders,
+.ss-binary-container .section:not(.sliders),
+.ss-cont-container .section:not(.sliders) {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    flex: none;
+}
+
+.section {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+}
+
+.page-chapter,
+.guide-section {
+    margin-left: calc(0px - var(--page-gutter));
+    margin-right: calc(0px - var(--page-gutter));
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+}
+
+.equation-box,
+.equation-box.wide,
+.equation-box.wider {
+    max-width: 100%;
+}
+
+.calib-metrics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* ==========================================================================
+   Tablet and compact laptop: two primary columns, result plots below
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+    .main-container,
+    #binary-container .main-container,
+    #continuous-container .main-container {
+        grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.6fr);
+        grid-template-rows: 600px 420px;
+        height: auto;
+        min-height: 0;
+        align-items: stretch;
+    }
+
+    #continuous-container .main-container {
+        grid-template-rows: 720px 420px;
+    }
+
+    .slider-section,
+    .main-plot-section {
+        height: 600px;
+    }
+
+    #continuous-container .slider-section,
+    #continuous-container .main-plot-section {
+        height: 720px;
+    }
+
+    .results-container,
+    #binary-container .results-container,
+    #continuous-container .results-container {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+        gap: var(--layout-gap);
+        height: 420px;
+    }
+
+    .results-container .roc-pr-section,
+    .results-container .dca-section,
+    #binary-container .results-container .roc-pr-section,
+    #binary-container .results-container .dca-section,
+    #continuous-container .results-container .roc-pr-section,
+    #continuous-container .results-container .dca-section {
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        margin: 0;
+    }
+
+    .dashboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        align-items: center;
+    }
+
+    .dashboard p,
+    #binary-container .dashboard p,
+    #continuous-container .dashboard p {
+        width: auto;
+        text-align: center;
+    }
+
+    .calib-metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================================================
+   Stacked supporting modules
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .mahalanobis-container,
+    .r-squared-container,
+    .dca-container,
+    .ss-binary-container,
+    .ss-cont-container,
+    .calibration-container,
+    #ss-binary-container,
+    #ss-cont-container {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+    }
+
+    .section.sliders,
+    .ss-binary-container .section.sliders,
+    .ss-cont-container .section.sliders,
+    .calibration-container .section:first-child {
+        max-width: none;
+    }
+
+    .mahalanobis-container > .section:not(.sliders),
+    .r-squared-container > .section:not(.sliders),
+    .dca-container > .section:not(.sliders),
+    .ss-binary-container > .section:not(.sliders),
+    .ss-cont-container > .section:not(.sliders) {
+        min-height: 560px;
+    }
+
+    .calibration-container > .section:last-child {
+        min-height: 760px;
+    }
+
+    .dashboard-metrics,
+    #binary-container .dashboard-metrics,
+    #continuous-container .dashboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .slider-label[data-tooltip]:before,
+    .calib-metric-label[data-tooltip]:before {
+        left: 0;
+        transform: none;
+    }
+
+    #roc-plot[data-tooltip]:before,
+    #pr-plot[data-tooltip]:before,
+    #dca-plot[data-tooltip]:before,
+    #roc-plot-cont[data-tooltip]:before,
+    #pr-plot-cont[data-tooltip]:before,
+    #dca-plot-cont[data-tooltip]:before {
+        max-width: calc(100% - 8px);
+    }
+
+    .page-chapter .calculator-title {
+        font-size: clamp(1.5rem, 4vw, 1.85rem) !important;
+    }
+}
+
+/* ==========================================================================
+   Phone: single-column workbench and touch-friendly controls
+   ========================================================================== */
+
+@media (max-width: 760px) {
+    .site-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: calc(100% + var(--page-gutter) + var(--page-gutter)) !important;
+        margin:
+            calc(0px - var(--page-gutter))
+            calc(0px - var(--page-gutter))
+            20px !important;
+        padding: 12px var(--page-gutter) !important;
+    }
+
+    .site-title {
+        font-size: 1.15rem !important;
+    }
+
+    .site-title img {
+        width: 26px !important;
+        height: 26px !important;
+    }
+
+    .header-right {
+        width: 100%;
+        gap: 8px;
+        justify-content: space-between;
+    }
+
+    .site-nav {
+        flex: 1;
+        justify-content: flex-start;
+        gap: 2px !important;
+    }
+
+    .nav-link {
+        padding: 7px 8px !important;
+        font-size: 0.88rem !important;
+        white-space: nowrap;
+    }
+
+    .github-link,
+    .github-logo {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    .page-intro {
+        margin-bottom: 28px;
+        padding: 0;
+    }
+
+    .page-intro-title {
+        margin-bottom: 16px !important;
+        font-size: clamp(1.72rem, 8vw, 2.15rem);
+        line-height: 1.18;
+    }
+
+    .page-intro-lead,
+    .page-intro-meta,
+    .description {
+        font-size: 1rem;
+        line-height: 1.58;
+    }
+
+    .global-mode-row {
+        margin-bottom: 18px;
+    }
+
+    .global-mode {
+        width: min(100%, 330px);
+    }
+
+    .global-mode-btn {
+        min-width: 0;
+        padding: 10px 14px;
+        font-size: 1rem;
+    }
+
+    .main-container,
+    #binary-container .main-container,
+    #continuous-container .main-container {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto;
+        height: auto;
+        min-height: 0;
+    }
+
+    .slider-section,
+    #binary-container .slider-section,
+    #continuous-container .slider-section {
+        height: auto;
+        min-height: 0;
+        padding: 18px 16px;
+    }
+
+    .main-plot-section,
+    #binary-container .main-plot-section {
+        height: clamp(380px, 110vw, 500px);
+        min-height: 380px;
+        padding: 28px 12px 16px;
+    }
+
+    #continuous-container .main-plot-section {
+        height: clamp(620px, 175vw, 720px);
+        min-height: 620px;
+    }
+
+    .plot-effects-toggle {
+        top: 10px;
+        right: 10px;
+    }
+
+    .plot-effects-toggle .toggle-button {
+        min-width: 62px;
+        padding: 5px 9px;
+        font-size: 0.8rem;
+    }
+
+    .results-container,
+    #binary-container .results-container,
+    #continuous-container .results-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+    }
+
+    .results-container .roc-pr-section,
+    #binary-container .results-container .roc-pr-section,
+    #continuous-container .results-container .roc-pr-section {
+        height: 600px;
+        min-height: 600px;
+        padding: 14px 10px;
+    }
+
+    .results-container .dca-section,
+    #binary-container .results-container .dca-section,
+    #continuous-container .results-container .dca-section {
+        height: 300px;
+        min-height: 300px;
+        padding: 14px 10px;
+    }
+
+    .plot-container {
+        gap: 12px;
+    }
+
+    .half-plot,
+    #binary-container .results-container .half-plot,
+    #continuous-container .results-container .half-plot {
+        min-height: 270px;
+    }
+
+    .dashboard,
+    #binary-container .dashboard,
+    #continuous-container .dashboard {
+        padding: 14px 12px;
+    }
+
+    .dashboard-metrics,
+    #binary-container .dashboard-metrics,
+    #continuous-container .dashboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px 10px;
+    }
+
+    .dashboard p,
+    #binary-container .dashboard p,
+    #continuous-container .dashboard p {
+        margin: 6px 0;
+        font-size: 0.98rem;
+        white-space: normal;
+    }
+
+    .equations-container {
+        gap: 12px;
+    }
+
+    .equation-box,
+    .equation-box.wide,
+    .equation-box.wider {
+        width: 100%;
+        margin: 0;
+    }
+
+    .equation-content {
+        max-width: 100%;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        font-size: clamp(0.78rem, 3.5vw, 1rem);
+    }
+
+    .get-started-page mjx-container[display="true"] {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .section,
+    .section.sliders {
+        min-width: 0;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .page-chapter {
+        margin-top: 22px;
+        padding-top: 30px;
+        padding-bottom: 32px;
+    }
+
+    .workbench + .page-chapter {
+        margin-top: 36px;
+        padding-top: 28px;
+    }
+
+    .page-chapter .index-calculator-desc {
+        margin-bottom: 24px !important;
+    }
+
+    .calib-metrics-grid {
+        grid-template-columns: minmax(0, 1fr);
+        font-size: 1rem;
+    }
+
+    .calib-metric-cell {
+        gap: 12px;
+    }
+
+    .summary-detail-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .index-button-row {
+        flex-wrap: wrap;
+    }
+
+    .index-button-row button {
+        flex: 1 1 140px;
+        min-height: 44px;
+    }
+
+    input[type="range"] {
+        min-height: 24px;
+        touch-action: pan-y;
+    }
+
+    .slider-container input[type="number"],
+    .slider-value-container input[type="number"],
+    input.slider-value,
+    .form-container input[type="number"] {
+        min-height: 36px;
+        font-size: 1rem;
+    }
+
+    .metrics-toggle,
+    .index-metrics-summary,
+    .tour-btn {
+        min-height: 40px;
+    }
+
+    [data-tooltip]:before {
+        max-width: min(280px, calc(100vw - 24px));
+    }
+
+    .guide-section {
+        padding-top: 28px !important;
+        padding-bottom: 32px !important;
+    }
+
+    .get-started-page h1 {
+        margin-top: 22px;
+        font-size: clamp(1.75rem, 8vw, 2.2rem);
+    }
+
+    .get-started-page .intro-description {
+        padding: 0;
+    }
+
+    .index-footer {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 420px) {
+    .nav-link {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+        font-size: 0.82rem !important;
+    }
+
+    .slider-label {
+        margin-right: 6px;
+        font-size: 1rem;
+    }
+
+    .metrics-header {
+        grid-template-columns: minmax(0, 1fr) 68px 54px;
+    }
+
+    .slider-container input[type="number"],
+    .slider-value-container input[type="number"],
+    input.slider-value,
+    .form-container input[type="number"] {
+        width: 62px !important;
+    }
+
+    .dashboard-metrics,
+    #binary-container .dashboard-metrics,
+    #continuous-container .dashboard-metrics {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .results-container .roc-pr-section,
+    #binary-container .results-container .roc-pr-section,
+    #continuous-container .results-container .roc-pr-section {
+        height: 560px;
+        min-height: 560px;
+    }
+
+    .results-container .dca-section,
+    #binary-container .results-container .dca-section,
+    #continuous-container .results-container .dca-section {
+        height: 280px;
+        min-height: 280px;
+    }
+}

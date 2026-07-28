@@ -334,7 +334,6 @@ h1.page-intro-title {
     padding: 8px 16px;
     font-size: 1.2rem;
     cursor: pointer;
-    outline: none;
     border-radius: 20px;
     margin: 0;
     transition: all 0.3s ease;
@@ -837,6 +836,40 @@ input.slider-value,
 [data-tooltip]:hover:before {
     visibility: visible;
     opacity: 1;
+}
+
+[data-tooltip].keyboard-tooltip-active:not(
+    .keyboard-tooltip-suppressed
+):before {
+    visibility: visible;
+    opacity: 1;
+}
+
+:where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    [tabindex]:not([tabindex="-1"])
+):focus-visible {
+    outline: 3px solid #005fcc;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 2px #ffffff;
+}
+
+@media (forced-colors: active) {
+    :where(
+        a,
+        button,
+        input,
+        select,
+        textarea,
+        [tabindex]:not([tabindex="-1"])
+    ):focus-visible {
+        outline: 3px solid CanvasText;
+        box-shadow: none;
+    }
 }
 
 /* Ensure containers don't clip tooltips */

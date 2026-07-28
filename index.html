@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="description" content="An interactive tool for estimating real-world predictive utility of research findings">
+    <meta name="description" content="E2P Simulator translates effect sizes into real-world predictive utility while accounting for measurement reliability and outcome base rates.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E2P Simulator | From Effect Size to Real-World Predictive Utility</title>
     
@@ -19,7 +19,16 @@
     <!-- Favicon links -->
     <link rel="icon" href="images/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="images/favicon.png">
-    <link rel="canonical" href="https://e2p-simulator.com" />
+    <link rel="canonical" href="https://e2p-simulator.com/" />
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "E2P Simulator",
+        "alternateName": "Effect-to-Prediction Simulator",
+        "url": "https://e2p-simulator.com/"
+    }
+    </script>
     
     <!-- Load libraries first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -32,6 +41,7 @@
     <link rel="stylesheet" href="css/continuous.css">
     <link rel="stylesheet" href="css/calibration.css">
     <link rel="stylesheet" href="css/index-patterns.css">
+    <link rel="stylesheet" href="css/responsive.css">
     
     <!-- MathJax: single Promise polyfill for older browsers (auto applies if needed) -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
@@ -268,7 +278,7 @@
                     <p data-tooltip="F1 Score">F1: <span id="f1-value">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value">0.00</span></p>
                 </div>
-                <div class="dashboard-metrics dashboard-metrics-extra" hidden>
+                <div id="dashboard-extra-metrics" class="dashboard-metrics dashboard-metrics-extra" hidden>
                     <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value">0.00</span></p>
                     <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value">0.00</span></p>
                     <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value">0.00</span></p>
@@ -637,7 +647,7 @@
                     <p data-tooltip="F1 Score">F1: <span id="f1-value-cont">0.00</span></p>
                     <p data-tooltip="Matthews Correlation Coefficient">MCC: <span id="mcc-value-cont">0.00</span></p>
                 </div>
-                <div class="dashboard-metrics dashboard-metrics-extra" hidden>
+                <div id="dashboard-cont-extra-metrics" class="dashboard-metrics dashboard-metrics-extra" hidden>
                     <p data-tooltip="Positive Likelihood Ratio">LR+: <span id="lr-plus-value-cont">0.00</span></p>
                     <p data-tooltip="Negative Likelihood Ratio">LR-: <span id="lr-minus-value-cont">0.00</span></p>
                     <p data-tooltip="Diagnostic Odds Ratio">DOR: <span id="dor-value-cont">0.00</span></p>
@@ -1174,11 +1184,13 @@
     
     <!-- Calibration module -->
     <script src="js/calibration.js"></script>
+    <!-- Keyboard focus and tooltips for simulator controls -->
+    <script defer src="js/accessibility.js"></script>
 
     <!-- Footer -->
     <footer class="index-footer">
         <p class="index-footer-line">
-            E2P Simulator is open source software. 
+            E2P Simulator is open source.
             <a href="https://github.com/povilaskarvelis/e2p-simulator" class="index-footer-link">View on GitHub</a> | 
             <a href="https://github.com/povilaskarvelis/e2p-simulator/blob/main/LICENSE" class="index-footer-link">MIT License</a> | 
             <span id="version-info" data-version-info>Version: <span data-version>v1.2.0</span></span>

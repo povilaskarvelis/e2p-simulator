@@ -66,6 +66,20 @@ The tests can also be run by opening the user interface and navigating to the te
    npm run test:open
    ```
 
+## Programmatic and AI Access
+
+The core parametric calculations are also available without driving the
+website:
+
+- **Python API** for analyses and effect-size conversions
+- **Command-line interface** with human-readable or JSON output
+- **Local MCP server** exposing seven tools for compatible AI assistants
+
+The MCP server uses a local standard-input/output connection; it is not a
+publicly hosted API. Installation, configuration, examples, assumptions, and
+the available tools are documented in the
+[Python package guide](packages/python/README.md).
+
 ## Contributing
 
 Contributions to E2P Simulator are welcome! Please see the guidelines file `CONTRIBUTING.md` for more information.
@@ -73,4 +87,3 @@ Contributions to E2P Simulator are welcome! Please see the guidelines file `CONT
 ## License
 
 E2P Simulator is distributed under the MIT License. See the `LICENSE` file for more information.
-
