@@ -398,6 +398,8 @@ input[type="range"].threshold-pt-slider::-moz-range-thumb {
 }
 
 .simulator-export-region {
+    position: relative;
+    z-index: 6;
     width: 100%;
 }
 

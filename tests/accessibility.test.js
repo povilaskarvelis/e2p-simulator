@@ -24,6 +24,10 @@ const tutorialSource = fs.readFileSync(
     path.join(projectRoot, 'js', 'tutorial.js'),
     'utf8'
 );
+const exportSource = fs.readFileSync(
+    path.join(projectRoot, 'js', 'export.js'),
+    'utf8'
+);
 
 test('the focus-triggered tooltip runtime is not shipped', () => {
     assert.doesNotMatch(
@@ -60,6 +64,52 @@ test('tooltips retain their original hover-only activation', () => {
         /\[data-tooltip\]:hover:before/
     );
     assert.doesNotMatch(baseCss, /keyboard-tooltip/);
+});
+
+test('ROC and precision-recall tooltips describe their specific quantities', () => {
+    assert.equal(
+        (
+            indexHtml.match(
+                /ROC-AUC summarizes how well scores rank positive cases above negative cases across thresholds/g
+            ) || []
+        ).length,
+        2
+    );
+    assert.equal(
+        (
+            indexHtml.match(
+                /PR-AUC summarizes precision \(PPV\) across levels of recall \(sensitivity\)/g
+            ) || []
+        ).length,
+        2
+    );
+    assert.doesNotMatch(
+        indexHtml,
+        /AUC measures discrimination independent of base rate|base-rate–dependent predictive performance/
+    );
+});
+
+test('all plot tooltips share a layer above export chrome without entering captures', () => {
+    assert.match(
+        indexPatternsCss,
+        /\.simulator-export-region\s*\{[^}]*z-index:\s*6/s
+    );
+    assert.doesNotMatch(
+        baseCss,
+        /\.roc-pr-section\s*\{[^}]*z-index/s
+    );
+    assert.match(
+        indexPatternsCss,
+        /\.export-bar\s*\{[^}]*z-index:\s*5/s
+    );
+    assert.match(
+        exportSource,
+        /\.export-bar, \.export-button/
+    );
+    assert.match(
+        indexPatternsCss,
+        /html\.is-exporting \[data-tooltip\]:before/
+    );
 });
 
 test('show-more controls expose their expanded state', () => {
