@@ -838,24 +838,20 @@ input.slider-value,
     opacity: 1;
 }
 
-[data-tooltip].keyboard-tooltip-active:not(
-    .keyboard-tooltip-suppressed
-):before {
-    visibility: visible;
-    opacity: 1;
-}
-
 :where(
     a,
     button,
-    input,
-    select,
-    textarea,
     [tabindex]:not([tabindex="-1"])
 ):focus-visible {
     outline: 3px solid #005fcc;
     outline-offset: 3px;
     box-shadow: 0 0 0 2px #ffffff;
+}
+
+input[type="number"]:focus,
+input[type="number"]:focus-visible {
+    outline: none;
+    box-shadow: none;
 }
 
 @media (forced-colors: active) {

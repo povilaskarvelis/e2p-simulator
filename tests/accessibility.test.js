@@ -16,10 +16,6 @@ const indexPatternsCss = fs.readFileSync(
     path.join(projectRoot, 'css', 'index-patterns.css'),
     'utf8'
 );
-const accessibilitySource = fs.readFileSync(
-    path.join(projectRoot, 'js', 'accessibility.js'),
-    'utf8'
-);
 const mainSource = fs.readFileSync(
     path.join(projectRoot, 'js', 'main.js'),
     'utf8'
@@ -29,29 +25,41 @@ const tutorialSource = fs.readFileSync(
     'utf8'
 );
 
-test('the focused keyboard-usability layer is loaded by the simulator', () => {
-    assert.match(
-        indexHtml,
-        /<script defer src="js\/accessibility\.js"><\/script>/
-    );
-});
-
-test('focus outlines are visible and no stylesheet suppresses them', () => {
-    assert.match(baseCss, /:focus-visible/);
+test('the focus-triggered tooltip runtime is not shipped', () => {
     assert.doesNotMatch(
-        `${baseCss}\n${indexPatternsCss}`,
-        /outline\s*:\s*(?:none|0)\b/
+        indexHtml,
+        /accessibility\.js/
+    );
+    assert.equal(
+        fs.existsSync(
+            path.join(projectRoot, 'js', 'accessibility.js')
+        ),
+        false
     );
 });
 
-test('control tooltips are visible on keyboard focus and dismissible', () => {
+test('navigation focus remains visible without outlining numeric inputs', () => {
+    assert.match(baseCss, /:focus-visible/);
     assert.match(
         baseCss,
-        /\.keyboard-tooltip-active/
+        /input\[type="number"\]:focus/
     );
-    assert.match(accessibilitySource, /addEventListener\('focus'/);
-    assert.match(accessibilitySource, /event\.key !== 'Escape'/);
-    assert.doesNotMatch(accessibilitySource, /setAttribute\('tabindex'/);
+    assert.match(
+        baseCss,
+        /input\[type="number"\]:focus-visible\s*\{[^}]*outline:\s*none/s
+    );
+    assert.doesNotMatch(
+        `${baseCss}\n${indexPatternsCss}`,
+        /button[^}]*outline\s*:\s*(?:none|0)\b/s
+    );
+});
+
+test('tooltips retain their original hover-only activation', () => {
+    assert.match(
+        baseCss,
+        /\[data-tooltip\]:hover:before/
+    );
+    assert.doesNotMatch(baseCss, /keyboard-tooltip/);
 });
 
 test('show-more controls expose their expanded state', () => {
