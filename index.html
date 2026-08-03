@@ -101,9 +101,6 @@
         <p class="page-intro-meta">
             Take the interactive <button type="button" class="index-text-link tour-inline-btn" data-start-tutorial>Tutorial</button>, or see <a href="get-started.html" class="index-text-link" target="_blank">Get Started</a> for more details.
         </p>
-        <p class="page-intro-meta page-intro-meta--credit">
-            Developed by <a href="https://povilaskarvelis.github.io/" class="index-text-link" target="_blank">Povilas Karvelis</a>
-        </p>
     </section>
 
     <!-- Global mode: switches the main simulator and related modules -->
@@ -372,7 +369,7 @@
                 <div class="equation-box flat">
                     <p class="equation-title">A simplified formula for converting multiple predictors to ROC-AUC:</p>
                     <div class="equation-content">
-                        \[\text{ROC-AUC} = \Phi\left(d \sqrt{\frac{p}{2(1 + (p-1)r_{ij})}}\right)\]
+                        \[\text{ROC-AUC} = \Phi\left(d \sqrt{\frac{p}{2(1 + (p-1)\rho)}}\right)\]
                     </div>
                 </div>
                 
@@ -415,7 +412,7 @@
                     <div class="slider-container">
                         <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" class="slider">
                         <div class="slider-value-container">
-                            <span class="slider-label">Collinearity among predictors (r<sub>ij</sub>)</span>
+                            <span class="slider-label">Collinearity among predictors (&rho;)</span>
                             <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" class="slider-value">
                         </div>
                     </div>
@@ -738,7 +735,7 @@
                 <div class="equation-box flat">
                     <p class="equation-title">A simplified multiple R² formula when all predictors have the same effect size and collinearity:</p>
                     <div class="equation-content">
-                        \[R^2 = \dfrac{pr^2}{1+(p-1)r_{ij}}\]
+                        \[R^2 = \dfrac{pr^2}{1+(p-1)\rho}\]
                     </div>
                 </div>
                 
@@ -783,7 +780,7 @@
                     <div class="slider-container">
                         <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.05" class="slider">
                         <div class="slider-value-container">
-                            <span class="slider-label">Collinearity among predictors (r<sub>ij</sub>)</span>
+                            <span class="slider-label">Collinearity among predictors (&rho;)</span>
                             <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.05" class="slider-value">
                         </div>
                     </div>
@@ -821,7 +818,7 @@
     </div>
     
     <!-- Calibration Exploration Module -->
-    <section class="page-chapter page-chapter--alt" id="calibration" data-chapter="calibration">
+    <section class="page-chapter" id="calibration" data-chapter="calibration">
     <div class="page-chapter-inner">
     <h2 class="calculator-title">Calibration: From Test Set to Deployment</h2>
     <div class="description index-calculator-desc">

@@ -50,11 +50,11 @@ h1.page-intro-title {
     justify-content: space-between;
     align-items: center;
     width: calc(100% + 40px);
-    margin: -20px -20px 28px -20px;
-    padding: 16px 20px;
-    background-color: #ffffff;
-    border-bottom: none;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.045);
+    margin: -20px -20px 24px -20px;
+    padding: 14px 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #cfcfcf;
+    box-shadow: none;
     box-sizing: border-box;
     position: relative;
     z-index: 20;
@@ -71,8 +71,8 @@ h1.page-intro-title {
 }
 
 .site-title img {
-    height: 32px;
-    width: 32px;
+    height: 30px;
+    width: 30px;
     margin-right: 8px;
     flex-shrink: 0;
 }
@@ -86,6 +86,7 @@ h1.page-intro-title {
 
 /* Navigation link styling */
 .nav-link {
+    position: relative;
     color: #555;
     text-decoration: none;
     padding: 5px 10px;
@@ -105,7 +106,7 @@ h1.page-intro-title {
 
 /* Active navigation link */
 .nav-link.active {
-    font-weight: bold;
+    font-weight: 600;
     color: #222222;
     background-color: transparent;
 }
@@ -736,7 +737,7 @@ input.slider-value,
     transition: all 0.2s ease;
 }
 
-.example-button {
+.guide-section .example-button {
     appearance: none;
     display: inline-flex;
     align-items: center;
@@ -756,11 +757,12 @@ input.slider-value,
     font-weight: 600;
     line-height: 1.2;
     text-align: center;
+    text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
-.example-button::after {
+.guide-section .example-button::after {
     content: "→";
     font-size: 1.05em;
     line-height: 1;
@@ -773,17 +775,19 @@ input.slider-value,
     background-color: #666;
 }
 
-.example-button:hover {
-    background-color: #111;
-    border-color: #111;
+.guide-section .example-button:hover {
+    background-color: #2b2b2b;
+    border-color: #4f7fcf;
     color: #fff;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.22), 0 0 9px rgba(37, 99, 235, 0.32);
+    text-decoration: none;
 }
 
-.example-button:hover::after {
+.guide-section .example-button:hover::after {
     transform: translateX(3px);
 }
 
-.example-button:active {
+.guide-section .example-button:active {
     background-color: #000;
 }
 
@@ -953,21 +957,20 @@ body.get-started-page {
     min-width: 800px !important;
 }
 
-/* Guide sections: soft alternating bands (same language as home chapters) */
-.guide-section {
-    margin: 24px -20px 0;
-    padding: 36px 20px 40px;
-    background-color: #eef1f4;
+/* Guide sections: editorial rhythm without categorical color bands */
+.get-started-page .guide-section {
+    width: min(100%, 940px);
+    margin: 0 auto;
+    padding: 56px 0 60px;
+    background-color: transparent;
+    border-top: 1px solid #d9dde2;
     box-sizing: border-box;
     scroll-margin-top: 16px;
 }
 
-.guide-section--alt {
-    background-color: #f6f7f9;
-}
-
 .toc-sidebar + .guide-section {
     margin-top: 36px;
+    border-top: 0;
 }
 
 .guide-section h2 {
@@ -984,7 +987,13 @@ body.get-started-page {
 .guide-section h3 {
     font-size: 1.25rem;
     color: #333;
-    margin: 28px 0 12px;
+    margin: 34px 0 12px;
+}
+
+.guide-section--examples h3 {
+    margin-top: 46px;
+    padding-top: 30px;
+    border-top: 1px solid #d9dde2;
 }
 
 .guide-section p {
@@ -1339,15 +1348,19 @@ input[type="range"]::-webkit-slider-thumb {
 .toc-sidebar {
     position: fixed;
     top: 80px;
-    left: 25px;
+    left: max(25px, calc((100vw - 1400px) / 2 + 25px));
     width: 130px;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     background: transparent;
     padding: 0;
     z-index: 100;
-    transition: opacity 0.3s ease, top 0.15s ease;
+    transition: opacity 0.3s ease;
     border-right: 1px solid #ddd;
+}
+
+.toc-sidebar--initializing {
+    visibility: hidden;
 }
 
 .toc-sidebar h3 {
@@ -1421,7 +1434,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* Hide TOC on small screens and mobile/touch devices */
-@media (max-width: 1000px), (pointer: coarse), (hover: none) {
+@media (max-width: 1260px), (pointer: coarse), (hover: none) {
     .toc-sidebar {
         display: none;
     }
@@ -1531,24 +1544,5 @@ input[type="range"]::-webkit-slider-thumb {
     .get-started-page {
         margin-left: auto !important;
         margin-right: auto !important;
-    }
-}
-
-/* Reserve space for TOC only on intermediate widths */
-@media (min-width: 1001px) and (max-width: 1400px) {
-    .get-started-page h1,
-    .get-started-page .description {
-        padding-left: 150px;
-    }
-
-    .get-started-page .guide-section {
-        padding-left: 170px; /* 150px TOC offset + 20px band inset */
-    }
-}
-
-/* Position TOC in the left margin on large screens */
-@media (min-width: 1401px) {
-    .toc-sidebar {
-        left: calc(50% - 850px);
     }
 }

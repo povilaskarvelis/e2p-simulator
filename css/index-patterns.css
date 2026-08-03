@@ -23,12 +23,12 @@
 /* Compact page intro — brand lives in the header */
 .page-intro {
     text-align: center;
-    margin: 0 auto 36px;
+    margin: 0 auto 26px;
     padding: 0 16px;
 }
 
 .page-intro-title {
-    margin: 0 0 20px;
+    margin: 0 0 16px;
     color: #333;
     font-size: 2.5rem;
     font-weight: 700;
@@ -38,7 +38,7 @@
 
 .page-intro-lead {
     max-width: 850px;
-    margin: 0 auto 16px;
+    margin: 0 auto 12px;
     color: #555;
     font-size: 1.1rem;
     line-height: 1.5;
@@ -46,18 +46,14 @@
 
 .page-intro-meta {
     max-width: 850px;
-    margin: 0 auto 12px;
+    margin: 0 auto;
     color: #555;
     font-size: 1.1rem;
     line-height: 1.5;
 }
 
-.page-intro-meta--credit {
-    margin-bottom: 0;
-}
-
 .workbench-start {
-    margin-bottom: 4px;
+    margin-bottom: 0;
 }
 
 .workbench {
@@ -88,7 +84,7 @@
 .global-mode-row {
     display: flex;
     justify-content: center;
-    margin: 6px 0 22px;
+    margin: 0 0 14px;
 }
 
 .global-mode,
@@ -622,24 +618,18 @@ html.is-exporting .modebar-container {
     color: inherit;
 }
 
-/* Section chapters: alternating bands + clearer title hierarchy.
-   Bands stay inside the page column (no 100vw) so tooltips aren't clipped. */
+/* Section chapters: consistent editorial separation between major tools. */
 .page-chapter {
-    margin: 28px -20px 0;
-    padding: 40px 20px;
-    background-color: #eef1f4;
+    margin: 56px 0 0;
+    padding: 56px 0 60px;
+    background-color: transparent;
+    border-top: 1px solid #d9dde2;
     box-sizing: border-box;
     scroll-margin-top: 20px;
 }
 
-/* Clear break before the first shaded module; title stays near the band edge. */
 .workbench + .page-chapter {
-    margin-top: 48px;
-    padding-top: 32px;
-}
-
-.page-chapter--alt {
-    background-color: #f6f7f9;
+    margin-top: 56px;
 }
 
 .page-chapter .calculator-title {

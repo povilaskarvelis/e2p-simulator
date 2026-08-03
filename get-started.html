@@ -84,7 +84,7 @@
     </div>
 
     <!-- Sticky Sidebar Table of Contents -->
-    <nav class="toc-sidebar" id="toc-sidebar">
+    <nav class="toc-sidebar toc-sidebar--initializing" id="toc-sidebar">
         <h3>Contents</h3>
         <ol>
             <li><a href="#what-is">What is E2P Simulator?</a></li>
@@ -100,8 +100,8 @@
         </ol>
     </nav>
 
-    <div class="guide-section">
-        <h2 id="what-is">What is E2P Simulator?</h2>
+    <div class="guide-section" id="what-is">
+        <h2>What is E2P Simulator?</h2>
         <p>E2P Simulator (Effect-to-Prediction Simulator) is an interactive open-source tool that allows researchers to visually and quantitatively explore the relationships between effect sizes (e.g., Cohen's d, Pearson's r), discriminative ability (e.g., ROC-AUC, sensitivity, specificity), predictive value (e.g., PPV, NPV, PR-AUC), and clinical utility (Net Benefit), while accounting for measurement reliability and outcome base rates (<a href="https://doi.org/10.21105/joss.08334" target="_blank">Karvelis & Diaconescu, 2025</a>).</p>
 
         <p>As such, it provides an easy way to perform <em><a href="#predictive-utility-analysis">predictive utility analysis</a></em>: estimating how research findings will translate into real-world prediction or what effect sizes or discriminative ability are needed to achieve a desired level of predictive value and clinical utility. Similar to how power analysis tools (such as <a href="https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower" target="_blank">G*Power</a>) help researchers plan for statistical significance, E2P Simulator helps plan for practical significance.</p>
@@ -115,8 +115,8 @@
         </ul>
     </div>
 
-    <div class="guide-section guide-section--alt">
-        <h2 id="why-needed">Why is E2P Simulator needed?</h2>
+    <div class="guide-section" id="why-needed">
+        <h2>Why is E2P Simulator needed?</h2>
         
         <p>Many research areas such as biomedical, behavioral, education, and sports sciences are increasingly studying individual differences to build predictive models to personalize treatments, learning, and training. Identifying reliable biomarkers and other predictors is central to these efforts. Yet, several entrenched research practices continue to undermine the search for predictors:</p>
 
@@ -132,8 +132,8 @@
 
     </div>
 
-    <div class="guide-section">
-        <h2 id="how-to-use">How to use E2P Simulator</h2>
+    <div class="guide-section" id="how-to-use">
+        <h2>How to use E2P Simulator</h2>
 
         <p>E2P Simulator is designed to be intuitive and interactive. You can explore different scenarios by adjusting effect sizes, measurement reliability, base rate, and decision threshold, and immediately see how these changes impact predictive performance through the visualizations and metrics. Still, in this section we will highlight and clarify some of the key features and assumptions of the simulator.</p>
 
@@ -191,14 +191,14 @@
 
     </div>
 
-    <div class="guide-section guide-section--alt">
-        <h2 id="understanding-metrics">Understanding Predictive Metrics</h2>
+    <div class="guide-section" id="understanding-metrics">
+        <h2>Understanding Predictive Metrics</h2>
         
         <h3>Classification Outcomes and Metrics</h3>
         <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
         
-        <div id="predictive-metrics-diagram" style="text-align: center; margin: 0 30px 0 0;">
-            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 80%;">
+        <div id="predictive-metrics-diagram" style="text-align: center; margin: 8px 0 24px;">
+            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%; width: 100%;">
         </div>
         
         <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
@@ -284,8 +284,8 @@
 
        </div>
 
-       <div class="guide-section">
-        <h2 id="predictive-utility-analysis">Predictive Utility Analysis</h2>
+       <div class="guide-section" id="predictive-utility-analysis">
+        <h2>Predictive Utility Analysis</h2>
         
         <p>Predictive utility analysis consists of two key components: (1) estimating real-world predictive value and clinical utility of research findings by accounting for the outcome base rate, and (2) determining how much performance is lost due to measurement reliability.</p>
         
@@ -328,10 +328,10 @@
 
        </div>
 
-       <div class="guide-section guide-section--alt">
-        <h2 id="examples">Quick Start Examples</h2>
+       <div class="guide-section guide-section--examples" id="examples">
+        <h2>Quick Start Examples</h2>
         
-        To further clarify how the tool can be used and to demonstrate its utility we provide some specific examples.
+        <p>To further clarify how the tool can be used and to demonstrate its utility, we provide some specific examples.</p>
 
         <h3>Example 1. Diagnostic Prediction: FDA-Cleared Biomarker for Alzheimer's Disease</h3>
         <p> Recently, <a href="https://www.fda.gov/news-events/press-announcements/fda-clears-first-blood-test-used-diagnosing-alzheimers-disease" target="_blank">FDA has cleared</a> plasma p-tau217/Aβ42 ratio for assessing amyloid positivity, which is a key criterion for Alzheimer's diagnosis. Let us unpack this example in E2P Simulator as an anchor for all other examples. We will use the <a href="https://www.accessdata.fda.gov/cdrh_docs/pdf24/K242706.pdf" target="_blank">report</a> that FDA clearance was based on as a reference for the parameters.
@@ -355,7 +355,7 @@
             <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
         </ol>
 
-        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdProb=0.68">Explore this example</button>
+        <a class="example-button" href="index.html?mode=binary&amp;baseRate=0.511&amp;groupingReliability=0.9&amp;predictorReliabilityGroup1=0.9&amp;predictorReliabilityGroup2=0.9&amp;trueEffectSize=2.39&amp;label1=Amyloid%20negative&amp;label2=Amyloid%20positive&amp;xaxisLabel=p-tau217%2FA%CE%B242&amp;thresholdProb=0.68" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
 
         <h3>Example 2. Diagnostic Prediction: Depression</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
@@ -377,7 +377,7 @@
 
         </ol>
         
-        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdProb=0.15">Explore this example</button>
+        <a class="example-button" href="index.html?mode=binary&amp;baseRate=0.08&amp;groupingReliability=0.28&amp;predictorReliabilityGroup1=0.6&amp;predictorReliabilityGroup2=0.6&amp;trueEffectSize=1.58&amp;label1=Controls&amp;label2=Depression&amp;xaxisLabel=Cognitive%20marker&amp;thresholdProb=0.15" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
         
 
         <h3>Example 3. Treatment Response Prediction: Antidepressants</h3>
@@ -397,7 +397,7 @@
             <li>If we want to explore what it would take to achieve still higher performance (e.g., PR-AUC of 0.8), we can use the tool to find the required R². Ambitious targets help demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction — doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
-        <button type="button" class="example-button" data-url="index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.4&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdProb=0.20">Explore this example</button>
+        <a class="example-button" href="index.html?mode=continuous&amp;predictorReliability=0.4&amp;outcomeReliability=0.94&amp;effectSizeR=0.73&amp;baseRate=0.4&amp;label1=Non-responders&amp;label2=Responders&amp;xaxisLabel=Task-fMRI%20marker&amp;yaxisScatterLabel=Treatment%20response&amp;thresholdProb=0.20" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
 
         <h3>Example 4. Risk Prediction: Suicide Attempts</h3>
         <p>Clinicians rate prediction of suicidality as the highest priority for AI tool development in mental health (<a href="https://doi.org/10.1186/s12888-025-06957-3" target="_blank">Fischer et al., 2025</a>). Can we predict who will attempt suicide using electronic health records? One of the largest prospective suicide prediction studies (<a href="https://doi.org/10.1097/MLR.0000000000001445" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
@@ -419,7 +419,7 @@
             <li>Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
         </ol>
 
-        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Multivariable%20EHR%20prediction%20score&thresholdProb=0.03">Explore this example</button>
+        <a class="example-button" href="index.html?mode=binary&amp;baseRate=0.039&amp;groupingReliability=1.0&amp;predictorReliabilityGroup1=0.8&amp;predictorReliabilityGroup2=0.8&amp;trueEffectSize=0.86&amp;label1=Psychiatric%20controls&amp;label2=Suicide%20attempters&amp;xaxisLabel=Multivariable%20EHR%20prediction%20score&amp;thresholdProb=0.03" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
 
         <h3>Example 5. Risk Prediction: Transition to Psychosis</h3>
         <p>Mismatch negativity (MMN) is among the most promising biomarkers for predicting transition to psychosis within clinical high-risk (CHR) cohorts. The largest longitudinal study (<a href="https://doi.org/10.1001/jamapsychiatry.2022.1417" target="_blank">Hamilton et al., 2022</a>) found that converters showed the largest MMN deficit in the double-deviant condition, with d = 0.43. How promising is MMN for this application?</p>
@@ -439,7 +439,7 @@
         
         </ol>
 
-        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdProb=0.15">Explore this example</button>
+        <a class="example-button" href="index.html?mode=binary&amp;baseRate=0.19&amp;groupingReliability=0.46&amp;predictorReliabilityGroup1=0.5&amp;predictorReliabilityGroup2=0.5&amp;trueEffectSize=0.75&amp;label1=Non-converters&amp;label2=Converters&amp;xaxisLabel=Double-deviant%20MMN&amp;thresholdProb=0.15" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
    
     </div>
 
@@ -460,7 +460,7 @@
 
     </div>
 
-    <div class="guide-section guide-section--alt" id="calibration">
+    <div class="guide-section" id="calibration">
         <h2>Calibration</h2>
 
         <p>Discrimination tells you whether a model can separate cases from non-cases; calibration tells you whether the predicted probabilities themselves are accurate. A well-calibrated model is one for which people assigned a risk of 20% actually have an observed event rate close to 20%.</p>
@@ -489,15 +489,15 @@
 
     </div>
 
-    <div class="guide-section">
-        <h2 id="feedback">Feedback and Contributions</h2>
+    <div class="guide-section" id="feedback">
+        <h2>Feedback and Contributions</h2>
         <p>E2P Simulator is an open-source project - feedback, bug reports, and suggestions for improvement are welcome. The easiest way to do so is through the <a href="https://github.com/povilaskarvelis/e2p-simulator/issues" target="_blank">GitHub Issues page</a>.</p>
         <p>You can view the source code, track development, and contribute directly at the <a href="https://github.com/povilaskarvelis/e2p-simulator" target="_blank">project's GitHub repository</a>.</p>
         <p>For other inquiries, you can find my contact information <a href="https://povilaskarvelis.github.io/" target="_blank">here</a>.</p>
     </div>
 
-    <div class="guide-section guide-section--alt">
-        <h2 id="references">References</h2>
+    <div class="guide-section" id="references">
+        <h2>References</h2>
         <ol style="font-size: 0.95em; line-height: 1.8;">
             <li>Brabec, J., Komárek, T., Franc, V., & Machlica, L. (2020). On model evaluation under non-constant class imbalance. <em>International Conference on Computational Science</em>, vol. 12140 (pp. 74-87). Springer, Cham. <a href="https://doi.org/10.1007/978-3-030-50423-6_6" target="_blank">https://doi.org/10.1007/978-3-030-50423-6_6</a></li>
             
@@ -574,12 +574,6 @@
             // Initialize TOC active section tracking
             initTocTracking();
             
-            // Initialize example buttons
-            document.querySelectorAll('.example-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    window.location.href = btn.dataset.url;
-                });
-            });
         });
         
         // TOC active section tracking
@@ -588,14 +582,25 @@
             const tocSidebar = document.querySelector('.toc-sidebar');
             const footer = document.querySelector('footer');
             const firstSection = document.querySelector('.guide-section');
+            const firstHeadline = firstSection ? firstSection.querySelector('h2') : null;
             const sections = [];
+            let firstHeadlineTop = 200;
+            let stickyTop = 80;
             
-            // Get the initial position aligned with first section
-            const firstSectionTop = firstSection ? firstSection.offsetTop : 200;
-            const stickyTop = 80; // Fixed top position when sticky
-            
-            // Set initial top position
-            tocSidebar.style.top = firstSectionTop + 'px';
+            // Keep the TOC aligned with the section headline. Anchor links land on
+            // the section separator, so the section's top padding provides breathing room.
+            function updateAlignmentMetrics() {
+                if (!firstSection || !firstHeadline) return;
+
+                const firstSectionTop = firstSection.getBoundingClientRect().top + window.scrollY;
+                firstHeadlineTop = firstHeadline.getBoundingClientRect().top + window.scrollY;
+                const headlineInset = firstHeadlineTop - firstSectionTop;
+                const anchorOffset = parseFloat(getComputedStyle(firstSection).scrollMarginTop) || 0;
+
+                stickyTop = headlineInset + anchorOffset;
+            }
+
+            updateAlignmentMetrics();
             
             // Gather all section elements
             tocLinks.forEach(link => {
@@ -608,22 +613,25 @@
             
             // Update active section on scroll
             function updateActiveSection() {
-                const scrollPosition = window.scrollY + 120; // Offset for header
+                // Some browsers report a negative scroll position during elastic
+                // overscroll. Keep fixed UI anchored to the actual page boundary.
+                const scrollY = Math.max(0, window.scrollY);
+                const scrollPosition = scrollY + 120; // Offset for header
                 const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const scrollProgress = (window.scrollY / documentHeight) * 100;
+                const scrollProgress = documentHeight > 0
+                    ? Math.min(100, (scrollY / documentHeight) * 100)
+                    : 0;
                 
                 // Update progress indicator
                 tocSidebar.style.setProperty('--scroll-progress', scrollProgress + '%');
                 
-                // Adjust top position: follows content initially, then sticks at 80px
-                const scrollY = window.scrollY;
-                const dynamicTop = firstSectionTop - scrollY;
+                // Follow the first headline initially, then remain aligned with the
+                // headline position used when a section anchor is opened.
+                const dynamicTop = firstHeadlineTop - scrollY;
                 
                 if (dynamicTop > stickyTop) {
-                    // Still above sticky threshold - follow the content
                     tocSidebar.style.top = dynamicTop + 'px';
                 } else {
-                    // At or past sticky threshold - stick at 80px
                     tocSidebar.style.top = stickyTop + 'px';
                 }
                 
@@ -669,9 +677,15 @@
                     ticking = true;
                 }
             });
+
+            window.addEventListener('resize', function() {
+                updateAlignmentMetrics();
+                updateActiveSection();
+            });
             
             // Initial update
             updateActiveSection();
+            tocSidebar.classList.remove('toc-sidebar--initializing');
         }
     </script>
 </body>

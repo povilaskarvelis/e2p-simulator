@@ -103,7 +103,7 @@ const colors = [
     const effectSize = parseFloat(document.getElementById("effectSize").value);
     const correlation = parseFloat(document.getElementById("correlation").value);
         return {
-            label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
+            label: `d = ${effectSize.toFixed(2)}, ρ = ${correlation.toFixed(2)}`,
             data: [],
             borderColor: colors[nextColorIndex],
             pointBackgroundColor: colors[nextColorIndex],
@@ -264,7 +264,7 @@ const colors = [
 
     function addDataset(chart, datasets, data, effectSize, correlation, color) {
     const newDataset = {
-        label: `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`,
+        label: `d = ${effectSize.toFixed(2)}, ρ = ${correlation.toFixed(2)}`,
             data: data,
         borderColor: color,
         pointBackgroundColor: color,
@@ -319,7 +319,7 @@ function resetChart() {
         if (!rocaucActiveCurve) return;
 
         const { effectSize, correlation } = getInputs();
-        const label = `d = ${effectSize.toFixed(2)}, r<sub>ij</sub> = ${correlation.toFixed(2)}`;
+        const label = `d = ${effectSize.toFixed(2)}, ρ = ${correlation.toFixed(2)}`;
         rocaucActiveCurve.label = label;
         prAucActiveCurve.label = label;
     rocaucChart.update();

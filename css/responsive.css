@@ -348,52 +348,53 @@ body.get-started-page {
 
 @media (max-width: 760px) {
     .site-header {
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 10px;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 8px;
         width: calc(100% + var(--page-gutter) + var(--page-gutter)) !important;
         margin:
             calc(0px - var(--page-gutter))
             calc(0px - var(--page-gutter))
-            20px !important;
-        padding: 12px var(--page-gutter) !important;
+            18px !important;
+        padding: 10px var(--page-gutter) !important;
     }
 
     .site-title {
-        font-size: 1.15rem !important;
+        font-size: 1.05rem !important;
     }
 
     .site-title img {
-        width: 26px !important;
-        height: 26px !important;
+        width: 24px !important;
+        height: 24px !important;
     }
 
     .header-right {
-        width: 100%;
-        gap: 8px;
-        justify-content: space-between;
+        width: auto;
+        margin-left: auto;
+        gap: 5px;
+        justify-content: flex-end;
     }
 
     .site-nav {
-        flex: 1;
-        justify-content: flex-start;
-        gap: 2px !important;
+        flex: none;
+        justify-content: flex-end;
+        gap: 0 !important;
     }
 
     .nav-link {
-        padding: 7px 8px !important;
-        font-size: 0.88rem !important;
+        padding: 6px !important;
+        font-size: 0.82rem !important;
         white-space: nowrap;
     }
 
     .github-link,
     .github-logo {
-        width: 24px !important;
-        height: 24px !important;
+        width: 22px !important;
+        height: 22px !important;
     }
 
     .page-intro {
-        margin-bottom: 28px;
+        margin-bottom: 24px;
         padding: 0;
     }
 

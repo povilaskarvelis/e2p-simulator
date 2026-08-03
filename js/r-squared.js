@@ -159,7 +159,7 @@
     function createActiveCurveDataset() {
         const { predictorCorrelation, collinearity } = getInputs();
         return {
-            label: `r = ${predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${collinearity.toFixed(2)}`,
+            label: `r = ${predictorCorrelation.toFixed(2)}, ρ = ${collinearity.toFixed(2)}`,
             data: [],
             borderColor: colors[nextColorIndex],
             pointBackgroundColor: colors[nextColorIndex],
@@ -228,7 +228,7 @@
         if (!r2ActiveCurve) return;
 
         const { predictorCorrelation, collinearity } = getInputs();
-        const label = `r = ${predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${collinearity.toFixed(2)}`;
+        const label = `r = ${predictorCorrelation.toFixed(2)}, ρ = ${collinearity.toFixed(2)}`;
         r2ActiveCurve.label = label;
         prAucActiveCurve.label = label;
         r2Chart.update();
@@ -272,7 +272,7 @@
 
     function addDataset(chart, datasets, data, predictorCorrelation, collinearity) {
         const newDataset = {
-            label: `r = ${predictorCorrelation.toFixed(2)}, r<sub>ij</sub> = ${collinearity.toFixed(2)}`,
+            label: `r = ${predictorCorrelation.toFixed(2)}, ρ = ${collinearity.toFixed(2)}`,
             data: data,
             borderColor: colors[nextColorIndex],
             pointBackgroundColor: colors[nextColorIndex],

@@ -354,7 +354,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#num-predictors-r2-slider').invoke('val', 15).trigger('input');
     checkNumericValue('#num-predictors-r2', '15');
 
-    // r=.8 and rij=.4 are valid for p=1 and p=2 only; the curve ends there.
+    // r=.8 and ρ=.4 are valid for p=1 and p=2 only; the curve ends there.
     cy.get('#r2Plot').then($canvas => {
       const chart = $canvas[0].ownerDocument.defaultView.Chart.getChart($canvas[0]);
       const activeCurve = chart.data.datasets.find(dataset => dataset.isActive);
