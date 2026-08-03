@@ -30,12 +30,14 @@
             minWidth: 176,
             minHeight: 48,
             title: 'True vs Observed',
-            body: 'This switches everything below between the true effect (what you would see with perfect measurement) and the observed effect (what remains given the reliability values above). Switching back and forth shows how much of the effect measurement error removes.'
+            body: 'This switches everything below between the true effect (what you would see with perfect measurement) and the observed effect (what remains after attenuation by measurement reliability). Switching back and forth shows how much of the effect measurement error removes.'
         },
         {
             mode: 'binary',
             selector: '#tour-base-rate',
             pad: 18,
+            padTop: 4,
+            padBottom: 10,
             title: 'Base rate (prevalence)',
             body: 'Base rate is how common group 2 is where you will actually use the predictor - not in your study sample. For a given effect size, ROC-AUC stays the same, but PPV does not: if the outcome is rare (e.g. 2%), most people you flag as positive can still be false positives. Set this to the real-world prevalence.'
         },
@@ -43,8 +45,10 @@
             mode: 'binary',
             selector: '#tour-threshold',
             pad: 18,
+            padTop: 0,
+            padBottom: 8,
             title: 'Decision threshold',
-            body: 'To classify anyone you need a cutoff. pₜ is the predicted probability of belonging to group 2 at that cutoff. A high pₜ requires strong evidence before calling someone positive, so you get fewer false positives but miss more real cases; a low pₜ does the opposite. Which one is right depends on how costly each type of error is.'
+            body: 'To classify anyone, the predictor needs a cutoff on its score. Here we express this threshold in terms of pₜ: the probability of belonging to group 2 exactly at the cutoff. A high pₜ requires strong evidence before calling someone positive, so you get fewer false positives but miss more real cases; a low pₜ does the opposite. The right value depends on how costly each type of error is.'
         },
         {
             mode: 'binary',
@@ -92,6 +96,8 @@
             mode: 'continuous',
             selector: '#tour-base-rate-cont',
             pad: 18,
+            padTop: 4,
+            padBottom: 10,
             title: 'Dichotomizing the outcome',
             body: 'Decisions are usually binary even when the outcome is not, so the outcome is split into two groups here. The base rate sets where that split falls - a base rate of 20% treats the top 20% as responders, for example - and everything downstream follows from it.'
         },
@@ -181,11 +187,15 @@
         const pad = step.pad == null ? 8 : step.pad;
         const padX = step.padX == null ? pad : step.padX;
         const padY = step.padY == null ? pad : step.padY;
+        const padTop = step.padTop == null ? padY : step.padTop;
+        const padRight = step.padRight == null ? padX : step.padRight;
+        const padBottom = step.padBottom == null ? padY : step.padBottom;
+        const padLeft = step.padLeft == null ? padX : step.padLeft;
 
-        left -= padX;
-        top -= padY;
-        right += padX;
-        bottom += padY;
+        left -= padLeft;
+        top -= padTop;
+        right += padRight;
+        bottom += padBottom;
 
         let width = right - left;
         let height = bottom - top;
