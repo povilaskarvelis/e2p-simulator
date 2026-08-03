@@ -6,6 +6,8 @@ const {
     calculatePopulationCalibrationMetrics,
     continuousOptimismSampleSize,
     maximumCoxSnellR2,
+    minimumValidCollinearity,
+    multivariateRSquared,
     outcomeReliabilityFactor,
     selectableCoxSnellR2Limit,
     validateCoxSnellInputs
@@ -104,6 +106,18 @@ test('outcome reliability uses sqrt(sin(pi*kappa/2))', () => {
 
 test('continuous optimism criterion treats its input as R-squared', () => {
     assert.equal(continuousOptimismSampleSize(10, 0.5, 0.05), 101);
+});
+
+test('continuous multivariable formula identifies the minimum valid collinearity', () => {
+    approximatelyEqual(minimumValidCollinearity(1, 0.8), 0);
+    approximatelyEqual(minimumValidCollinearity(20, 0.25), 0.25 / 19);
+    approximatelyEqual(minimumValidCollinearity(20, 0.8), 11.8 / 19);
+});
+
+test('continuous multivariable R-squared is uncapped and rejects impossible inputs', () => {
+    approximatelyEqual(multivariateRSquared(20, 0.25, 0.05), 1.25 / 1.95);
+    approximatelyEqual(multivariateRSquared(20, 0.8, 11.8 / 19), 1);
+    assert.ok(Number.isNaN(multivariateRSquared(20, 0.8, 0.4)));
 });
 
 test('standard population Brier score includes irreducible outcome variation', () => {

@@ -50,8 +50,7 @@ const DCAModule = {
             const usePrecise = data.usePreciseEstimates || false;
             const interactionMode = data.interactionMode || false;
             const disableSmoothing = data.disableSmoothing || false;
-            // Match the p_t control range ([0.01, 0.99] in binary/continuous) so the
-            // annotation never reports a different threshold than the input.
+            // Match the p_t control range ([0.01, 0.99] in binary/continuous).
             const ptMin = 0.01;
             const ptMax = 0.99;
             // Interactive scrubbing uses a coarse grid; precise mode uses a fine grid when settled
@@ -125,6 +124,7 @@ const DCAModule = {
             let formattedDeltaNB = "0.000";
             let currentThresholdProb = 0;
             let markerNetBenefit = null;
+            let markerDefaultNetBenefit = null;
             
             if (data.currentMetrics !== undefined) {
                 const currentMetrics = data.currentMetrics;
@@ -140,7 +140,8 @@ const DCAModule = {
                 const odds = currentThresholdProb / (1 - currentThresholdProb);
                 const treatAllNB = baseRate - ((1 - baseRate) * odds);
                 markerNetBenefit = (sens * baseRate) - ((1 - spec) * (1 - baseRate) * odds);
-                currentDeltaNB = markerNetBenefit - Math.max(treatAllNB, 0);
+                markerDefaultNetBenefit = Math.max(treatAllNB, 0);
+                currentDeltaNB = markerNetBenefit - markerDefaultNetBenefit;
                 DCAModule.lastPtValue = currentThresholdProb;
             } else {
                 const middleIndex = Math.floor(thresholdProbs.length / 2);
@@ -152,9 +153,6 @@ const DCAModule = {
             formattedDeltaNB = Math.abs(currentDeltaNB) < 0.001 ? 
                 currentDeltaNB.toExponential(1) : 
                 currentDeltaNB.toFixed(3);
-            
-            // Format pt with appropriate precision (always 3 decimal places for display)
-            const formattedPt = currentThresholdProb.toFixed(3);
             
             // Create traces
             const dcaTrace = {
@@ -188,7 +186,18 @@ const DCAModule = {
             };
             
             let thresholdMarker = null;
+            let deltaNBLine = null;
             if (data.currentMetrics !== undefined && markerNetBenefit != null) {
+                deltaNBLine = {
+                    x: [currentThresholdProb, currentThresholdProb],
+                    y: [markerDefaultNetBenefit, markerNetBenefit],
+                    type: "scatter",
+                    mode: "lines",
+                    line: { color: "rgba(255, 0, 0, 0.65)", width: 3 },
+                    showlegend: false,
+                    hoverinfo: "skip",
+                };
+
                 thresholdMarker = {
                     x: [currentThresholdProb],
                     y: [markerNetBenefit],
@@ -199,6 +208,24 @@ const DCAModule = {
                     showlegend: false,
                 };
             }
+
+            const allValues = [...netBenefits, ...treatAllBenefits, 0];
+            if (thresholdMarker !== null) {
+                allValues.push(thresholdMarker.y[0]);
+            }
+
+            const dataMax = Math.max(...allValues);
+            const yAxisMax = dataMax > 0 ? dataMax * 1.1 : 0.001;
+            const yAxisMin = -yAxisMax / 5;
+            const tickMagnitude = 10 ** Math.floor(Math.log10(yAxisMax));
+            const normalizedYAxisMax = yAxisMax / tickMagnitude;
+            const tickMultipliers = [1, 2, 2.5, 5, 7.5];
+            const upperTickMultiplier = tickMultipliers.reduce(
+                (current, candidate) => candidate <= normalizedYAxisMax ? candidate : current,
+                1
+            );
+            const yAxisUpperTick = upperTickMultiplier * tickMagnitude;
+            const yAxisUpperLabel = yAxisUpperTick.toFixed(2);
             
             const dcaLayout = {
                 xaxis: { 
@@ -215,7 +242,9 @@ const DCAModule = {
                     showgrid: false, 
                     zeroline: false,
                     titlefont: { size: 15 },
-                    tickvals: [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+                    range: [yAxisMin, yAxisMax],
+                    tickvals: [0, yAxisUpperTick],
+                    ticktext: ["0", yAxisUpperLabel]
                 },
                 showlegend: true,
                 legend: {
@@ -232,7 +261,7 @@ const DCAModule = {
                     y: 0.95,
                     xref: "paper",
                     yref: "paper",
-                     text: `ΔNB: ${formattedDeltaNB}<br>p<sub>t</sub>: ${formattedPt}`,
+                    text: `ΔNB: ${formattedDeltaNB}`,
                     showarrow: false,
                     font: { size: 16, color: "black", weight: "bold" },
                     align: "right"
@@ -248,6 +277,9 @@ const DCAModule = {
             
             // Build traces array, including threshold marker if available
             const traces = [treatAllTrace, treatNoneTrace, dcaTrace];
+            if (deltaNBLine) {
+                traces.push(deltaNBLine);
+            }
             if (thresholdMarker) {
                 traces.push(thresholdMarker);
             }
@@ -258,25 +290,6 @@ const DCAModule = {
                 } else {
                 Plotly.react(instance.plotSelector, traces, dcaLayout, config);
             }
-            
-            // Calculate dynamic y-axis range based on data and threshold marker
-            let allValues = [...netBenefits, ...treatAllBenefits, 0];
-            
-            // Include threshold marker position if it exists
-            if (thresholdMarker !== null) {
-                allValues.push(thresholdMarker.y[0]);
-            }
-            
-            const dataMax = Math.max(...allValues);
-            
-            // Set reasonable y-axis bounds, with ymin as a percentage of ymax
-            const yAxisMax = Math.max(0.1, dataMax + 0.05); // Ensure at least 0.1 range
-            const yAxisMin = -yAxisMax / 5;
-            
-            // Update the y-axis range after the plot is rendered
-            Plotly.relayout(instance.plotSelector, {
-                'yaxis.range': [yAxisMin, yAxisMax]
-            });
             
         } catch (error) {
             console.error("Error plotting DCA:", error);
@@ -299,4 +312,4 @@ const DCAModule = {
 // Export to global scope
 window.DCAModule = DCAModule;
 
-})(); 
+})();

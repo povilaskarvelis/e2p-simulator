@@ -278,6 +278,50 @@
         return 1 + (predictorParameters * (1 - rSquared)) / targetOptimism;
     }
 
+    function minimumValidCollinearity(predictorCount, predictorCorrelation) {
+        if (
+            !Number.isFinite(predictorCount) ||
+            predictorCount < 1 ||
+            !Number.isFinite(predictorCorrelation) ||
+            Math.abs(predictorCorrelation) > 1
+        ) {
+            return NaN;
+        }
+
+        if (predictorCount === 1) return 0;
+
+        return Math.max(
+            0,
+            (predictorCount * predictorCorrelation * predictorCorrelation - 1) /
+                (predictorCount - 1)
+        );
+    }
+
+    function multivariateRSquared(
+        predictorCount,
+        predictorCorrelation,
+        collinearity
+    ) {
+        const minimumCollinearity = minimumValidCollinearity(
+            predictorCount,
+            predictorCorrelation
+        );
+
+        if (
+            !Number.isFinite(minimumCollinearity) ||
+            !Number.isFinite(collinearity) ||
+            collinearity < minimumCollinearity - 1e-12 ||
+            collinearity > 1
+        ) {
+            return NaN;
+        }
+
+        return (
+            predictorCount * predictorCorrelation * predictorCorrelation /
+            (1 + (predictorCount - 1) * collinearity)
+        );
+    }
+
     function maximumCoxSnellR2(prevalence) {
         if (!Number.isFinite(prevalence) || prevalence <= 0 || prevalence >= 1) {
             return NaN;
@@ -627,6 +671,8 @@
         calculatePopulationCalibrationMetrics,
         continuousOptimismSampleSize,
         maximumCoxSnellR2,
+        minimumValidCollinearity,
+        multivariateRSquared,
         outcomeReliabilityFactor,
         selectableCoxSnellR2Limit,
         validateCoxSnellInputs

@@ -197,7 +197,11 @@
         // Generate data
         const xValues = Array.from({ length: numPredictors }, (_, i) => i + 1);
         const r2Values = xValues.map(p => calculateMultivariateR2(p, predictorCorrelation, collinearity));
-        const prAucValues = r2Values.map(r2 => StatUtils.rToPRAUCviaSimulation(Math.sqrt(r2), baseRate));
+        const prAucValues = r2Values.map(r2 =>
+            r2 === null
+                ? null
+                : StatUtils.rToPRAUCviaSimulation(Math.sqrt(r2), baseRate)
+        );
         
         // Update charts
         updateChart(r2Chart, xValues, r2Values, targetR2, `Target R²: ${targetR2.toFixed(2)}`);
@@ -241,7 +245,11 @@
         const xValues = Array.from({ length: numPredictors }, (_, i) => i + 1);
 
         const r2Values = xValues.map(p => calculateMultivariateR2(p, predictorCorrelation, collinearity));
-        const prAucValues = r2Values.map(r2 => StatUtils.rToPRAUCviaSimulation(Math.sqrt(r2), baseRate));
+        const prAucValues = r2Values.map(r2 =>
+            r2 === null
+                ? null
+                : StatUtils.rToPRAUCviaSimulation(Math.sqrt(r2), baseRate)
+        );
         
         addDataset(r2Chart, r2Datasets, r2Values, predictorCorrelation, collinearity);
         addDataset(prAucChart, prAucDatasets, prAucValues, predictorCorrelation, collinearity);
@@ -329,9 +337,8 @@
     }
     
     function calculateMultivariateR2(p, r, rij) {
-        const numerator = p * r * r;
-        const denominator = 1 + (p - 1) * rij;
-        return Math.min(numerator / denominator, 1.0);
+        const rSquared = E2PStatCore.multivariateRSquared(p, r, rij);
+        return Number.isFinite(rSquared) ? rSquared : null;
     }
 
     function ensureLegendContainer(chartContainer) {

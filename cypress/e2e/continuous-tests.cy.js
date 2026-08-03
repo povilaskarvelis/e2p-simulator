@@ -20,7 +20,11 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
       expect(actualValue).to.be.closeTo(expected, tolerance); // Allow small differences
     });
   };
-  
+
+  const plotTraceSnapshot = (plotDiv) => JSON.stringify(
+    plotDiv?.data?.map(({ x, y }) => ({ x, y }))
+  );
+
   // Helper function to assert that an SVG path's 'd' attribute has changed
   const assertSvgPathChanged = (pathSelector, initialState) => {
     cy.get(pathSelector)
@@ -88,7 +92,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     
     // Store initial state of plots
     let initialDistributionBarHeight, initialContourPath;
-    let initialRocAucText, initialPrAucText;
+    let initialRocAucText, initialPrCurve;
     // Select the teal analytical density path in the observed distribution plot
     const distributionBarSelector = '#distribution-plot-observed-cont .teal-distribution'; 
     const contourSelector = '#scatter-plot-observed-cont .joint-contour';
@@ -113,8 +117,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     });
 
     cy.get('#pr-plot-cont').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist;
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change Pearson's r value and check for plot changes
@@ -125,7 +128,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
       .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
 
     // Check ROC annotation
-    cy.get('#roc-plot-cont').then($div => {
+    cy.get('#roc-plot-cont').should($div => {
       const newRocAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
       expect(newRocAucText).to.not.equal(initialRocAucText);
     });
@@ -138,8 +141,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get(distributionBarSelector)
       .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
     cy.get('#pr-plot-cont').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist;
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change X reliability value and check for plot changes
@@ -149,17 +151,15 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get(distributionBarSelector)
       .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
     // Check PR annotation
-    cy.get('#pr-plot-cont').then($div => {
-      const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      expect(newPrAucText).to.not.equal(initialPrAucText);
+    cy.get('#pr-plot-cont').should($div => {
+      expect(plotTraceSnapshot($div[0])).to.not.equal(initialPrCurve);
     });
       
     // Store state again before changing Y reliability value
     cy.get(distributionBarSelector)
       .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
     cy.get('#pr-plot-cont').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist;
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change Y reliability value and check for plot changes
@@ -169,17 +169,15 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get(distributionBarSelector)
       .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
     // Check PR annotation
-    cy.get('#pr-plot-cont').then($div => {
-      const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      expect(newPrAucText).to.not.equal(initialPrAucText);
+    cy.get('#pr-plot-cont').should($div => {
+      expect(plotTraceSnapshot($div[0])).to.not.equal(initialPrCurve);
     });
     
     // Store state again before changing base rate
     cy.get(distributionBarSelector)
       .should('have.attr', 'd').then(d => { initialDistributionBarHeight = d; });
     cy.get('#pr-plot-cont').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist;
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change base rate value and check for plot changes
@@ -189,9 +187,8 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get(distributionBarSelector)
       .should('have.attr', 'd').and('not.equal', initialDistributionBarHeight);
     // Check PR annotation
-    cy.get('#pr-plot-cont').then($div => {
-      const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      expect(newPrAucText).to.not.equal(initialPrAucText);
+    cy.get('#pr-plot-cont').should($div => {
+      expect(plotTraceSnapshot($div[0])).to.not.equal(initialPrCurve);
     });
   });
 
@@ -344,19 +341,36 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Switch to continuous mode
     cy.get('#continuous-button').click();
 
-    // Cohen's d slider
+    // Predictor correlation slider remains unrestricted
     cy.get('#predictor-correlation-slider').invoke('val', 0.8).trigger('input');
-    checkNumericValue('#predictor-correlation', '0.8'); 
+    checkNumericValue('#predictor-correlation', '0.8');
+    checkNumericValue('#collinearity', '0.05');
     
-    // Collinearity slider
+    // Collinearity slider remains unrestricted
     cy.get('#collinearity-slider').invoke('val', 0.4).trigger('input');
     checkNumericValue('#collinearity', '0.4');
 
-    // Predictors slider
+    // Number of predictors remains unrestricted and sets the plotted range
     cy.get('#num-predictors-r2-slider').invoke('val', 15).trigger('input');
     checkNumericValue('#num-predictors-r2', '15');
+
+    // r=.8 and rij=.4 are valid for p=1 and p=2 only; the curve ends there.
+    cy.get('#r2Plot').then($canvas => {
+      const chart = $canvas[0].ownerDocument.defaultView.Chart.getChart($canvas[0]);
+      const activeCurve = chart.data.datasets.find(dataset => dataset.isActive);
+      expect(activeCurve.data).to.have.length(15);
+      expect(activeCurve.data[0]).to.be.a('number');
+      expect(activeCurve.data[1]).to.be.a('number');
+      expect(activeCurve.data.slice(2).every(value => value === null)).to.equal(true);
+    });
+
+    cy.get('#r2PrAucPlot').then($canvas => {
+      const chart = $canvas[0].ownerDocument.defaultView.Chart.getChart($canvas[0]);
+      const activeCurve = chart.data.datasets.find(dataset => dataset.isActive);
+      expect(activeCurve.data.slice(2).every(value => value === null)).to.equal(true);
+    });
 
   });  
 
 
-}); 
+});

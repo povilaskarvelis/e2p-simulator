@@ -20,7 +20,11 @@ describe('E2P Simulator - Binary Mode Testing', () => {
       expect(actualValue).to.be.closeTo(expected, tolerance); // Allow small differences
     });
   };
-  
+
+  const plotTraceSnapshot = (plotDiv) => JSON.stringify(
+    plotDiv?.data?.map(({ x, y }) => ({ x, y }))
+  );
+
   // Helper function to assert that an SVG path's 'd' attribute has changed
   const assertSvgPathChanged = (pathSelector, initialState) => {
     cy.get(pathSelector)
@@ -431,7 +435,7 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     // Test that changing reliability values affects the visualizations
 
     // Store initial state of plots
-    let initialOverlapPath, initialRocAucText, initialPrAucText;
+    let initialOverlapPath, initialRocAucText, initialPrCurve;
 
     cy.get('#overlap-plot .distribution').eq(1) // Get the second distribution path
       .should('have.attr', 'd').then(d => { initialOverlapPath = d; });
@@ -442,8 +446,7 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     });
 
     cy.get('#pr-plot').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist; // Optional: Ensure we captured initial state
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change ICC1 value and check for plot changes
@@ -460,8 +463,7 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     cy.get('#overlap-plot .distribution').eq(1)
       .should('have.attr', 'd').then(d => { initialOverlapPath = d; });
     cy.get('#pr-plot').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist;
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change ICC2 value and check PR plot change
@@ -469,17 +471,15 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     checkNumericValue('#icc2-number', '0.70');
     cy.get('#overlap-plot .distribution').eq(1)
        .should('have.attr', 'd').and('not.equal', initialOverlapPath);
-    cy.get('#pr-plot').then($div => {
-       const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-       expect(newPrAucText).to.not.equal(initialPrAucText);
+    cy.get('#pr-plot').should($div => {
+       expect(plotTraceSnapshot($div[0])).to.not.equal(initialPrCurve);
      });
 
     // Store state again before changing Kappa
     cy.get('#overlap-plot .distribution').eq(1)
       .should('have.attr', 'd').then(d => { initialOverlapPath = d; });
     cy.get('#pr-plot').then($div => {
-      initialPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-      // expect(initialPrAucText).to.exist;
+      initialPrCurve = plotTraceSnapshot($div[0]);
     });
 
     // Change Kappa value and check plot changes
@@ -487,9 +487,8 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     checkNumericValue('#kappa-number', '0.75');
     cy.get('#overlap-plot .distribution').eq(1)
        .should('have.attr', 'd').and('not.equal', initialOverlapPath);
-    cy.get('#pr-plot').then($div => {
-       const newPrAucText = $div[0]?._fullLayout?.annotations?.[0]?.text;
-       expect(newPrAucText).to.not.equal(initialPrAucText);
+    cy.get('#pr-plot').should($div => {
+       expect(plotTraceSnapshot($div[0])).to.not.equal(initialPrCurve);
      });
   });
 
@@ -554,4 +553,4 @@ describe('E2P Simulator - Binary Mode Testing', () => {
 
   });  
 
-}); 
+});

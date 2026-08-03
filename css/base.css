@@ -720,8 +720,7 @@ input.slider-value,
 
 .mahalanobis-container button,
 .r-squared-container button,
-.dca-container button,
-.example-button {
+.dca-container button {
     background-color: #333;
     color: white;
     border: 1px solid #444;
@@ -737,10 +736,35 @@ input.slider-value,
     transition: all 0.2s ease;
 }
 
-.example-button::before {
-    content: "✨ ";
-    margin-right: 4px;
-    opacity: 0.8;
+.example-button {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: auto;
+    min-height: 40px;
+    margin: 4px 0 14px;
+    padding: 9px 14px;
+    border: 1px solid #2b2b2b;
+    border-radius: 6px;
+    background-color: #2b2b2b;
+    color: #fff;
+    box-shadow: none;
+    font: inherit;
+    font-size: 0.9em;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.example-button::after {
+    content: "→";
+    font-size: 1.05em;
+    line-height: 1;
+    transition: transform 0.2s ease;
 }
 
 .mahalanobis-container button:hover,
@@ -750,9 +774,17 @@ input.slider-value,
 }
 
 .example-button:hover {
+    background-color: #111;
+    border-color: #111;
+    color: #fff;
+}
+
+.example-button:hover::after {
+    transform: translateX(3px);
+}
+
+.example-button:active {
     background-color: #000;
-    border-color: #000;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 #reset-mahalanobis,

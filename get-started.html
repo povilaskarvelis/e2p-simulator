@@ -172,7 +172,7 @@
 
         <h3 id="multivariable">Multivariable Simulators</h3>
 
-        <p>Both binary and continuous outcomes analysis modes include multivariable simulators that help estimate how many predictors with a given effect size need to be combined to achieve a desired level of predictive performance. These simulators can approximate the expected performance of multivariate models without having to train the full models, making them useful for research planning and model development. The simulators illustrate how increasing the number of predictors improves performance while also showing how collinearity leads to diminishing returns, demonstrating that small effects do not add up as quickly as many researchers might intuitively expect.</p>
+        <p>Both binary and continuous outcomes analysis modes include multivariable simulators that help estimate how many predictors with a given effect size need to be combined to achieve a desired level of predictive performance. These simulators provide an idealized estimate of multivariable model performance without having to train the full models, making them useful for research planning and model development. The simulators illustrate how increasing the number of predictors improves performance while also showing how collinearity leads to diminishing returns, demonstrating that small effects do not add up as quickly as many researchers might intuitively expect.</p>
         
         <p>For binary outcomes, the simulator displays ROC-AUC and PR-AUC. ROC-AUC provides a threshold-independent measure of discriminative ability while PR-AUC accounts for the base rate to reflect real-world performance with imbalanced outcomes. The conversion from multiple predictors to ROC-AUC is done via Mahalanobis D, a multivariate generalization of Cohen's d, which allows you to start from familiar effect size metrics.</p>
         
@@ -184,7 +184,7 @@
         <ul>
             <li><strong>Average effects and correlations</strong>: The simulators use single values to represent the average effect size across predictors and average correlation among them, which provides useful approximations for understanding general principles of multivariate relationships and expected model performance.</li>
             <li><strong>Linear effects</strong>: The formulas assume predictors contribute additively without interactions (where one predictor's effect depends on another). This assumption is supported by research showing that in clinical prediction, complex non-linear models generally do not outperform simple linear logistic regression (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0895435618310813" target="_blank">Christodoulou et al., 2019</a>). In general, more complex machine learning models excel at capturing non-linear relationships that we expect to see in the real world, but they also require more data and are more prone to overfitting.</li>
-            <li><strong>Normality</strong>: The underlying variables are assumed to be normally distributed. This is consistent with the assumptions of input metrics like Cohen's d and Pearson's r, although in practice these are often computed despite normality violations.</li>
+            <li><strong>Normality</strong>: The underlying variables are assumed to be normally distributed. Cohen's d and Pearson's r are often calculated when this assumption is violated, but they may not fully represent the underlying group differences or relationships, and the simulator's estimates may be less accurate.</li>
         </ul>
         
         <p>Even though real-world predictors will often not be normally distributed and will vary in their individual strengths and collinearity, the general trends (such as diminishing returns and the impact of shared variance among the predictors) remain informative for understanding multivariate relationships and estimating expected model performance.</p>
@@ -355,7 +355,7 @@
             <li>Even if the base rate drops to 30% (e.g., younger mild cognitive impairment cohorts), the scenario still yields PR-AUC = 0.89.</li>
         </ol>
 
-        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdProb=0.68">Explore this example&nbsp;&nbsp;&nbsp;→</button>
+        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.511&groupingReliability=0.9&predictorReliabilityGroup1=0.9&predictorReliabilityGroup2=0.9&trueEffectSize=2.39&label1=Amyloid%20negative&label2=Amyloid%20positive&xaxisLabel=p-tau217%2FA%CE%B242&thresholdProb=0.68">Explore this example</button>
 
         <h3>Example 2. Diagnostic Prediction: Depression</h3>
         <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
@@ -377,7 +377,7 @@
 
         </ol>
         
-        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdProb=0.15">Explore this example&nbsp;&nbsp;&nbsp;→</button>
+        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&label1=Controls&label2=Depression&xaxisLabel=Cognitive%20marker&thresholdProb=0.15">Explore this example</button>
         
 
         <h3>Example 3. Treatment Response Prediction: Antidepressants</h3>
@@ -397,7 +397,7 @@
             <li>If we want to explore what it would take to achieve still higher performance (e.g., PR-AUC of 0.8), we can use the tool to find the required R². Ambitious targets help demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction — doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
-        <button class="example-button" data-url="index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.4&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdProb=0.20">Explore this example&nbsp;&nbsp;&nbsp;→</button>
+        <button type="button" class="example-button" data-url="index.html?mode=continuous&predictorReliability=0.4&outcomeReliability=0.94&effectSizeR=0.73&baseRate=0.4&label1=Non-responders&label2=Responders&xaxisLabel=Task-fMRI%20marker&yaxisScatterLabel=Treatment%20response&thresholdProb=0.20">Explore this example</button>
 
         <h3>Example 4. Risk Prediction: Suicide Attempts</h3>
         <p>Clinicians rate prediction of suicidality as the highest priority for AI tool development in mental health (<a href="https://doi.org/10.1186/s12888-025-06957-3" target="_blank">Fischer et al., 2025</a>). Can we predict who will attempt suicide using electronic health records? One of the largest prospective suicide prediction studies (<a href="https://doi.org/10.1097/MLR.0000000000001445" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
@@ -419,7 +419,7 @@
             <li>Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
         </ol>
 
-        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Electronic%20health%20records&thresholdProb=0.03">Explore this example&nbsp;&nbsp;&nbsp;→</button>
+        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.039&groupingReliability=1.0&predictorReliabilityGroup1=0.8&predictorReliabilityGroup2=0.8&trueEffectSize=0.86&label1=Psychiatric%20controls&label2=Suicide%20attempters&xaxisLabel=Multivariable%20EHR%20prediction%20score&thresholdProb=0.03">Explore this example</button>
 
         <h3>Example 5. Risk Prediction: Transition to Psychosis</h3>
         <p>Mismatch negativity (MMN) is among the most promising biomarkers for predicting transition to psychosis within clinical high-risk (CHR) cohorts. The largest longitudinal study (<a href="https://doi.org/10.1001/jamapsychiatry.2022.1417" target="_blank">Hamilton et al., 2022</a>) found that converters showed the largest MMN deficit in the double-deviant condition, with d = 0.43. How promising is MMN for this application?</p>
@@ -439,7 +439,7 @@
         
         </ol>
 
-        <button class="example-button" data-url="index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdProb=0.15">Explore this example&nbsp;&nbsp;&nbsp;→</button>
+        <button type="button" class="example-button" data-url="index.html?mode=binary&baseRate=0.19&groupingReliability=0.46&predictorReliabilityGroup1=0.5&predictorReliabilityGroup2=0.5&trueEffectSize=0.75&label1=Non-converters&label2=Converters&xaxisLabel=Double-deviant%20MMN&thresholdProb=0.15">Explore this example</button>
    
     </div>
 
