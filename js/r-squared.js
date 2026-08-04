@@ -4,7 +4,6 @@
     let r2Datasets = [], prAucDatasets = [];
     let r2ActiveCurve, prAucActiveCurve;
     let nextColorIndex = 0;
-    let targetPrAucUpdateTimer = null;
     
     const colors = ['#008080', '#E63946', '#FFA726', '#1E88E5', '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'];
 
@@ -20,7 +19,6 @@
     const getDOMElements = () => ({
         targetR2Input: document.getElementById('target-r2'),
         targetR2Slider: document.getElementById('target-r2-slider'),
-        targetPrAucInput: document.getElementById('r2-target-pr-auc'),
         r2BaseRateInput: document.getElementById('r2-base-rate'),
         r2BaseRateSlider: document.getElementById('r2-base-rate-slider'),
         predictorCorrelationInput: document.getElementById('predictor-correlation'),
@@ -54,8 +52,9 @@
 
     // --- Event Listeners ---
     function setupEventListeners(elements) {
+        setupTargetInputPair(elements.targetR2Input, elements.targetR2Slider);
+
         const inputs = [
-            { input: elements.targetR2Input, slider: elements.targetR2Slider },
             { input: elements.r2BaseRateInput, slider: elements.r2BaseRateSlider },
             { input: elements.predictorCorrelationInput, slider: elements.predictorCorrelationSlider },
             { input: elements.collinearityInput, slider: elements.collinearitySlider },
@@ -73,17 +72,29 @@
             });
         });
 
-        elements.targetPrAucInput.addEventListener('input', () => {
-            clearTimeout(targetPrAucUpdateTimer);
-            targetPrAucUpdateTimer = setTimeout(updateTargetFromPrAuc, 250);
-        });
-        elements.targetPrAucInput.addEventListener('change', () => {
-            clearTimeout(targetPrAucUpdateTimer);
-            updateTargetFromPrAuc();
-        });
-
         elements.recordButton.addEventListener('click', recordCurrentCurve);
         elements.resetButton.addEventListener('click', resetCalculator);
+    }
+
+    function setupTargetInputPair(input, slider) {
+        const commitInput = () => {
+            let value = parseFloat(input.value);
+            if (!Number.isFinite(value)) value = parseFloat(slider.value);
+            value = Math.min(Math.max(value, parseFloat(input.min)), parseFloat(input.max));
+            value = Math.round(value * 1000) / 1000;
+            input.value = value.toFixed(3);
+            slider.value = value;
+            updatePlots();
+        };
+
+        slider.addEventListener('input', () => {
+            input.value = parseFloat(slider.value).toFixed(3);
+            updatePlots();
+        });
+        input.addEventListener('change', commitInput);
+        input.addEventListener('keydown', event => {
+            if (event.key === 'Enter') input.blur();
+        });
     }
 
     // --- Chart Initialization ---
@@ -222,41 +233,6 @@
         updateActiveCurveLabel();
     }
 
-    function updateTargetFromPrAuc() {
-        const elements = getDOMElements();
-        const requestedPrAuc = parseFloat(elements.targetPrAucInput.value);
-        if (!Number.isFinite(requestedPrAuc)) {
-            updatePlots();
-            return;
-        }
-
-        const baseRate = percentageToFraction(elements.r2BaseRateInput.value);
-        const targetR2 = findR2ForPrAuc(requestedPrAuc, baseRate);
-        elements.targetR2Input.value = targetR2.toFixed(4);
-        elements.targetR2Slider.value = targetR2;
-        updatePlots();
-    }
-
-    function findR2ForPrAuc(requestedPrAuc, baseRate) {
-        let lower = 0;
-        let upper = 0.99;
-        const minimumPrAuc = StatUtils.rToPRAUCviaSimulation(0, baseRate);
-        const maximumPrAuc = StatUtils.rToPRAUCviaSimulation(Math.sqrt(upper), baseRate);
-        const targetPrAuc = Math.min(Math.max(requestedPrAuc, minimumPrAuc), maximumPrAuc);
-
-        for (let i = 0; i < 32; i++) {
-            const midpoint = (lower + upper) / 2;
-            const midpointPrAuc = StatUtils.rToPRAUCviaSimulation(Math.sqrt(midpoint), baseRate);
-            if (midpointPrAuc < targetPrAuc) {
-                lower = midpoint;
-            } else {
-                upper = midpoint;
-            }
-        }
-
-        return (lower + upper) / 2;
-    }
-
     function applyURLValues(elements) {
         if (typeof parseURLParams !== 'function') return;
 
@@ -353,7 +329,7 @@
         nextColorIndex = 0;
 
         const elements = getDOMElements();
-        elements.targetR2Input.value = initialValues.targetR2;
+        elements.targetR2Input.value = initialValues.targetR2.toFixed(3);
         elements.targetR2Slider.value = initialValues.targetR2;
         elements.r2BaseRateInput.value = initialValues.baseRate;
         elements.r2BaseRateSlider.value = initialValues.baseRate;

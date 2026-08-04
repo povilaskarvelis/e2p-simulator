@@ -10,7 +10,6 @@ const colors = [
     // Track active curves and chart instances
     let rocaucActiveCurve, prAucActiveCurve;
     let rocaucChart = null, prAucChart = null;
-    let targetPrAucUpdateTimer = null;
 
     function initializeMahalanobis() {
         applyURLValues();
@@ -54,23 +53,39 @@ const colors = [
             input.addEventListener('input', inputUpdate);
         };
 
-        ['targetRocAuc-slider', 'mahalanobis-base-rate-slider', 'effectSize-slider', 'correlation-slider', 'numVariables-slider'].forEach(id => {
+        setupTargetInputPair('targetRocAuc-slider', 'targetRocAuc');
+
+        ['mahalanobis-base-rate-slider', 'effectSize-slider', 'correlation-slider', 'numVariables-slider'].forEach(id => {
             const idRoot = id.replace('-slider', '');
             setupInputPair(id, idRoot);
         });
 
-        const targetPrAucInput = document.getElementById('target-pr-auc');
-        targetPrAucInput.addEventListener('input', () => {
-            clearTimeout(targetPrAucUpdateTimer);
-            targetPrAucUpdateTimer = setTimeout(updateTargetFromPrAuc, 250);
-        });
-        targetPrAucInput.addEventListener('change', () => {
-            clearTimeout(targetPrAucUpdateTimer);
-            updateTargetFromPrAuc();
-        });
-
     document.getElementById('record-mahalanobis').addEventListener('click', recordCurrentCurve);
     document.getElementById('reset-mahalanobis').addEventListener('click', resetChart);
+    }
+
+    function setupTargetInputPair(sliderId, inputId) {
+        const slider = document.getElementById(sliderId);
+        const input = document.getElementById(inputId);
+
+        const commitInput = () => {
+            let value = parseFloat(input.value);
+            if (!Number.isFinite(value)) value = parseFloat(slider.value);
+            value = Math.min(Math.max(value, parseFloat(input.min)), parseFloat(input.max));
+            value = Math.round(value * 1000) / 1000;
+            input.value = value.toFixed(3);
+            slider.value = value;
+            updatePlot();
+        };
+
+        slider.addEventListener('input', () => {
+            input.value = parseFloat(slider.value).toFixed(3);
+            updatePlot();
+        });
+        input.addEventListener('change', commitInput);
+        input.addEventListener('keydown', event => {
+            if (event.key === 'Enter') input.blur();
+        });
     }
 
     function initializeRocAucChart() {
@@ -222,41 +237,6 @@ const colors = [
         updateChart(rocaucChart, rocaucValues, targetRocAuc, 'Target ROC-AUC', numVariables, 0.5, 1);
         updateChart(prAucChart, prAucValues, StatUtils.dToPRAUC(targetD, baseRate), 'Target PR-AUC', numVariables, 0, 1);
         updateActiveCurveLabel();
-    }
-
-    function updateTargetFromPrAuc() {
-        const prAucInput = document.getElementById('target-pr-auc');
-        const requestedPrAuc = parseFloat(prAucInput.value);
-        if (!Number.isFinite(requestedPrAuc)) {
-            updatePlot();
-            return;
-        }
-
-        const baseRate = percentageToFraction(document.getElementById('mahalanobis-base-rate').value);
-        const targetRocAuc = findRocAucForPrAuc(requestedPrAuc, baseRate);
-        document.getElementById('targetRocAuc').value = targetRocAuc.toFixed(4);
-        document.getElementById('targetRocAuc-slider').value = targetRocAuc;
-        updatePlot();
-    }
-
-    function findRocAucForPrAuc(requestedPrAuc, baseRate) {
-        let lower = 0.5;
-        let upper = 0.999;
-        const minimumPrAuc = StatUtils.dToPRAUC(0, baseRate);
-        const maximumPrAuc = StatUtils.dToPRAUC(StatUtils.aucToD(upper), baseRate);
-        const targetPrAuc = Math.min(Math.max(requestedPrAuc, minimumPrAuc), maximumPrAuc);
-
-        for (let i = 0; i < 36; i++) {
-            const midpoint = (lower + upper) / 2;
-            const midpointPrAuc = StatUtils.dToPRAUC(StatUtils.aucToD(midpoint), baseRate);
-            if (midpointPrAuc < targetPrAuc) {
-                lower = midpoint;
-            } else {
-                upper = midpoint;
-            }
-        }
-
-        return (lower + upper) / 2;
     }
 
     function applyURLValues() {
