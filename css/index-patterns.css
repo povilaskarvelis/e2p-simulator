@@ -791,6 +791,10 @@ html.is-exporting .modebar-container {
     font-weight: 700;
 }
 
-.equation-title--tight {
-    margin-top: 0;
+.equation-description {
+    margin: 2px 0 0;
+    color: #666;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    text-align: center;
 }

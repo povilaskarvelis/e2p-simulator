@@ -2,9 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+    binaryNagelkerkeOptimismSampleSize,
+    binaryOverallRiskSampleSize,
+    binaryShrinkageSampleSize,
     calculateNormalModelIci,
     calculatePopulationCalibrationMetrics,
     continuousOptimismSampleSize,
+    continuousShrinkageSampleSize,
     maximumCoxSnellR2,
     minimumValidCollinearity,
     multivariateRSquared,
@@ -106,6 +110,19 @@ test('outcome reliability uses sqrt(sin(pi*kappa/2))', () => {
 
 test('continuous optimism criterion treats its input as R-squared', () => {
     assert.equal(continuousOptimismSampleSize(10, 0.5, 0.05), 101);
+});
+
+test('binary Riley criteria reproduce the pmsampsize worked inputs', () => {
+    assert.equal(binaryShrinkageSampleSize(24, 0.288, 0.9), 623);
+    assert.equal(
+        binaryNagelkerkeOptimismSampleSize(24, 0.288, 0.174, 0.05),
+        662
+    );
+    assert.equal(binaryOverallRiskSampleSize(0.174, 0.05), 221);
+});
+
+test('continuous Riley criteria reproduce the published shrinkage example', () => {
+    assert.equal(continuousShrinkageSampleSize(25, 0.2, 0.9), 918);
 });
 
 test('continuous multivariable formula identifies the minimum valid collinearity', () => {

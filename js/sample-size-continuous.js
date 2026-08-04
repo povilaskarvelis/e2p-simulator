@@ -1,16 +1,7 @@
 // Continuous outcome sample size calculator (Riley et al., BMJ 2020 + Stat Med 2019)
-// Computes n from three criteria and displays summary + simple charts
+// Computes the Riley criteria while presenting one educational result
 
 (function(){
-    function zForCI(ci){
-        const level = parseFloat(ci);
-        if (level >= 0.999) return 3.29;
-        if (level >= 0.99) return 2.576;
-        if (level >= 0.95) return 1.96;
-        if (level >= 0.90) return 1.645;
-        return 1.96;
-    }
-
     function val(id){
         const el = document.getElementById(id);
         if (!el) return null;
@@ -19,22 +10,14 @@
         return isNaN(v) ? null : v;
     }
 
-    function setHTML(id, text){
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
-    }
-
     function formatInt(x){
         if (!isFinite(x) || isNaN(x)) return '-';
         return Math.ceil(Math.max(0, x)).toLocaleString();
     }
 
-    // Criterion 1: target shrinkage via adjusted R2 approximation
+    // Criterion 1: continuous-outcome Copas shrinkage calculation
     function computeShrinkageN(p, R2, S){
-        // Riley et al. formula: n = p / ((S-1) × [ln(1-R²/S)])
-        const denominator = (S - 1) * Math.log(1 - R2 / S);
-        if (!isFinite(denominator) || denominator <= 0) return NaN;
-        return p / denominator;
+        return window.E2PStatCore.continuousShrinkageSampleSize(p, R2, S);
     }
 
     // Criterion 2: residual SD precision (N = 234 + p for ≤10% multiplicative error)
@@ -47,13 +30,22 @@
         return window.E2PStatCore.continuousOptimismSampleSize(p, R2, delta);
     }
 
-
     function syncPair(sliderId, inputId){
         const s = document.getElementById(sliderId);
         const i = document.getElementById(inputId);
         if (!s || !i) return;
-        s.addEventListener('input', () => { i.value = s.value; update(); });
-        i.addEventListener('input', () => { s.value = i.value; update(); });
+        const updateTrack = () => {
+            if (!s.classList.contains('criterion-slider--continuous-optimism')) return;
+            const min = Number(s.min);
+            const max = Number(s.max);
+            const progress = Math.max(0, Math.min(100,
+                ((Number(s.value) - min) / (max - min)) * 100
+            ));
+            s.style.setProperty('--criterion-slider-progress', `${progress}%`);
+        };
+        s.addEventListener('input', () => { i.value = s.value; updateTrack(); update(); });
+        i.addEventListener('input', () => { s.value = i.value; updateTrack(); update(); });
+        updateTrack();
     }
 
     function drawMultiLineChart(canvasId, xs, series, chartTitle, xAxisTitle, pVal){
@@ -110,27 +102,27 @@
     }
 
     function update(){
-        const p = Math.max(1, val('ssc-p'));
-        const R2 = Math.max(0.0001, Math.min(0.95, val('ssc-r2')));
-        const S = Math.max(0.7, Math.min(0.99, val('ssc-shrinkage')));
-        const delta = Math.max(0.001, Math.min(0.1, val('ssc-delta')));
+        const pInput = val('ssc-p');
+        const r2Input = val('ssc-r2');
+        const shrinkageInput = val('ssc-shrinkage');
+        const deltaInput = val('ssc-delta');
 
-        if ([p,R2,S,delta].some(v=>v==null)) return;
+        if ([pInput, r2Input, shrinkageInput, deltaInput].some(v=>v==null)) return;
+        const p = Math.max(1, Math.round(pInput));
+        const R2 = Math.max(0.0001, Math.min(0.95, r2Input));
+        const S = Math.max(0.7, Math.min(0.99, shrinkageInput));
+        const delta = Math.max(0.001, Math.min(0.1, deltaInput));
 
         const nS = computeShrinkageN(p, R2, S);
         const nResidualSD = computeResidualSDN(p);
         const nOptimism = computeOptimismN(p, R2, delta);
-        const nRequired = Math.max(nS||0, nResidualSD||0, nOptimism||0);
-
-        setHTML('ssc-n-s', formatInt(nS));
-        setHTML('ssc-n-required', formatInt(nRequired));
+        const nRequired = Math.ceil(Math.max(nS, nResidualSD, nOptimism));
 
         // Update results summary table
         const tableContainer = document.getElementById('ssc-results-table');
         if (tableContainer) {
-            const isResidualSDHigher = nResidualSD >= (nS || 0) && nResidualSD >= (nOptimism || 0);
-            const isSHigher = nS >= (nResidualSD || 0) && nS >= (nOptimism || 0);
-            const isOptimismHigher = nOptimism >= (nS || 0) && nOptimism >= (nResidualSD || 0);
+            const isHighest = (value) =>
+                Number.isFinite(value) && Math.ceil(value) === nRequired;
 
             tableContainer.innerHTML = `
                 <div class="summary-main">
@@ -140,15 +132,15 @@
                 <div class="summary-detail">
                     <p class="summary-detail-header">Based on the maximum of:</p>
                     <div class="summary-detail-row">
-                        <div class="summary-item ${isResidualSDHigher ? 'highlight' : ''}">
+                        <div class="summary-item ${isHighest(nResidualSD) ? 'highlight' : ''}">
                             <span class="item-label">Residual SD precision</span>
                             <span class="item-value">${formatInt(nResidualSD)}</span>
                         </div>
-                        <div class="summary-item ${isSHigher ? 'highlight' : ''}">
+                        <div class="summary-item ${isHighest(nS) ? 'highlight' : ''}">
                             <span class="item-label">Shrinkage (S)</span>
                             <span class="item-value">${formatInt(nS)}</span>
                         </div>
-                        <div class="summary-item ${isOptimismHigher ? 'highlight' : ''}">
+                        <div class="summary-item ${isHighest(nOptimism) ? 'highlight' : ''}">
                             <span class="item-label">Optimism (δ)</span>
                             <span class="item-value">${formatInt(nOptimism)}</span>
                         </div>
@@ -157,25 +149,55 @@
             `;
         }
 
-        // Chart: superimpose criteria vs p
+        // Chart: show how each criterion contributes across model complexity.
         const xsP = [];
-        const series = [];
-        // Use consistent Mahalanobis color palette order
-        const palette = ['#008080', '#E63946', '#FFA726', '#1E88E5', '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'];
+        const ysResidualSD = [];
+        const ysShrinkage = [];
+        const ysOptimism = [];
         const pMax = p;
-        const step = Math.max(1, Math.floor(pMax/20));
-        const ysS = [], ysResidualSD = [], ysOptimism = [];
+        const step = Math.max(1, Math.floor(pMax / 20));
         for (let pp = 1; pp <= pMax; pp += step) {
             xsP.push(pp);
-            ysS.push(computeShrinkageN(pp, R2, S));
             ysResidualSD.push(computeResidualSDN(pp));
+            ysShrinkage.push(computeShrinkageN(pp, R2, S));
             ysOptimism.push(computeOptimismN(pp, R2, delta));
         }
-        // Order series: Residual SD first, Shrinkage second, Optimism third
-        series.push({ label: 'Residual SD precision', data: ysResidualSD, borderColor: palette[0], pointBackgroundColor: palette[0], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });
-        series.push({ label: 'Shrinkage (S)', data: ysS, borderColor: palette[1], pointBackgroundColor: palette[1], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });
-        series.push({ label: 'Optimism (δ)', data: ysOptimism, borderColor: palette[2], pointBackgroundColor: palette[2], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });
-        drawMultiLineChart('sscPlot', xsP, series, 'Required sample size by criterion vs predictor parameters (p)', 'Number of predictors (p)', p);
+        const series = [
+            {
+                label: 'Residual SD precision',
+                data: ysResidualSD,
+                borderColor: '#008080',
+                pointBackgroundColor: '#008080',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            },
+            {
+                label: 'Shrinkage (S)',
+                data: ysShrinkage,
+                borderColor: '#E63946',
+                pointBackgroundColor: '#E63946',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            },
+            {
+                label: 'Optimism (δ)',
+                data: ysOptimism,
+                borderColor: '#FFA726',
+                pointBackgroundColor: '#FFA726',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            }
+        ];
+        drawMultiLineChart('sscPlot', xsP, series, '', 'Predictor parameters (p)', p);
     }
 
     function init(){
@@ -194,5 +216,3 @@
 
     document.addEventListener('DOMContentLoaded', init);
 })();
-
-

@@ -278,6 +278,171 @@
         return 1 + (predictorParameters * (1 - rSquared)) / targetOptimism;
     }
 
+    function binaryShrinkageSampleSize(predictorParameters, rSquared, shrinkage) {
+        if (
+            !Number.isFinite(predictorParameters) ||
+            predictorParameters <= 0 ||
+            !Number.isFinite(rSquared) ||
+            rSquared <= 0 ||
+            !Number.isFinite(shrinkage) ||
+            shrinkage <= rSquared ||
+            shrinkage >= 1
+        ) {
+            return NaN;
+        }
+
+        const denominator =
+            (shrinkage - 1) * Math.log(1 - rSquared / shrinkage);
+        return denominator > 0
+            ? Math.ceil(predictorParameters / denominator)
+            : NaN;
+    }
+
+    function binaryNagelkerkeOptimismSampleSize(
+        predictorParameters,
+        rSquared,
+        prevalence,
+        targetDifference = 0.05
+    ) {
+        const maximum = maximumCoxSnellR2(prevalence);
+        if (
+            !Number.isFinite(maximum) ||
+            !Number.isFinite(targetDifference) ||
+            targetDifference <= 0 ||
+            !Number.isFinite(rSquared) ||
+            rSquared <= 0 ||
+            rSquared >= maximum
+        ) {
+            return NaN;
+        }
+
+        const requiredShrinkage =
+            rSquared / (rSquared + targetDifference * maximum);
+        return binaryShrinkageSampleSize(
+            predictorParameters,
+            rSquared,
+            requiredShrinkage
+        );
+    }
+
+    function binaryOverallRiskSampleSize(
+        prevalence,
+        marginOfError = 0.05,
+        zValue = 1.96
+    ) {
+        if (
+            !Number.isFinite(prevalence) ||
+            prevalence <= 0 ||
+            prevalence >= 1 ||
+            !Number.isFinite(marginOfError) ||
+            marginOfError <= 0 ||
+            !Number.isFinite(zValue) ||
+            zValue <= 0
+        ) {
+            return NaN;
+        }
+
+        return Math.ceil(
+            Math.pow(zValue / marginOfError, 2) *
+                prevalence *
+                (1 - prevalence)
+        );
+    }
+
+    function continuousExpectedShrinkage(
+        predictorParameters,
+        rSquared,
+        sampleSize
+    ) {
+        if (
+            !Number.isFinite(predictorParameters) ||
+            predictorParameters <= 0 ||
+            !Number.isFinite(rSquared) ||
+            rSquared <= 0 ||
+            rSquared >= 1 ||
+            !Number.isFinite(sampleSize) ||
+            sampleSize <= predictorParameters + 1
+        ) {
+            return NaN;
+        }
+
+        const apparentRSquared =
+            (rSquared * (sampleSize - predictorParameters - 1) +
+                predictorParameters) /
+            (sampleSize - 1);
+        const logUnexplained = Math.log(1 - apparentRSquared);
+        if (!Number.isFinite(logUnexplained) || logUnexplained >= 0) {
+            return NaN;
+        }
+
+        return (
+            1 +
+            (predictorParameters - 2) /
+                (sampleSize * logUnexplained)
+        );
+    }
+
+    function continuousShrinkageSampleSize(
+        predictorParameters,
+        rSquared,
+        targetShrinkage
+    ) {
+        if (
+            !Number.isInteger(predictorParameters) ||
+            predictorParameters <= 0 ||
+            !Number.isFinite(rSquared) ||
+            rSquared <= 0 ||
+            rSquared >= 1 ||
+            !Number.isFinite(targetShrinkage) ||
+            targetShrinkage <= 0 ||
+            targetShrinkage >= 1
+        ) {
+            return NaN;
+        }
+
+        const minimum = predictorParameters + 2;
+        if (
+            continuousExpectedShrinkage(
+                predictorParameters,
+                rSquared,
+                minimum
+            ) >= targetShrinkage
+        ) {
+            return minimum;
+        }
+
+        let lower = minimum;
+        let upper = minimum * 2;
+        while (
+            continuousExpectedShrinkage(
+                predictorParameters,
+                rSquared,
+                upper
+            ) < targetShrinkage
+        ) {
+            lower = upper;
+            upper *= 2;
+            if (upper > 1e9) return NaN;
+        }
+
+        while (lower + 1 < upper) {
+            const midpoint = Math.floor((lower + upper) / 2);
+            if (
+                continuousExpectedShrinkage(
+                    predictorParameters,
+                    rSquared,
+                    midpoint
+                ) >= targetShrinkage
+            ) {
+                upper = midpoint;
+            } else {
+                lower = midpoint;
+            }
+        }
+
+        return upper;
+    }
+
     function minimumValidCollinearity(predictorCount, predictorCorrelation) {
         if (
             !Number.isFinite(predictorCount) ||
@@ -667,9 +832,14 @@
     }
 
     return {
+        binaryNagelkerkeOptimismSampleSize,
+        binaryOverallRiskSampleSize,
+        binaryShrinkageSampleSize,
         calculateNormalModelIci,
         calculatePopulationCalibrationMetrics,
+        continuousExpectedShrinkage,
         continuousOptimismSampleSize,
+        continuousShrinkageSampleSize,
         maximumCoxSnellR2,
         minimumValidCollinearity,
         multivariateRSquared,

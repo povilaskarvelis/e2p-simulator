@@ -348,7 +348,7 @@
                 </ul>
             </li>
 
-            <li> We find this corresponds to observed effect size d = 2.25, yielding ROC-AUC = 0.94 and PR-AUC = 0.95. We also find that the positive threshold corresponds to p<sub>t</sub> ≈ 0.68, recovering PPV = 0.92, NPV = 0.81, and resulting in ΔNB = 0.324 — about 324 net true positives per 1,000 people when diagnosis is based on this biomarker. </li>
+            <li> We find this corresponds to observed effect size d = 2.25, yielding ROC-AUC = 0.94 and PR-AUC = 0.95. We also find that the positive threshold corresponds to p<sub>t</sub> ≈ 0.68, recovering PPV = 0.92, NPV = 0.81, and resulting in ΔNB = 0.327 — about 327 net true positives per 1,000 people when diagnosis is based on this biomarker. </li>
 
             <li>Measurement reliability in this case is already very high and improving it will not result in a substantial improvement in predictive performance.</li>
 
@@ -392,7 +392,7 @@
                 </ul>
             </li>
 
-            <li>This yields ROC-AUC = 0.71 and PR-AUC = 0.61, indicating rather modest predictive performance, as shown by the low PR-AUC. We use an illustrative threshold of p<sub>t</sub> = 0.20, somewhat higher than the threshold used for screening because acting on the prediction now entails exposure to adverse effects and the burden and delay associated with an ineffective treatment. At p<sub>t</sub> = 0.2, we observe Sensitivity = 0.95, PPV = 0.44, and ΔNB = 0.009. High sensitivity here means most non-responders are still treated (specificity ≈ 0.19, so roughly 80% of non-responders receive treatment), and among those treated only 44% respond; the ΔNB of 0.009 means only about 9 net true positives per 1,000 people when treatment is based on this biomarker. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.85 and PR-AUC = 0.79, which at p<sub>t</sub> = 0.2 would result in Sensitivity = 0.93, PPV = 0.55, and ΔNB = 0.046 (about 46 net true positives per 1,000 people when treatment is based on this biomarker).</li>
+            <li>This yields ROC-AUC = 0.71 and PR-AUC = 0.61, indicating rather modest predictive performance, as shown by the low PR-AUC. We use an illustrative threshold of p<sub>t</sub> = 0.20, somewhat higher than the threshold used for screening because acting on the prediction now entails exposure to adverse effects and the burden and delay associated with an ineffective treatment. At p<sub>t</sub> = 0.2, we observe Sensitivity = 0.95, PPV = 0.44, and ΔNB = 0.010. High sensitivity here means most non-responders are still treated (specificity ≈ 0.19, so roughly 80% of non-responders receive treatment), and among those treated only 44% respond; the ΔNB of 0.010 means only about 10 net true positives per 1,000 people when treatment is based on this biomarker. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.85 and PR-AUC = 0.79, which at p<sub>t</sub> = 0.2 would result in Sensitivity = 0.93, PPV = 0.55, and ΔNB = 0.046 (about 46 net true positives per 1,000 people when treatment is based on this biomarker).</li>
 
             <li>If we want to explore what it would take to achieve still higher performance (e.g., PR-AUC of 0.8), we can use the tool to find the required R². Ambitious targets help demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction — doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
@@ -433,7 +433,7 @@
                 </ul>
             </li>
 
-            <li>This yields ROC-AUC = 0.62 and PR-AUC = 0.27, indicating modest predictive performance. At a decision threshold of p<sub>t</sub> = 0.15, which corresponds to relatively low-cost interventions such as increased monitoring, we obtain PPV = 0.22, Sensitivity = 0.81, and ΔNB = 0.010 — about 10 net true positives per 1,000 people when intervention is based on this biomarker.</li>
+            <li>This yields ROC-AUC = 0.62 and PR-AUC = 0.27, indicating modest predictive performance. At a decision threshold of p<sub>t</sub> = 0.15, which corresponds to relatively low-cost interventions such as increased monitoring, we obtain PPV = 0.22, Sensitivity = 0.81, and ΔNB = 0.011 — about 11 net true positives per 1,000 people when intervention is based on this biomarker.</li>
 
             <li>Improving measurement reliability could improve performance up to d = 0.75, ROC-AUC = 0.70, PR-AUC = 0.36; at p<sub>t</sub> = 0.15 this would give PPV = 0.26, Sensitivity = 0.78, and ΔNB = 0.026 (about 26 net true positives per 1,000 people when intervention is based on this biomarker), offering a substantial improvement but still overall modest predictive performance.</li>
         
@@ -446,12 +446,20 @@
     <div class="guide-section" id="sample-size">
         <h2>Sample Size Calculations for Prediction Models</h2>
         
-        <p>E2P Simulator includes a sample size calculator to help you determine how much data is needed for your multivariable prediction models. This calculator is designed to help you avoid overfitting and keep prediction error low (following the recommendations from <a href="https://doi.org/10.1136/bmj.m441" target="_blank">Riley et al., 2020</a>), providing more robust sample size estimates than simple rules of thumb like "10 events per predictor".</p>
+        <p>E2P Simulator implements the development sample-size criteria summarized by <a href="https://doi.org/10.1136/bmj.m441" target="_blank">Riley et al. (2020)</a> for binary logistic and continuous linear regression prediction models. Rather than applying a fixed rule such as 10 events per predictor parameter, the calculator checks several ways in which a development sample can be too small and reports the largest resulting sample size.</p>
 
         <h3>How to Use</h3>
-        <p>Specify your number of predictors, <strong>realistically expected R²</strong> (based on prior research or pilot data), and outcome base rate (for binary outcomes only). Use the likelihood-based Cox–Snell R²<sub>CS</sub> for binary outcomes and standard R² for continuous outcomes. R²<sub>CS</sub> is not the same quantity as eta-squared (η²) on the main dashboard and should not be substituted directly. Obtain it from a comparable model, or derive it from a reported Nagelkerke R² or C-statistic using a <a href="https://doi.org/10.1002/sim.8806" target="_blank">validated conversion</a>. Its maximum possible value is below 1 and depends on the outcome base rate; the calculator reports and enforces that limit. The final recommendation uses the <em>maximum</em> across the implemented criteria to ensure all displayed performance targets are met.</p>
+        <p>Enter the number of <strong>candidate predictor parameters</strong>, not merely the number of named predictors. A multi-level categorical variable, spline, or interaction can require several coefficients; all parameters considered during development should be counted. Also specify a <strong>realistically expected R²</strong> based on comparable prior research or pilot data.</p>
 
-        <p>The sample size calculators complement the main E2P simulators in study planning: the E2P simulators explore relationships between effect sizes and predictive utility (both what you need for desired performance and what utility to expect from realistic effects), while the sample size calculators determine adequate sample size based on realistic R² estimates from prior research. For sample size planning, always use conservative, realistic R² estimates based on prior research, not idealized target values.</p>
+        <p>For a binary outcome, specify the anticipated outcome base rate and likelihood-based Cox–Snell R²<sub>CS</sub>. This R² is not eta-squared (η²) and should not be copied from the main E2P dashboard. Obtain it from a comparable model, or convert a reported Nagelkerke R² or C-statistic to Cox–Snell R² (<a href="https://doi.org/10.1002/sim.8806" target="_blank">Riley et al., 2021</a>). The calculator checks precision of the overall outcome proportion, average prediction error when p ≤ 30, and protection against overfitting and optimism. For the outcome-proportion criterion, <em>m</em> is the desired absolute half-width of its 95% confidence interval: the default <em>m</em> = 0.05 means ±5 percentage points. The calculator also plots the traditional events-per-variable (EPV) rule so you can compare that rule of thumb with the model-based criteria. The EPV line is for reference and does not determine the final recommendation; its value of p counts predictor parameters rather than merely named predictors.</p>
+
+        <p>For a continuous outcome, specify the anticipated R². The calculator compares three requirements: limiting shrinkage of predictor effects, limiting the difference between apparent and adjusted R², and estimating the residual standard deviation with sufficient precision. The final recommendation is the largest sample size required by these three criteria.</p>
+
+        <p>The calculator displays the individual criteria and uses recommended targets by default. Change those targets only when your study requires a different degree of precision. Use conservative R² assumptions: an unrealistically strong anticipated model can produce a sample-size recommendation that is too small.</p>
+
+        <p>These formulas assume a prespecified regression-model development strategy. They are not a general guarantee for machine-learning pipelines that add adaptive feature selection, hyperparameter tuning, or comparison of many algorithms. For such workflows, simulation-based learning curves that reproduce the full development procedure may be more informative.</p>
+
+        <p>The sample size calculators complement the main E2P simulators in study planning: the E2P simulators explore relationships between effect sizes and predictive utility, while the sample-size module addresses development-data requirements for regression-based prediction models.</p>
 
         <h3>Prediction Models vs. Hypothesis Testing Sample Sizes</h3>
         <p>You may wonder how these prediction-focused sample size calculations compare to traditional power analysis used in hypothesis testing. The key difference is that power analysis focuses on detecting whether an effect exists, while prediction-focused calculations prioritize model reliability and performance on new data. This fundamental difference in goals typically leads to larger sample size requirements for prediction models.</p>
@@ -465,7 +473,7 @@
 
         <p>Discrimination tells you whether a model can separate cases from non-cases; calibration tells you whether the predicted probabilities themselves are accurate. A well-calibrated model is one for which people assigned a risk of 20% actually have an observed event rate close to 20%.</p>
 
-        <p>The calibration module in E2P Simulator shows what happens when a model is fit in one setting (the test set) and then applied in a different setting (the deployment set) with a different effect size, measurement reliability, and base rate.</p>
+        <p>The calibration module in E2P Simulator shows what happens when a model developed in one population is applied in a target population with a different effect size, predictor reliability, outcome reliability, or base rate.</p>
 
         <p>Given the normality of the distributions, predicted probabilities are computed analytically using Bayes' rule; the predicted probability of belonging to Group 2 for a predictor value x:</p>
 
@@ -483,9 +491,9 @@
             \]
         </div>
 
-        <p>&mu;<sub>1</sub> and &mu;<sub>2</sub> are the group means, while &sigma;<sub>1</sub> and &sigma;<sub>2</sub> are the group standard deviations implied by the selected reliabilities. The calibration curve is then generated by plotting the posterior probabilities from the test set against the posterior probabilities from the deployment set.</p>
+        <p>&mu;<sub>1</sub> and &mu;<sub>2</sub> are the group means, while &sigma;<sub>1</sub> and &sigma;<sub>2</sub> are the group standard deviations implied by the selected reliabilities. The calibration curve plots probabilities from the model developed in the first population against the corresponding outcome frequencies in the target population.</p>
 
-        <p>The Brier score is the population mean squared difference between the predicted probability and the binary outcome. The <a href="https://doi.org/10.1002/sim.8281" target="_blank">Integrated Calibration Index (ICI)</a> is the population mean absolute distance between predicted risk and the deployment event rate conditional on that predicted risk. Calibration intercept and slope are obtained from population logistic recalibration, \(\operatorname{logit}(P(Y=2)) = \alpha + \beta\operatorname{logit}(\hat{p})\), with ideal values \(\alpha=0\) and \(\beta=1\).</p>
+        <p>The Brier score is the population mean squared difference between the predicted probability and the binary outcome. The Integrated Calibration Index (ICI; <a href="https://doi.org/10.1002/sim.8281" target="_blank">Austin & Steyerberg, 2019</a>) is the population mean absolute distance between predicted risk and the target event rate conditional on that predicted risk. Calibration intercept and slope are obtained from population logistic recalibration, \(\operatorname{logit}(P(Y=2)) = \alpha + \beta\operatorname{logit}(\hat{p})\), with ideal values \(\alpha=0\) and \(\beta=1\).</p>
 
     </div>
 
@@ -499,6 +507,8 @@
     <div class="guide-section" id="references">
         <h2>References</h2>
         <ol style="font-size: 0.95em; line-height: 1.8;">
+            <li>Austin, P. C., & Steyerberg, E. W. (2019). The Integrated Calibration Index (ICI) and related metrics for quantifying the calibration of logistic regression models. <em>Statistics in Medicine, 38</em>(21), 4051-4065. <a href="https://doi.org/10.1002/sim.8281" target="_blank">https://doi.org/10.1002/sim.8281</a></li>
+
             <li>Brabec, J., Komárek, T., Franc, V., & Machlica, L. (2020). On model evaluation under non-constant class imbalance. <em>International Conference on Computational Science</em>, vol. 12140 (pp. 74-87). Springer, Cham. <a href="https://doi.org/10.1007/978-3-030-50423-6_6" target="_blank">https://doi.org/10.1007/978-3-030-50423-6_6</a></li>
             
             <li>Christodoulou, E., Ma, J., Collins, G. S., Steyerberg, E. W., Verbakel, J. Y., & Van Calster, B. (2019). A systematic review shows no performance benefit of machine learning over logistic regression for clinical prediction models. <em>Journal of Clinical Epidemiology, 110</em>, 12-22. <a href="https://doi.org/10.1016/j.jclinepi.2019.02.004" target="_blank">https://doi.org/10.1016/j.jclinepi.2019.02.004</a></li>
@@ -536,6 +546,12 @@
             <li>Regier, D. A., Narrow, W. E., Clarke, D. E., Kraemer, H. C., Kuramoto, S. J., Kuhl, E. A., & Kupfer, D. J. (2013). DSM-5 field trials in the United States and Canada, Part II: Test-retest reliability of selected categorical diagnoses. <em>American Journal of Psychiatry, 170</em>(1), 59-70. <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">https://doi.org/10.1176/appi.ajp.2012.12070999</a></li>
             
             <li>Riley, R. D., Ensor, J., Snell, K. I. E., Harrell Jr, F. E., Martin, G. P., Reitsma, J. B., Moons, K. G. M., Collins, G., & van Smeden, M. (2020). Calculating the sample size required for developing a clinical prediction model. <em>BMJ, 368</em>, m441. <a href="https://doi.org/10.1136/bmj.m441" target="_blank">https://doi.org/10.1136/bmj.m441</a></li>
+
+            <li>Riley, R. D., Snell, K. I. E., Ensor, J., Burke, D. L., Harrell Jr, F. E., Moons, K. G. M., & Collins, G. S. (2019). Minimum sample size for developing a multivariable prediction model: Part I—continuous outcomes. <em>Statistics in Medicine, 38</em>(7), 1262–1275. <a href="https://doi.org/10.1002/sim.7993" target="_blank">https://doi.org/10.1002/sim.7993</a></li>
+
+            <li>Riley, R. D., Snell, K. I. E., Ensor, J., Burke, D. L., Harrell Jr, F. E., Moons, K. G. M., & Collins, G. S. (2019). Minimum sample size for developing a multivariable prediction model: Part II—binary and time-to-event outcomes. <em>Statistics in Medicine, 38</em>(7), 1276–1296. <a href="https://doi.org/10.1002/sim.7992" target="_blank">https://doi.org/10.1002/sim.7992</a></li>
+
+            <li>Riley, R. D., Van Calster, B., & Collins, G. S. (2021). A note on estimating the Cox-Snell R² from a reported C statistic (AUROC) to inform sample size calculations for developing a prediction model with a binary outcome. <em>Statistics in Medicine, 40</em>(4), 859-864. <a href="https://doi.org/10.1002/sim.8806" target="_blank">https://doi.org/10.1002/sim.8806</a></li>
             
             <li>Roach, B. J., Carrión, R. E., Hamilton, H. K., Bachman, P., Belger, A., Duncan, E., Johannesen, J., Light, G. A., Niznikiewicz, M., Addington, J., Bearden, C. E., Cadenhead, K. S., Cannon, T. D., Cornblatt, B. A., McGlashan, T. H., Perkins, D. O., Seidman, L. J., Tsuang, M. T., Walker, E. F., ... Mathalon, D. H. (2020). Reliability of mismatch negativity event-related potentials in a multisite, traveling subjects study. <em>Clinical Neurophysiology, 131</em>(12), 2899-2909. <a href="https://doi.org/10.1016/j.clinph.2020.09.027" target="_blank">https://doi.org/10.1016/j.clinph.2020.09.027</a></li>
             

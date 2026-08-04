@@ -6,6 +6,7 @@ module.exports = defineConfig({
     specPattern: [
       "cypress/e2e/binary-tests.cy.js",
       "cypress/e2e/continuous-tests.cy.js",
+      "cypress/e2e/supporting-modules-tests.cy.js",
     ],
     setupNodeEvents(on, config) {
       // implement node event listeners here

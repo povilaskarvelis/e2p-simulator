@@ -1,6 +1,6 @@
 (function() {
 // Calibration Module for E2P Simulator
-// Explores calibration drift from test set to deployment
+// Explores calibration drift from a development population to a target population
 
 // ============================================================================
 // Constants and Configuration
@@ -25,21 +25,21 @@ const CONFIG = {
 // ============================================================================
 
 let state = {
-    // Test set parameters
+    // Source-population parameters (legacy DOM IDs retain "test")
     testEffectSize: CONFIG.defaultTestEffectSize,
     testICC1: CONFIG.defaultTestICC1,
     testICC2: CONFIG.defaultTestICC2,
     testKappa: CONFIG.defaultTestKappa,
     testBaseRate: CONFIG.defaultTestBaseRate,
     
-    // Deployment set parameters
+    // Target-population parameters (legacy DOM IDs retain "deploy")
     deploymentEffectSize: CONFIG.defaultDeploymentEffectSize,
     deploymentICC1: CONFIG.defaultDeploymentICC1,
     deploymentICC2: CONFIG.defaultDeploymentICC2,
     deploymentKappa: CONFIG.defaultDeploymentKappa,
     deploymentBaseRate: CONFIG.defaultDeploymentBaseRate,
     
-    // Model parameters (fitted on test set)
+    // Model parameters implied by the development population
     modelBeta0: null,
     modelBeta1: null,
     
@@ -280,7 +280,7 @@ function calculateDistributionParams(effectSize, icc1, icc2, kappa, baseRate) {
 // ============================================================================
 
 function fitLogisticModel() {
-    // Store test set distribution parameters for Bayesian prediction
+    // Store development-population distribution parameters for Bayesian prediction
     // This explicitly uses variance information from ICC values
     const params = state.testData.distParams;
     
@@ -560,7 +560,7 @@ function calculateAnalyticalMetrics() {
     for (let i = 0; i < nPoints; i++) {
         const x = xMin + (i + 0.5) * dx;
         
-        // Predicted probability from test set parameters
+        // Predicted probability from development-population parameters
         const likelihood0_test = normalPDF(x, testParams.group0.mean, testParams.group0.stdDev);
         const likelihood1_test = normalPDF(x, testParams.group1.mean, testParams.group1.stdDev);
         const prior0_test = 1 - testParams.baseRate;
@@ -568,7 +568,7 @@ function calculateAnalyticalMetrics() {
         const denom_test = likelihood0_test * prior0_test + likelihood1_test * prior1_test;
         const pPred = denom_test > 1e-300 ? (likelihood1_test * prior1_test) / denom_test : testParams.baseRate;
         
-        // True probability from deployment set parameters
+        // True probability from target-population parameters
         const likelihood0_deploy = normalPDF(x, deployParams.group0.mean, deployParams.group0.stdDev);
         const likelihood1_deploy = normalPDF(x, deployParams.group1.mean, deployParams.group1.stdDev);
         const prior0_deploy = 1 - deployParams.baseRate;
@@ -576,7 +576,7 @@ function calculateAnalyticalMetrics() {
         const denom_deploy = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
         const pTrue = denom_deploy > 1e-300 ? (likelihood1_deploy * prior1_deploy) / denom_deploy : deployParams.baseRate;
         
-        // Weight by the marginal density in deployment set (how often we see this x value)
+        // Weight by the target-population marginal density (how often x occurs)
         const weight = likelihood0_deploy * prior0_deploy + likelihood1_deploy * prior1_deploy;
         
         if (weight > 1e-300) {
@@ -616,7 +616,7 @@ function plotTestDistributions() {
         xValues.push(x);
     }
     
-    // Test set distributions
+    // Source-population distributions
     const testParams = state.testData.distParams;
     const testGroup0Y = xValues.map(x => 
         normalPDF(x, testParams.group0.mean, testParams.group0.stdDev) * (1 - testParams.baseRate)
@@ -652,7 +652,7 @@ function plotTestDistributions() {
     
     const layout = {
         title: {
-            text: 'Test Set',
+            text: 'Development Population',
             font: { size: 16 },
             xanchor: 'left',
             yanchor: 'top',
@@ -768,7 +768,7 @@ function plotDeploymentDistributions() {
         xValues.push(x);
     }
     
-    // Deployment set distributions
+    // Target-population distributions
     const deployParams = state.deploymentData.distParams;
     const deployGroup0Y = xValues.map(x => 
         normalPDF(x, deployParams.group0.mean, deployParams.group0.stdDev) * (1 - deployParams.baseRate)
@@ -804,7 +804,7 @@ function plotDeploymentDistributions() {
     
     const layout = {
         title: {
-            text: 'Deployment Set',
+            text: 'Target Population',
             font: { size: 16 },
             xanchor: 'left',
             yanchor: 'top',
@@ -901,13 +901,13 @@ function plotCalibration() {
     
     const layout = {
         xaxis: {
-            title: 'Predicted Probability (from Test Set)',
+            title: 'Predicted Probability (development model)',
             range: [0, 1],
             zeroline: true,
             showgrid: false
         },
         yaxis: {
-            title: 'Observed Frequency (in Deployment)',
+            title: 'Observed Frequency (target population)',
             range: [0, 1],
             zeroline: true,
             showgrid: false
@@ -1201,10 +1201,10 @@ function updateAll() {
     generateTestData();
     generateDeploymentData();
     
-    // Fit model on test set
+    // Define the prediction rule from the development population
     fitLogisticModel();
     
-    // Calculate calibration on deployment set
+    // Calculate calibration in the target population
     calculateCalibration();
     
     // Update plots
@@ -1252,14 +1252,14 @@ function setupControl(sliderId, numberId, stateKey, options = {}) {
         }
     }
     
-    // Test set controls
+    // Source-population controls
     setupControl('calib-test-effectsize-slider', 'calib-test-effectsize-number', 'testEffectSize', { decimals: 1 });
     setupControl('calib-test-icc1-slider', 'calib-test-icc1-number', 'testICC1', { decimals: 2 });
     setupControl('calib-test-icc2-slider', 'calib-test-icc2-number', 'testICC2', { decimals: 2 });
     setupControl('calib-test-kappa-slider', 'calib-test-kappa-number', 'testKappa', { decimals: 2 });
     setupControl('calib-test-baserate-slider', 'calib-test-baserate-number', 'testBaseRate', { decimals: 1, isPercentage: true });
     
-    // Deployment set controls
+    // Target-population controls
     setupControl('calib-deploy-effectsize-slider', 'calib-deploy-effectsize-number', 'deploymentEffectSize', { decimals: 1 });
     setupControl('calib-deploy-icc1-slider', 'calib-deploy-icc1-number', 'deploymentICC1', { decimals: 2 });
     setupControl('calib-deploy-icc2-slider', 'calib-deploy-icc2-number', 'deploymentICC2', { decimals: 2 });

@@ -517,11 +517,17 @@ input.slider-value,
 #ss-cont-container .equation-box.flat {
     margin: 0;
     padding: 0;
+    min-height: 60px;
 }
 
 #ss-binary-container .equation-box.flat .equation-title,
 #ss-cont-container .equation-box.flat .equation-title {
-    margin-bottom: 2px;
+    margin: 0 0 2px;
+}
+
+#ss-binary-container .equation-content mjx-container[display="true"],
+#ss-cont-container .equation-content mjx-container[display="true"] {
+    margin: 0.5em 0 0.25em !important;
 }
 
 /* ==========================================================================
@@ -578,6 +584,34 @@ input.slider-value,
     width: auto;
     flex: 0 0 38%;
     max-width: 38%;
+}
+
+#ss-binary-container .section.sliders,
+#ss-cont-container .section.sliders {
+    padding-top: 24px;
+    padding-bottom: 20px;
+}
+
+#ss-binary-container .form-container,
+#ss-cont-container .form-container {
+    gap: 10px;
+}
+
+#ss-binary-container .input-separator,
+#ss-cont-container .input-separator {
+    margin: 2px 0;
+}
+
+#ss-binary-container .input-separator + .equation-box.flat,
+#ss-cont-container .input-separator + .equation-box.flat {
+    margin-top: 12px;
+}
+
+#ss-binary-container .equation-box.flat + .slider-container,
+#ss-cont-container .equation-box.flat + .slider-container,
+#ss-binary-container .equation-box.flat + .input-separator,
+#ss-cont-container .equation-box.flat + .input-separator {
+    margin-top: -7px;
 }
 
 /* Ensure the plots section grows wider than inputs */
@@ -990,12 +1024,6 @@ body.get-started-page {
     margin: 34px 0 12px;
 }
 
-.guide-section--examples h3 {
-    margin-top: 46px;
-    padding-top: 30px;
-    border-top: 1px solid #d9dde2;
-}
-
 .guide-section p {
     line-height: 1.65;
     margin-bottom: 15px;
@@ -1188,6 +1216,69 @@ input[type="range"]::-webkit-slider-thumb {
     .slider-label {
         margin-right: 10px;
     }
+}
+
+/* Match criterion-specific sample-size controls to their chart series. */
+.criterion-slider--epv {
+    --criterion-slider-color: #888888;
+}
+
+.criterion-slider--risk-precision {
+    --criterion-slider-color: #008080;
+}
+
+.criterion-slider--binary-shrinkage {
+    --criterion-slider-color: #E63946;
+}
+
+.criterion-slider--mape,
+.criterion-slider--continuous-optimism {
+    --criterion-slider-color: #FFA726;
+}
+
+.criterion-slider--continuous-shrinkage {
+    --criterion-slider-color: #E63946;
+}
+
+.criterion-slider--binary-optimism {
+    --criterion-slider-color: #1E88E5;
+}
+
+input[type="range"].criterion-slider {
+    color: var(--criterion-slider-color);
+    accent-color: var(--criterion-slider-color) !important;
+}
+
+input[type="range"].criterion-slider::-webkit-slider-thumb {
+    background: var(--criterion-slider-color);
+}
+
+/* WebKit paints a black remainder for bright yellow accent colors. Override
+   only the two yellow criterion tracks, matching the existing slider geometry
+   and the light-gray remainder used by the other controls. */
+input[type="range"].criterion-slider--mape::-webkit-slider-runnable-track,
+input[type="range"].criterion-slider--continuous-optimism::-webkit-slider-runnable-track {
+    height: 8px;
+    border: 1px solid #b8b8b8;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(
+        to right,
+        var(--criterion-slider-color) 0,
+        var(--criterion-slider-color) var(--criterion-slider-progress, 0%),
+        #f5f5f5 var(--criterion-slider-progress, 0%),
+        #f5f5f5 100%
+    );
+}
+
+input[type="range"].criterion-slider--mape::-webkit-slider-thumb,
+input[type="range"].criterion-slider--continuous-optimism::-webkit-slider-thumb {
+    margin-top: -4px;
+}
+
+input[type="range"].criterion-slider::-moz-range-progress,
+input[type="range"].criterion-slider::-moz-range-thumb {
+    background: var(--criterion-slider-color);
 }
 
 .github-link {

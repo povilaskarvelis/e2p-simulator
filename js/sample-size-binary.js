@@ -1,32 +1,26 @@
 // Binary outcome sample size calculator (Riley et al., BMJ 2020)
-// Computes n from three criteria and displays summary + simple charts
+// Computes the BMJ binary-outcome criteria while presenting one educational result
 
 (function(){
-    function zForCI(ci){
-        const level = parseFloat(ci);
-        if (level >= 0.999) return 3.29;
-        if (level >= 0.99) return 2.576;
-        if (level >= 0.95) return 1.96;
-        if (level >= 0.90) return 1.645;
-        return 1.96;
-    }
-
-    function clamp01(x){ return Math.max(0, Math.min(1, x)); }
-
     function computeShrinkageN(p, S, r2cs){
-        // Riley et al. formula: n = p / ((S-1) × [ln(1-R²_CS/S)])
-        const denominator = (S - 1) * Math.log(1 - r2cs / S);
-        if (!isFinite(denominator) || denominator <= 0) return NaN;
-        return p / denominator;
+        return window.E2PStatCore.binaryShrinkageSampleSize(p, r2cs, S);
     }
 
-    function computeOptimismN(p, delta, r2cs){
-        const k = -Math.log(1 - r2cs);
-        if (!isFinite(k) || k <= 0) return NaN;
-        return p / (delta * k);
+    function computeOptimismN(p, delta, r2cs, prevalence){
+        return window.E2PStatCore.binaryNagelkerkeOptimismSampleSize(
+            p,
+            r2cs,
+            prevalence,
+            delta
+        );
     }
 
-    // Removed mean risk precision criterion from calculations/plots
+    function computeRiskPrecisionN(prevalence, margin){
+        return window.E2PStatCore.binaryOverallRiskSampleSize(
+            prevalence,
+            margin
+        );
+    }
 
     // Mean absolute prediction error criterion (B2) based on van Smeden et al. (2016)
     // ln(MAPE) = -0.508 - 0.544 ln(n) + 0.259 ln(phi) + 0.504 ln(P)
@@ -54,11 +48,6 @@
         if (el.tagName === 'SELECT' || el.type === 'select-one') return el.value;
         const v = parseFloat(el.value);
         return isNaN(v) ? null : v;
-    }
-
-    function setHTML(id, text){
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
     }
 
     function formatPercentage(proportion){
@@ -103,8 +92,18 @@
         const s = document.getElementById(sliderId);
         const i = document.getElementById(inputId);
         if (!s || !i) return;
-        s.addEventListener('input', () => { i.value = s.value; update(); });
-        i.addEventListener('input', () => { s.value = i.value; update(); });
+        const updateTrack = () => {
+            if (!s.classList.contains('criterion-slider--mape')) return;
+            const min = Number(s.min);
+            const max = Number(s.max);
+            const progress = Math.max(0, Math.min(100,
+                ((Number(s.value) - min) / (max - min)) * 100
+            ));
+            s.style.setProperty('--criterion-slider-progress', `${progress}%`);
+        };
+        s.addEventListener('input', () => { i.value = s.value; updateTrack(); update(); });
+        i.addEventListener('input', () => { s.value = i.value; updateTrack(); update(); });
+        updateTrack();
     }
 
     function drawMultiLineChart(canvasId, xs, series, chartTitle, xAxisTitle, pVal){
@@ -161,13 +160,22 @@
     }
 
     function update(){
-        const p = val('ssb-p');
+        const pValue = val('ssb-p');
         const prevInput = val('ssb-prevalence');
         const S = val('ssb-shrinkage');
-        const targetEPP = Math.max(1, val('ssb-epp')) || 10;
+        const targetEPV = Math.max(1, Math.round(val('ssb-epv') || 10));
         const targetMAPE = Math.max(0.001, Math.min(0.2, val('ssb-mape') || 0.05));
+        const targetR2Difference = Math.max(
+            0.005,
+            Math.min(0.1, val('ssb-r2-difference') || 0.05)
+        );
+        const riskMargin = Math.max(
+            0.005,
+            Math.min(0.2, val('ssb-risk-margin') || 0.05)
+        );
 
-        if (p == null || prevInput == null || S == null || targetMAPE == null) return;
+        if (pValue == null || prevInput == null || S == null || targetMAPE == null) return;
+        const p = Math.max(1, Math.round(pValue));
         const prevPct = Math.max(0.001, Math.min(0.999, percentageToFraction(prevInput)));
         const limit = window.E2PStatCore.selectableCoxSnellR2Limit(prevPct, S);
         const r2Input = document.getElementById('ssb-r2cs');
@@ -202,12 +210,6 @@
         setCoxSnellMessage(validation, limit, prevPct, S);
 
         if (!validation.valid) {
-            setHTML('ssb-n-s', '-');
-            setHTML('ssb-n-required', '-');
-            setHTML('ssb-events', '-');
-            setHTML('ssb-nonevents', '-');
-            setHTML('ssb-epp', '-');
-
             const tableContainer = document.getElementById('ssb-results-table');
             if (tableContainer) {
                 tableContainer.textContent = '';
@@ -222,26 +224,49 @@
         }
 
         const nS = computeShrinkageN(p, S, r2cs);
-        const nMAPE = (p <= 30) ? computeMapeN(p, targetMAPE, prevPct) : 0;
-        const nRequired = Math.max(nS||0, nMAPE||0);
+        const nOptimism = computeOptimismN(
+            p,
+            targetR2Difference,
+            r2cs,
+            prevPct
+        );
+        const nRisk = computeRiskPrecisionN(prevPct, riskMargin);
+        const nMAPE = (p <= 30) ? computeMapeN(p, targetMAPE, prevPct) : NaN;
+        const nOverfitting = Math.max(nS, nOptimism);
+        const conceptualCriteria = [
+            {
+                label: 'Estimating the overall outcome proportion precisely',
+                value: nRisk
+            },
+            {
+                label: 'Limiting average prediction error',
+                value: nMAPE
+            },
+            {
+                label: 'Limiting overfitting and optimism',
+                value: nOverfitting
+            }
+        ].filter((criterion) => Number.isFinite(criterion.value));
+        const nRequired = Math.ceil(
+            Math.max(...conceptualCriteria.map((criterion) => criterion.value))
+        );
 
-        setHTML('ssb-n-s', formatInt(nS));
-        // Removed R² optimism output
-        setHTML('ssb-n-required', formatInt(nRequired));
-
-        const events = (nRequired * prevPct);
-        const nonevents = nRequired - events;
-        const epp = events / Math.max(1, p);
-        setHTML('ssb-events', formatInt(events));
-        setHTML('ssb-nonevents', formatInt(nonevents));
-        setHTML('ssb-epp', isFinite(epp) ? (Math.floor(epp*10)/10).toString() : '-');
+        const nEPV = (targetEPV * p) / prevPct;
 
         // Update results summary table
         const tableContainer = document.getElementById('ssb-results-table');
         if (tableContainer) {
-            const nEPP = (targetEPP * p) / Math.max(1e-6, prevPct);
-            const isSHigher = nS >= (nMAPE || 0);
-            const isMAPEHigher = !isSHigher;
+            const isHighest = (value) =>
+                Number.isFinite(value) && Math.ceil(value) === nRequired;
+            const mapeValue = Number.isFinite(nMAPE)
+                ? formatInt(nMAPE)
+                : 'Not available';
+            const mapeBoundaryNote = p > 30
+                ? `<div class="summary-reference">
+                    MAPE applies only through 30 predictor parameters and is omitted here.
+                    The change after 30 reflects that limit, not a benefit of adding parameters.
+                </div>`
+                : '';
 
             tableContainer.innerHTML = `
                 <div class="summary-main">
@@ -251,43 +276,111 @@
                 <div class="summary-detail">
                     <p class="summary-detail-header">Based on the maximum of:</p>
                     <div class="summary-detail-row">
-                        <div class="summary-item ${isSHigher ? 'highlight' : ''}">
-                            <span class="item-label">Shrinkage (S)</span>
+                        <div class="summary-item ${isHighest(nRisk) ? 'highlight' : ''}">
+                            <span class="item-label">Outcome proportion precision</span>
+                            <span class="item-value">${formatInt(nRisk)}</span>
+                        </div>
+                        <div class="summary-item ${isHighest(nMAPE) ? 'highlight' : ''}">
+                            <span class="item-label">MAPE</span>
+                            <span class="item-value">${mapeValue}</span>
+                        </div>
+                        <div class="summary-item ${isHighest(nS) ? 'highlight' : ''}">
+                            <span class="item-label">Shrinkage</span>
                             <span class="item-value">${formatInt(nS)}</span>
                         </div>
-                        <div class="summary-item ${isMAPEHigher ? 'highlight' : ''}">
-                            <span class="item-label">MAPE (&delta;)</span>
-                            <span class="item-value">${formatInt(nMAPE)}</span>
+                        <div class="summary-item ${isHighest(nOptimism) ? 'highlight' : ''}">
+                            <span class="item-label">R² optimism</span>
+                            <span class="item-value">${formatInt(nOptimism)}</span>
                         </div>
                     </div>
                 </div>
                 <div class="summary-reference">
-                    <span class="ref-label">EPV = ${targetEPP} (for reference only):</span>
-                    <span class="ref-value">N = ${formatInt(nEPP)}</span>
+                    EPV rule (${targetEPV} events per predictor parameter): N = ${formatInt(nEPV)}.
                 </div>
+                ${mapeBoundaryNote}
             `;
         }
 
-        // Chart: superimpose 4 criteria vs p
+        // Chart: retain the criterion-specific lines. In particular, MAPE ends
+        // at p = 30 rather than producing an artificial drop in a maximum line.
         const xsP = [];
-        const series = [];
-        // Use consistent Mahalanobis color palette order
-        const palette = ['#888888', '#008080', '#E63946', '#FFA726', '#1E88E5', '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'];
+        const ysRisk = [];
+        const ysEPV = [];
+        const ysMAPE = [];
+        const ysShrinkage = [];
+        const ysOptimism = [];
         const pMax = p;
-        const step = Math.max(1, Math.floor(pMax/20));
-        const ysS = [], ysEPP = [], ysMAPE = [];
-        for (let pp = 1; pp <= pMax; pp += step) {
+        for (let pp = 1; pp <= pMax; pp += 1) {
             xsP.push(pp);
-            ysS.push(computeShrinkageN(pp, S, r2cs));
-            // Reference: EPP target => n = EPP * p / prevalence
-            ysEPP.push((targetEPP * pp) / Math.max(1e-6, prevPct));
-            ysMAPE.push(pp <= 30 ? computeMapeN(pp, targetMAPE, prevPct) : NaN);
+            ysRisk.push(computeRiskPrecisionN(prevPct, riskMargin));
+            ysEPV.push((targetEPV * pp) / prevPct);
+            ysMAPE.push(
+                pp <= 30 ? computeMapeN(pp, targetMAPE, prevPct) : null
+            );
+            ysShrinkage.push(computeShrinkageN(pp, S, r2cs));
+            ysOptimism.push(
+                computeOptimismN(pp, targetR2Difference, r2cs, prevPct)
+            );
         }
-        // Order series so EPV appears first, Shrinkage second, MAPE third, all using palette
-        series.push({ label: `EPV (${targetEPP})`, data: ysEPP, borderColor: palette[0], pointBackgroundColor: palette[0], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });
-        series.push({ label: 'Shrinkage (S)', data: ysS, borderColor: palette[1], pointBackgroundColor: palette[1], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });
-        series.push({ label: 'MAPE (δ)', data: ysMAPE, borderColor: palette[2], pointBackgroundColor: palette[2], pointRadius: 5, pointStyle: 'circle', borderWidth: 2, tension: 0.2, fill: false });
-        drawMultiLineChart('ssbPlot', xsP, series, 'Required sample size by criterion vs predictor parameters (p)', 'Number of predictors (p)', p);
+        const series = [
+            {
+                label: `EPV rule of thumb (${targetEPV})`,
+                data: ysEPV,
+                borderColor: '#888888',
+                pointBackgroundColor: '#888888',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            },
+            {
+                label: 'Overall outcome proportion precision',
+                data: ysRisk,
+                borderColor: '#008080',
+                pointBackgroundColor: '#008080',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            },
+            {
+                label: 'Shrinkage',
+                data: ysShrinkage,
+                borderColor: '#E63946',
+                pointBackgroundColor: '#E63946',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            },
+            {
+                label: 'Average prediction error (MAPE; p ≤ 30)',
+                data: ysMAPE,
+                borderColor: '#FFA726',
+                pointBackgroundColor: '#FFA726',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                spanGaps: false,
+                fill: false
+            },
+            {
+                label: 'Nagelkerke R² optimism',
+                data: ysOptimism,
+                borderColor: '#1E88E5',
+                pointBackgroundColor: '#1E88E5',
+                pointRadius: 5,
+                pointStyle: 'circle',
+                borderWidth: 2,
+                tension: 0.2,
+                fill: false
+            }
+        ];
+        drawMultiLineChart('ssbPlot', xsP, series, '', 'Predictor parameters (p)', p);
     }
 
     function init(){
@@ -295,13 +388,13 @@
             ['ssb-p-slider','ssb-p'],
             ['ssb-r2cs-slider','ssb-r2cs'],
             ['ssb-prevalence-slider','ssb-prevalence'],
+            ['ssb-epv-slider','ssb-epv'],
             ['ssb-shrinkage-slider','ssb-shrinkage'],
-            ['ssb-epp-slider','ssb-epp'],
+            ['ssb-r2-difference-slider','ssb-r2-difference'],
+            ['ssb-risk-margin-slider','ssb-risk-margin'],
             ['ssb-mape-slider','ssb-mape'],
         ];
         pairs.forEach(([a,b])=>syncPair(a,b));
-        const ci = document.getElementById('ssb-ci');
-        if (ci) ci.addEventListener('change', update);
         if (window.MathJax && window.MathJax.typeset) {
             window.MathJax.typeset();
         }

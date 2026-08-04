@@ -35,21 +35,21 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Error during mobile detection:", e);
     }
 
-    // Helper to toggle sample size sections by mode
+    // Keep the outcome-specific sample-size calculator aligned with the global mode.
+    // Calibration is independent of this toggle.
     function toggleSampleSizeSections(mode) {
         try {
             const ssBinary = document.getElementById('ss-binary-container');
             const ssCont = document.getElementById('ss-cont-container');
-            if (!ssBinary || !ssCont) return;
             if (mode === 'binary') {
-                ssBinary.classList.remove('u-hidden');
-                ssCont.classList.add('u-hidden');
+                ssBinary?.classList.remove('u-hidden');
+                ssCont?.classList.add('u-hidden');
             } else if (mode === 'continuous') {
-                ssBinary.classList.add('u-hidden');
-                ssCont.classList.remove('u-hidden');
+                ssBinary?.classList.add('u-hidden');
+                ssCont?.classList.remove('u-hidden');
             }
         } catch (e) {
-            console.error('Error toggling sample size sections:', e);
+            console.error('Error toggling sample-size sections:', e);
         }
     }
 
