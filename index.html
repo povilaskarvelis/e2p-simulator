@@ -400,22 +400,22 @@
                     <div>
                         <div class="index-metric-stack index-metric-stack--mb5">
                             <div class="slider-container index-slider-container--flush-b">
-                                <input type="range" id="targetRocAuc-slider" min="0.5" max="1" step="0.01" value="0.96" class="slider">
+                                <input type="range" id="targetRocAuc-slider" min="0.5" max="0.999" step="0.001" value="0.965" class="slider">
                                 <div class="slider-value-container">
                                     <span class="slider-label">Target ROC-AUC</span>
-                                    <input type="number" id="targetRocAuc" step="0.01" value="0.96" class="slider-value">
+                                    <input type="number" id="targetRocAuc" min="0.5" max="0.999" step="0.001" value="0.965" class="slider-value">
                                 </div>
                             </div>
                             <div class="slider-value-container index-slider-value--flush-t">
                                 <span class="slider-label">Target PR-AUC</span>
-                                <input type="number" id="target-pr-auc" class="metrics-input" step="any" readonly="">
+                                <input type="number" id="target-pr-auc" min="0.001" max="0.999" step="0.01" class="slider-value">
                             </div>
                         </div>
                         <div class="slider-container">
-                            <input type="range" id="mahalanobis-base-rate-slider" min="0.1" max="99.9" step="0.1" value="10" class="slider">
+                            <input type="range" id="mahalanobis-base-rate-slider" min="0.1" max="99.9" step="0.1" value="8" class="slider">
                             <div class="slider-value-container">
                                 <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
-                                <input type="number" id="mahalanobis-base-rate" min="0.1" max="99.9" step="0.1" value="10" class="slider-value">
+                                <input type="number" id="mahalanobis-base-rate" min="0.1" max="99.9" step="0.1" value="8" class="slider-value">
                             </div>
                         </div>
                     </div>
@@ -433,10 +433,10 @@
 
                     <!-- Correlation slider -->
                     <div class="slider-container">
-                        <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.1" class="slider">
+                        <input type="range" id="correlation-slider" min="0" max="1" step="0.01" value="0.05" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Collinearity among predictors (&rho;)</span>
-                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.1" class="slider-value">
+                            <input type="number" id="correlation" min="0" max="1" step="0.01" value="0.05" class="slider-value">
                         </div>
                     </div>
                     
@@ -766,24 +766,24 @@
                     <div>
                         <div class="index-metric-stack index-metric-stack--mb5">
                             <div class="slider-container index-slider-container--flush-b">
-                                <input type="range" id="target-r2-slider" min="0.1" max="0.99" step="0.01" value="0.8" class="slider">
+                                <input type="range" id="target-r2-slider" min="0.001" max="0.99" step="0.001" value="0.8" class="slider">
                                 <div class="slider-value-container">
                                     <span class="slider-label">Target R²</span>
-                                    <input type="number" id="target-r2" min="0.1" max="0.99" step="0.01" value="0.8" class="slider-value">
+                                    <input type="number" id="target-r2" min="0.001" max="0.99" step="0.001" value="0.8" class="slider-value">
                                 </div>
                             </div>
                             <div class="slider-value-container index-slider-value--flush-t">
                                 <span class="slider-label">Target PR-AUC</span>
-                                <input type="number" id="r2-target-pr-auc" class="metrics-input" step="any" readonly="">
+                                <input type="number" id="r2-target-pr-auc" min="0.001" max="0.999" step="0.01" class="slider-value">
                             </div>
                         </div>
                         
                         <!-- Base Rate slider -->
                         <div class="slider-container">
-                            <input type="range" id="r2-base-rate-slider" min="0.1" max="99.9" step="0.1" value="15" class="slider">
+                            <input type="range" id="r2-base-rate-slider" min="0.1" max="99.9" step="0.1" value="40" class="slider">
                             <div class="slider-value-container">
                                 <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
-                                <input type="number" id="r2-base-rate" min="0.1" max="99.9" step="0.1" value="15" class="slider-value">
+                                <input type="number" id="r2-base-rate" min="0.1" max="99.9" step="0.1" value="40" class="slider-value">
                             </div>
                         </div>
                     </div>
@@ -792,19 +792,19 @@
 
                     <!-- Predictor correlation slider -->
                     <div class="slider-container">
-                        <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.25" class="slider">
+                        <input type="range" id="predictor-correlation-slider" min="0.1" max="0.9" step="0.01" value="0.4" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Correlation of each predictor (r)</span>
-                            <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.25" class="slider-value">
+                            <input type="number" id="predictor-correlation" min="0.1" max="0.9" step="0.01" value="0.4" class="slider-value">
                         </div>
                     </div>
                     
                     <!-- Collinearity slider -->
                     <div class="slider-container">
-                        <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.05" class="slider">
+                        <input type="range" id="collinearity-slider" min="0" max="0.9" step="0.01" value="0.15" class="slider">
                         <div class="slider-value-container">
                             <span class="slider-label">Collinearity among predictors (&rho;)</span>
-                            <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.05" class="slider-value">
+                            <input type="number" id="collinearity" min="0" max="0.9" step="0.01" value="0.15" class="slider-value">
                         </div>
                     </div>
                     

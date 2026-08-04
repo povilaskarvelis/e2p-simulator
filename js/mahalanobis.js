@@ -10,8 +10,11 @@ const colors = [
     // Track active curves and chart instances
     let rocaucActiveCurve, prAucActiveCurve;
     let rocaucChart = null, prAucChart = null;
+    let targetPrAucUpdateTimer = null;
 
     function initializeMahalanobis() {
+        applyURLValues();
+
         const chartContainer = document.getElementById('chartContainer');
         chartContainer.style.display = 'flex';
         chartContainer.style.flexDirection = 'column';
@@ -54,6 +57,16 @@ const colors = [
         ['targetRocAuc-slider', 'mahalanobis-base-rate-slider', 'effectSize-slider', 'correlation-slider', 'numVariables-slider'].forEach(id => {
             const idRoot = id.replace('-slider', '');
             setupInputPair(id, idRoot);
+        });
+
+        const targetPrAucInput = document.getElementById('target-pr-auc');
+        targetPrAucInput.addEventListener('input', () => {
+            clearTimeout(targetPrAucUpdateTimer);
+            targetPrAucUpdateTimer = setTimeout(updateTargetFromPrAuc, 250);
+        });
+        targetPrAucInput.addEventListener('change', () => {
+            clearTimeout(targetPrAucUpdateTimer);
+            updateTargetFromPrAuc();
         });
 
     document.getElementById('record-mahalanobis').addEventListener('click', recordCurrentCurve);
@@ -209,6 +222,54 @@ const colors = [
         updateChart(rocaucChart, rocaucValues, targetRocAuc, 'Target ROC-AUC', numVariables, 0.5, 1);
         updateChart(prAucChart, prAucValues, StatUtils.dToPRAUC(targetD, baseRate), 'Target PR-AUC', numVariables, 0, 1);
         updateActiveCurveLabel();
+    }
+
+    function updateTargetFromPrAuc() {
+        const prAucInput = document.getElementById('target-pr-auc');
+        const requestedPrAuc = parseFloat(prAucInput.value);
+        if (!Number.isFinite(requestedPrAuc)) {
+            updatePlot();
+            return;
+        }
+
+        const baseRate = percentageToFraction(document.getElementById('mahalanobis-base-rate').value);
+        const targetRocAuc = findRocAucForPrAuc(requestedPrAuc, baseRate);
+        document.getElementById('targetRocAuc').value = targetRocAuc.toFixed(4);
+        document.getElementById('targetRocAuc-slider').value = targetRocAuc;
+        updatePlot();
+    }
+
+    function findRocAucForPrAuc(requestedPrAuc, baseRate) {
+        let lower = 0.5;
+        let upper = 0.999;
+        const minimumPrAuc = StatUtils.dToPRAUC(0, baseRate);
+        const maximumPrAuc = StatUtils.dToPRAUC(StatUtils.aucToD(upper), baseRate);
+        const targetPrAuc = Math.min(Math.max(requestedPrAuc, minimumPrAuc), maximumPrAuc);
+
+        for (let i = 0; i < 36; i++) {
+            const midpoint = (lower + upper) / 2;
+            const midpointPrAuc = StatUtils.dToPRAUC(StatUtils.aucToD(midpoint), baseRate);
+            if (midpointPrAuc < targetPrAuc) {
+                lower = midpoint;
+            } else {
+                upper = midpoint;
+            }
+        }
+
+        return (lower + upper) / 2;
+    }
+
+    function applyURLValues() {
+        if (typeof parseURLParams !== 'function') return;
+
+        const params = parseURLParams();
+        const parsedBaseRate = parseFloat(params.baseRate);
+        if (!Number.isFinite(parsedBaseRate)) return;
+
+        const percentValue = parsedBaseRate <= 1 ? parsedBaseRate * 100 : parsedBaseRate;
+        const clampedPercent = Math.min(Math.max(percentValue, 0.1), 99.9);
+        document.getElementById('mahalanobis-base-rate').value = clampedPercent;
+        document.getElementById('mahalanobis-base-rate-slider').value = clampedPercent;
     }
     
     function updateChart(chart, data, threshold, thresholdLabel, numVariables, yMin = 0, yMax = undefined) {

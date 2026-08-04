@@ -4,14 +4,15 @@
     let r2Datasets = [], prAucDatasets = [];
     let r2ActiveCurve, prAucActiveCurve;
     let nextColorIndex = 0;
+    let targetPrAucUpdateTimer = null;
     
     const colors = ['#008080', '#E63946', '#FFA726', '#1E88E5', '#9C27B0', '#00A896', '#26A69A', '#7B1FA2'];
 
     const initialValues = {
         targetR2: 0.8,
-        baseRate: 15, // Stored as percentage for UI controls
-        predictorCorrelation: 0.25,
-        collinearity: 0.05,
+        baseRate: 40, // Stored as percentage for UI controls
+        predictorCorrelation: 0.4,
+        collinearity: 0.15,
         numPredictors: 20
     };
 
@@ -19,6 +20,7 @@
     const getDOMElements = () => ({
         targetR2Input: document.getElementById('target-r2'),
         targetR2Slider: document.getElementById('target-r2-slider'),
+        targetPrAucInput: document.getElementById('r2-target-pr-auc'),
         r2BaseRateInput: document.getElementById('r2-base-rate'),
         r2BaseRateSlider: document.getElementById('r2-base-rate-slider'),
         predictorCorrelationInput: document.getElementById('predictor-correlation'),
@@ -34,6 +36,7 @@
     // --- Main Initialization ---
     function initializeR2Calculator() {
         const elements = getDOMElements();
+        applyURLValues(elements);
         setupEventListeners(elements);
         
         const chartContainer = document.getElementById('r2PlotContainer');
@@ -68,6 +71,15 @@
                 slider.value = input.value;
                 updatePlots();
             });
+        });
+
+        elements.targetPrAucInput.addEventListener('input', () => {
+            clearTimeout(targetPrAucUpdateTimer);
+            targetPrAucUpdateTimer = setTimeout(updateTargetFromPrAuc, 250);
+        });
+        elements.targetPrAucInput.addEventListener('change', () => {
+            clearTimeout(targetPrAucUpdateTimer);
+            updateTargetFromPrAuc();
         });
 
         elements.recordButton.addEventListener('click', recordCurrentCurve);
@@ -208,6 +220,55 @@
         updateChart(prAucChart, xValues, prAucValues, targetPrAuc, `Target PR-AUC: ${targetPrAuc.toFixed(2)}`);
         
         updateActiveCurveLabel();
+    }
+
+    function updateTargetFromPrAuc() {
+        const elements = getDOMElements();
+        const requestedPrAuc = parseFloat(elements.targetPrAucInput.value);
+        if (!Number.isFinite(requestedPrAuc)) {
+            updatePlots();
+            return;
+        }
+
+        const baseRate = percentageToFraction(elements.r2BaseRateInput.value);
+        const targetR2 = findR2ForPrAuc(requestedPrAuc, baseRate);
+        elements.targetR2Input.value = targetR2.toFixed(4);
+        elements.targetR2Slider.value = targetR2;
+        updatePlots();
+    }
+
+    function findR2ForPrAuc(requestedPrAuc, baseRate) {
+        let lower = 0;
+        let upper = 0.99;
+        const minimumPrAuc = StatUtils.rToPRAUCviaSimulation(0, baseRate);
+        const maximumPrAuc = StatUtils.rToPRAUCviaSimulation(Math.sqrt(upper), baseRate);
+        const targetPrAuc = Math.min(Math.max(requestedPrAuc, minimumPrAuc), maximumPrAuc);
+
+        for (let i = 0; i < 32; i++) {
+            const midpoint = (lower + upper) / 2;
+            const midpointPrAuc = StatUtils.rToPRAUCviaSimulation(Math.sqrt(midpoint), baseRate);
+            if (midpointPrAuc < targetPrAuc) {
+                lower = midpoint;
+            } else {
+                upper = midpoint;
+            }
+        }
+
+        return (lower + upper) / 2;
+    }
+
+    function applyURLValues(elements) {
+        if (typeof parseURLParams !== 'function') return;
+
+        const params = parseURLParams();
+        const parsedBaseRate = parseFloat(params.baseRate);
+        if (!Number.isFinite(parsedBaseRate)) return;
+
+        const percentValue = parsedBaseRate <= 1 ? parsedBaseRate * 100 : parsedBaseRate;
+        const clampedPercent = Math.min(Math.max(percentValue, 0.1), 99.9);
+        initialValues.baseRate = clampedPercent;
+        elements.r2BaseRateInput.value = clampedPercent;
+        elements.r2BaseRateSlider.value = clampedPercent;
     }
 
     function updateChart(chart, xValues, yValues, threshold, thresholdLabel) {

@@ -376,7 +376,7 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     // Predictor correlation slider remains unrestricted
     cy.get('#predictor-correlation-slider').invoke('val', 0.8).trigger('input');
     checkNumericValue('#predictor-correlation', '0.8');
-    checkNumericValue('#collinearity', '0.05');
+    checkNumericValue('#collinearity', '0.15');
     
     // Collinearity slider remains unrestricted
     cy.get('#collinearity-slider').invoke('val', 0.4).trigger('input');
