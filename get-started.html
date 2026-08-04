@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="e2p-loading">
 <head>
     <meta charset="utf-8">
     <meta name="description" content="Learn how to use E2P Simulator to translate effect sizes into predictive performance, account for reliability and base rates, and plan prediction studies.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E2P Simulator | Get Started</title>
+
+    <!-- Prevent a flash of unstyled or un-typeset content while the page initializes. -->
+    <style>
+        html { background-color: #f9f9f9; }
+        html.e2p-loading body { opacity: 0; }
+    </style>
+    <script>
+    (function () {
+        const reveal = () => document.documentElement.classList.remove('e2p-loading');
+        window.addEventListener('load', function () {
+            const mathReady = window.MathJax && window.MathJax.startup && window.MathJax.startup.promise;
+            if (mathReady && typeof mathReady.then === 'function') {
+                mathReady.then(reveal, reveal);
+            } else {
+                requestAnimationFrame(() => requestAnimationFrame(reveal));
+            }
+        }, { once: true });
+        document.addEventListener('DOMContentLoaded', function () {
+            window.setTimeout(reveal, 2500);
+        }, { once: true });
+    })();
+    </script>
+    <noscript><style>html.e2p-loading body { opacity: 1; }</style></noscript>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VDYP5LLPT5"></script>
@@ -340,10 +363,10 @@
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set the base rate to 51.1%. This is amyloid positivity prevalence in the clearance cohort, which consists targets individuals with mild cognitive impairment. Note, in practice we may expect this to vary between ~ 20% to 80% depending on the average age of the cohort (<a href="https://doi.org/10.1001/jama.2015.4668" target="_blank">Jansen et al., 2015</a>).</li>
+                    <li>Set the base rate to 51.1%. This is the amyloid positivity prevalence in the clearance cohort, which consists of individuals with mild cognitive impairment. Note, in practice we may expect this to vary between ~ 20% to 80% depending on the average age of the cohort (<a href="https://doi.org/10.1001/jama.2015.4668" target="_blank">Jansen et al., 2015</a>).</li>
                     <li>Set the outcome reliability to 0.9, which is the reliability of PET/CSF reference agreement used to confirm amyloid positivity in the clearance cohort (<a href="https://doi.org/10.1097/RLU.0000000000001693" target="_blank">Harn et al., 2017</a>).</li>
                     <li>Set the predictor reliability for both groups to 0.9 (test-retest reliability of the assay components; <a href="https://doi.org/10.1038/s41398-024-03084-7" target="_blank">Della Monica et al., 2024</a>).</li>
-                    <li>Setting the effect size in this case is a bit tricky because it is not reported. However, we can instead use the reported PPV and NPV. The report used two thresholds one for PPV and one for NPV, leaving ~20% of indeterminate cases for confirmatory PET/CSF. We only need to consider one of the thresholds to recreate the distributions: for the positive threshold they report 201/255 being true positives and 54/255 being false positives, which corresponds to PPV ≈ 0.92 and NPV ≈ 0.81. Now we adjust the effect size and classification threshld until we achieve these values.
+                    <li>Setting the effect size in this case is a bit tricky because it is not reported. However, we can instead use the reported PPV and NPV. The report used two thresholds, one for PPV and one for NPV, leaving ~20% of results indeterminate and requiring confirmatory PET/CSF. We only need to consider the positive threshold to recreate the distributions. The report shows 201 true positives and 18 false positives. If indeterminate and negative test results are grouped together as not positive, there are also 54 false negatives (49 + 5) and 226 true negatives (49 + 177). This gives PPV = 201/(201 + 18) ≈ 0.92 and NPV = 226/(226 + 54) ≈ 0.81. We then adjust the effect size and classification threshold until we achieve these values.
                        </li>
                 </ul>
             </li>
@@ -358,20 +381,20 @@
         <a class="example-button" href="index.html?mode=binary&amp;baseRate=0.511&amp;groupingReliability=0.9&amp;predictorReliabilityGroup1=0.9&amp;predictorReliabilityGroup2=0.9&amp;trueEffectSize=2.39&amp;label1=Amyloid%20negative&amp;label2=Amyloid%20positive&amp;xaxisLabel=p-tau217%2FA%CE%B242&amp;thresholdProb=0.68" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
 
         <h3>Example 2. Diagnostic Prediction: Depression</h3>
-        <p> Can we predict depression diagnosis using a cognitive biomarker?  </p>
+        <p>Suppose we want to use a cognitive biomarker to identify depression among adolescents in the general population. For this application, the relevant base rate is the prevalence of depression among adolescents, which is 8% (<a href="https://doi.org/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>). Consider finding a cognitive biomarker with Cohen's d = 0.8 between healthy controls and adolescents diagnosed with depression. Such an effect size is rare in practice and would conventionally be interpreted as “large”; for comparison, effects for some of the strongest cognitive markers of depression, including negative interpretation bias and reduced autobiographical memory specificity, are below d = 0.8 (<a href="https://doi.org/10.1016/j.cpr.2017.09.005" target="_blank">Everaert et al., 2017</a>; <a href="https://doi.org/10.1016/j.neubiorev.2023.105157" target="_blank">Weiss-Cowie et al., 2023</a>).</p>
         <ol>
             <li>In the Binary outcome mode:
                 <ul>
-                    <li>Set base rate to 8% (the base rate of depression in adolescents; <a href="https://doi.org/10.1111/bjc.12333" target="_blank">Shorey et al., 2022</a>)</li>
+                    <li>Set base rate to 8%.</li>
                     <li>Set the grouping reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.6 (an average reliability for cognitive measures; <a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
-                    <li>Set the observed effect size to d = 0.8 (a large effect size that is optimistic and rarely seen in practice)</li>
+                    <li>Set the observed effect size to d = 0.8.</li>
                 </ul>
             </li>
 
             <li>With these parameters, the observed Cohen's d = 0.8 will yield ROC-AUC = 0.71 and PR-AUC = 0.19. This means that even with a "large" effect size of 0.8, the predictive utility remains rather modest, especially when it comes to the tradeoff between PPV and Sensitivity (as shown by the low PR-AUC). Using the DCA plot to set the classification threshold to correspond to 15% risk, p<sub>t</sub> = 0.15, we obtain PPV = 0.22, Sensitivity = 0.31, and ΔNB = 0.009. At this threshold, 78% of positive classifications would be false positives while still missing 69% of actual cases; the ΔNB of 0.009 means only about 9 net true positives per 1,000 people when diagnosis is based on this biomarker.</li>
 
-            <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and in turn much better predictive performance, ROC-AUC = 0.87 and PR-AUC = 0.46, and PPV = 0.27, Sensitivity = 0.74, and ΔNB = 0.046 at p<sub>t</sub> = 0.1 (about 46 net true positives per 1,000 people when diagnosis is based on this biomarker), highlighting how much improvement in diagnostic prediction could be achieved simply by improving measurement reliability.</li>
+            <li>Note that with the low reliability values, this observed effect corresponds to a much larger true effect, d = 1.58, and in turn much better predictive performance, with ROC-AUC = 0.87 and PR-AUC = 0.46. To view this ideal-reliability scenario, select the True view and set p<sub>t</sub> = 0.10. This gives PPV = 0.27, Sensitivity = 0.74, and ΔNB = 0.041 (about 41 net true positives per 1,000 people when diagnosis is based on this biomarker), highlighting how much improvement in diagnostic prediction could be achieved by improving measurement reliability.</li>
 
             <li>We can further explore what it would take to achieve some higher threshold of performance, e.g., PR-AUC of 0.8. Using the tool, we can find that it would require ROC-AUC = 0.96. It would be rather unrealistic to expect a single biomarker to achieve this effect size. Using the multivariable simulator, you can explore how many predictors with smaller d values would be required to achieve a desired prediction performance.</li>
 
@@ -381,23 +404,23 @@
         
 
         <h3>Example 3. Treatment Response Prediction: Antidepressants</h3>
-        <p>Can we predict who will respond to antidepressant treatment using task-based brain activity measures?</p>
+        <p>Can multiple task-fMRI measures be combined in a multivariable model to predict antidepressant treatment response? Across recent studies, these models explain about 20% of the variance in treatment outcomes (<a href="https://doi.org/10.1162/netn_a_00233" target="_blank">Karvelis et al., 2022</a>). Here the outcome is symptom change measured on a continuous scale, while the clinical question divides patients into responders and non-responders. With treatment response as the positive group, the relevant base rate is the proportion of treated patients expected to respond. We use 40%, a typical antidepressant response rate (<a href="https://doi.org/10.1016/S2215-0366(16)30307-8" target="_blank">Furukawa et al., 2016</a>).</p>
         <ol>
             <li>Select Continuous outcome mode:
                 <ul>
-                    <li>Set base rate to 40% (typical antidepressant response rate; <a href="https://doi.org/10.1016/S2215-0366(16)30307-8" target="_blank">Furukawa et al., 2016</a>)</li>
+                    <li>Set base rate to 40%.</li>
                     <li>Set predictor reliability to 0.4 (average reliability for task-fMRI measures; <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">Elliott et al., 2020</a>)</li>
                     <li>Set outcome reliability to 0.94 (HAMD reliability; <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">Trajković et al., 2011</a>)</li>
-                    <li>Adjust effect size such that R² = 0.2 (average multivariate R² from recent research; <a href="https://doi.org/10.1162/netn_a_00233" target="_blank">Karvelis et al., 2022</a>)</li>
+                    <li>Set the true correlation to r = 0.73, which yields an observed R² = 0.20 after accounting for the predictor and outcome reliabilities.</li>
                 </ul>
             </li>
 
-            <li>This yields ROC-AUC = 0.71 and PR-AUC = 0.61, indicating rather modest predictive performance, as shown by the low PR-AUC. We use an illustrative threshold of p<sub>t</sub> = 0.20, somewhat higher than the threshold used for screening because acting on the prediction now entails exposure to adverse effects and the burden and delay associated with an ineffective treatment. At p<sub>t</sub> = 0.2, we observe Sensitivity = 0.95, PPV = 0.44, and ΔNB = 0.010. High sensitivity here means most non-responders are still treated (specificity ≈ 0.19, so roughly 80% of non-responders receive treatment), and among those treated only 44% respond; the ΔNB of 0.010 means only about 10 net true positives per 1,000 people when treatment is based on this biomarker. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.85 and PR-AUC = 0.79, which at p<sub>t</sub> = 0.2 would result in Sensitivity = 0.93, PPV = 0.55, and ΔNB = 0.046 (about 46 net true positives per 1,000 people when treatment is based on this biomarker).</li>
+            <li>This yields ROC-AUC = 0.71 and PR-AUC = 0.61, indicating rather modest predictive performance, as shown by the low PR-AUC. We use an illustrative threshold of p<sub>t</sub> = 0.20, somewhat higher than the threshold used for screening because acting on the prediction now entails exposure to adverse effects and the burden and delay associated with an ineffective treatment. At p<sub>t</sub> = 0.20, we observe Sensitivity = 0.95, PPV = 0.44, and ΔNB = 0.010. High sensitivity here means most non-responders are still treated (specificity ≈ 0.19, so roughly 80% of non-responders receive treatment), and among those treated only 44% respond; the ΔNB of 0.010 means only about 10 net true positives per 1,000 people when treatment is guided by this prediction model. Improving measurement reliability alone could improve performance quite substantially, up to ROC-AUC = 0.85 and PR-AUC = 0.79. To view this ideal-reliability scenario at the same p<sub>t</sub> = 0.20, select the True view. This gives Sensitivity = 0.93, PPV = 0.55, and ΔNB = 0.047 (about 47 net true positives per 1,000 people when treatment is guided by this prediction model).</li>
 
             <li>If we want to explore what it would take to achieve still higher performance (e.g., PR-AUC of 0.8), we can use the tool to find the required R². Ambitious targets help demonstrate the inherent limitations of dichotomizing continuous outcomes for evaluating treatment response prediction — doing so leads to a loss of valuable information. On the other hand, it does reflect the binary nature of decision-making in psychiatry (to prescribe the treatment or not).</li>
         </ol>
 
-        <a class="example-button" href="index.html?mode=continuous&amp;predictorReliability=0.4&amp;outcomeReliability=0.94&amp;effectSizeR=0.73&amp;baseRate=0.4&amp;label1=Non-responders&amp;label2=Responders&amp;xaxisLabel=Task-fMRI%20marker&amp;yaxisScatterLabel=Treatment%20response&amp;thresholdProb=0.20" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
+        <a class="example-button" href="index.html?mode=continuous&amp;predictorReliability=0.4&amp;outcomeReliability=0.94&amp;effectSizeR=0.73&amp;baseRate=0.4&amp;label1=Non-responders&amp;label2=Responders&amp;xaxisLabel=Multivariable%20task-fMRI%20prediction%20score&amp;yaxisScatterLabel=Treatment%20response&amp;thresholdProb=0.20" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
 
         <h3>Example 4. Risk Prediction: Suicide Attempts</h3>
         <p>Clinicians rate prediction of suicidality as the highest priority for AI tool development in mental health (<a href="https://doi.org/10.1186/s12888-025-06957-3" target="_blank">Fischer et al., 2025</a>). Can we predict who will attempt suicide using electronic health records? One of the largest prospective suicide prediction studies (<a href="https://doi.org/10.1097/MLR.0000000000001445" target="_blank">Edgcomb et al., 2021</a>) followed women (N = 67,000) with serious mental illness for 12 months after a general medical hospitalization and trained models on pre-discharge electronic health records to predict readmission for suicide attempt or self-harm, achieving ROC-AUC of 0.73 (derivation sample) and 0.71 (external sample). A companion study (<a href="https://doi.org/10.1016/j.jpsychires.2022.10.035" target="_blank">Thiruvalluru et al., 2023</a>) in men (N = 1.4 million) reported a 12-month base rate of 3.9% and similar discrimination.
@@ -435,7 +458,7 @@
 
             <li>This yields ROC-AUC = 0.62 and PR-AUC = 0.27, indicating modest predictive performance. At a decision threshold of p<sub>t</sub> = 0.15, which corresponds to relatively low-cost interventions such as increased monitoring, we obtain PPV = 0.22, Sensitivity = 0.81, and ΔNB = 0.011 — about 11 net true positives per 1,000 people when intervention is based on this biomarker.</li>
 
-            <li>Improving measurement reliability could improve performance up to d = 0.75, ROC-AUC = 0.70, PR-AUC = 0.36; at p<sub>t</sub> = 0.15 this would give PPV = 0.26, Sensitivity = 0.78, and ΔNB = 0.026 (about 26 net true positives per 1,000 people when intervention is based on this biomarker), offering a substantial improvement but still overall modest predictive performance.</li>
+            <li>Improving measurement reliability could improve performance up to d = 0.75, ROC-AUC = 0.70, and PR-AUC = 0.36. To view this ideal-reliability scenario at the same p<sub>t</sub> = 0.15, select the True view. This gives PPV = 0.27, Sensitivity = 0.77, and ΔNB = 0.028 (about 28 net true positives per 1,000 people when intervention is based on this biomarker), offering a substantial improvement but still overall modest predictive performance.</li>
         
         </ol>
 
@@ -518,6 +541,8 @@
             <li>Edgcomb, J. B., Thiruvalluru, R., Pathak, J., Brooks, J. O., & Zima, B. (2021). Machine learning to differentiate risk of suicide attempt and self-harm after general medical hospitalization of women with mental illness. <em>Medical Care, 59</em>, S58-S64. <a href="https://journals.lww.com/lww-medicalcare/fulltext/2021/02001/machine_learning_to_differentiate_risk_of_suicide.14.aspx" target="_blank">https://doi.org/10.1097/MLR.0000000000001445</a></li>
             
             <li>Elliott, M. L., Knodt, A. R., Ireland, D., Morris, M. L., Poulton, R., Ramrakha, S., Sison, M. L., Moffitt, T. E., Caspi, A., & Hariri, A. R. (2020). What is the test-retest reliability of common task-functional MRI measures? New empirical evidence and a meta-analysis. <em>Psychological Science, 31</em>(7), 792-806. <a href="https://journals.sagepub.com/doi/full/10.1177/0956797620916786" target="_blank">https://doi.org/10.1177/0956797620916786</a></li>
+
+            <li>Everaert, J., Podina, I. R., & Koster, E. H. W. (2017). A comprehensive meta-analysis of interpretation biases in depression. <em>Clinical Psychology Review, 58</em>, 33-48. <a href="https://doi.org/10.1016/j.cpr.2017.09.005" target="_blank">https://doi.org/10.1016/j.cpr.2017.09.005</a></li>
             
             <li>Fischer, L., Mann, P. A., Nguyen, M.-H. H., Becker, S., Khodadadi, S., Schulz, A., Edwin Thanarajah, S., Repple, J., Hahn, T., Reif, A., Salamikhanshan, A., Kittel-Schneider, S., Rief, W., Mulert, C., Hofmann, S. G., Dannlowski, U., Kircher, T., Bernhard, F. P., & Jamalabadi, H. (2025). AI for mental health: clinician expectations and priorities in computational psychiatry. <em>BMC Psychiatry, 25</em>(1), 584. <a href="https://doi.org/10.1186/s12888-025-06957-3" target="_blank">https://doi.org/10.1186/s12888-025-06957-3</a></li>
             
@@ -564,6 +589,8 @@
             <li>Trajković, G., Starčević, V., Latas, M., Leštarević, M., Ille, T., Bukumirić, Z., & Marinković, J. (2011). Reliability of the Hamilton Rating Scale for Depression: A meta-analysis over a period of 49 years. <em>Psychiatry Research, 189</em>(1), 1-9. <a href="https://pubmed.ncbi.nlm.nih.gov/21276619/" target="_blank">https://doi.org/10.1016/j.psychres.2010.12.007</a></li>
             
             <li>Vickers, A. J., & Elkin, E. B. (2006). Decision curve analysis: A novel method for evaluating prediction models. <em>Medical Decision Making, 26</em>(6), 565-574. <a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">https://doi.org/10.1177/0272989X06295361</a></li>
+
+            <li>Weiss-Cowie, S., Verhaeghen, P., & Duarte, A. (2023). An updated account of overgeneral autobiographical memory in depression. <em>Neuroscience & Biobehavioral Reviews, 149</em>, 105157. <a href="https://doi.org/10.1016/j.neubiorev.2023.105157" target="_blank">https://doi.org/10.1016/j.neubiorev.2023.105157</a></li>
         </ol>
     </div>
 

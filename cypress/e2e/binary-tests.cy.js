@@ -236,6 +236,29 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     checkNumericValue('#threshold-slider', '2.10', 0.05);
   });
 
+  it('preserves p_t when switching between observed and true binary views', () => {
+    cy.get('#binary-button').click();
+    cy.get('#observed-button-bin').click();
+
+    cy.get('#base-rate-slider').invoke('val', 20.0).trigger('input');
+    cy.get('#icc1-slider').invoke('val', 0.6).trigger('input');
+    cy.get('#icc2-slider').invoke('val', 0.6).trigger('input');
+    cy.get('#kappa-slider').invoke('val', 0.5).trigger('input');
+    cy.get('#difference-slider').invoke('val', 1.5).trigger('input');
+    cy.get('#pt-input').invoke('val', 0.3).trigger('change');
+
+    checkNumericValue('#pt-input', '0.30', 0.001);
+    cy.get('#threshold-slider').invoke('val').then(observedScore => {
+      cy.get('#true-button-bin').click();
+      checkNumericValue('#pt-input', '0.30', 0.001);
+      cy.get('#threshold-slider').invoke('val').should('not.equal', observedScore);
+
+      cy.get('#observed-button-bin').click();
+      checkNumericValue('#pt-input', '0.30', 0.001);
+      checkNumericValue('#threshold-slider', observedScore, 0.02);
+    });
+  });
+
   it('correctly calculates attenuated effect size metrics in binary mode', () => {
     // Test that changing the difference slider updates the corresponding input fields
     
@@ -284,6 +307,9 @@ describe('E2P Simulator - Binary Mode Testing', () => {
     // Set base rate to 77.7%
     cy.get('#base-rate-slider').invoke('val', 77.7).trigger('input');
     checkNumericValue('#base-rate-number', '77.7');
+
+    // These expected operating-point metrics are defined at score threshold 0.
+    cy.get('#threshold-slider').invoke('val', 0).trigger('input');
     
     // Give app time to update calculations
     cy.wait(500);

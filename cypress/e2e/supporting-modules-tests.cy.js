@@ -3,6 +3,15 @@ describe('E2P Simulator - Supporting modules', () => {
     cy.visit('index.html');
   });
 
+  it('reveals both pages after their styled, initialized state is ready', () => {
+    cy.get('html').should('not.have.class', 'e2p-loading');
+    cy.get('body').should('have.css', 'opacity', '1');
+
+    cy.visit('get-started.html');
+    cy.get('html').should('not.have.class', 'e2p-loading');
+    cy.get('body').should('have.css', 'opacity', '1');
+  });
+
   it('presents one binary recommendation and compares the complete criteria', () => {
     cy.get('#calibration-binary-container').should('be.visible');
     cy.get('#calibration').should('contain.text', 'Development Population');

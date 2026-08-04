@@ -534,7 +534,7 @@ function drawJointContours(r, type, options = {}) {
             .text(yAxisScatterLabel);
     }
 
-    const xLabelWidth = Math.min(plotArea.width, toViewBoxUnits(260));
+    const xLabelWidth = plotArea.width;
     const yLabelWidth = Math.min(plotArea.height, toViewBoxUnits(220));
     const labelHeight = toViewBoxUnits(30);
 
@@ -545,7 +545,8 @@ function drawJointContours(r, type, options = {}) {
         .attr("height", labelHeight)
         .select("div")
         .style("font-size", `${fontSize.axisLabel}px`)
-        .style("line-height", `${labelHeight}px`);
+        .style("line-height", `${labelHeight}px`)
+        .style("white-space", "nowrap");
 
     svgScatter.select(".y-label")
         .attr(
@@ -818,7 +819,7 @@ function drawDistributions(r, type, options = {}) {
 
     const urlParamsDist = parseURLParams();
     const xAxisLabelDist = urlParamsDist.xaxisLabel || "Predictor";
-    const xLabelWidth = Math.min(plotArea.width, toViewBoxUnits(260));
+    const xLabelWidth = plotArea.width;
     const yLabelWidth = Math.min(plotArea.height, toViewBoxUnits(220));
     const labelHeight = toViewBoxUnits(30);
 
@@ -835,6 +836,7 @@ function drawDistributions(r, type, options = {}) {
         .style("text-align", "center")
         .style("font-size", `${fontSize.axisLabel}px`)
         .style("line-height", `${labelHeight}px`)
+        .style("white-space", "nowrap")
         .style("color", "black")
         .text(xAxisLabelDist);
 
@@ -1512,6 +1514,10 @@ function setupEventListeners() {
 
     trueButton.addEventListener("click", () => {
         if (currentView === "true") return; // Do nothing if already selected
+        const displayedPt = parseFloat(document.getElementById('pt-input-cont').value);
+        const preservedPt = Number.isFinite(displayedPt)
+            ? displayedPt
+            : computePtFromThresholdContinuous(thresholdValue);
         currentView = "true";
         trueButton.classList.add("active");
         observedButton.classList.remove("active");
@@ -1521,12 +1527,15 @@ function setupEventListeners() {
         cachedCurveState = null; // rebuild analytical curves for this view
         ensureVisibleViewDrawn();
         togglePlotVisibility();
-        plotROC({ quality: lastPlotsQuality });
-        updatePtDisplayContinuous();
+        setThresholdFromPtControlsContinuous(preservedPt);
     });
 
     observedButton.addEventListener("click", () => {
         if (currentView === "observed") return; // Do nothing if already selected
+        const displayedPt = parseFloat(document.getElementById('pt-input-cont').value);
+        const preservedPt = Number.isFinite(displayedPt)
+            ? displayedPt
+            : computePtFromThresholdContinuous(thresholdValue);
         currentView = "observed";
         observedButton.classList.add("active");
         trueButton.classList.remove("active");
@@ -1536,8 +1545,7 @@ function setupEventListeners() {
         cachedCurveState = null;
         ensureVisibleViewDrawn();
         togglePlotVisibility();
-        plotROC({ quality: lastPlotsQuality });
-        updatePtDisplayContinuous();
+        setThresholdFromPtControlsContinuous(preservedPt);
     });
 
     // Slider ↔ score (red line); number ↔ p_t

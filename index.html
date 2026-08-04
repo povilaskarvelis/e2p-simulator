@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="e2p-loading">
 <head>
     <meta charset="utf-8">
     <meta name="description" content="E2P Simulator translates effect sizes into real-world predictive utility while accounting for measurement reliability and outcome base rates.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E2P Simulator | From Effect Size to Real-World Predictive Utility</title>
+
+    <!-- Prevent a flash of unstyled or un-typeset content while the app initializes. -->
+    <style>
+        html { background-color: #f9f9f9; }
+        html.e2p-loading body { opacity: 0; }
+    </style>
+    <script>
+    (function () {
+        const reveal = () => document.documentElement.classList.remove('e2p-loading');
+        window.addEventListener('load', function () {
+            const mathReady = window.MathJax && window.MathJax.startup && window.MathJax.startup.promise;
+            if (mathReady && typeof mathReady.then === 'function') {
+                mathReady.then(reveal, reveal);
+            } else {
+                requestAnimationFrame(() => requestAnimationFrame(reveal));
+            }
+        }, { once: true });
+        document.addEventListener('DOMContentLoaded', function () {
+            window.setTimeout(reveal, 2500);
+        }, { once: true });
+    })();
+    </script>
+    <noscript><style>html.e2p-loading body { opacity: 1; }</style></noscript>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VDYP5LLPT5"></script>
@@ -30,18 +53,18 @@
     }
     </script>
     
-    <!-- Load libraries first -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    
-    <!-- Load styles -->
+    <!-- Discover render-blocking styles before loading the larger libraries. -->
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/binary.css">
     <link rel="stylesheet" href="css/continuous.css">
     <link rel="stylesheet" href="css/calibration.css">
     <link rel="stylesheet" href="css/index-patterns.css">
     <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- Load libraries -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     
     <!-- MathJax: single Promise polyfill for older browsers (auto applies if needed) -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>

@@ -63,6 +63,16 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     cy.get('#pr-plot-cont', { timeout: 10000 }).should('be.visible');
   });
 
+  it('does not carry a binary example threshold into continuous mode', () => {
+    cy.visit('index.html?mode=binary&baseRate=0.08&groupingReliability=0.28&predictorReliabilityGroup1=0.6&predictorReliabilityGroup2=0.6&trueEffectSize=1.58&thresholdProb=0.15');
+
+    checkNumericValue('#pt-input', '0.15', 0.001);
+    cy.get('#continuous-button').click();
+
+    checkNumericValue('#pt-input-cont', '0.50', 0.001);
+    checkNumericValue('#threshold-slider-cont', '0.00', 0.001);
+  });
+
   it('updates numeric inputs when sliders change in continuous mode', () => {
     // Switch to continuous mode
     cy.get('#continuous-button').click();
@@ -213,6 +223,28 @@ describe('E2P Simulator - Continuous Mode Testing', () => {
     checkNumericValue('#true-glass-d-cont', '1.32', 0.1);
     checkNumericValue('#true-odds-ratio-cont', '10.91', 0.3);
     checkNumericValue('#true-log-odds-ratio-cont', '2.39', 0.2);
+  });
+
+  it('preserves p_t when switching between observed and true continuous views', () => {
+    cy.get('#continuous-button').click();
+    cy.get('#observed-button-cont').click();
+
+    cy.get('#true-pearson-r-cont').clear().type('0.73').trigger('change');
+    cy.get('#reliability-x-slider-cont').invoke('val', 0.4).trigger('input').trigger('change');
+    cy.get('#reliability-y-slider-cont').invoke('val', 0.94).trigger('input').trigger('change');
+    cy.get('#base-rate-slider-cont').invoke('val', 40.0).trigger('input').trigger('change');
+    cy.get('#pt-input-cont').invoke('val', 0.2).trigger('change');
+
+    checkNumericValue('#pt-input-cont', '0.20', 0.001);
+    cy.get('#threshold-slider-cont').invoke('val').then(observedScore => {
+      cy.get('#true-button-cont').click();
+      checkNumericValue('#pt-input-cont', '0.20', 0.001);
+      cy.get('#threshold-slider-cont').invoke('val').should('not.equal', observedScore);
+
+      cy.get('#observed-button-cont').click();
+      checkNumericValue('#pt-input-cont', '0.20', 0.001);
+      checkNumericValue('#threshold-slider-cont', observedScore, 0.02);
+    });
   });
 
   it('correctly calculates observed effect size metrics in continuous mode', () => {

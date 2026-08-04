@@ -230,7 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!continuousInitialized) {
                 initializeContinuous();
                 continuousInitialized = true;
-                applyThresholdFromParams(parseURLParams(), 'continuous');
             }
         });
     });

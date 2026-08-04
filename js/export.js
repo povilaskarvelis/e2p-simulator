@@ -6,6 +6,8 @@
     const SHADOW_PAD_CSS = 12;
     // Extra empty page-bg margin around the result (equal on all sides).
     const MARGIN_CSS = 2;
+    // The taller continuous capture needs a little more breathing room below it.
+    const CONTINUOUS_BOTTOM_MARGIN_CSS = 10;
 
     function timestampSlug() {
         const d = new Date();
@@ -147,9 +149,12 @@
         const copyH = Math.max(1, Math.round(srcBottom - srcTop));
 
         const margin = Math.max(1, Math.round(marginCss * scale));
+        const extraBottomMargin = element.id === 'continuous-export-region'
+            ? Math.round(CONTINUOUS_BOTTOM_MARGIN_CSS * scale)
+            : 0;
         const out = document.createElement('canvas');
         out.width = copyW + margin * 2;
-        out.height = copyH + margin * 2;
+        out.height = copyH + margin * 2 + extraBottomMargin;
         const ctx = out.getContext('2d');
         ctx.fillStyle = PAGE_BG;
         ctx.fillRect(0, 0, out.width, out.height);

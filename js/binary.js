@@ -834,19 +834,29 @@ function setupEventListeners() {
         const observedButton = document.getElementById("observed-button-bin");
 
         trueButton.addEventListener("click", () => {
+            if (currentView === "true") return;
+            const displayedPt = parseFloat(document.getElementById('pt-input').value);
+            const preservedPt = Number.isFinite(displayedPt)
+                ? displayedPt
+                : computePtFromThreshold(thresholdValue);
             currentView = "true";
             trueButton.classList.add("active");
             observedButton.classList.remove("active");
             updateMetricsHighlighting("true");
-            updatePlots();
+            setThresholdFromPtControls(preservedPt);
         });
 
         observedButton.addEventListener("click", () => {
+            if (currentView === "observed") return;
+            const displayedPt = parseFloat(document.getElementById('pt-input').value);
+            const preservedPt = Number.isFinite(displayedPt)
+                ? displayedPt
+                : computePtFromThreshold(thresholdValue);
             currentView = "observed";
             observedButton.classList.add("active");
             trueButton.classList.remove("active");
             updateMetricsHighlighting("observed");
-            updatePlots();
+            setThresholdFromPtControls(preservedPt);
         });
 
         // Main slider for Cohen's d
