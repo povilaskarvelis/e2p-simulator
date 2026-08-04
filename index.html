@@ -1041,12 +1041,13 @@
 
                 <div class="equation-box flat">
                     <p class="equation-title">Overall outcome proportion precision</p>
+                    <p class="equation-title equation-title--tight">(ensures a precise estimate of the base rate)</p>
                     <div class="equation-content">\[N = \dfrac{1.96^2\,\phi(1-\phi)}{m^2}\]</div>
                 </div>
                 <div class="slider-container">
                     <input type="range" id="ssb-risk-margin-slider" min="0.005" max="0.2" step="0.005" value="0.05" class="slider criterion-slider criterion-slider--risk-precision">
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Desired absolute half-width of the 95% confidence interval around the overall outcome proportion; m = 0.05 means ±5 percentage points">95% CI margin of error (m)</span>
+                        <span class="slider-label" data-tooltip="Desired absolute half-width of the 95% confidence interval around the overall outcome proportion; m = 0.05 means ±5 percentage points">Margin of error (m)</span>
                         <input type="number" id="ssb-risk-margin" min="0.005" max="0.2" step="0.005" value="0.05" class="slider-value">
                     </div>
                 </div>
@@ -1142,9 +1143,9 @@
                 <hr class="input-separator">
 
                 <div class="equation-box flat">
-                    <p class="equation-title">Shrinkage criterion</p>
-                    <div class="equation-content">\[\text{Required }N:\quad S_{\mathrm{expected}}(N)\ \geq\ S\]</div>
-                    <p class="equation-description">For each possible N, the calculator uses p and the anticipated R² to calculate the expected shrinkage. It returns the first N that reaches the selected target S; S = 0.90 allows no more than 10% shrinkage.</p>
+                    <p class="equation-title">Shrinkage criterion (limits overfitting)</p>
+                    <div class="equation-content">\[S_{\mathrm{expected}} = 1 + \frac{p-2}{N\ln\!\left(1-R^2_{\mathrm{app}}\right)} \geq S\]</div>
+                    <p class="equation-description">The calculator increases N until this condition is met; R²<sub>app</sub> is the apparent R² expected at that sample size.</p>
                 </div>
                 <div class="slider-container">
                     <input type="range" id="ssc-r2-slider" min="0.01" max="0.95" step="0.01" value="0.5" class="slider criterion-slider criterion-slider--continuous-shrinkage">
@@ -1164,7 +1165,7 @@
                 <hr class="input-separator">
 
                 <div class="equation-box flat">
-                    <p class="equation-title">R² optimism criterion</p>
+                    <p class="equation-title">R² optimism criterion (limits overestimation of performance)</p>
                     <div class="equation-content">\[N = 1 + \dfrac{p(1-R^2)}{\delta}\]</div>
                 </div>
                 <div class="slider-container">

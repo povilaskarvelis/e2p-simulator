@@ -137,11 +137,11 @@
                             <span class="item-value">${formatInt(nResidualSD)}</span>
                         </div>
                         <div class="summary-item ${isHighest(nS) ? 'highlight' : ''}">
-                            <span class="item-label">Shrinkage (S)</span>
+                            <span class="item-label">Shrinkage</span>
                             <span class="item-value">${formatInt(nS)}</span>
                         </div>
                         <div class="summary-item ${isHighest(nOptimism) ? 'highlight' : ''}">
-                            <span class="item-label">Optimism (δ)</span>
+                            <span class="item-label">R² optimism</span>
                             <span class="item-value">${formatInt(nOptimism)}</span>
                         </div>
                     </div>
