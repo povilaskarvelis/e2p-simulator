@@ -6,8 +6,8 @@
     const SHADOW_PAD_CSS = 12;
     // Extra empty page-bg margin around the result (equal on all sides).
     const MARGIN_CSS = 2;
-    // The taller continuous capture needs a little more breathing room below it.
-    const CONTINUOUS_BOTTOM_MARGIN_CSS = 10;
+    // Preserve the full dashboard shadow at the bottom of the continuous capture.
+    const CONTINUOUS_BOTTOM_SHADOW_PAD_CSS = 12;
 
     function timestampSlug() {
         const d = new Date();
@@ -140,21 +140,22 @@
         const elH = rect.height * scaleY;
         const shadowX = shadowPadCss * scaleX;
         const shadowY = shadowPadCss * scaleY;
+        const bottomShadowCss = element.id === 'continuous-export-region'
+            ? CONTINUOUS_BOTTOM_SHADOW_PAD_CSS
+            : shadowPadCss;
+        const bottomShadowY = bottomShadowCss * scaleY;
 
         const srcLeft = Math.max(0, elX - shadowX);
         const srcTop = Math.max(0, elY - shadowY);
         const srcRight = Math.min(frameCanvas.width, elX + elW + shadowX);
-        const srcBottom = Math.min(frameCanvas.height, elY + elH + shadowY);
+        const srcBottom = Math.min(frameCanvas.height, elY + elH + bottomShadowY);
         const copyW = Math.max(1, Math.round(srcRight - srcLeft));
         const copyH = Math.max(1, Math.round(srcBottom - srcTop));
 
         const margin = Math.max(1, Math.round(marginCss * scale));
-        const extraBottomMargin = element.id === 'continuous-export-region'
-            ? Math.round(CONTINUOUS_BOTTOM_MARGIN_CSS * scale)
-            : 0;
         const out = document.createElement('canvas');
         out.width = copyW + margin * 2;
-        out.height = copyH + margin * 2 + extraBottomMargin;
+        out.height = copyH + margin * 2;
         const ctx = out.getContext('2d');
         ctx.fillStyle = PAGE_BG;
         ctx.fillRect(0, 0, out.width, out.height);
@@ -205,6 +206,98 @@
         return canvas;
     }
 
+    async function settleCaptureFrame() {
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await delay(100);
+    }
+
+    // Continuous mode is taller than a typical browser viewport. Capture it in
+    // vertical tiles so the dashboard and its shadow are present in the source.
+    async function captureContinuousElement(track, element, shadowPadCss, marginCss) {
+        const rect = element.getBoundingClientRect();
+        const elementLeft = rect.left + window.scrollX;
+        const elementTop = rect.top + window.scrollY;
+        const captureLeft = elementLeft - shadowPadCss;
+        const captureRight = elementLeft + rect.width + shadowPadCss;
+        const captureTop = elementTop - shadowPadCss;
+        const captureBottom = elementTop + rect.height + CONTINUOUS_BOTTOM_SHADOW_PAD_CSS;
+        const captureWidth = captureRight - captureLeft;
+        const captureHeight = captureBottom - captureTop;
+        const maxScrollY = Math.max(
+            0,
+            document.documentElement.scrollHeight - window.innerHeight
+        );
+
+        let cursorY = captureTop;
+        let out = null;
+        let ctx = null;
+        let outputScaleX = 1;
+        let outputScaleY = 1;
+        let margin = 0;
+
+        while (cursorY < captureBottom - 0.25) {
+            const visualOffsetTop = window.visualViewport
+                ? window.visualViewport.offsetTop
+                : 0;
+            const scrollY = Math.min(
+                maxScrollY,
+                Math.max(0, cursorY - visualOffsetTop)
+            );
+            window.scrollTo(window.scrollX, scrollY);
+            await settleCaptureFrame();
+
+            const vp = viewportSize();
+            const viewportLeft = window.scrollX + vp.offsetLeft;
+            const viewportTop = window.scrollY + vp.offsetTop;
+            const segmentStart = Math.max(cursorY, viewportTop);
+            const segmentEnd = Math.min(captureBottom, viewportTop + vp.height);
+            if (segmentEnd <= segmentStart + 0.25) {
+                throw new Error('Unable to bring the full continuous export into view');
+            }
+
+            const frame = await grabFrameFromTrack(track);
+            const frameScaleX = frame.width / vp.width;
+            const frameScaleY = frame.height / vp.height;
+
+            if (!out) {
+                outputScaleX = frameScaleX;
+                outputScaleY = frameScaleY;
+                const outputScale = (outputScaleX + outputScaleY) / 2;
+                margin = Math.max(1, Math.round(marginCss * outputScale));
+                out = document.createElement('canvas');
+                out.width = Math.round(captureWidth * outputScaleX) + margin * 2;
+                out.height = Math.round(captureHeight * outputScaleY) + margin * 2;
+                ctx = out.getContext('2d');
+                ctx.fillStyle = PAGE_BG;
+                ctx.fillRect(0, 0, out.width, out.height);
+            }
+
+            const drawLeft = Math.max(captureLeft, viewportLeft);
+            const drawRight = Math.min(captureRight, viewportLeft + vp.width);
+            if (drawRight <= drawLeft) {
+                throw new Error('Unable to bring the continuous export width into view');
+            }
+
+            const drawWidth = drawRight - drawLeft;
+            const drawHeight = segmentEnd - segmentStart;
+            ctx.drawImage(
+                frame,
+                (drawLeft - viewportLeft) * frameScaleX,
+                (segmentStart - viewportTop) * frameScaleY,
+                drawWidth * frameScaleX,
+                drawHeight * frameScaleY,
+                margin + (drawLeft - captureLeft) * outputScaleX,
+                margin + (segmentStart - captureTop) * outputScaleY,
+                drawWidth * outputScaleX,
+                drawHeight * outputScaleY
+            );
+
+            cursorY = segmentEnd;
+        }
+
+        return out;
+    }
+
     async function captureElement(element) {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
             throw new Error('Screen capture is not available in this browser');
@@ -223,11 +316,24 @@
         let restoreScroll = function () {};
         let restoreChrome = function () {};
         try {
-            restoreScroll = ensureInView(element, SHADOW_PAD_CSS + MARGIN_CSS);
+            const previousX = window.scrollX;
+            const previousY = window.scrollY;
+            const isContinuous = element.id === 'continuous-export-region';
+            restoreScroll = isContinuous
+                ? function () { window.scrollTo(previousX, previousY); }
+                : ensureInView(element, SHADOW_PAD_CSS + MARGIN_CSS);
             restoreChrome = hideExportChrome();
-            await delay(100);
-            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
+            if (isContinuous) {
+                return await captureContinuousElement(
+                    track,
+                    element,
+                    SHADOW_PAD_CSS,
+                    MARGIN_CSS
+                );
+            }
+
+            await settleCaptureFrame();
             const frame = await grabFrameFromTrack(track);
             return cropElementFromFrame(frame, element, SHADOW_PAD_CSS, MARGIN_CSS);
         } finally {
