@@ -23,16 +23,16 @@
     }
 
     // Mean absolute prediction error criterion (B2) based on van Smeden et al. (2016)
-    // ln(MAPE) = -0.508 - 0.544 ln(n) + 0.259 ln(phi) + 0.504 ln(P)
-    // => n = exp(( -0.508 + 0.259 ln(phi) + 0.504 ln(P) - ln(MAPE) ) / 0.544)
+    // ln(MAPE) = -0.508 - 0.544 ln(n) + 0.259 ln(phi) + 0.504 ln(p)
+    // => n = exp(( -0.508 + 0.259 ln(phi) + 0.504 ln(p) - ln(MAPE) ) / 0.544)
     function computeMapeN(p, targetMape, phi){
-        const P = Math.max(1, p);
+        const predictorParameters = Math.max(1, p);
         const mape = Math.max(1e-6, targetMape);
         // Ensure phi <= 0.5 by symmetry
         let phiEff = Math.max(1e-6, Math.min(phi, 1 - phi));
-        // Only validated for P <= 30
-        if (P > 30) return NaN;
-        const num = -0.508 + 0.259 * Math.log(phiEff) + 0.504 * Math.log(P) - Math.log(mape);
+        // Only validated for p <= 30
+        if (predictorParameters > 30) return NaN;
+        const num = -0.508 + 0.259 * Math.log(phiEff) + 0.504 * Math.log(predictorParameters) - Math.log(mape);
         const den = 0.544;
         return Math.exp(num / den);
     }
@@ -69,11 +69,11 @@
             messageText = validation.errors[0] || 'Enter a valid Cox–Snell R².';
         } else if (atLimit && limit.limitingConstraint === 'base-rate') {
             messageText =
-                `R²cs stops here: its maximum is ${limit.theoreticalMaximum.toFixed(3)} ` +
+                `Cox–Snell R² stops here: its maximum is ${limit.theoreticalMaximum.toFixed(3)} ` +
                 `at a ${formatPercentage(prevalence)}% base rate.`;
         } else if (atLimit && limit.limitingConstraint === 'shrinkage') {
             messageText =
-                `R²cs stops here: it must remain below S = ${shrinkage.toFixed(2)}.`;
+                `Cox–Snell R² stops here: it must remain below S = ${shrinkage.toFixed(2)}.`;
         }
 
         if (message) {
@@ -92,17 +92,87 @@
         const s = document.getElementById(sliderId);
         const i = document.getElementById(inputId);
         if (!s || !i) return;
+        const constraints = () => ({
+            min: Number(s.min),
+            max: Number(s.max),
+            step: Number(s.step)
+        });
+        const stepDecimals = (() => {
+            const stepText = String(s.step || '');
+            if (stepText.includes('e-')) {
+                return Number(stepText.split('e-')[1]) || 0;
+            }
+            return (stepText.split('.')[1] || '').length;
+        })();
+
+        const normalize = (rawValue) => {
+            const { min, max, step } = constraints();
+            let value = Number(rawValue);
+            if (!Number.isFinite(value)) return null;
+            if (Number.isFinite(min)) value = Math.max(min, value);
+            if (Number.isFinite(max)) value = Math.min(max, value);
+            if (Number.isFinite(step) && step > 0) {
+                const stepBase = Number.isFinite(min) ? min : 0;
+                value = stepBase + Math.round((value - stepBase) / step) * step;
+                if (Number.isFinite(min)) value = Math.max(min, value);
+                if (Number.isFinite(max)) value = Math.min(max, value);
+            }
+            return Number(value.toFixed(stepDecimals)).toString();
+        };
+
+        const setInvalid = (invalid) => {
+            i.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+        };
+
         const updateTrack = () => {
             if (!s.classList.contains('criterion-slider--mape')) return;
-            const min = Number(s.min);
-            const max = Number(s.max);
+            const { min, max } = constraints();
             const progress = Math.max(0, Math.min(100,
                 ((Number(s.value) - min) / (max - min)) * 100
             ));
             s.style.setProperty('--criterion-slider-progress', `${progress}%`);
         };
-        s.addEventListener('input', () => { i.value = s.value; updateTrack(); update(); });
-        i.addEventListener('input', () => { s.value = i.value; updateTrack(); update(); });
+
+        s.addEventListener('input', () => {
+            i.value = s.value;
+            setInvalid(false);
+            updateTrack();
+            update();
+        });
+
+        i.addEventListener('input', () => {
+            const { min, max } = constraints();
+            const value = Number(i.value);
+            const inRange =
+                Number.isFinite(value) &&
+                (!Number.isFinite(min) || value >= min) &&
+                (!Number.isFinite(max) || value <= max);
+
+            if (!inRange) {
+                setInvalid(true);
+                return;
+            }
+
+            const normalized = normalize(value);
+            if (normalized == null) return;
+            s.value = normalized;
+            i.value = normalized;
+            setInvalid(false);
+            updateTrack();
+            update();
+        });
+
+        i.addEventListener('change', () => {
+            const normalized = normalize(i.value);
+            const committed = normalized == null ? s.value : normalized;
+            s.value = committed;
+            i.value = committed;
+            setInvalid(false);
+            updateTrack();
+            update();
+        });
+
+        setInvalid(false);
         updateTrack();
     }
 
@@ -160,18 +230,18 @@
     }
 
     function update(){
-        const pValue = val('ssb-p');
-        const prevInput = val('ssb-prevalence');
-        const S = val('ssb-shrinkage');
-        const targetEPV = Math.max(1, Math.round(val('ssb-epv') || 10));
-        const targetMAPE = Math.max(0.001, Math.min(0.2, val('ssb-mape') || 0.05));
+        const pValue = val('ssb-p-slider');
+        const prevInput = val('ssb-prevalence-slider');
+        const S = val('ssb-shrinkage-slider');
+        const targetEPV = Math.max(1, Math.round(val('ssb-epv-slider') || 10));
+        const targetMAPE = Math.max(0.001, Math.min(0.2, val('ssb-mape-slider') || 0.05));
         const targetR2Difference = Math.max(
             0.005,
-            Math.min(0.1, val('ssb-r2-difference') || 0.05)
+            Math.min(0.1, val('ssb-r2-difference-slider') || 0.05)
         );
         const riskMargin = Math.max(
             0.005,
-            Math.min(0.2, val('ssb-risk-margin') || 0.05)
+            Math.min(0.2, val('ssb-risk-margin-slider') || 0.05)
         );
 
         if (pValue == null || prevInput == null || S == null || targetMAPE == null) return;
@@ -187,7 +257,7 @@
                 if (element) element.max = maximum;
             });
 
-            const currentR2 = val('ssb-r2cs');
+            const currentR2 = val('ssb-r2cs-slider');
             if (
                 Number.isFinite(currentR2) &&
                 currentR2 > limit.selectableMaximum
@@ -200,7 +270,7 @@
             }
         }
 
-        const r2cs = val('ssb-r2cs');
+        const r2cs = val('ssb-r2cs-slider');
         if (r2cs == null) {
             const message = document.getElementById('ssb-r2cs-message');
             if (message) message.hidden = true;

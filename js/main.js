@@ -35,21 +35,23 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Error during mobile detection:", e);
     }
 
-    // Keep the outcome-specific sample-size calculator aligned with the global mode.
-    // Calibration is independent of this toggle.
-    function toggleSampleSizeSections(mode) {
+    // Keep lower outcome-specific modules aligned with the global mode.
+    function toggleOutcomeSpecificSections(mode) {
         try {
             const ssBinary = document.getElementById('ss-binary-container');
             const ssCont = document.getElementById('ss-cont-container');
+            const calibration = document.getElementById('calibration');
             if (mode === 'binary') {
                 ssBinary?.classList.remove('u-hidden');
                 ssCont?.classList.add('u-hidden');
+                calibration?.classList.remove('u-hidden');
             } else if (mode === 'continuous') {
                 ssBinary?.classList.add('u-hidden');
                 ssCont?.classList.remove('u-hidden');
+                calibration?.classList.add('u-hidden');
             }
         } catch (e) {
-            console.error('Error toggling sample-size sections:', e);
+            console.error('Error toggling outcome-specific sections:', e);
         }
     }
 
@@ -90,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 continuousButtons.forEach(btn => btn.classList.remove('active'));
                 binaryContainer.classList.remove('u-hidden');
                 continuousContainer.classList.add('u-hidden');
-                toggleSampleSizeSections('binary');
+                toggleOutcomeSpecificSections('binary');
                 
                 // Set binary mode parameters
                 if (params.baseRate) {
@@ -134,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 binaryButtons.forEach(btn => btn.classList.remove('active'));
                 binaryContainer.classList.add('u-hidden');
                 continuousContainer.classList.remove('u-hidden');
-                toggleSampleSizeSections('continuous');
+                toggleOutcomeSpecificSections('continuous');
                 
                 // Initialize continuous first, then apply params, then threshold/p_t
                 if (!continuousInitialized) {
@@ -194,8 +196,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the binary version by default
     initializeBinary();
-    // Default sample size sections to binary mode on first load
-    toggleSampleSizeSections('binary');
+    // Default lower outcome-specific modules to binary mode on first load.
+    toggleOutcomeSpecificSections('binary');
     
 
     
@@ -209,8 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show binary container, hide continuous
             binaryContainer.classList.remove('u-hidden');
             continuousContainer.classList.add('u-hidden');
-            toggleSampleSizeSections('binary');
+            toggleOutcomeSpecificSections('binary');
             window.resizeBinaryPlotsAfterReveal?.();
+            window.dispatchEvent(new Event('resize'));
         });
     });
 
@@ -224,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show continuous container, hide binary
             binaryContainer.classList.add('u-hidden');
             continuousContainer.classList.remove('u-hidden');
-            toggleSampleSizeSections('continuous');
+            toggleOutcomeSpecificSections('continuous');
             
             // Initialize continuous version if not already done
             if (!continuousInitialized) {

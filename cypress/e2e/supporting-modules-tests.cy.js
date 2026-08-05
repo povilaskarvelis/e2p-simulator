@@ -52,7 +52,7 @@ describe('E2P Simulator - Supporting modules', () => {
     cy.get('#ssb-epv').should('have.value', '10');
     cy.get('#ss-binary-container').should(
       'contain.text',
-      '95% CI margin of error (m)'
+      'Margin of error (m)'
     );
 
     cy.get('#ssb-p').clear().type('31');
@@ -74,7 +74,7 @@ describe('E2P Simulator - Supporting modules', () => {
   it('shows the three continuous criteria without additional outcome inputs', () => {
     cy.get('#continuous-button').click();
 
-    cy.get('#calibration-binary-container').should('be.visible');
+    cy.get('#calibration').should('not.be.visible');
     cy.get('#ss-binary-container').should('not.be.visible');
     cy.get('#ss-cont-container').should('be.visible');
     cy.get('#ss-cont-container details').should('not.exist');
@@ -84,7 +84,7 @@ describe('E2P Simulator - Supporting modules', () => {
       cy.contains('N = 244');
       cy.contains('Residual SD precision');
       cy.contains('Shrinkage');
-      cy.contains('Optimism (δ)');
+      cy.contains('R² optimism');
     });
     cy.get('#ssc-mean-outcome').should('not.exist');
     cy.get('#ssc-outcome-sd').should('not.exist');
@@ -95,7 +95,7 @@ describe('E2P Simulator - Supporting modules', () => {
     );
     cy.get('#ss-cont-container').should(
       'contain.text',
-      'returns the first N that reaches the selected target S'
+      'The calculator increases N until this condition is met'
     );
     cy.get('#ss-cont-container .equation-content').each(($equation) => {
       expect($equation[0].scrollWidth).to.be.at.most(
@@ -112,5 +112,8 @@ describe('E2P Simulator - Supporting modules', () => {
       ]);
       datasets.forEach((dataset) => expect(dataset.pointRadius).to.equal(5));
     });
+
+    cy.get('#binary-button').click();
+    cy.get('#calibration').should('be.visible');
   });
 });

@@ -224,7 +224,7 @@
             <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%; width: 100%;">
         </div>
         
-        <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) - this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
+        <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) – this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
         
         <p>A short summary of each metric:</p>
         <ul>
@@ -386,7 +386,7 @@
             <li>In the Binary outcome mode:
                 <ul>
                     <li>Set base rate to 8%.</li>
-                    <li>Set the grouping reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
+                    <li>Set the outcome reliability to 0.28 (depression diagnosis reliability based on DSM-5 field trials; <a href="https://pubmed.ncbi.nlm.nih.gov/23111466/" target="_blank">Regier et al., 2013</a>)</li>
                     <li>Set the predictor reliability for both groups to 0.6 (an average reliability for cognitive measures; <a href="https://www.sciencedirect.com/science/article/pii/S0149763423001069" target="_blank">Karvelis et al., 2023</a>)</li>
                     <li>Set the observed effect size to d = 0.8.</li>
                 </ul>
@@ -439,7 +439,7 @@
 
             <li>To achieve PR-AUC = 0.8 in this population would require ROC-AUC = 0.98, which is extremely unrealistic. At p<sub>t</sub> = 0.03, this would result in Sensitivity = 0.94, PPV = 0.30, and ΔNB = 0.025 (about 25 net true positives per 1,000 people when intervention is based on this model).</li>
 
-            <li>Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g.,<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large 2018</a>).</li>
+            <li>Note that because the reliability is already quite high, improving it further would not make much of a difference. What we need to do is to find better predictors. Alternatively, it may be more effective to simply focus on universal suicide prevention strategies rather than trying to predict individual cases (e.g., <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6296389/" target="_blank">Large, 2018</a>).</li>
         </ol>
 
         <a class="example-button" href="index.html?mode=binary&amp;baseRate=0.039&amp;groupingReliability=1.0&amp;predictorReliabilityGroup1=0.8&amp;predictorReliabilityGroup2=0.8&amp;trueEffectSize=0.86&amp;label1=Psychiatric%20controls&amp;label2=Suicide%20attempters&amp;xaxisLabel=Multivariable%20EHR%20prediction%20score&amp;thresholdProb=0.03" target="_blank" rel="noopener" aria-label="Explore this example (opens in a new tab)">Explore this example</a>
@@ -474,7 +474,7 @@
         <h3>How to Use</h3>
         <p>Enter the number of <strong>candidate predictor parameters</strong>, not merely the number of named predictors. A multi-level categorical variable, spline, or interaction can require several coefficients; all parameters considered during development should be counted. Also specify a <strong>realistically expected R²</strong> based on comparable prior research or pilot data.</p>
 
-        <p>For a binary outcome, specify the anticipated outcome base rate and likelihood-based Cox–Snell R²<sub>CS</sub>. This R² is not eta-squared (η²) and should not be copied from the main E2P dashboard. Obtain it from a comparable model, or convert a reported Nagelkerke R² or C-statistic to Cox–Snell R² (<a href="https://doi.org/10.1002/sim.8806" target="_blank">Riley et al., 2021</a>). The calculator checks precision of the overall outcome proportion, average prediction error when p ≤ 30, and protection against overfitting and optimism. For the outcome-proportion criterion, <em>m</em> is the desired absolute half-width of its 95% confidence interval: the default <em>m</em> = 0.05 means ±5 percentage points. The calculator also plots the traditional events-per-variable (EPV) rule so you can compare that rule of thumb with the model-based criteria. The EPV line is for reference and does not determine the final recommendation; its value of p counts predictor parameters rather than merely named predictors.</p>
+        <p>For a binary outcome, specify the anticipated outcome base rate and likelihood-based Cox–Snell R². This R² is not eta-squared (η²) and should not be copied from the main E2P dashboard. Obtain it from a comparable model, or convert a reported Nagelkerke R² or C-statistic to Cox–Snell R² (<a href="https://doi.org/10.1002/sim.8806" target="_blank">Riley et al., 2021</a>). The calculator checks precision of the overall outcome proportion, average prediction error when p ≤ 30, and protection against overfitting and optimism. For the outcome-proportion criterion, <em>m</em> is the desired absolute half-width of its 95% confidence interval: the default <em>m</em> = 0.05 means ±5 percentage points. The calculator also plots the traditional events-per-variable (EPV) rule so you can compare that rule of thumb with the model-based criteria. The EPV line is for reference and does not determine the final recommendation; its value of p counts predictor parameters rather than merely named predictors.</p>
 
         <p>For a continuous outcome, specify the anticipated R². The calculator compares three requirements: limiting shrinkage of predictor effects, limiting the difference between apparent and adjusted R², and estimating the residual standard deviation with sufficient precision. The final recommendation is the largest sample size required by these three criteria.</p>
 
@@ -522,7 +522,7 @@
 
     <div class="guide-section" id="feedback">
         <h2>Feedback and Contributions</h2>
-        <p>E2P Simulator is an open-source project - feedback, bug reports, and suggestions for improvement are welcome. The easiest way to do so is through the <a href="https://github.com/povilaskarvelis/e2p-simulator/issues" target="_blank">GitHub Issues page</a>.</p>
+        <p>E2P Simulator is an open-source project – feedback, bug reports, and suggestions for improvement are welcome. The easiest way to do so is through the <a href="https://github.com/povilaskarvelis/e2p-simulator/issues" target="_blank">GitHub Issues page</a>.</p>
         <p>You can view the source code, track development, and contribute directly at the <a href="https://github.com/povilaskarvelis/e2p-simulator" target="_blank">project's GitHub repository</a>.</p>
         <p>For other inquiries, you can find my contact information <a href="https://povilaskarvelis.github.io/" target="_blank">here</a>.</p>
     </div>
@@ -576,7 +576,7 @@
 
             <li>Riley, R. D., Snell, K. I. E., Ensor, J., Burke, D. L., Harrell Jr, F. E., Moons, K. G. M., & Collins, G. S. (2019). Minimum sample size for developing a multivariable prediction model: Part II—binary and time-to-event outcomes. <em>Statistics in Medicine, 38</em>(7), 1276–1296. <a href="https://doi.org/10.1002/sim.7992" target="_blank">https://doi.org/10.1002/sim.7992</a></li>
 
-            <li>Riley, R. D., Van Calster, B., & Collins, G. S. (2021). A note on estimating the Cox-Snell R² from a reported C statistic (AUROC) to inform sample size calculations for developing a prediction model with a binary outcome. <em>Statistics in Medicine, 40</em>(4), 859-864. <a href="https://doi.org/10.1002/sim.8806" target="_blank">https://doi.org/10.1002/sim.8806</a></li>
+            <li>Riley, R. D., Van Calster, B., & Collins, G. S. (2021). A note on estimating the Cox–Snell R² from a reported C statistic (AUROC) to inform sample size calculations for developing a prediction model with a binary outcome. <em>Statistics in Medicine, 40</em>(4), 859-864. <a href="https://doi.org/10.1002/sim.8806" target="_blank">https://doi.org/10.1002/sim.8806</a></li>
             
             <li>Roach, B. J., Carrión, R. E., Hamilton, H. K., Bachman, P., Belger, A., Duncan, E., Johannesen, J., Light, G. A., Niznikiewicz, M., Addington, J., Bearden, C. E., Cadenhead, K. S., Cannon, T. D., Cornblatt, B. A., McGlashan, T. H., Perkins, D. O., Seidman, L. J., Tsuang, M. T., Walker, E. F., ... Mathalon, D. H. (2020). Reliability of mismatch negativity event-related potentials in a multisite, traveling subjects study. <em>Clinical Neurophysiology, 131</em>(12), 2899-2909. <a href="https://doi.org/10.1016/j.clinph.2020.09.027" target="_blank">https://doi.org/10.1016/j.clinph.2020.09.027</a></li>
             

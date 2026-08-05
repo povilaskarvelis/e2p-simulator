@@ -34,17 +34,87 @@
         const s = document.getElementById(sliderId);
         const i = document.getElementById(inputId);
         if (!s || !i) return;
+        const constraints = () => ({
+            min: Number(s.min),
+            max: Number(s.max),
+            step: Number(s.step)
+        });
+        const stepDecimals = (() => {
+            const stepText = String(s.step || '');
+            if (stepText.includes('e-')) {
+                return Number(stepText.split('e-')[1]) || 0;
+            }
+            return (stepText.split('.')[1] || '').length;
+        })();
+
+        const normalize = (rawValue) => {
+            const { min, max, step } = constraints();
+            let value = Number(rawValue);
+            if (!Number.isFinite(value)) return null;
+            if (Number.isFinite(min)) value = Math.max(min, value);
+            if (Number.isFinite(max)) value = Math.min(max, value);
+            if (Number.isFinite(step) && step > 0) {
+                const stepBase = Number.isFinite(min) ? min : 0;
+                value = stepBase + Math.round((value - stepBase) / step) * step;
+                if (Number.isFinite(min)) value = Math.max(min, value);
+                if (Number.isFinite(max)) value = Math.min(max, value);
+            }
+            return Number(value.toFixed(stepDecimals)).toString();
+        };
+
+        const setInvalid = (invalid) => {
+            i.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+        };
+
         const updateTrack = () => {
             if (!s.classList.contains('criterion-slider--continuous-optimism')) return;
-            const min = Number(s.min);
-            const max = Number(s.max);
+            const { min, max } = constraints();
             const progress = Math.max(0, Math.min(100,
                 ((Number(s.value) - min) / (max - min)) * 100
             ));
             s.style.setProperty('--criterion-slider-progress', `${progress}%`);
         };
-        s.addEventListener('input', () => { i.value = s.value; updateTrack(); update(); });
-        i.addEventListener('input', () => { s.value = i.value; updateTrack(); update(); });
+
+        s.addEventListener('input', () => {
+            i.value = s.value;
+            setInvalid(false);
+            updateTrack();
+            update();
+        });
+
+        i.addEventListener('input', () => {
+            const { min, max } = constraints();
+            const value = Number(i.value);
+            const inRange =
+                Number.isFinite(value) &&
+                (!Number.isFinite(min) || value >= min) &&
+                (!Number.isFinite(max) || value <= max);
+
+            if (!inRange) {
+                setInvalid(true);
+                return;
+            }
+
+            const normalized = normalize(value);
+            if (normalized == null) return;
+            s.value = normalized;
+            i.value = normalized;
+            setInvalid(false);
+            updateTrack();
+            update();
+        });
+
+        i.addEventListener('change', () => {
+            const normalized = normalize(i.value);
+            const committed = normalized == null ? s.value : normalized;
+            s.value = committed;
+            i.value = committed;
+            setInvalid(false);
+            updateTrack();
+            update();
+        });
+
+        setInvalid(false);
         updateTrack();
     }
 
@@ -102,10 +172,10 @@
     }
 
     function update(){
-        const pInput = val('ssc-p');
-        const r2Input = val('ssc-r2');
-        const shrinkageInput = val('ssc-shrinkage');
-        const deltaInput = val('ssc-delta');
+        const pInput = val('ssc-p-slider');
+        const r2Input = val('ssc-r2-slider');
+        const shrinkageInput = val('ssc-shrinkage-slider');
+        const deltaInput = val('ssc-delta-slider');
 
         if ([pInput, r2Input, shrinkageInput, deltaInput].some(v=>v==null)) return;
         const p = Math.max(1, Math.round(pInput));

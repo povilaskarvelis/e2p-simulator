@@ -181,7 +181,7 @@
 
                             <!-- Odds Ratio -->
                             <div class="index-metric-row">
-                                <span class="slider-label" data-tooltip="Ratio of odds of being in group 1 vs group 2">Odds Ratio</span>
+                                <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
                                 <input type="number" id="true-odds-ratio-bin" class="metrics-input" min="1" max = "8681" step="0.5" value="1">
                                 <input type="number" id="observed-odds-ratio-bin" class="metrics-input" readonly>
                             </div>
@@ -372,7 +372,7 @@
         <h2 class="calculator-title">From Single to Multiple Predictors</h2>
         <div class="description index-calculator-desc">
             <p>
-                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level predictive performance. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC, and to PR-AUC by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. See <a href="get-started.html#multivariable" target="_blank" class="index-text-link">Get Started</a> for more details.
+                While the interactive graph above explores a single predictor, here you can estimate the combined effect of multiple predictors and determine how many are needed to achieve a desired level of predictive performance. The combined effect is estimated by first computing Mahalanobis D, a multivariate generalization of Cohen's d, which is then directly converted to ROC-AUC, and to PR-AUC by accounting for the base rate. For simplicity, the estimation assumes predictors to have the same effect sizes, uniform collinearity, and no interaction effects. See <a href="get-started.html#multivariable" target="_blank" class="index-text-link">Get Started</a> for more details.
             </p>
         </div>
 
@@ -1000,7 +1000,7 @@
     <h2 class="calculator-title">Required Sample Size for Multivariable Models</h2>
     <div class="description index-calculator-desc">
         <p>
-            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to require a minimum number of events per variable (EPV). However, more principled criteria based on desired model performance - such as minimizing overfitting or prediction error - can give very different estimates. See <a href="get-started.html#sample-size" target="_blank" class="index-text-link">Get Started</a> for more details.
+            Determining the right sample size is crucial for developing reliable multivariable prediction models. Too small a sample risks overfitting, unstable estimates, and poor generalizability; too large wastes resources. A common rule of thumb is to require a minimum number of events per variable (EPV). However, more principled criteria based on desired model performance – such as minimizing overfitting or prediction error – can give very different estimates. See <a href="get-started.html#sample-size" target="_blank" class="index-text-link">Get Started</a> for more details.
         </p>
     </div>
 
@@ -1033,7 +1033,7 @@
                     <input type="range" id="ssb-epv-slider" min="5" max="50" step="1" value="10" class="slider criterion-slider criterion-slider--epv">
                     <div class="slider-value-container">
                         <span class="slider-label" data-tooltip="Events per predictor parameter used for the EPV reference line; p counts predictor parameters">EPV</span>
-                        <input type="number" id="ssb-epv" min="1" max="100" step="1" value="10" class="slider-value">
+                        <input type="number" id="ssb-epv" min="5" max="50" step="1" value="10" class="slider-value">
                     </div>
                 </div>
 
@@ -1057,7 +1057,7 @@
                 <div class="equation-box flat">
                     <p class="equation-title">Mean Absolute Prediction Error (MAPE) criterion (p ≤ 30)</p>
                     <p class="equation-title equation-title--tight">(minimizes prediction error)</p>
-                    <div class="equation-content">\[N = \mathrm{exp}\left(\dfrac{-0.508 + 0.259\ln(\phi) + 0.504\ln(P) - \ln(\delta)}{0.544}\right)\]</div>
+                    <div class="equation-content">\[N = \mathrm{exp}\left(\dfrac{-0.508 + 0.259\ln(\phi) + 0.504\ln(p) - \ln(\delta)}{0.544}\right)\]</div>
                 </div>
                 <div class="slider-container">
                     <input type="range" id="ssb-mape-slider" min="0.01" max="0.2" step="0.005" value="0.05" class="slider criterion-slider criterion-slider--mape">
@@ -1079,7 +1079,7 @@
                         <div id="ssb-r2cs-message" class="ssb-slider-limit-message" role="status" aria-live="polite" hidden></div>
                     </div>
                     <div class="slider-value-container">
-                        <span class="slider-label" data-tooltip="Likelihood-based anticipated fit of the full binary-outcome model; this is not η² and its maximum depends on the outcome base rate">Anticipated R²<sub>cs</sub></span>
+                        <span class="slider-label" data-tooltip="Likelihood-based anticipated fit of the full binary-outcome model; this is not η² and its maximum depends on the outcome base rate">Anticipated Cox–Snell R²</span>
                         <input type="number" id="ssb-r2cs" min="0.01" max="0.9" step="0.01" value="0.2" class="slider-value" aria-describedby="ssb-r2cs-message">
                     </div>
                 </div>
