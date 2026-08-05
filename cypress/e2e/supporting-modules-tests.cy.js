@@ -116,4 +116,28 @@ describe('E2P Simulator - Supporting modules', () => {
     cy.get('#binary-button').click();
     cy.get('#calibration').should('be.visible');
   });
+
+  it('loads binary multivariable controls from an example URL', () => {
+    cy.visit(
+      'index.html?mode=binary&baseRate=0.08&multiTargetRocAuc=0.965&multiEffectSize=0.8&multiCollinearity=0.05&multiPredictors=20'
+    );
+
+    cy.get('#mahalanobis-base-rate').should('have.value', '8');
+    cy.get('#targetRocAuc').should('have.value', '0.965');
+    cy.get('#effectSize').should('have.value', '0.8');
+    cy.get('#correlation').should('have.value', '0.05');
+    cy.get('#numVariables').should('have.value', '20');
+  });
+
+  it('loads continuous multivariable controls from an example URL', () => {
+    cy.visit(
+      'index.html?mode=continuous&baseRate=0.46&multiTargetR2=0.47&multiPredictorCorrelation=0.3&multiCollinearity=0.15&multiPredictors=20'
+    );
+
+    cy.get('#r2-base-rate').should('have.value', '46');
+    cy.get('#target-r2').should('have.value', '0.47');
+    cy.get('#predictor-correlation').should('have.value', '0.3');
+    cy.get('#collinearity').should('have.value', '0.15');
+    cy.get('#num-predictors-r2').should('have.value', '20');
+  });
 });

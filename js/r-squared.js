@@ -237,14 +237,61 @@
         if (typeof parseURLParams !== 'function') return;
 
         const params = parseURLParams();
-        const parsedBaseRate = parseFloat(params.baseRate);
-        if (!Number.isFinite(parsedBaseRate)) return;
+        const applyNumberParam = (paramName, input, slider, transform = value => value) => {
+            let value = parseFloat(params[paramName]);
+            if (!input || !slider || !Number.isFinite(value)) return null;
 
-        const percentValue = parsedBaseRate <= 1 ? parsedBaseRate * 100 : parsedBaseRate;
-        const clampedPercent = Math.min(Math.max(percentValue, 0.1), 99.9);
-        initialValues.baseRate = clampedPercent;
-        elements.r2BaseRateInput.value = clampedPercent;
-        elements.r2BaseRateSlider.value = clampedPercent;
+            value = transform(value);
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            const step = parseFloat(slider.step);
+            if (Number.isFinite(min)) value = Math.max(min, value);
+            if (Number.isFinite(max)) value = Math.min(max, value);
+            if (Number.isFinite(step) && step > 0) {
+                const base = Number.isFinite(min) ? min : 0;
+                value = base + Math.round((value - base) / step) * step;
+            }
+
+            const stepText = String(slider.step || '');
+            const decimals = (stepText.split('.')[1] || '').length;
+            const normalized = Number(value.toFixed(decimals));
+            input.value = normalized;
+            slider.value = normalized;
+            return normalized;
+        };
+
+        const baseRate = applyNumberParam(
+            'baseRate',
+            elements.r2BaseRateInput,
+            elements.r2BaseRateSlider,
+            value => value <= 1 ? value * 100 : value
+        );
+        const targetR2 = applyNumberParam(
+            'multiTargetR2',
+            elements.targetR2Input,
+            elements.targetR2Slider
+        );
+        const predictorCorrelation = applyNumberParam(
+            'multiPredictorCorrelation',
+            elements.predictorCorrelationInput,
+            elements.predictorCorrelationSlider
+        );
+        const collinearity = applyNumberParam(
+            'multiCollinearity',
+            elements.collinearityInput,
+            elements.collinearitySlider
+        );
+        const numPredictors = applyNumberParam(
+            'multiPredictors',
+            elements.numPredictorsInput,
+            elements.numPredictorsSlider
+        );
+
+        if (baseRate !== null) initialValues.baseRate = baseRate;
+        if (targetR2 !== null) initialValues.targetR2 = targetR2;
+        if (predictorCorrelation !== null) initialValues.predictorCorrelation = predictorCorrelation;
+        if (collinearity !== null) initialValues.collinearity = collinearity;
+        if (numPredictors !== null) initialValues.numPredictors = numPredictors;
     }
 
     function updateChart(chart, xValues, yValues, threshold, thresholdLabel) {

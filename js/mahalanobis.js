@@ -243,13 +243,40 @@ const colors = [
         if (typeof parseURLParams !== 'function') return;
 
         const params = parseURLParams();
-        const parsedBaseRate = parseFloat(params.baseRate);
-        if (!Number.isFinite(parsedBaseRate)) return;
+        const applyNumberParam = (paramName, inputId, sliderId, transform = value => value) => {
+            const input = document.getElementById(inputId);
+            const slider = document.getElementById(sliderId);
+            let value = parseFloat(params[paramName]);
+            if (!input || !slider || !Number.isFinite(value)) return;
 
-        const percentValue = parsedBaseRate <= 1 ? parsedBaseRate * 100 : parsedBaseRate;
-        const clampedPercent = Math.min(Math.max(percentValue, 0.1), 99.9);
-        document.getElementById('mahalanobis-base-rate').value = clampedPercent;
-        document.getElementById('mahalanobis-base-rate-slider').value = clampedPercent;
+            value = transform(value);
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            const step = parseFloat(slider.step);
+            if (Number.isFinite(min)) value = Math.max(min, value);
+            if (Number.isFinite(max)) value = Math.min(max, value);
+            if (Number.isFinite(step) && step > 0) {
+                const base = Number.isFinite(min) ? min : 0;
+                value = base + Math.round((value - base) / step) * step;
+            }
+
+            const stepText = String(slider.step || '');
+            const decimals = (stepText.split('.')[1] || '').length;
+            const normalized = Number(value.toFixed(decimals));
+            input.value = normalized;
+            slider.value = normalized;
+        };
+
+        applyNumberParam(
+            'baseRate',
+            'mahalanobis-base-rate',
+            'mahalanobis-base-rate-slider',
+            value => value <= 1 ? value * 100 : value
+        );
+        applyNumberParam('multiTargetRocAuc', 'targetRocAuc', 'targetRocAuc-slider');
+        applyNumberParam('multiEffectSize', 'effectSize', 'effectSize-slider');
+        applyNumberParam('multiCollinearity', 'correlation', 'correlation-slider');
+        applyNumberParam('multiPredictors', 'numVariables', 'numVariables-slider');
     }
     
     function updateChart(chart, data, threshold, thresholdLabel, numVariables, yMin = 0, yMax = undefined) {

@@ -66,3 +66,59 @@ test('user-facing statistical terminology and punctuation remain consistent', ()
     assert.doesNotMatch(getStartedHtml, /grouping reliability|e\.g\.,<a/);
     assert.match(copy, /Cox–Snell R²/);
 });
+
+test('suicide prediction example uses the external women cohort inputs and results', () => {
+    const example = getStartedHtml.match(
+        /<h3>Example 4\. Risk Prediction: Suicide Attempts<\/h3>[\s\S]*?(?=<h3>Example 5\.)/
+    )?.[0];
+
+    assert.ok(example, 'Expected the suicide prediction example');
+    assert.match(example, /base rate to 4\.8%/);
+    assert.match(example, /PR-AUC = 0\.12/);
+    assert.match(example, /Sensitivity = 0\.85, Specificity = 0\.40, PPV = 0\.07, and ΔNB = 0\.004/);
+    assert.match(example, /ΔNB = 0\.023/);
+    assert.match(example, /baseRate=0\.048/);
+    assert.match(example, /label1=Psychiatric%20controls[\s\S]*label2=Suicide%20attempters/);
+    assert.doesNotMatch(example, /base rate to 3\.9%|PR-AUC = 0\.10|ΔNB = 0\.025/);
+});
+
+test('depression example uses official 12-month prevalence sources', () => {
+    const example = getStartedHtml.match(
+        /<h3>Example 2\. Diagnostic Prediction: Depression<\/h3>[\s\S]*?(?=<h3>Example 3\.)/
+    )?.[0];
+
+    assert.ok(example, 'Expected the depression prediction example');
+    assert.match(example, /12-month prevalence of major depressive episodes/);
+    assert.match(example, /www\.nimh\.nih\.gov\/health\/statistics\/major-depression/);
+    assert.match(example, /www150\.statcan\.gc\.ca\/n1\/pub\/11-627-m\/11-627-m2023053-eng\.htm/);
+    assert.match(
+        example,
+        /multiTargetRocAuc=0\.965[\s\S]*multiEffectSize=0\.8[\s\S]*multiCollinearity=0\.05[\s\S]*multiPredictors=20/
+    );
+    assert.doesNotMatch(getStartedHtml, /Shorey et al\., 2022|10\.1111\/bjc\.12333/);
+});
+
+test('treatment response example uses the revised reliability and response assumptions', () => {
+    const example = getStartedHtml.match(
+        /<h3>Example 3\. Treatment Response Prediction: Antidepressants<\/h3>[\s\S]*?(?=<h3>Example 4\.)/
+    )?.[0];
+
+    assert.ok(example, 'Expected the antidepressant treatment response example');
+    assert.match(example, /Set base rate to 46%/);
+    assert.match(example, /Set outcome reliability to 0\.95/);
+    assert.match(example, /ROC-AUC = 0\.71 and PR-AUC = 0\.66/);
+    assert.match(example, /Sensitivity = 0\.98, PPV = 0\.48, and ΔNB = 0\.005/);
+    assert.match(example, /ROC-AUC = 0\.85 and PR-AUC = 0\.83/);
+    assert.match(example, /Sensitivity = 0\.95, PPV = 0\.59, and ΔNB = 0\.035/);
+    assert.match(example, /target R² to 0\.47/);
+    assert.match(example, /r = 0\.30[\s\S]*20 predictors are needed/);
+    assert.match(example, /r = 0\.25[\s\S]*target cannot be reached/);
+    assert.doesNotMatch(example, /r = 0\.40 for each predictor/);
+    assert.match(example, /outcomeReliability=0\.95[\s\S]*baseRate=0\.46/);
+    assert.match(example, /xaxisLabel=Multivariable%20task-fMRI%20prediction%20score/);
+    assert.match(
+        example,
+        /multiTargetR2=0\.47[\s\S]*multiPredictorCorrelation=0\.3[\s\S]*multiCollinearity=0\.15[\s\S]*multiPredictors=20/
+    );
+    assert.doesNotMatch(getStartedHtml, /Furukawa et al\., 2016|Trajković et al\., 2011/);
+});
