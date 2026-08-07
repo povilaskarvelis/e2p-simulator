@@ -2,7 +2,7 @@
  * Site version shown in the header/footer.
  * Kept in sync with the latest git release tag; GitHub API may override it.
  */
-const SITE_VERSION = 'v1.2.0';
+const SITE_VERSION = 'v1.3.0';
 
 function setVersionDisplays(versionNumber) {
     if (!versionNumber) return;
