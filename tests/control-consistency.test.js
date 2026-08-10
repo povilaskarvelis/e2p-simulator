@@ -82,20 +82,23 @@ test('suicide prediction example uses the external women cohort inputs and resul
     assert.doesNotMatch(example, /base rate to 3\.9%|PR-AUC = 0\.10|ΔNB = 0\.025/);
 });
 
-test('depression example uses official 12-month prevalence sources', () => {
+test('depression example uses the revised national prevalence sources', () => {
     const example = getStartedHtml.match(
         /<h3>Example 2\. Diagnostic Prediction: Depression<\/h3>[\s\S]*?(?=<h3>Example 3\.)/
     )?.[0];
 
     assert.ok(example, 'Expected the depression prediction example');
-    assert.match(example, /12-month prevalence of major depressive episodes/);
-    assert.match(example, /www\.nimh\.nih\.gov\/health\/statistics\/major-depression/);
-    assert.match(example, /www150\.statcan\.gc\.ca\/n1\/pub\/11-627-m\/11-627-m2023053-eng\.htm/);
+    assert.match(example, /Set base rate to 8% \(rounded from national estimates of 9\.2% in Americans aged ≥12 and 7\.7% in Canadians aged ≥15/);
+    assert.match(example, /10\.1016\/j\.amepre\.2022\.05\.014/);
+    assert.match(example, /10\.1016\/j\.psychres\.2026\.117370/);
     assert.match(
         example,
         /multiTargetRocAuc=0\.965[\s\S]*multiEffectSize=0\.8[\s\S]*multiCollinearity=0\.05[\s\S]*multiPredictors=20/
     );
-    assert.doesNotMatch(getStartedHtml, /Shorey et al\., 2022|10\.1111\/bjc\.12333/);
+    assert.doesNotMatch(
+        getStartedHtml,
+        /Shorey et al\., 2022|10\.1111\/bjc\.12333|National Institute of Mental Health, 2021|Statistics Canada, 2023/
+    );
 });
 
 test('treatment response example uses the revised reliability and response assumptions', () => {
