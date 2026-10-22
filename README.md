@@ -29,7 +29,8 @@ Karvelis, P., & Diaconescu, A. O. (2025). E2P Simulator: An Interactive Tool for
 To run E2P Simulator on your local machine for development or testing purposes, follow these steps:
 
 1. **Prerequisites**:
-   - Make sure you have [Node.js](https://nodejs.org/) installed
+   - Use the [Node.js](https://nodejs.org/) LTS version pinned in `.node-version`.
+     Netlify reads the same version pin for its builds.
 
 2. **Clone the Repository**:
    ```
