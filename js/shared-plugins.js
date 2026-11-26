@@ -27,20 +27,18 @@ function drawThresholdHandle(group, height, arrowWidth) {
         .attr("fill", "red");
 }
 
-const phoneWorkbench = window.matchMedia("(max-width: 760px)");
-
 // Both outcome modes display these curves with the same axes and AUC readouts.
 function discriminationCurveLayout(curve, auc, tickFontSize = 12) {
-    const compact = phoneWorkbench.matches;
+    const compact = compactLayout.matches;
     const roc = curve === "ROC";
     const labelOnRight = roc || auc < 0.27;
     const axis = (shortTitle, fullTitle) => ({
         title: compact ? shortTitle : fullTitle,
         range: [0, 1], dtick: 1, showgrid: false,
-        titlefont: { size: compact ? 13 : 15 }
+        titlefont: { size: compact ? 16 : 15 }
     });
     const labelPosition = compact
-        ? { x: 0.5, y: 1, xanchor: "center", yanchor: "bottom", yshift: 4 }
+        ? { x: 0.5, y: 1, xanchor: "center", yanchor: "bottom", xshift: -16, yshift: 4 }
         : {
             x: labelOnRight ? 0.95 : 0.05,
             y: !roc && labelOnRight ? 0.95 : 0.05,
@@ -50,15 +48,15 @@ function discriminationCurveLayout(curve, auc, tickFontSize = 12) {
     return {
         xaxis: roc ? axis("1 − specificity", "1 - Specificity (FPR)") : axis("Recall", "Recall (TPR)"),
         yaxis: roc ? axis("Sensitivity", "Sensitivity (TPR)") : axis("Precision", "Precision (PPV)"),
-        margin: compact ? { t: 28, l: 38, r: 12, b: 38 } : { t: 20, l: 50, r: 30, b: 40 },
+        margin: compact ? { t: 32, l: 44, r: 12, b: 46 } : { t: 20, l: 50, r: 30, b: 40 },
         showlegend: false,
         autosize: true,
-        font: { size: tickFontSize },
+        font: { size: compact ? 14 : tickFontSize },
         annotations: [{
             ...labelPosition,
             xref: "paper", yref: "paper", showarrow: false,
             text: `${curve}-AUC: ${auc.toFixed(2)}`,
-            font: { size: compact ? 14 : 16, color: "black", weight: "bold" }
+            font: { size: 16, color: "black", weight: "bold" }
         }]
     };
 }

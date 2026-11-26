@@ -114,6 +114,23 @@ body.get-started-page {
     height: 100%;
 }
 
+.guide-formula {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 6px 0.25em;
+    margin: 16px 0;
+}
+
+.responsive-details > summary {
+    display: none;
+}
+
+.equation-reference .equations-container {
+    margin-top: 0;
+}
+
 .workbench-plots {
     display: contents;
 }
@@ -373,7 +390,7 @@ body.get-started-page {
    Phone: single-column workbench and touch-friendly controls
    ========================================================================== */
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
     .site-header {
         align-items: center;
         flex-wrap: nowrap;
@@ -421,13 +438,15 @@ body.get-started-page {
     }
 
     .page-intro {
-        margin-bottom: 24px;
+        text-align: left;
+        margin-bottom: 18px;
         padding: 0;
     }
 
     .page-intro-title {
-        margin-bottom: 16px !important;
-        font-size: clamp(1.72rem, 8vw, 2.15rem);
+        text-align: left;
+        margin-bottom: 10px !important;
+        font-size: clamp(1.65rem, 7vw, 1.95rem);
         line-height: 1.18;
     }
 
@@ -435,7 +454,7 @@ body.get-started-page {
     .page-intro-meta,
     .description {
         font-size: 1rem;
-        line-height: 1.58;
+        line-height: 1.5;
     }
 
     .global-mode-row {
@@ -480,12 +499,132 @@ body.get-started-page {
     #continuous-container .slider-section {
         height: auto;
         min-height: 0;
-        padding: 18px 16px;
+        padding: 12px 14px;
     }
 
     #continuous-container .slider-section .index-hr-spaced {
         width: auto;
-        margin-inline: -16px;
+        margin: 8px 0 2px;
+    }
+
+    .responsive-details > summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        list-style: none;
+        box-sizing: border-box;
+        padding: 8px 0;
+        min-height: 44px;
+        line-height: 1.35;
+        font-family: inherit;
+        font-size: 0.94rem;
+        font-weight: 600;
+        color: #42484c;
+        cursor: pointer;
+    }
+
+    .responsive-details > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .responsive-details > summary::before {
+        content: "";
+        width: 0.45em;
+        height: 0.45em;
+        border: solid currentColor;
+        border-width: 0 1.5px 1.5px 0;
+        transform: rotate(-45deg);
+    }
+
+    .responsive-details[open] > summary::before {
+        transform: rotate(45deg);
+    }
+
+    .slider-section .index-metric-stack,
+    .slider-section .index-reliability-block,
+    .slider-section .index-base-rate-block {
+        margin: 0;
+    }
+
+    .slider-section .index-metric-stack {
+        gap: 3px;
+    }
+
+    .slider-section .metrics-header,
+    .slider-section .index-metric-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) repeat(2, 4.5rem);
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .slider-section .metrics-header span {
+        text-align: center;
+    }
+
+    .slider-section .index-metric-row + .index-metric-row {
+        margin-top: 3px;
+    }
+
+    .slider-section input.index-range-full {
+        display: block;
+        margin: 0 0 2px;
+    }
+
+    /* Keep the number beside the entire control, so the track can share its height. */
+    .control-pair,
+    .form-container .slider-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 4.5rem;
+        grid-template-areas: "label number" "track number";
+        column-gap: 12px;
+        align-items: center;
+        padding-block: 3px;
+    }
+
+    .control-pair .index-slider-label-row,
+    .form-container .slider-container > .slider-value-container {
+        display: contents;
+    }
+
+    .control-pair .slider-label,
+    .form-container .slider-container .slider-label {
+        grid-area: label;
+        align-self: end;
+    }
+
+    .slider-label {
+        font-size: 1rem;
+        line-height: 1.25;
+        margin: 0;
+    }
+
+    .control-pair input[type="range"],
+    .form-container .slider-container input[type="range"] {
+        display: block;
+        grid-area: track;
+        width: 100%;
+        margin: 0;
+    }
+
+    .ssb-r2cs-slider-wrap {
+        grid-area: track;
+    }
+
+    .control-pair input[type="number"],
+    .form-container .slider-container input[type="number"] {
+        grid-area: number;
+    }
+
+    .form-container,
+    :is(#ss-binary-container, #ss-cont-container) .form-container {
+        gap: 6px;
+    }
+
+    .section.sliders,
+    :is(#ss-binary-container, #ss-cont-container) .section.sliders {
+        padding-block: 14px;
     }
 
     .workbench-plots {
@@ -506,7 +645,19 @@ body.get-started-page {
     }
 
     #continuous-container .main-plot-section {
-        height: clamp(438px, 112vw, 548px);
+        height: auto;
+    }
+
+    #continuous-container .scatter-plots {
+        align-self: center;
+        flex: none;
+        width: min(100%, 320px);
+        aspect-ratio: 1;
+    }
+
+    #continuous-container .distribution-plots {
+        flex: none;
+        height: clamp(188px, 48vw, 260px);
     }
 
     #continuous-container .plots-stack,
@@ -546,11 +697,15 @@ body.get-started-page {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
+        max-width: 548px;
+        margin-inline: auto;
+        container-type: inline-size;
     }
 
     :is(#binary-container, #continuous-container) .results-container .half-plot {
         min-height: 0;
-        height: clamp(172px, 45vw, 240px);
+        /* A square data area plus the difference between vertical and horizontal margins. */
+        height: calc((100cqi - 8px) / 2 + 22px);
     }
 
     :is(#binary-container, #continuous-container) .results-container .dca-section {
@@ -577,13 +732,10 @@ body.get-started-page {
     }
 
     :is(#binary-container, #continuous-container) .dashboard p {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: baseline;
-        gap: 4px;
+        display: block;
         margin: 0;
         padding: 5px 0;
-        font-size: 0.94rem;
+        font-size: 1rem;
         font-weight: normal;
         white-space: normal;
         text-align: left;
@@ -593,22 +745,55 @@ body.get-started-page {
         font-variant-numeric: tabular-nums;
     }
 
+    .metrics-toggle.index-metrics-summary {
+        margin-block: 4px;
+    }
+
+    .equation-reference {
+        border-top: 1px solid #ddd;
+    }
+
     .equations-container {
-        gap: 12px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        gap: 8px;
     }
 
     .equation-box,
     .equation-box.wide,
     .equation-box.wider {
         width: 100%;
+        min-height: 0;
         margin: 0;
+    }
+
+    .equations-container .equation-box.wide {
+        grid-column: 1 / -1;
+        container-type: inline-size;
+    }
+
+    .equations-container .equation-box.wide .equation-content {
+        font-size: clamp(0.875rem, 5cqi, 1rem);
+    }
+
+    .equations-container mjx-container[display="true"] {
+        margin: 0.5em 0 !important;
+    }
+
+    .equations-container .equation-title {
+        margin: 0;
+        font-size: 0.95rem;
     }
 
     .equation-content {
         max-width: 100%;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        font-size: clamp(0.78rem, 3.5vw, 1rem);
+        font-size: 1rem;
+    }
+
+    .section .equation-box.flat .equation-content {
+        font-size: clamp(0.875rem, 4.5cqi, 1rem);
     }
 
     .get-started-page mjx-container[display="true"] {
@@ -639,16 +824,43 @@ body.get-started-page {
     }
 
     .page-chapter .index-calculator-desc {
-        margin-bottom: 24px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .description.index-calculator-desc p {
+        font-size: 1rem !important;
+        line-height: 1.5;
+    }
+
+    .calib-plot-column {
+        container-type: inline-size;
+    }
+
+    .calib-plot-slot--wide {
+        align-self: center;
+        width: min(100%, 460px);
+        height: calc(min(100cqi, 460px) - 12px);
+    }
+
+    .dataset-section {
+        margin-bottom: 10px;
+    }
+
+    .dataset-section h3 {
+        margin-bottom: 4px;
     }
 
     .calib-metrics-grid {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+        gap: 6px;
         font-size: 1rem;
     }
 
     .calib-metric-cell {
-        gap: 12px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0 0.35em;
+        padding: 7px;
         position: relative;
     }
 
@@ -662,19 +874,24 @@ body.get-started-page {
 
     .summary-detail-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+        gap: 6px;
     }
 
     .summary-item {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 3px;
         text-align: left;
     }
 
     .summary-item .item-value {
         margin: 0;
+    }
+
+    .content-bubble {
+        padding: 14px;
     }
 
     #sample-size .chart-legend {
@@ -720,6 +937,7 @@ body.get-started-page {
     .slider-value-container input[type="number"],
     input.slider-value,
     .form-container input[type="number"] {
+        width: 4.5rem !important;
         min-height: 36px;
         font-size: 1rem;
     }
@@ -734,9 +952,59 @@ body.get-started-page {
         max-width: min(280px, calc(100vw - 24px));
     }
 
-    .guide-section {
-        padding-top: 28px !important;
-        padding-bottom: 32px !important;
+    .get-started-page .toc-sidebar {
+        display: block;
+        position: static;
+        max-height: none;
+        width: 100%;
+        border: 0;
+        padding: 0 12px;
+        background: white;
+        border-radius: 8px;
+    }
+
+    .toc-sidebar::before {
+        display: none;
+    }
+
+    .toc-sidebar ol {
+        padding-bottom: 8px;
+    }
+
+    .toc-sidebar a {
+        padding: 8px 0;
+        text-align: left;
+        color: #444;
+    }
+
+    .get-started-page .guide-section {
+        padding: 22px 0 !important;
+    }
+
+    .guide-formula {
+        font-size: clamp(0.9rem, 4.5vw, 1rem);
+        align-items: center;
+        overflow-x: auto;
+        justify-content: safe center;
+        padding-block: 4px;
+    }
+
+    .guide-formula > span {
+        flex: none;
+    }
+
+    .guide-section :is(ul, ol) {
+        padding-inline-start: 1.35em;
+    }
+
+    .guide-section :is(p, li) {
+        line-height: 1.55;
+    }
+
+    .get-started-page :is(#aucs-diagram, #dca-diagram) {
+        float: none !important;
+        margin: 12px auto !important;
+        text-align: center;
     }
 
     .get-started-page h1 {
@@ -754,33 +1022,57 @@ body.get-started-page {
     }
 }
 
-@media (max-width: 420px) {
-    .nav-link {
-        padding-left: 6px !important;
-        padding-right: 6px !important;
-        font-size: 0.82rem !important;
+/* Wider mobile viewports can compare the distributions and curves in one row. */
+@media (min-width: 700px) and (max-width: 900px) {
+    .slider-section > .slider-container {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 24px;
+        align-items: start;
     }
 
-    .slider-label {
-        margin-right: 6px;
-        font-size: 1rem;
+    .slider-section > .slider-container > .responsive-details {
+        grid-column: 1 / -1;
+        border-top: 1px solid #eee;
     }
 
-    .metrics-header {
-        grid-template-columns: minmax(0, 1fr) 68px 54px;
+    #continuous-container .slider-section .index-hr-spaced {
+        display: none;
     }
 
-    .slider-container input[type="number"],
-    .slider-value-container input[type="number"],
-    input.slider-value,
-    .form-container input[type="number"] {
-        width: 62px !important;
+    .workbench-plots {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: center;
+        gap: 8px;
+    }
+
+    :is(#binary-container, #continuous-container) .results-container {
+        grid-column: auto;
+        padding-left: 8px;
+        border-left: 1px solid #eee;
+    }
+
+    :is(#binary-container, #continuous-container) .results-container .roc-pr-section {
+        border-top: 0;
+    }
+
+    :is(#binary-container, #continuous-container) .dashboard-metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
 /* Below this width two sets of axes leave too little room for the curves. */
 @media (max-width: 359px) {
+    .section,
+    .section.sliders {
+        padding-inline: 8px;
+    }
+
     .roc-pr-section .plot-container {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    :is(#binary-container, #continuous-container) .results-container .half-plot {
+        height: calc(100cqi + 22px);
     }
 }

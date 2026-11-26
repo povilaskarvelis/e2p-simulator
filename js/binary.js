@@ -216,7 +216,7 @@ function updateLegend(legendData) {
 
         // Update the position and properties of all legend elements
         legendEnter.merge(legend)
-            .attr("x", phoneWorkbench.matches ? 8 : PLOT_CONFIG.margin.left)
+            .attr("x", compactLayout.matches ? 8 : PLOT_CONFIG.margin.left)
             .attr("y", (d, i) => PLOT_CONFIG.margin.top + i * 19); // Adjusted for better spacing
     } catch (error) {
         console.error("Error updating legend:", error);

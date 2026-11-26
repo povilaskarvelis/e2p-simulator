@@ -84,9 +84,11 @@ function getContinuousPlotGeometry(plotId) {
     const renderedWidth = hasUsableSize ? rect.width : viewBoxWidth;
     const viewBoxUnitsPerCssPixel = viewBoxWidth / renderedWidth;
     const toViewBoxUnits = cssPixels => cssPixels * viewBoxUnitsPerCssPixel;
+    // The mobile scatter frame is square. Equal total insets preserve equal SD units.
+    const squareScatter = compactLayout.matches && plotId.startsWith("scatter-");
     const margin = {
         top: toViewBoxUnits(16),
-        right: toViewBoxUnits(20),
+        right: toViewBoxUnits(squareScatter ? 6 : 20),
         bottom: toViewBoxUnits(42),
         left: toViewBoxUnits(52)
     };
@@ -880,7 +882,7 @@ function drawDistributions(r, type, options = {}) {
         .text(d => d);
 
     legendEnter.merge(legend)
-        .attr("x", margin.left + toViewBoxUnits(phoneWorkbench.matches ? 8 : 45))
+        .attr("x", margin.left + toViewBoxUnits(compactLayout.matches ? 8 : 45))
         .attr("y", (d, i) => margin.top + i * toViewBoxUnits(18) + toViewBoxUnits(16));
 
     newSvg.selectAll(".threshold-group").remove();
@@ -1027,7 +1029,7 @@ function plotROC(options = {}) {
     };
 
     const prLayout = discriminationCurveLayout("PR", prauc);
-    lastPhoneCurveLayout = phoneWorkbench.matches;
+    lastPhoneCurveLayout = compactLayout.matches;
 
     const config = {
         staticPlot: true,
@@ -1230,7 +1232,7 @@ function redrawVisibleContinuousMainPlots() {
         layoutOnly: true
     });
 
-    if (rocInitialized && lastPhoneCurveLayout !== phoneWorkbench.matches) {
+    if (rocInitialized && lastPhoneCurveLayout !== compactLayout.matches) {
         plotROC({ reuseCurves: true });
     }
 
