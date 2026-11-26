@@ -431,7 +431,20 @@ body.get-started-page {
     }
 
     .global-mode-row {
-        margin-bottom: 18px;
+        margin-bottom: 12px;
+    }
+
+    .workbench > .export-bar {
+        display: flex;
+        justify-content: flex-end;
+        height: auto;
+        margin-bottom: 4px;
+    }
+
+    .workbench > .export-bar .export-button {
+        position: static;
+        min-height: 44px;
+        padding-inline: 8px;
     }
 
     .global-mode {

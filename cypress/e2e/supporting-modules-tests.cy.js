@@ -117,6 +117,29 @@ describe('E2P Simulator - Supporting modules', () => {
     cy.get('#calibration').should('be.visible');
   });
 
+  it('separates the threshold arrows and the Export control on phones', () => {
+    cy.viewport(390, 844);
+
+    for (const mode of ['binary', 'continuous']) {
+      cy.get(`#${mode}-button`).click();
+
+      cy.get(`#${mode}-container .workbench > .export-bar button`).should(($button) => {
+        const button = $button[0];
+        const toggle = button.ownerDocument.querySelector('.global-mode').getBoundingClientRect();
+        expect(button.getBoundingClientRect().top - toggle.bottom).to.be.at.least(10);
+      });
+
+      cy.get(`#${mode}-container .main-plot-section .threshold-group:visible`).should(($group) => {
+        const group = $group[0];
+        const lineX = group.querySelector('.threshold-line').getBoundingClientRect().x;
+        const [left, right] = group.querySelectorAll('.threshold-arrow');
+        // The 4 px line has a 5 px gap between each edge and its arrow.
+        expect(lineX - left.getBoundingClientRect().right).to.be.closeTo(7, 0.5);
+        expect(right.getBoundingClientRect().left - lineX).to.be.closeTo(7, 0.5);
+      });
+    }
+  });
+
   it('keeps both sample-size charts inside their cards on a narrow phone', () => {
     cy.viewport(320, 667);
 

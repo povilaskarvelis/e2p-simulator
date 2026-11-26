@@ -1,3 +1,32 @@
+// The caller positions the handle at the threshold and scales its local units to CSS pixels.
+function drawThresholdHandle(group, height, arrowWidth) {
+    const strokeWidth = 4;
+    const arrowBase = strokeWidth / 2 + 5;
+
+    group.selectAll(".threshold-line").data([null]).join("line")
+        .attr("class", "threshold-line")
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-width", strokeWidth)
+        .attr("opacity", 0.9);
+
+    group.selectAll(".threshold-hitbox").data([null]).join("rect")
+        .attr("class", "threshold-hitbox")
+        .attr("x", -10)
+        .attr("width", 20)
+        .attr("height", height)
+        .attr("fill", "transparent");
+
+    group.selectAll(".threshold-arrow").data([-1, 1]).join("path")
+        .attr("class", "threshold-arrow")
+        .attr("d", direction => {
+            const baseX = direction * arrowBase;
+            const tipX = direction * (arrowBase + arrowWidth);
+            return `M${baseX},${arrowWidth / 2} L${tipX},${arrowWidth} L${baseX},${1.5 * arrowWidth} Z`;
+        })
+        .attr("fill", "red");
+}
+
 const targetLineLabelPlugin = {
     id: 'targetLineLabel',
     afterDraw: (chart) => {

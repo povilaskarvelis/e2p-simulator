@@ -903,22 +903,20 @@ function drawThreshold(metrics, type) {
     // Remove existing threshold group before drawing a new one
     svg.selectAll(".threshold-group").remove();
 
-    // Define variable for drag event
-    let offsetX;
-
-    const thresholdGroup = svg.append("g") // Append to the existing SVG
+    const unitsPerPixel = toViewBoxUnits(1);
+    const thresholdTransform = () =>
+        `translate(${xScale(thresholdValue)},${margin.top}) scale(${unitsPerPixel})`;
+    const thresholdGroup = svg.append("g")
         .attr("class", "threshold-group")
+        .attr("transform", thresholdTransform)
         .style("cursor", "ew-resize")
+        .call(drawThresholdHandle, plotArea.height / unitsPerPixel, 8)
         .call(d3.drag()
-            .on("start", function (event) {
-                offsetX = xScale(thresholdValue) - event.x;
-            })
+            .subject(() => ({ x: xScale(thresholdValue), y: margin.top }))
             .on("drag", function (event) {
-                let newThreshold = xScale.invert(event.x + offsetX);
-                newThreshold = Math.max(xScale.domain()[0], Math.min(xScale.domain()[1], newThreshold));
-                thresholdValue = newThreshold;
-                // Line tracks the pointer continuously (no discrete snap).
-                updateThresholdVisual(thresholdGroup);
+                const [min, max] = xScale.domain();
+                thresholdValue = clamp(xScale.invert(event.x), min, max);
+                thresholdGroup.attr("transform", thresholdTransform);
                 // Metrics stay on the current sample at full precision; coalesce Plotly/DCA work.
                 updatePtDisplayContinuous();
                 scheduleThresholdMetricsUpdate();
@@ -930,105 +928,9 @@ function drawThreshold(metrics, type) {
             })
         );
 
-    // Calculate plot area bounds based on viewBox and margins
-    const plotTop = margin.top;
-    const plotBottom = margin.top + plotArea.height;
-
-    // Add or update the threshold line
-    thresholdGroup.selectAll(".threshold-line")
-        .data([null])
-        .join("line")
-        .attr("class", "threshold-line")
-        .attr("x1", xScale(thresholdValue))
-        .attr("x2", xScale(thresholdValue))
-        .attr("y1", plotTop) // Use calculated plot area top
-        .attr("y2", plotBottom) // Use calculated plot area bottom
-        .attr("stroke", "red")
-        .attr("stroke-width", toViewBoxUnits(4))
-        .attr("opacity", 0.9);
-
-    // Add or update the hitbox for interaction
-    thresholdGroup.selectAll(".threshold-hitbox")
-        .data([null])
-        .join("rect")
-        .attr("class", "threshold-hitbox")
-        .attr("x", xScale(thresholdValue) - toViewBoxUnits(10))
-        .attr("width", toViewBoxUnits(20))
-        .attr("y", plotTop) // Use calculated plot area top
-        .attr("height", plotArea.height) // Use calculated plot area height
-        .attr("fill", "transparent");
-
-    // Add or update the arrows
-    const arrowSize = toViewBoxUnits(8);
-    const arrowY = plotTop + toViewBoxUnits(8); // Position near top of plot area
-    const arrowData = [
-        { direction: "left", x: thresholdValue - 0.2, y: arrowY },
-        { direction: "right", x: thresholdValue + 0.2, y: arrowY },
-    ];
-
-    thresholdGroup.selectAll(".threshold-arrow")
-        .data(arrowData)
-        .join("path")
-        .attr("class", "threshold-arrow")
-        .attr("d", d => {
-            const x = xScale(d.x);
-            const y = d.y;
-            if (d.direction === "left") {
-                return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-            } else {
-                return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-            }
-        })
-        .attr("fill", "red");
-
     // Threshold above distributions, but under legend text
     thresholdGroup.raise();
     svg.selectAll(".legend-group").raise();
-}
-
-// Update threshold line / hitbox / arrows in place (keeps the active drag gesture intact)
-function updateThresholdVisual(thresholdGroup) {
-    const group = thresholdGroup || d3.select(
-        `#${currentView === "true" ? SELECTORS.distributionPlotTrue : SELECTORS.distributionPlotObserved} .threshold-group`
-    );
-    if (group.empty()) return;
-
-    const distributionPlotId = currentView === "true"
-        ? SELECTORS.distributionPlotTrue
-        : SELECTORS.distributionPlotObserved;
-    const { margin, plotArea, toViewBoxUnits } =
-        getContinuousPlotGeometry(distributionPlotId);
-    const plotTop = margin.top;
-    const plotBottom = margin.top + plotArea.height;
-    const x = xScale(thresholdValue);
-
-    group.select(".threshold-line")
-        .attr("x1", x)
-        .attr("x2", x)
-        .attr("y1", plotTop)
-        .attr("y2", plotBottom);
-
-    group.select(".threshold-hitbox")
-        .attr("x", x - toViewBoxUnits(10))
-        .attr("width", toViewBoxUnits(20))
-        .attr("height", plotArea.height);
-
-    const arrowSize = toViewBoxUnits(8);
-    const arrowY = plotTop + toViewBoxUnits(8);
-    const arrowData = [
-        { direction: "left", x: thresholdValue - 0.2, y: arrowY },
-        { direction: "right", x: thresholdValue + 0.2, y: arrowY },
-    ];
-    group.selectAll(".threshold-arrow")
-        .data(arrowData)
-        .attr("d", d => {
-            const ax = xScale(d.x);
-            const ay = d.y;
-            if (d.direction === "left") {
-                return `M${ax},${ay} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-            }
-            return `M${ax},${ay} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-        });
 }
 
 function plotROC(options = {}) {

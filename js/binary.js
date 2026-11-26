@@ -228,113 +228,26 @@ function drawThreshold(d) {
         // Use the stored thresholdValue (don't recalculate)
         const xDomain = xScale.domain();
 
-        // Select or create the threshold group within plotGroup
         const thresholdGroup = plotGroup.selectAll(".threshold-group")
-            .data([null]); // Use a single group for the threshold
-
-        const groupEnter = thresholdGroup.enter()
-            .append("g")
+            .data([null])
+            .join("g")
             .attr("class", "threshold-group")
-            .style("cursor", "ew-resize");
+            .attr("transform", `translate(${xScale(thresholdValue)},0)`)
+            .style("cursor", "ew-resize")
+            .call(drawThresholdHandle, height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom, 10);
 
-        // Merge enter and update selections
-        const thresholdMerge = groupEnter.merge(thresholdGroup);
-
-        // Add or update the threshold line
-        const line = thresholdMerge.selectAll(".threshold-line")
-            .data([null]);
-
-        line.enter()
-            .append("line")
-            .attr("class", "threshold-line")
-            .merge(line)
-            .attr("x1", xScale(thresholdValue))
-            .attr("x2", xScale(thresholdValue))
-            .attr("y1", 0)
-            .attr("y2", height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom)
-            .attr("stroke", "red")
-            .attr("stroke-width", 4)
-            .attr("opacity", 0.9);
-
-        // Add or update the hitbox
-        const hitbox = thresholdMerge.selectAll(".threshold-hitbox")
-            .data([null]);
-
-        hitbox.enter()
-            .append("rect")
-            .attr("class", "threshold-hitbox")
-            .merge(hitbox)
-            .attr("x", xScale(thresholdValue) - 10)
-            .attr("width", 20)
-            .attr("y", 0)
-            .attr("height", height - PLOT_CONFIG.margin.top - PLOT_CONFIG.margin.bottom)
-            .attr("fill", "transparent");
-
-        // Add or update the arrows
-        const arrowSize = 10;
-        const arrowY = 10; // Position arrows near the top
-        const arrowData = [
-            { direction: "left", y: arrowY },
-            { direction: "right", y: arrowY }
-        ];
-
-        const arrows = thresholdMerge.selectAll(".threshold-arrow")
-            .data(arrowData);
-
-        arrows.enter()
-            .append("path")
-            .attr("class", "threshold-arrow")
-            .merge(arrows)
-            .attr("d", d => {
-                const x = xScale(thresholdValue + (d.direction === "left" ? -0.35 : 0.35));
-                const y = d.y;
-                if (d.direction === "left") {
-                    return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                } else {
-                    return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                }
-            })
-            .attr("fill", "red");
-
-        // Remove any excess elements
-        arrows.exit().remove();
-
-        // Add drag behavior after elements are created
-        thresholdMerge.call(d3.drag()
+        thresholdGroup.call(d3.drag()
+            .subject(() => ({ x: xScale(thresholdValue), y: 0 }))
             .on("drag", function(event) {
-                // Get new threshold value from drag position, accounting for margins
-                let newThreshold = xScale.invert(event.x);
-                // Constrain to the x-axis domain
-                newThreshold = Math.max(xDomain[0], Math.min(xDomain[1], newThreshold));
-                thresholdValue = newThreshold;
-
-                // Update threshold line position immediately
-                d3.select(this).select(".threshold-line")
-                    .attr("x1", xScale(newThreshold))
-                    .attr("x2", xScale(newThreshold));
-
-                // Update hitbox position immediately
-                d3.select(this).select(".threshold-hitbox")
-                    .attr("x", xScale(newThreshold) - 10);
-
-                // Update arrows immediately
-                d3.select(this).selectAll(".threshold-arrow")
-                    .attr("d", d => {
-                        const x = xScale(newThreshold + (d.direction === "left" ? -0.33 : 0.33));
-                        const y = d.y;
-                        if (d.direction === "left") {
-                            return `M${x},${y} l${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                        } else {
-                            return `M${x},${y} l-${arrowSize},-${arrowSize / 2} l0,${arrowSize} Z`;
-                        }
-                    });
+                thresholdValue = clamp(xScale.invert(event.x), xDomain[0], xDomain[1]);
+                thresholdGroup.attr("transform", `translate(${xScale(thresholdValue)},0)`);
 
                 plotROC(d);
                 updatePtDisplay();
             }));
 
         // Threshold above distributions, but under legend text
-        thresholdMerge.raise();
+        thresholdGroup.raise();
         plotGroup.selectAll(".legend-group").raise();
     } catch (error) {
         console.error("Error drawing threshold:", error);
