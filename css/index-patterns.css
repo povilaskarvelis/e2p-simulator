@@ -196,10 +196,6 @@
     margin-bottom: 12px;
 }
 
-.index-metric-stack--mb15 {
-    margin-bottom: 15px;
-}
-
 .index-metric-stack--mb5 {
     margin-bottom: 5px;
 }
@@ -212,10 +208,6 @@
 
 .index-metrics-header {
     margin-bottom: 8px;
-}
-
-.index-metrics-header--tight {
-    margin-bottom: 5px;
 }
 
 .index-reliability-block {
@@ -695,10 +687,6 @@ html.is-exporting .modebar-container {
     left: 0;
     width: 100%;
     height: 100%;
-}
-
-.index-hr-spaced {
-    margin: 10px 0 10px;
 }
 
 .index-precise-toggle {

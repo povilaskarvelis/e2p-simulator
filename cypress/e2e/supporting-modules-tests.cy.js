@@ -135,6 +135,10 @@ describe('E2P Simulator - Supporting modules', () => {
 
       cy.get(`#${mode}-container .main-plot-section .threshold-group:visible`).should(($group) => {
         const group = $group[0];
+        const svg = group.ownerSVGElement;
+        const axis = svg.querySelector('.y-axis .domain').getBoundingClientRect();
+        const legend = svg.querySelector('.legend-group').getBoundingClientRect();
+        expect(legend.left - axis.right).to.be.closeTo(20, 1);
         const lineX = group.querySelector('.threshold-line').getBoundingClientRect().x;
         const [left, right] = group.querySelectorAll('.threshold-arrow');
         // The 4 px line has a 5 px gap between each edge and its arrow.
@@ -177,24 +181,15 @@ describe('E2P Simulator - Supporting modules', () => {
     }
   });
 
-  it('keeps the main settings compact and metric values next to their labels', () => {
+  it('shows all effect sizes together and centers each dashboard label with its value', () => {
     cy.viewport(390, 844);
     for (const mode of ['binary', 'continuous']) {
       cy.get(`#${mode}-button`).click();
       const root = `#${mode}-container`;
-      const details = `${root} .slider-section details`;
-      cy.get(details).should('not.have.attr', 'open');
-      cy.get(`${root} .slider-section`).should(($settings) => {
-        expect($settings.height()).to.be.lessThan(460);
-      });
-      cy.get(`${details} summary`).click();
-      cy.get(`${details} input`).first().should('be.visible');
-      cy.viewport(1024, 768);
-      cy.get(`${details} summary`).should('not.be.visible');
-      cy.get(`${details} input`).first().should('be.visible');
-      cy.viewport(390, 844);
-      cy.get(details).should('have.attr', 'open');
-      cy.get(`${details} summary`).click();
+      const table = `${root} .slider-section .index-metric-stack`;
+      cy.get(table).should('have.length', 1);
+      cy.get(`${table} > .index-metric-row:visible`).should('have.length', mode === 'binary' ? 6 : 10);
+      cy.get(`${root} .dashboard-heading`).should('have.css', 'text-align', 'center');
       cy.get(`${root} .dashboard p:visible`).each(($metric) => {
         const cell = $metric[0];
         const label = cell.firstChild;
@@ -205,14 +200,64 @@ describe('E2P Simulator - Supporting modules', () => {
         const text = range.getBoundingClientRect();
         expect(value.left - text.right).to.be.within(0, 8);
         expect(value.top).to.be.closeTo(text.top, 1);
+        const column = cell.getBoundingClientRect();
+        expect((text.left + value.right) / 2).to.be.closeTo((column.left + column.right) / 2, 1);
       });
     }
   });
 
-  it('opens the reference equations and guide sections directly on a phone', () => {
+  it('lays out five visible equations in three rows on a narrow phone', () => {
     cy.viewport(320, 667);
-    cy.get('#binary-container .equation-reference > summary').click();
-    cy.get('#binary-container .equations-container mjx-math').first().should('be.visible');
+    for (const mode of ['binary', 'continuous']) {
+      cy.get(`#${mode}-button`).click();
+      cy.get(`#${mode}-container .equations-container > .equation-box`).should(($cards) => {
+        expect($cards).to.have.length(5);
+        expect($cards.first().text()).to.include("Cohen's d");
+        const [lead, second, third, fourth, fifth] = Array.from($cards, card => card.getBoundingClientRect());
+        expect(second.top).to.be.greaterThan(lead.bottom);
+        expect(second.top).to.equal(third.top);
+        expect(fourth.top).to.be.greaterThan(second.bottom);
+        expect(fourth.top).to.equal(fifth.top);
+        expect(second.left).to.equal(fourth.left).and.to.equal(lead.left);
+        expect(third.right).to.equal(fifth.right).and.to.equal(lead.right);
+        for (const card of $cards) {
+          const equation = card.querySelector('.equation-content');
+          expect(equation.querySelector('mjx-container mjx-container')).to.equal(null);
+          const frame = equation.getBoundingClientRect();
+          const expressions = equation.querySelectorAll('mjx-math');
+          expect(expressions.length).to.be.greaterThan(0);
+          for (const expression of expressions) {
+            const math = expression.getBoundingClientRect();
+            expect(math.width).to.be.greaterThan(0);
+            const title = card.querySelector('.equation-title').textContent;
+            expect(math.left, title).to.be.at.least(frame.left - 0.5);
+            expect(math.right, title).to.be.at.most(frame.right + 0.5);
+          }
+        }
+      });
+    }
+  });
+
+  it('places AUC values in the plots and moves the PR value above a low curve', () => {
+    cy.viewport(390, 844);
+    for (const mode of ['binary', 'continuous']) {
+      const suffix = mode === 'binary' ? '' : '-cont';
+      cy.get(`#${mode}-button`).click();
+      cy.get(`#roc-plot${suffix}`).should(($p) => {
+        expect($p[0]._fullLayout.annotations[0]).to.include({ x: 0.95, y: 0.05 });
+      });
+      cy.get(`#pr-plot${suffix}`).should(($p) => {
+        expect($p[0]._fullLayout.annotations[0]).to.include({ x: 0.05, y: 0.05 });
+      });
+      cy.get(`#base-rate-number${suffix}`).clear().type('1').blur();
+      cy.get(`#pr-plot${suffix}`).should(($p) => {
+        expect($p[0]._fullLayout.annotations[0]).to.include({ x: 0.95, y: 0.95 });
+      });
+    }
+  });
+
+  it('opens guide sections directly on a phone', () => {
+    cy.viewport(320, 667);
     cy.visit('get-started.html');
     cy.get('#toc-sidebar summary').click();
     cy.get('#toc-sidebar a[href="#sample-size"]').click();

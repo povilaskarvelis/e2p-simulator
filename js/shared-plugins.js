@@ -31,21 +31,16 @@ function drawThresholdHandle(group, height, arrowWidth) {
 function discriminationCurveLayout(curve, auc, tickFontSize = 12) {
     const compact = compactLayout.matches;
     const roc = curve === "ROC";
-    const labelOnRight = roc || auc < 0.27;
+    const labelAtTop = !roc && auc < 0.27;
+    const labelOnRight = roc || labelAtTop;
     const axis = (shortTitle, fullTitle) => ({
         title: compact ? shortTitle : fullTitle,
         range: [0, 1], dtick: 1, showgrid: false,
         titlefont: { size: compact ? 16 : 15 }
     });
-    const labelPosition = compact
-        ? { x: 0.5, y: 1, xanchor: "center", yanchor: "bottom", xshift: -16, yshift: 4 }
-        : {
-            x: labelOnRight ? 0.95 : 0.05,
-            y: !roc && labelOnRight ? 0.95 : 0.05,
-            align: labelOnRight ? "right" : "left"
-        };
 
     return {
+        title: compact ? { text: `${curve} curve`, font: { size: 16 } } : undefined,
         xaxis: roc ? axis("1 − specificity", "1 - Specificity (FPR)") : axis("Recall", "Recall (TPR)"),
         yaxis: roc ? axis("Sensitivity", "Sensitivity (TPR)") : axis("Precision", "Precision (PPV)"),
         margin: compact ? { t: 32, l: 44, r: 12, b: 46 } : { t: 20, l: 50, r: 30, b: 40 },
@@ -53,10 +48,11 @@ function discriminationCurveLayout(curve, auc, tickFontSize = 12) {
         autosize: true,
         font: { size: compact ? 14 : tickFontSize },
         annotations: [{
-            ...labelPosition,
+            x: labelOnRight ? 0.95 : 0.05, y: labelAtTop ? 0.95 : 0.05,
+            xanchor: labelOnRight ? "right" : "left", yanchor: labelAtTop ? "top" : "bottom",
             xref: "paper", yref: "paper", showarrow: false,
-            text: `${curve}-AUC: ${auc.toFixed(2)}`,
-            font: { size: 16, color: "black", weight: "bold" }
+            text: `${compact ? "" : curve + "-"}AUC: ${auc.toFixed(2)}`,
+            font: { size: compact ? 14 : 16, color: "black" }
         }]
     };
 }

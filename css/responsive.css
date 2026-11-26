@@ -131,11 +131,22 @@ body.get-started-page {
     margin-top: 0;
 }
 
+.equation-wrap {
+    flex-wrap: wrap;
+    gap: 4px 0.25em;
+    margin-block: 1em;
+}
+
+.equation-wrap > span {
+    flex: none;
+}
+
 .workbench-plots {
     display: contents;
 }
 
-.dashboard-heading {
+.dashboard-heading,
+.equations-heading {
     display: none;
 }
 
@@ -500,11 +511,6 @@ body.get-started-page {
         padding: 12px 14px;
     }
 
-    #continuous-container .slider-section .index-hr-spaced {
-        width: auto;
-        margin: 8px 0 2px;
-    }
-
     .responsive-details > summary {
         display: flex;
         align-items: center;
@@ -538,7 +544,6 @@ body.get-started-page {
         transform: rotate(45deg);
     }
 
-    .slider-section .index-metric-stack,
     .slider-section .index-reliability-block,
     .slider-section .index-base-rate-block {
         margin: 0;
@@ -546,6 +551,7 @@ body.get-started-page {
 
     .slider-section .index-metric-stack {
         gap: 3px;
+        margin: 0 0 6px;
     }
 
     .slider-section .metrics-header,
@@ -559,10 +565,6 @@ body.get-started-page {
 
     .slider-section .metrics-header span {
         text-align: center;
-    }
-
-    .slider-section details > .index-metric-row + .index-metric-row {
-        margin-top: 3px;
     }
 
     .slider-section input.index-range-full {
@@ -715,10 +717,11 @@ body.get-started-page {
         padding: 10px 14px;
     }
 
-    .dashboard-heading {
+    .dashboard-heading,
+    .equations-heading {
         display: block;
         margin: 0 0 4px;
-        text-align: left;
+        text-align: center;
         font-size: 1rem;
         color: #333;
     }
@@ -736,7 +739,7 @@ body.get-started-page {
         font-size: 1rem;
         font-weight: normal;
         white-space: normal;
-        text-align: left;
+        text-align: center;
     }
 
     .dashboard p span {
@@ -747,13 +750,13 @@ body.get-started-page {
         margin-block: 4px;
     }
 
-    .equation-reference {
-        border-top: 1px solid #ddd;
+    .equations-heading {
+        margin-block: 8px;
     }
 
     .equations-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
 
@@ -765,13 +768,26 @@ body.get-started-page {
         margin: 0;
     }
 
-    .equations-container .equation-box.wide {
-        grid-column: 1 / -1;
+    .equations-container .equation-box {
+        min-width: 0;
+        padding: 10px 6px;
         container-type: inline-size;
     }
 
-    .equations-container .equation-box.wide .equation-content {
+    .equations-container .equation-box:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .equations-container .equation-content {
+        font-size: clamp(0.875rem, 9cqi, 1rem);
+    }
+
+    .equations-container .equation-box:first-child .equation-content {
         font-size: clamp(0.875rem, 5cqi, 1rem);
+    }
+
+    .equations-container .equation-wrap {
+        margin-block: 0.5em;
     }
 
     .equations-container mjx-container[display="true"] {
@@ -1031,13 +1047,8 @@ body.get-started-page {
         align-items: start;
     }
 
-    .slider-section > .slider-container > .responsive-details {
-        grid-column: 1 / -1;
-        border-top: 1px solid #eee;
-    }
-
-    #continuous-container .slider-section .index-hr-spaced {
-        display: none;
+    .slider-section .slider-container > :first-child {
+        grid-row: span 3;
     }
 
     .workbench-plots {
@@ -1055,14 +1066,14 @@ body.get-started-page {
     :is(#binary-container, #continuous-container) .results-container .roc-pr-section {
         border-top: 0;
     }
-
-    :is(#binary-container, #continuous-container) .dashboard-metrics {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
 }
 
 /* Below this width two sets of axes leave too little room for the curves. */
 @media (max-width: 359px) {
+    .equations-container .equation-box {
+        padding-inline: 4px;
+    }
+
     .section,
     .section.sliders {
         padding-inline: 8px;

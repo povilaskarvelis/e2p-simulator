@@ -465,9 +465,6 @@
             ['ssb-mape-slider','ssb-mape'],
         ];
         pairs.forEach(([a,b])=>syncPair(a,b));
-        if (window.MathJax && window.MathJax.typeset) {
-            window.MathJax.typeset();
-        }
         update();
     }
 

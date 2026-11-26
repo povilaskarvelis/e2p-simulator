@@ -882,7 +882,7 @@ function drawDistributions(r, type, options = {}) {
         .text(d => d);
 
     legendEnter.merge(legend)
-        .attr("x", margin.left + toViewBoxUnits(compactLayout.matches ? 8 : 45))
+        .attr("x", margin.left + toViewBoxUnits(compactLayout.matches ? 20 : 45))
         .attr("y", (d, i) => margin.top + i * toViewBoxUnits(18) + toViewBoxUnits(16));
 
     newSvg.selectAll(".threshold-group").remove();

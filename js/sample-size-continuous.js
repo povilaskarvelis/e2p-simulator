@@ -278,9 +278,6 @@
             ['ssc-delta-slider','ssc-delta'],
         ];
         pairs.forEach(([a,b])=>syncPair(a,b));
-        if (window.MathJax && window.MathJax.typeset) {
-            window.MathJax.typeset();
-        }
         update();
     }
 
