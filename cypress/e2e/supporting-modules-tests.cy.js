@@ -127,6 +127,10 @@ describe('E2P Simulator - Supporting modules', () => {
         const button = $button[0];
         const toggle = button.ownerDocument.querySelector('.global-mode').getBoundingClientRect();
         expect(button.getBoundingClientRect().top - toggle.bottom).to.be.at.least(10);
+        const settings = button.closest('.workbench').querySelector('.slider-section');
+        const labelBottom = button.querySelector('span').getBoundingClientRect().bottom;
+        expect(settings.getBoundingClientRect().top - labelBottom).to.be.closeTo(4, 1);
+        expect(button.getBoundingClientRect().height).to.be.at.least(44);
       });
 
       cy.get(`#${mode}-container .main-plot-section .threshold-group:visible`).should(($group) => {
