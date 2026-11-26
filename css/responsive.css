@@ -443,6 +443,7 @@ body.get-started-page {
 
     .workbench > .export-bar .export-button {
         position: static;
+        align-items: flex-end;
         min-height: 44px;
         padding-inline: 8px;
     }
