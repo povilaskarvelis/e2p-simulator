@@ -114,6 +114,14 @@ body.get-started-page {
     height: 100%;
 }
 
+.workbench-plots {
+    display: contents;
+}
+
+.dashboard-heading {
+    display: none;
+}
+
 .results-container {
     height: 100%;
 }
@@ -479,21 +487,35 @@ body.get-started-page {
         margin-inline: -16px;
     }
 
-    .main-plot-section,
-    #binary-container .main-plot-section {
-        height: clamp(380px, 110vw, 500px);
-        min-height: 380px;
-        padding: 28px 12px 16px;
+    .workbench-plots {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+        padding: 8px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    :is(#binary-container, #continuous-container) .main-plot-section {
+        height: clamp(250px, 65vw, 310px);
+        min-height: 0;
+        padding: 34px 0 6px;
+        box-shadow: none;
     }
 
     #continuous-container .main-plot-section {
-        height: clamp(620px, 175vw, 720px);
-        min-height: 620px;
+        height: clamp(438px, 112vw, 548px);
+    }
+
+    #continuous-container .plots-stack,
+    #continuous-container .plots-stack .plot {
+        min-height: 0;
     }
 
     .plot-effects-toggle {
-        top: 10px;
-        right: 10px;
+        top: 0;
+        right: 0;
     }
 
     .plot-effects-toggle .toggle-button {
@@ -502,61 +524,72 @@ body.get-started-page {
         font-size: 0.8rem;
     }
 
-    .results-container,
-    #binary-container .results-container,
-    #continuous-container .results-container {
-        display: grid;
+    :is(#binary-container, #continuous-container) .results-container {
         grid-template-columns: minmax(0, 1fr);
+        gap: 0;
         min-width: 0;
+        min-height: 0;
         height: auto;
     }
 
-    .results-container .roc-pr-section,
-    #binary-container .results-container .roc-pr-section,
-    #continuous-container .results-container .roc-pr-section {
-        height: 600px;
-        min-height: 600px;
-        padding: 14px 10px;
-    }
-
-    .results-container .dca-section,
-    #binary-container .results-container .dca-section,
-    #continuous-container .results-container .dca-section {
-        height: 300px;
-        min-height: 300px;
-        padding: 14px 10px;
-    }
-
-    .plot-container {
-        gap: 12px;
-    }
-
-    .half-plot,
-    #binary-container .results-container .half-plot,
-    #continuous-container .results-container .half-plot {
+    :is(#binary-container, #continuous-container) .results-container :is(.roc-pr-section, .dca-section) {
         min-height: 0;
+        height: auto;
+        border-top: 1px solid #eee;
+        border-radius: 0;
+        padding: 8px 0 6px;
+        box-shadow: none;
     }
 
-    .dashboard,
-    #binary-container .dashboard,
-    #continuous-container .dashboard {
-        padding: 14px 12px;
-    }
-
-    .dashboard-metrics,
-    #binary-container .dashboard-metrics,
-    #continuous-container .dashboard-metrics {
+    .roc-pr-section .plot-container {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px 10px;
+        gap: 8px;
     }
 
-    .dashboard p,
-    #binary-container .dashboard p,
-    #continuous-container .dashboard p {
-        margin: 6px 0;
-        font-size: 0.98rem;
+    :is(#binary-container, #continuous-container) .results-container .half-plot {
+        min-height: 0;
+        height: clamp(172px, 45vw, 240px);
+    }
+
+    :is(#binary-container, #continuous-container) .results-container .dca-section {
+        height: clamp(200px, 50vw, 245px);
+    }
+
+    :is(#binary-container, #continuous-container) .dashboard {
+        margin-top: var(--layout-gap);
+        padding: 10px 14px;
+    }
+
+    .dashboard-heading {
+        display: block;
+        margin: 0 0 4px;
+        text-align: left;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    :is(#binary-container, #continuous-container) .dashboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 16px;
+    }
+
+    :is(#binary-container, #continuous-container) .dashboard p {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: baseline;
+        gap: 4px;
+        margin: 0;
+        padding: 5px 0;
+        font-size: 0.94rem;
+        font-weight: normal;
         white-space: normal;
+        text-align: left;
+    }
+
+    .dashboard p span {
+        font-variant-numeric: tabular-nums;
     }
 
     .equations-container {
@@ -742,24 +775,11 @@ body.get-started-page {
     .form-container input[type="number"] {
         width: 62px !important;
     }
+}
 
-    .dashboard-metrics,
-    #binary-container .dashboard-metrics,
-    #continuous-container .dashboard-metrics {
+/* Below this width two sets of axes leave too little room for the curves. */
+@media (max-width: 359px) {
+    .roc-pr-section .plot-container {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .results-container .roc-pr-section,
-    #binary-container .results-container .roc-pr-section,
-    #continuous-container .results-container .roc-pr-section {
-        height: 560px;
-        min-height: 560px;
-    }
-
-    .results-container .dca-section,
-    #binary-container .results-container .dca-section,
-    #continuous-container .results-container .dca-section {
-        height: 280px;
-        min-height: 280px;
     }
 }

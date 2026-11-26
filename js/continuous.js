@@ -34,6 +34,7 @@ const SELECTORS = {
 // State variables
 let thresholdValue = 0;
 let rocInitialized = false;
+let lastPhoneCurveLayout;
 let currentView = "observed";
 let trueLabeledData = [];
 let observedLabeledData = [];
@@ -879,7 +880,7 @@ function drawDistributions(r, type, options = {}) {
         .text(d => d);
 
     legendEnter.merge(legend)
-        .attr("x", margin.left + toViewBoxUnits(45))
+        .attr("x", margin.left + toViewBoxUnits(phoneWorkbench.matches ? 8 : 45))
         .attr("y", (d, i) => margin.top + i * toViewBoxUnits(18) + toViewBoxUnits(16));
 
     newSvg.selectAll(".threshold-group").remove();
@@ -1004,24 +1005,7 @@ function plotROC(options = {}) {
         marker: { color: "red", size: 10 },
     };
 
-    const rocLayout = {
-        xaxis: { title: "1 - Specificity (FPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
-        yaxis: { title: "Sensitivity (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
-        showlegend: false,
-        margin: { t: 20, l: 50, r: 30, b: 40 },
-        font: { size: 12 },
-        autosize: true,
-        annotations: [{
-            x: 0.95,
-            y: 0.05,
-            xref: "paper",
-            yref: "paper",
-            text: `ROC-AUC: ${auc.toFixed(2)}`,
-            showarrow: false,
-            font: { size: 16, color: "black", weight: "bold" },
-            align: "right",
-        }]
-    };
+    const rocLayout = discriminationCurveLayout("ROC", auc);
 
     const prTrace = {
         x: recall,
@@ -1042,24 +1026,8 @@ function plotROC(options = {}) {
         marker: { color: "red", size: 10 },
     };
 
-    const prLayout = {
-        xaxis: { title: "Recall (TPR)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
-        yaxis: { title: "Precision (PPV)", range: [0, 1], showgrid: false, titlefont: { size: 15 }, dtick: 1 },
-        showlegend: false,
-        margin: { t: 20, l: 50, r: 30, b: 40 },
-        font: { size: 12 },
-        autosize: true,
-        annotations: [{
-            x: prauc < 0.27 ? 0.95 : 0.05,
-            y: prauc < 0.27 ? 0.95 : 0.05,
-            xref: "paper",
-            yref: "paper",
-            text: `PR-AUC: ${prauc.toFixed(2)}`,
-            showarrow: false,
-            font: { size: 16, color: "black", weight: "bold" },
-            align: prauc < 0.27 ? "right" : "left",
-        }]
-    };
+    const prLayout = discriminationCurveLayout("PR", prauc);
+    lastPhoneCurveLayout = phoneWorkbench.matches;
 
     const config = {
         staticPlot: true,
@@ -1261,6 +1229,10 @@ function redrawVisibleContinuousMainPlots() {
         plotPoints: renderCache.plotPoints,
         layoutOnly: true
     });
+
+    if (rocInitialized && lastPhoneCurveLayout !== phoneWorkbench.matches) {
+        plotROC({ reuseCurves: true });
+    }
 
     // The hidden view will derive fresh dimensions when it is next selected.
     hiddenViewDrawPending = true;

@@ -216,7 +216,7 @@ function updateLegend(legendData) {
 
         // Update the position and properties of all legend elements
         legendEnter.merge(legend)
-            .attr("x", PLOT_CONFIG.margin.left)
+            .attr("x", phoneWorkbench.matches ? 8 : PLOT_CONFIG.margin.left)
             .attr("y", (d, i) => PLOT_CONFIG.margin.top + i * 19); // Adjusted for better spacing
     } catch (error) {
         console.error("Error updating legend:", error);
@@ -371,36 +371,7 @@ function plotROC(d) {
             marker: { color: "red", size: 10 },
         };
 
-        const rocLayout = {
-            xaxis: { 
-                title: "1 - Specificity (FPR)", 
-                range: [0, 1], 
-                showgrid: false, 
-                titlefont: { size: 15 }, 
-                dtick: 1 
-            },
-            yaxis: { 
-                title: "Sensitivity (TPR)", 
-                range: [0, 1], 
-                showgrid: false, 
-                titlefont: { size: 15 }, 
-                dtick: 1 
-            },
-            showlegend: false,
-            margin: { t: 20, l: 50, r: 30, b: 40 },
-            font: { size: 12 },
-            annotations: [{
-                x: 0.95,
-                y: 0.05,
-                xref: "paper",
-                yref: "paper",
-                text: `ROC-AUC: ${auc.toFixed(2)}`,
-                showarrow: false,
-                font: { size: 16, color: "black", weight: "bold" },
-                align: "right",
-            }],
-            autosize: true,
-        };
+        const rocLayout = discriminationCurveLayout("ROC", auc);
 
         // Precision-Recall Plot
         const prTrace = {
@@ -422,36 +393,7 @@ function plotROC(d) {
             marker: { color: "red", size: 10 },
         };
 
-        const prLayout = {
-            xaxis: { 
-                title: "Recall (TPR)", 
-                range: [0, 1], 
-                showgrid: false, 
-                titlefont: { size: 15 }, 
-                dtick: 1 
-            },
-            yaxis: { 
-                title: "Precision (PPV)", 
-                range: [0, 1], 
-                showgrid: false, 
-                titlefont: { size: 15 }, 
-                dtick: 1 
-            },
-            showlegend: false,
-            margin: { t: 20, l: 50, r: 30, b: 40 },
-            font: { size: 13 },
-            annotations: [{
-                x: prauc < 0.27 ? 0.95 : 0.05,
-                y: prauc < 0.27 ? 0.95 : 0.05,
-                xref: "paper",
-                yref: "paper",
-                text: `PR-AUC: ${prauc.toFixed(2)}`,
-                showarrow: false,
-                font: { size: 16, color: "black", weight: "bold" },
-                align: prauc < 0.27 ? "right" : "left",
-            }],
-            autosize: true,
-        };
+        const prLayout = discriminationCurveLayout("PR", prauc, 13);
 
         const config = { 
             staticPlot: true,

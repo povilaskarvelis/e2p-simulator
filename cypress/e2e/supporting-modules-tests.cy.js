@@ -140,6 +140,33 @@ describe('E2P Simulator - Supporting modules', () => {
     }
   });
 
+  it('pairs the ROC and PR plots when they fit and stacks them on a narrow phone', () => {
+    for (const mode of ['binary', 'continuous']) {
+      cy.viewport(390, 844);
+      cy.get(`#${mode}-button`).click();
+      const charts = `#${mode}-plots .roc-pr-section .index-plot-fill`;
+
+      cy.get(charts).should(($plots) => {
+        const [roc, pr] = Array.from($plots, plot => plot.getBoundingClientRect());
+        expect(pr.top).to.be.closeTo(roc.top, 1);
+        expect(pr.left).to.be.greaterThan(roc.right);
+        expect($plots[0]._fullLayout._size.w).to.be.at.least(100);
+      });
+
+      cy.viewport(320, 667);
+      cy.get(charts).should(($plots) => {
+        const [roc, pr] = Array.from($plots, plot => plot.getBoundingClientRect());
+        expect(pr.top).to.be.at.least(roc.bottom);
+        expect(pr.width).to.be.closeTo(roc.width, 1);
+      });
+
+      cy.viewport(1440, 900);
+      cy.get(charts).first().should(($plot) => {
+        expect($plot[0]._fullLayout.xaxis.title.text).to.equal('1 - Specificity (FPR)');
+      });
+    }
+  });
+
   it('keeps both sample-size charts inside their cards on a narrow phone', () => {
     cy.viewport(320, 667);
 
