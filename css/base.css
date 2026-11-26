@@ -46,11 +46,12 @@ h1.page-intro-title {
    Header Styles
    ========================================================================== */
 .site-header {
+    --header-title-gap: clamp(32px, 4vw, 48px);
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: calc(100% + 40px);
-    margin: -20px -20px 24px -20px;
+    margin: -20px -20px var(--header-title-gap);
     padding: 14px 20px;
     background-color: #f9f9f9;
     border-bottom: 1px solid #cfcfcf;
@@ -1560,7 +1561,7 @@ input[type="range"].criterion-slider::-moz-range-thumb {
     /* Smaller, more compact header on mobile */
     .site-header {
         padding: 10px 0 !important;
-        margin: 0 0 15px 0 !important;
+        margin: 0 0 var(--header-title-gap) !important;
         width: 100% !important;
     }
     

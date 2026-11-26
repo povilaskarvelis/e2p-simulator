@@ -40,7 +40,7 @@ body.get-started-page {
     margin:
         calc(0px - var(--page-gutter))
         calc(0px - var(--page-gutter))
-        28px;
+        var(--header-title-gap);
     padding: 16px var(--page-gutter);
 }
 
@@ -399,7 +399,7 @@ body.get-started-page {
         margin:
             calc(0px - var(--page-gutter))
             calc(0px - var(--page-gutter))
-            18px !important;
+            var(--header-title-gap) !important;
         padding: 10px var(--page-gutter) !important;
     }
 
@@ -438,13 +438,11 @@ body.get-started-page {
     }
 
     .page-intro {
-        text-align: left;
         margin-bottom: 18px;
         padding: 0;
     }
 
     .page-intro-title {
-        text-align: left;
         margin-bottom: 10px !important;
         font-size: clamp(1.65rem, 7vw, 1.95rem);
         line-height: 1.18;
@@ -563,7 +561,7 @@ body.get-started-page {
         text-align: center;
     }
 
-    .slider-section .index-metric-row + .index-metric-row {
+    .slider-section details > .index-metric-row + .index-metric-row {
         margin-top: 3px;
     }
 
@@ -580,7 +578,7 @@ body.get-started-page {
         grid-template-areas: "label number" "track number";
         column-gap: 12px;
         align-items: center;
-        padding-block: 3px;
+        padding-block: 1px;
     }
 
     .control-pair .index-slider-label-row,
@@ -938,8 +936,10 @@ body.get-started-page {
     input.slider-value,
     .form-container input[type="number"] {
         width: 4.5rem !important;
-        min-height: 36px;
+        min-height: 1.75em;
+        padding-block: 2px;
         font-size: 1rem;
+        line-height: 1.25;
     }
 
     .metrics-toggle,
