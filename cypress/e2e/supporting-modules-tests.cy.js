@@ -144,6 +144,81 @@ describe('E2P Simulator - Supporting modules', () => {
     }
   });
 
+  it('pairs the ROC and PR plots when they fit and stacks them on a narrow phone', () => {
+    for (const mode of ['binary', 'continuous']) {
+      cy.viewport(390, 844);
+      cy.get(`#${mode}-button`).click();
+      const charts = `#${mode}-plots .roc-pr-section .index-plot-fill`;
+
+      cy.get(charts).should(($plots) => {
+        const [roc, pr] = Array.from($plots, plot => plot.getBoundingClientRect());
+        expect(pr.top).to.be.closeTo(roc.top, 1);
+        expect(pr.left).to.be.greaterThan(roc.right);
+        for (const plot of $plots) {
+          const layout = plot._fullLayout;
+          expect(layout._size.w).to.be.at.least(100);
+          expect(layout._size.w).to.be.closeTo(layout._size.h, 1);
+          expect(layout.xaxis.title.font.size).to.be.at.least(16);
+          expect(layout.yaxis.title.font.size).to.be.at.least(16);
+        }
+      });
+
+      cy.viewport(320, 667);
+      cy.get(charts).should(($plots) => {
+        const [roc, pr] = Array.from($plots, plot => plot.getBoundingClientRect());
+        expect(pr.top).to.be.at.least(roc.bottom);
+        expect(pr.width).to.be.closeTo(roc.width, 1);
+      });
+
+      cy.viewport(1440, 900);
+      cy.get(charts).first().should(($plot) => {
+        expect($plot[0]._fullLayout.xaxis.title.text).to.equal('1 - Specificity (FPR)');
+      });
+    }
+  });
+
+  it('keeps the main settings compact and metric values next to their labels', () => {
+    cy.viewport(390, 844);
+    for (const mode of ['binary', 'continuous']) {
+      cy.get(`#${mode}-button`).click();
+      const root = `#${mode}-container`;
+      const details = `${root} .slider-section details`;
+      cy.get(details).should('not.have.attr', 'open');
+      cy.get(`${root} .slider-section`).should(($settings) => {
+        expect($settings.height()).to.be.lessThan(460);
+      });
+      cy.get(`${details} summary`).click();
+      cy.get(`${details} input`).first().should('be.visible');
+      cy.viewport(1024, 768);
+      cy.get(`${details} summary`).should('not.be.visible');
+      cy.get(`${details} input`).first().should('be.visible');
+      cy.viewport(390, 844);
+      cy.get(details).should('have.attr', 'open');
+      cy.get(`${details} summary`).click();
+      cy.get(`${root} .dashboard p:visible`).each(($metric) => {
+        const cell = $metric[0];
+        const label = cell.firstChild;
+        const range = cell.ownerDocument.createRange();
+        range.setStart(label, 0);
+        range.setEnd(label, label.textContent.trimEnd().length);
+        const value = cell.querySelector('span').getBoundingClientRect();
+        const text = range.getBoundingClientRect();
+        expect(value.left - text.right).to.be.within(0, 8);
+        expect(value.top).to.be.closeTo(text.top, 1);
+      });
+    }
+  });
+
+  it('opens the reference equations and guide sections directly on a phone', () => {
+    cy.viewport(320, 667);
+    cy.get('#binary-container .equation-reference > summary').click();
+    cy.get('#binary-container .equations-container mjx-math').first().should('be.visible');
+    cy.visit('get-started.html');
+    cy.get('#toc-sidebar summary').click();
+    cy.get('#toc-sidebar a[href="#sample-size"]').click();
+    cy.location('hash').should('equal', '#sample-size');
+  });
+
   it('keeps both sample-size charts inside their cards on a narrow phone', () => {
     cy.viewport(320, 667);
 

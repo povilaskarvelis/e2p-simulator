@@ -108,19 +108,21 @@
 
     <!-- Sticky Sidebar Table of Contents -->
     <nav class="toc-sidebar toc-sidebar--initializing" id="toc-sidebar">
-        <h3>Contents</h3>
-        <ol>
-            <li><a href="#what-is">What is E2P Simulator?</a></li>
-            <li><a href="#why-needed">Why is it needed?</a></li>
-            <li><a href="#how-to-use">How to use</a></li>
-            <li><a href="#understanding-metrics">Predictive Metrics</a></li>
-            <li><a href="#predictive-utility-analysis">Predictive Utility Analysis</a></li>
-            <li><a href="#examples">Examples</a></li>
-            <li><a href="#sample-size">Sample Size</a></li>
-            <li><a href="#calibration">Calibration</a></li>
-            <li><a href="#feedback">Feedback</a></li>
-            <li><a href="#references">References</a></li>
-        </ol>
+        <details open class="responsive-details">
+            <summary>Contents</summary>
+            <ol>
+                <li><a href="#what-is">What is E2P Simulator?</a></li>
+                <li><a href="#why-needed">Why is it needed?</a></li>
+                <li><a href="#how-to-use">How to use</a></li>
+                <li><a href="#understanding-metrics">Predictive Metrics</a></li>
+                <li><a href="#predictive-utility-analysis">Predictive Utility Analysis</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#sample-size">Sample Size</a></li>
+                <li><a href="#calibration">Calibration</a></li>
+                <li><a href="#feedback">Feedback</a></li>
+                <li><a href="#references">References</a></li>
+            </ol>
+        </details>
     </nav>
 
     <div class="guide-section" id="what-is">
@@ -173,13 +175,15 @@
         <p>Measurement reliability attenuates observed effect sizes, which in turn reduces predictive performance. The simulator allows you to toggle between "true" effect sizes (what would be observed with perfect measurement) and "observed" effect sizes (what we actually see given imperfect reliability). The reliability of continuous variables (predictors or outcomes) is specified using the Intraclass Correlation Coefficient (ICC), which typically corresponds to test-retest reliability. For binary variables, reliability is specified using Cohen's kappa (κ), which usually represents inter-rater reliability.</p>
         
         <p>For continuous outcomes, where both the predictor and outcome are continuous, the relationship between true and observed Pearson's r is given by:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            \[r_{\text{observed}} = r_{\text{true}} \times \sqrt{ICC_{\text{predictor}} \times ICC_{\text{outcome}}}\]
+        <div class="guide-formula">
+            <span>\(\displaystyle r_{\text{observed}} =\)</span>
+            <span>\(\displaystyle r_{\text{true}} \times \sqrt{ICC_{\text{predictor}} \times ICC_{\text{outcome}}}\)</span>
         </div>
 
         <p>For binary outcomes, where a continuous predictor is used to classify a binary outcome, the relationship between true and observed Cohen's d is:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            \[d_{\text{observed}} = d_{\text{true}} \times \sqrt{\frac{2 \times ICC_1 \times ICC_2}{ICC_1 + ICC_2} \times \sin(\frac{\pi}{2} \kappa)}\]
+        <div class="guide-formula">
+            <span>\(\displaystyle d_{\text{observed}} =\)</span>
+            <span>\(\displaystyle d_{\text{true}} \times \sqrt{\frac{2 \times ICC_1 \times ICC_2}{ICC_1 + ICC_2} \times \sin(\frac{\pi}{2} \kappa)}\)</span>
         </div>
 
         <p>Here, \(ICC_1\) and \(ICC_2\) denote the reliability of the continuous predictor in each of the two outcome groups, and \(\kappa\) is the reliability of the binary outcome classification (e.g., interrater reliability of a diagnosis).</p>
@@ -221,7 +225,9 @@
         <p>When using a predictor to classify cases into two groups, there are four possible outcomes: True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN). These form the basis for all predictive metrics.</p>
         
         <div id="predictive-metrics-diagram" style="text-align: center; margin: 8px 0 24px;">
-            <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%; width: 100%;">
+            <a href="images/prediction_metrics.png" aria-label="Open full-size figure: Prediction metrics diagram showing confusion matrix and all derived metrics">
+                <img src="images/prediction_metrics.png" alt="Prediction metrics diagram showing confusion matrix and all derived metrics" class="screenshot" style="max-width: 100%; width: 100%;">
+            </a>
         </div>
         
         <p>The image above illustrates how these four outcomes are used to derive classification metrics. On the left, you can see how negative (e.g., controls) and positive (e.g., cases) distributions overlap and how a classification threshold (red line) creates these four outcomes. On the right, you can see the confusion matrix and the formulas for key metrics derived from it. Note how some metrics have multiple names (e.g., sensitivity/recall/TPR, precision/PPV) – this reflects how the same concepts are referred to differently across fields like medicine, cognitive science, and machine learning.</p>
@@ -241,7 +247,9 @@
         <h3 id="threshold-metrics">Threshold-Independent Metrics</h3>
         
         <div id="aucs-diagram" style="float: right; margin: 0 0 20px 20px;">
-            <img src="images/aucs.png" alt="ROC and Precision-Recall curves showing AUC calculation" class="screenshot" style="max-width: 280px; width: 280px;">
+            <a href="images/aucs.png" aria-label="Open full-size figure: ROC and Precision-Recall curves showing AUC calculation">
+                <img src="images/aucs.png" alt="ROC and Precision-Recall curves showing AUC calculation" class="screenshot" style="max-width: 280px; width: 280px;">
+            </a>
         </div>
         
         <p>Some metrics evaluate performance across all possible thresholds and can serve as a better summary of the overall model performance. These include:</p>
@@ -251,12 +259,14 @@
         </ul>
         
         <p>Both ROC-AUC and PR-AUC represent areas under their respective curves and are mathematically expressed as integrals:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            \[ROC\text{-}AUC = \int_0^1 TPR(FPR) \, d(FPR)\]
+        <div class="guide-formula">
+            <span>\(\displaystyle ROC\text{-}AUC =\)</span>
+            <span>\(\displaystyle \int_0^1 TPR(FPR) \, d(FPR)\)</span>
         </div>
     
-        <div style="text-align: center; margin: 15px 0;">
-            \[PR\text{-}AUC = \int_0^1 PPV(TPR) \, d(TPR)\]
+        <div class="guide-formula">
+            <span>\(\displaystyle PR\text{-}AUC =\)</span>
+            <span>\(\displaystyle \int_0^1 PPV(TPR) \, d(TPR)\)</span>
         </div>
         <p>These integrals are computed using trapezoidal numerical integration.</p>
         
@@ -264,7 +274,9 @@
         <p>Decision Curve Analysis (<a href="https://pubmed.ncbi.nlm.nih.gov/17099194/" target="_blank">Vickers & Elkin, 2006</a>) evaluates the clinical utility of a predictive model or a single predictor by explicitly balancing the costs of false positives against the benefits of true positives.</p>
         
         <div id="dca-diagram" style="float: right; margin: 0 0 20px 20px;">
-            <img src="images/dca.png" alt="Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies" class="screenshot" style="max-width: 320px; width: 320px;">
+            <a href="images/dca.png" aria-label="Open full-size figure: Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies">
+                <img src="images/dca.png" alt="Decision Curve Analysis example showing net benefit curves and shaded areas representing different strategies" class="screenshot" style="max-width: 320px; width: 320px;">
+            </a>
         </div>
         
         <p>A DCA plot typically includes three key curves:</p>
@@ -275,13 +287,15 @@
         </ul>
         
         <p>The <strong>net benefit</strong> formula accounts for both the benefits of true positives and the costs of false positives:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            \[NB = \frac{TP}{N_{total}} - \frac{FP}{N_{total}} \times \frac{p_t}{1-p_t}\]
+        <div class="guide-formula">
+            <span>\(\displaystyle NB =\)</span>
+            <span>\(\displaystyle \frac{TP}{N_{total}} - \frac{FP}{N_{total}} \times \frac{p_t}{1-p_t}\)</span>
         </div>
         <p>Where N<sub>total</sub> is the total sample size, and p<sub>t</sub> is the threshold probability. It represents the minimum predicted probability of an outcome at which you would decide to intervene (e.g., diagnose or treat). For instance, if p<sub>t</sub> = 0.10, you would intervene for anyone with a predicted risk ≥ 10%. The choice of p<sub>t</sub> determines a specific balance between sensitivity (finding true cases) and specificity (avoiding false alarms). The ratio p<sub>t</sub>/(1-p<sub>t</sub>) is the harm assigned to a false-positive intervention relative to the benefit assigned to a true-positive intervention. Its reciprocal, (1-p<sub>t</sub>)/p<sub>t</sub>, is the corresponding number of false-positive interventions tolerated per true-positive intervention. Thus, p<sub>t</sub> = 0.10 gives a false-positive harm weight of 1/9 and corresponds to accepting up to 9 false-positive interventions for each true-positive intervention. The optimal p<sub>t</sub> can be estimated as:</p>
 
-        <div style="text-align: center; margin: 15px 0;">
-            \[p_t = \frac{C_{FP}}{C_{FP} + C_{FN}}\]
+        <div class="guide-formula">
+            <span>\(\displaystyle p_t =\)</span>
+            <span>\(\displaystyle \frac{C_{FP}}{C_{FP} + C_{FN}}\)</span>
         </div>
 
         <p>Where C<sub>FP</sub> is the cost of a false positive (unnecessary intervention) and C<sub>FN</sub> is the cost of a false negative (missed positive case). p<sub>t</sub> can also be estimated through expert surveys, stakeholder preferences, or established guidelines.</p>
@@ -289,8 +303,9 @@
         <p>For population screening, p<sub>t</sub> is typically set low because missing true cases is costlier than unnecessary follow-ups, so more false positives are acceptable. For diagnostic confirmation (e.g., before initiating high-risk treatment), p<sub>t</sub> is set higher to avoid false positives, reflecting a preference for specificity. As a rule of thumb, screening scenarios may use p<sub>t</sub> in the 1–10% range, whereas diagnostic decisions often warrant much higher p<sub>t</sub> (for example 30–70% or more), depending on harms and preferences.</p>
         
         <p>What we often want to know is not the absolute NB, but added value. <strong>ΔNB (Delta Net Benefit)</strong> measures this additional utility by comparing the model against the better of the two simple strategies (either All or None) at a specific threshold probability:</p>
-        <div style="text-align: center; margin: 15px 0;">
-            \[\Delta NB = NB_{\text{model}} - \max(NB_{\text{All}}, NB_{\text{None}})\]
+        <div class="guide-formula">
+            <span>\(\displaystyle \Delta NB =\)</span>
+            <span>\(\displaystyle NB_{\text{model}} - \max(NB_{\text{All}}, NB_{\text{None}})\)</span>
         </div>
         
         <p>At each threshold probability, the model's net benefit is compared against whichever simple strategy performs better at that threshold. This provides a more conservative and meaningful assessment of the model's added value. A positive ΔNB indicates that the predictive model offers genuine improvement over the best simple strategy, while values near zero suggest that simple strategies may be equally effective.</p>
@@ -499,18 +514,20 @@
 
         <p>Given the normality of the distributions, predicted probabilities are computed analytically using Bayes' rule; the predicted probability of belonging to Group 2 for a predictor value x:</p>
 
-        <div style="text-align: center; margin: 15px 0;">
-            \[P(Y = 2 \mid X = x) = \frac{p(x \mid Y = 2)\phi}{p(x \mid Y = 1)(1-\phi) + p(x \mid Y = 2)\phi}\]
+        <div class="guide-formula">
+            <span>\(\displaystyle P(Y = 2 \mid X = x) =\)</span>
+            <span>\(\displaystyle \frac{p(x \mid Y = 2)\phi}{p(x \mid Y = 1)(1-\phi) + p(x \mid Y = 2)\phi}\)</span>
         </div>
 
         <p>Here, p(x | Y = 1) and p(x | Y = 2) are the conditional normal densities of the predictor in Group 1 and Group 2, respectively, and &phi; is the base rate.</p>
 
-        <div style="text-align: center; margin: 15px 0;">
-            \[
-            p(x \mid Y = 1) = \frac{1}{\sigma_1\sqrt{2\pi}} \exp\!\left(-\frac{(x-\mu_1)^2}{2\sigma_1^2}\right),
-            \quad
-            p(x \mid Y = 2) = \frac{1}{\sigma_2\sqrt{2\pi}} \exp\!\left(-\frac{(x-\mu_2)^2}{2\sigma_2^2}\right)
-            \]
+        <div class="guide-formula">
+            <span>\(\displaystyle p(x \mid Y = 1) =\)</span>
+            <span>\(\displaystyle \frac{1}{\sigma_1\sqrt{2\pi}} \exp\!\left(-\frac{(x-\mu_1)^2}{2\sigma_1^2}\right)\)</span>
+        </div>
+        <div class="guide-formula">
+            <span>\(\displaystyle p(x \mid Y = 2) =\)</span>
+            <span>\(\displaystyle \frac{1}{\sigma_2\sqrt{2\pi}} \exp\!\left(-\frac{(x-\mu_2)^2}{2\sigma_2^2}\right)\)</span>
         </div>
 
         <p>&mu;<sub>1</sub> and &mu;<sub>2</sub> are the group means, while &sigma;<sub>1</sub> and &sigma;<sub>2</sub> are the group standard deviations implied by the selected reliabilities. The calibration curve plots probabilities from the model developed in the first population against the corresponding outcome frequencies in the target population.</p>
@@ -608,6 +625,7 @@
         </p>
     </footer>
 
+    <script src="js/responsive-details.js"></script>
     <script src="js/version.js"></script>
     <!-- Load minimal scripts for get-started page -->
     <script>

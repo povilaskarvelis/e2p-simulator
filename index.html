@@ -172,87 +172,101 @@
                                 <input type="number" id="observed-difference-number-bin" class="metrics-input" min="0" max="5" step="0.01" value="1.34" readonly>
                             </div>
 
-                            <!-- Cohen's U3 -->
-                            <div class="index-metric-row">
-                                <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
-                                <input type="number" id="true-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84">
-                                <input type="number" id="observed-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84" readonly>
-                            </div>
+                            <details open class="responsive-details">
+                                <summary>Other effect sizes</summary>
+                                <!-- Cohen's U3 -->
+                                <div class="index-metric-row">
+                                    <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
+                                    <input type="number" id="true-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84">
+                                    <input type="number" id="observed-cohens-u3-bin" class="metrics-input" min="0" max="1" step="0.01" value="0.84" readonly>
+                                </div>
 
-                            <!-- Odds Ratio -->
-                            <div class="index-metric-row">
-                                <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
-                                <input type="number" id="true-odds-ratio-bin" class="metrics-input" min="1" max = "8681" step="0.5" value="1">
-                                <input type="number" id="observed-odds-ratio-bin" class="metrics-input" readonly>
-                            </div>
+                                <!-- Odds Ratio -->
+                                <div class="index-metric-row">
+                                    <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
+                                    <input type="number" id="true-odds-ratio-bin" class="metrics-input" min="1" max = "8681" step="0.5" value="1">
+                                    <input type="number" id="observed-odds-ratio-bin" class="metrics-input" readonly>
+                                </div>
 
-                            <!-- Log Odds Ratio -->
-                            <div class="index-metric-row">
-                                <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
-                                <input type="number" id="true-log-odds-ratio-bin" class="metrics-input" max = "9.07"step="0.05" value="0">
-                                <input type="number" id="observed-log-odds-ratio-bin" class="metrics-input" readonly>
-                            </div>
+                                <!-- Log Odds Ratio -->
+                                <div class="index-metric-row">
+                                    <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
+                                    <input type="number" id="true-log-odds-ratio-bin" class="metrics-input" max = "9.07"step="0.05" value="0">
+                                    <input type="number" id="observed-log-odds-ratio-bin" class="metrics-input" readonly>
+                                </div>
 
-                            <!-- Point-biserial r -->
-                            <div class="index-metric-row">
-                                <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and a binary variable">Point-biserial r<sub>pb</sub></span>
-                                <input type="number" id="true-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0">
-                                <input type="number" id="observed-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0" readonly>
-                            </div>
+                                <!-- Point-biserial r -->
+                                <div class="index-metric-row">
+                                    <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and a binary variable">Point-biserial r<sub>pb</sub></span>
+                                    <input type="number" id="true-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0">
+                                    <input type="number" id="observed-pb-r-bin" class="metrics-input" min="0" max="0.93" step="0.01" value="0" readonly>
+                                </div>
 
-                            <!-- Eta squared -->
-                            <div class="index-metric-row">
-                                <span class="slider-label" data-tooltip="Eta squared: proportion of variance explained by group membership">η² (r<sub>pb</sub>²)</span>
-                                <input type="number" id="true-eta-squared-bin" class="metrics-input" min="0" max="0.86" step="0.01" value="0">
-                                <input type="number" id="observed-eta-squared-bin" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
-                            </div>
+                                <!-- Eta squared -->
+                                <div class="index-metric-row">
+                                    <span class="slider-label" data-tooltip="Eta squared: proportion of variance explained by group membership">η² (r<sub>pb</sub>²)</span>
+                                    <input type="number" id="true-eta-squared-bin" class="metrics-input" min="0" max="0.86" step="0.01" value="0">
+                                    <input type="number" id="observed-eta-squared-bin" class="metrics-input" min="0" max="1" step="0.01" value="0" readonly>
+                                </div>
+                            </details>
                         </div>
                     </div>
                     
                     <!-- Reliability Controls -->
                     <div class="index-reliability-block" id="tour-reliability">
                         <!-- Group 1 Reliability -->
-                        <input type="range" id="icc1-slider" min="0.01" max="1" step="0.01" value="0.5">
-                        <div class="index-slider-label-row">
-                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>1</sub></span>
-                            <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                        <div class="control-pair">
+    <input type="range" id="icc1-slider" min="0.01" max="1" step="0.01" value="0.5">
+                            <div class="index-slider-label-row">
+                                <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 1, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>1</sub></span>
+                                <input type="number" id="icc1-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                            </div>
                         </div>
                         
                         <!-- Group 2 Reliability -->
-                        <input type="range" id="icc2-slider" min="0.01" max="1" step="0.01" value="0.5" class="index-range-mt15">
-                        <div class="index-slider-label-row">
-                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>2</sub></span>
-                            <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                        <div class="control-pair">
+    <input type="range" id="icc2-slider" min="0.01" max="1" step="0.01" value="0.5" class="index-range-mt15">
+                            <div class="index-slider-label-row">
+                                <span class="slider-label" data-tooltip="Measurement reliability of the predictor in group 2, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>2</sub></span>
+                                <input type="number" id="icc2-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                            </div>
                         </div>
                         
                         <!-- Classification Reliability -->
-                        <input type="range" id="kappa-slider" min="0.01" max="1" step="0.01" value="0.5" class="index-range-mt15">
-                        <div class="index-slider-label-row">
-                            <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Outcome reliability, <i>&kappa;</i></span>
-                            <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                        <div class="control-pair">
+    <input type="range" id="kappa-slider" min="0.01" max="1" step="0.01" value="0.5" class="index-range-mt15">
+                            <div class="index-slider-label-row">
+                                <span class="slider-label" data-tooltip="Reliability of the group membership, expressed as Cohen's kappa">Outcome reliability, <i>&kappa;</i></span>
+                                <input type="number" id="kappa-number" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Base Rate -->
                     <div id="tour-base-rate">
-                        <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="45">
-                        <div class="index-slider-label-row index-slider-label-row--mt5">
-                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate, \(\phi\) (%)</span>
-                            <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
+                        <div class="control-pair">
+    <input type="range" id="base-rate-slider" min="0.1" max="99.9" step="0.1" value="45">
+                            <div class="index-slider-label-row index-slider-label-row--mt5">
+                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate, \(\phi\) (%)</span>
+                                <input type="number" id="base-rate-number" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="45">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Threshold probability -->
                     <div id="tour-threshold">
-                        <input type="range" id="threshold-slider" min="-5.5" max="6" step="0.01" value="0" class="index-range-mt15 threshold-pt-slider">
-                        <div class="index-slider-label-row">
-                            <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
-                            <input type="number" id="pt-input" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                        <div class="control-pair">
+    <input type="range" id="threshold-slider" min="-5.5" max="6" step="0.01" value="0" class="index-range-mt15 threshold-pt-slider">
+                            <div class="index-slider-label-row">
+                                <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
+                                <input type="number" id="pt-input" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="workbench-plots" id="binary-plots">
             <!-- Plot 1: Overlapping distributions -->
             <div class="main-plot-section">
                 <div class="plot-effects-toggle" id="tour-effects" role="group" aria-label="Effects">
@@ -283,10 +297,12 @@
                     </div>
                 </div>
             </div>
+            </div><!-- /.workbench-plots -->
         </div>
 
         <!-- Results dashboard -->
             <div id="dashboard" class="dashboard">
+                <h2 class="dashboard-heading">Performance metrics</h2>
                 <div class="dashboard-metrics">
                     <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR), Recall">Sensitivity: <span id="sensitivity-value">0.00</span></p>
@@ -312,58 +328,61 @@
         <button type="button" class="metrics-toggle index-metrics-summary" data-dashboard="dashboard">Show more metrics</button>
         
         <!-- Equations Section -->
-        <div class="equations-container">
-            <!-- Reliability attenuation -->
-            <div class="equation-box wide">
-                <a href="https://doi.org/10.3389/fpsyg.2025.1592658" class="index-equation-link" target="_blank">
-                    <p class="equation-title">Cohen's d attenuation by reliability</p>
-                    <div class="equation-content">
-                        \[d_{obs} = d_{true} \sqrt{\frac{2ICC_1ICC_2}{ICC_1+ICC_2}\sin\left(\frac{\pi}{2}\kappa\right)}\]
-                    </div>
-                </a>
-            </div>
-            
-            <!-- d to Log Odds Ratio -->
-            <div class="equation-box">
-                <a href="https://psycnet.apa.org/buy/2003-10163-006" class="index-equation-link" target="_blank">
-                    <p class="equation-title">d to Log Odds Ratio</p>
-                    <div class="equation-content">
-                        \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
-                    </div>
-                </a>
-            </div>
-            
-            <!-- d to AUC -->
-            <div class="equation-box">
-                <a href="https://psycnet.apa.org/record/2008-02525-002" class="index-equation-link" target="_blank">
-                    <p class="equation-title">d to ROC-AUC</p>
-                    <div class="equation-content">
-                        \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
-                    </div>
-                </a>
-            </div>
+        <details open class="responsive-details equation-reference">
+            <summary>Effect-size equations</summary>
+            <div class="equations-container">
+                <!-- Reliability attenuation -->
+                <div class="equation-box wide">
+                    <a href="https://doi.org/10.3389/fpsyg.2025.1592658" class="index-equation-link" target="_blank">
+                        <p class="equation-title">Cohen's d attenuation by reliability</p>
+                        <div class="equation-content">
+                            \[d_{obs} = d_{true} \sqrt{\frac{2ICC_1ICC_2}{ICC_1+ICC_2}\sin\left(\frac{\pi}{2}\kappa\right)}\]
+                        </div>
+                    </a>
+                </div>
 
-            <!-- d to U3 -->
-            <div class="equation-box">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" class="index-equation-link" target="_blank">
-                    <p class="equation-title">d to U3</p>
-                    <div class="equation-content">
-                        \[U_3 = \Phi(d)\]
-                    </div>
-                </a>
+                <!-- d to Log Odds Ratio -->
+                <div class="equation-box">
+                    <a href="https://psycnet.apa.org/buy/2003-10163-006" class="index-equation-link" target="_blank">
+                        <p class="equation-title">d to Log Odds Ratio</p>
+                        <div class="equation-content">
+                            \[\log(OR) = \frac{d\pi}{\sqrt{3}}\]
+                        </div>
+                    </a>
+                </div>
+
+                <!-- d to AUC -->
+                <div class="equation-box">
+                    <a href="https://psycnet.apa.org/record/2008-02525-002" class="index-equation-link" target="_blank">
+                        <p class="equation-title">d to ROC-AUC</p>
+                        <div class="equation-content">
+                            \[AUC = \Phi\left(\frac{d}{\sqrt{2}}\right)\]
+                        </div>
+                    </a>
+                </div>
+
+                <!-- d to U3 -->
+                <div class="equation-box">
+                    <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" class="index-equation-link" target="_blank">
+                        <p class="equation-title">d to U3</p>
+                        <div class="equation-content">
+                            \[U_3 = \Phi(d)\]
+                        </div>
+                    </a>
+                </div>
+
+                <!-- d to Point-biserial r -->
+                <div class="equation-box">
+                    <a href="https://psycnet.apa.org/record/2006-22258-004" class="index-equation-link" target="_blank">
+                        <p class="equation-title">d to Point-biserial r</p>
+                        <div class="equation-content">
+                            \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{\phi(1-\phi)}}}\]
+                        </div>
+                    </a>
+                </div>
+
             </div>
-            
-            <!-- d to Point-biserial r -->
-            <div class="equation-box">
-                <a href="https://psycnet.apa.org/record/2006-22258-004" class="index-equation-link" target="_blank">
-                    <p class="equation-title">d to Point-biserial r</p>
-                    <div class="equation-content">
-                        \[r_{pb} = \frac{d}{\sqrt{d^2 + \frac{1}{\phi(1-\phi)}}}\]
-                    </div>
-                </a>
-            </div>
-            
-        </div>
+        </details>
         </div><!-- /.workbench -->
 
         <!-- Mahalanobis D Calculator -->
@@ -518,100 +537,112 @@
 
                     <div id="tour-reliability-cont">
                     <!-- Reliability X -->
-                    <input type="range" id="reliability-x-slider-cont" min="0.01" max="1" step="0.01" value="0.5">
-                    <div class="index-slider-label-row index-slider-label-row--mt5">
-                        <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>x</sub></span>
-                        <input type="number" id="reliability-x-number-cont" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                    <div class="control-pair">
+    <input type="range" id="reliability-x-slider-cont" min="0.01" max="1" step="0.01" value="0.5">
+                        <div class="index-slider-label-row index-slider-label-row--mt5">
+                            <span class="slider-label" data-tooltip="Measurement reliability of the predictor variable, expressed as Intraclass Correlation Coefficient">Predictor reliability, ICC<sub>x</sub></span>
+                            <input type="number" id="reliability-x-number-cont" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                        </div>
                     </div>
 
                     <!-- Reliability Y -->
-                    <input type="range" id="reliability-y-slider-cont" min="0.01" max="1" step="0.01" value="0.5">
-                    <div class="index-slider-label-row index-slider-label-row--mt5">
-                        <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
-                        <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                    <div class="control-pair">
+    <input type="range" id="reliability-y-slider-cont" min="0.01" max="1" step="0.01" value="0.5">
+                        <div class="index-slider-label-row index-slider-label-row--mt5">
+                            <span class="slider-label" data-tooltip="Measurement reliability of the outcome variable, expressed as Intraclass Correlation Coefficient">Outcome reliability, ICC<sub>y</sub></span>
+                            <input type="number" id="reliability-y-number-cont" class="metrics-input permanent-highlight" min="0.01" max="1" step="0.01" value="0.5">
+                        </div>
                     </div>
                     </div>
 
                     <!-- Base Rate -->
                     <div class="index-base-rate-block" id="tour-base-rate-cont">
-                        <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
-                        <div class="index-slider-label-row index-slider-label-row--mt10">
-                            <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
-                            <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
+                        <div class="control-pair">
+    <input type="range" id="base-rate-slider-cont" min="0.1" max="99.9" step="0.1" value="50">
+                            <div class="index-slider-label-row index-slider-label-row--mt10">
+                                <span class="slider-label" data-tooltip="Base rate of group 2 in the target population (e.g., disease prevalence, treatment response rate, event rate)">Base rate (%)</span>
+                                <input type="number" id="base-rate-number-cont" class="metrics-input permanent-highlight" min="0.1" max="99.9" step="0.1" value="50">
+                            </div>
                         </div>
                     </div>
 
                     <!-- Threshold probability -->
                     <div id="tour-threshold-cont">
-                    <input type="range" id="threshold-slider-cont" min="-4" max="4" step="0.01" value="0" class="threshold-pt-slider">
-                    <div class="index-slider-label-row index-slider-label-row--mt5">
-                        <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
-                        <input type="number" id="pt-input-cont" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                    <div class="control-pair">
+    <input type="range" id="threshold-slider-cont" min="-4" max="4" step="0.01" value="0" class="threshold-pt-slider">
+                        <div class="index-slider-label-row index-slider-label-row--mt5">
+                            <span class="slider-label" data-tooltip="Predicted probability of group 2 membership at the classification threshold">Threshold probability, \(p_t\)</span>
+                            <input type="number" id="pt-input-cont" class="metrics-input permanent-highlight threshold-pt-input" min="0.01" max="0.99" step="0.01" value="0.50">
+                        </div>
                     </div>
                     </div>
                     
                     <hr class="input-separator index-hr-spaced">
                     
                     <!-- Binary Metrics -->
-                    <div class="index-metric-stack index-metric-stack--mb15">
-                        <div class="metrics-header index-metrics-header--tight">
-                            <span></span>
-                            <span>True</span>
-                            <span>Obs.</span>
-                        </div>
+                    <details open class="responsive-details">
+                        <summary>Derived effect sizes</summary>
+                        <div class="index-metric-stack index-metric-stack--mb15">
+                            <div class="metrics-header index-metrics-header--tight">
+                                <span></span>
+                                <span>True</span>
+                                <span>Obs.</span>
+                            </div>
 
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Standardized mean difference between groups (using pooled standard deviation)">Cohen's d</span>
-                            <input type="number" id="true-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
-                            <input type="number" id="observed-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
-                        </div>
-                        
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances (using non-pooled standard deviation)">Cohen's d*</span>
-                            <input type="number" id="true-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
-                            <input type="number" id="observed-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
-                        </div>
-                        
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
-                            <input type="number" id="true-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
-                            <input type="number" id="observed-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
-                        </div>
-                        
-                        <!-- Point-biserial r -->
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and binary group membership">Point-biserial r<sub>pb</sub></span>
-                            <input type="number" id="true-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
-                            <input type="number" id="observed-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
-                        </div>
-                        
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r<sub>rb</sub></span>
-                            <input type="number" id="true-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
-                            <input type="number" id="observed-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
-                        </div>
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Standardized mean difference between groups (using pooled standard deviation)">Cohen's d</span>
+                                <input type="number" id="true-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                                <input type="number" id="observed-cohens-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                            </div>
 
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Mean difference divided by standard deviation of group 1">Glass's &Delta;</span>
-                            <input type="number" id="true-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
-                            <input type="number" id="observed-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
-                        </div>
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Cohen's d adjusted for unequal group variances (using non-pooled standard deviation)">Cohen's d*</span>
+                                <input type="number" id="true-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                                <input type="number" id="observed-cohens-da-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.50" readonly>
+                            </div>
 
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
-                            <input type="number" id="true-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
-                            <input type="number" id="observed-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
-                        </div>
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Proportion of Group 2 that exceeds the median of Group 1">Cohen's U3</span>
+                                <input type="number" id="true-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
+                                <input type="number" id="observed-cohens-u3-cont" class="metrics-input" min="0" max="1" step="0.01" value="0.69" readonly>
+                            </div>
 
-                        <div class="index-metric-row">
-                            <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
-                            <input type="number" id="true-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
-                            <input type="number" id="observed-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
+                            <!-- Point-biserial r -->
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Point-biserial r: correlation between a continuous variable and binary group membership">Point-biserial r<sub>pb</sub></span>
+                                <input type="number" id="true-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
+                                <input type="number" id="observed-pb-r-cont" class="metrics-input" min="0" max="0.93" step="0.01" value="0.00" readonly>
+                            </div>
+
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Correlation between ranks and binary group membership">Rank-biserial r<sub>rb</sub></span>
+                                <input type="number" id="true-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
+                                <input type="number" id="observed-rank-biserial-cont" class="metrics-input" min="-1" max="1" step="0.01" value="0.00" readonly>
+                            </div>
+
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Mean difference divided by standard deviation of group 1">Glass's &Delta;</span>
+                                <input type="number" id="true-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
+                                <input type="number" id="observed-glass-d-cont" class="metrics-input" min="0" max="5" step="0.01" value="0.00" readonly>
+                            </div>
+
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Ratio of odds of being in group 2 vs group 1">Odds Ratio</span>
+                                <input type="number" id="true-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
+                                <input type="number" id="observed-odds-ratio-cont" class="metrics-input" min="1" step="1" value="1" readonly>
+                            </div>
+
+                            <div class="index-metric-row">
+                                <span class="slider-label" data-tooltip="Natural logarithm of the odds ratio">Log Odds Ratio</span>
+                                <input type="number" id="true-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
+                                <input type="number" id="observed-log-odds-ratio-cont" class="metrics-input" step="0.05" value="0" readonly>
+                            </div>
                         </div>
-                    </div>
+                    </details>
                 </div>
             </div>
 
+            <div class="workbench-plots" id="continuous-plots">
             <!-- Column 2: Plots -->
             <div class="main-plot-section">
                 <div class="plot-effects-toggle" role="group" aria-label="Effects">
@@ -651,10 +682,12 @@
                     </div>
                 </div>
             </div>
+            </div><!-- /.workbench-plots -->
         </div>
 
         <!-- Results dashboard -->
             <div id="dashboard-cont" class="dashboard">
+                <h2 class="dashboard-heading">Performance metrics</h2>
                 <div class="dashboard-metrics">
                     <p data-tooltip="Accuracy">Accuracy: <span id="accuracy-value-cont">0.00</span></p>
                     <p data-tooltip="Sensitivity; also called True Positive Rate (TPR) or Recall">Sensitivity: <span id="sensitivity-value-cont">0.00</span></p>
@@ -681,57 +714,60 @@
         <button type="button" class="metrics-toggle index-metrics-summary" data-dashboard="dashboard-cont">Show more metrics</button>
 
         <!-- Equations Section for Continuous -->
-        <div class="equations-container">
-            <!-- Reliability attenuation -->
-            <div class="equation-box wider">
-                <a href="https://psycnet.apa.org/record/2006-10257-005" class="index-equation-link" target="_blank">
-                    <p class="equation-title">Reliability attenuation of Pearson's r</p>
-                    <div class="equation-content">
-                        \[r_{obs} = r_{true} \sqrt{ICC_x \cdot ICC_y}\]
-                    </div>
-                </a>
-            </div>
-            
-            <!-- Cohen's d -->
-            <div class="equation-box wider">
-                <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" class="index-equation-link" target="_blank">
-                    <p class="equation-title">Cohen's d</p>
-                    <div class="equation-content">
-                        \[d = \frac{\mu_2 - \mu_1}{\sqrt{\frac{(n_1-1)\sigma_1^2 + (n_2-1)\sigma_2^2}{n_1+n_2-2}}}\]
-                    </div>
-                </a>
-            </div>
-            
-            <!-- Cohen's d* -->
-            <div class="equation-box">
-                <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" class="index-equation-link" target="_blank">
-                    <p class="equation-title">Cohen's d*</p>
-                    <div class="equation-content">
-                        \[d^* = \frac{\mu_2 - \mu_1}{\sqrt{\frac{\sigma_1^2 + \sigma_2^2}{2}}}\]
-                    </div>
-                </a>
-            </div>
+        <details open class="responsive-details equation-reference">
+            <summary>Effect-size equations</summary>
+            <div class="equations-container">
+                <!-- Reliability attenuation -->
+                <div class="equation-box wider">
+                    <a href="https://psycnet.apa.org/record/2006-10257-005" class="index-equation-link" target="_blank">
+                        <p class="equation-title">Reliability attenuation of Pearson's r</p>
+                        <div class="equation-content">
+                            \[r_{obs} = r_{true} \sqrt{ICC_x \cdot ICC_y}\]
+                        </div>
+                    </a>
+                </div>
 
-            <!-- r to rank-biserial r -->
-            <div class="equation-box">
-                <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" class="index-equation-link" target="_blank">
-                    <p class="equation-title">Rank-biserial correlation</p>
-                    <div class="equation-content">
-                        \[r_{rb} = \frac{2(\bar{Y}_1 - \bar{Y}_0)}{n}\]
-                    </div>
-                </a>
+                <!-- Cohen's d -->
+                <div class="equation-box wider">
+                    <a href="https://www.utstat.toronto.edu/brunner/oldclass/378f16/readings/CohenPower.pdf" class="index-equation-link" target="_blank">
+                        <p class="equation-title">Cohen's d</p>
+                        <div class="equation-content">
+                            \[d = \frac{\mu_2 - \mu_1}{\sqrt{\frac{(n_1-1)\sigma_1^2 + (n_2-1)\sigma_2^2}{n_1+n_2-2}}}\]
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Cohen's d* -->
+                <div class="equation-box">
+                    <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2013.00863/full" class="index-equation-link" target="_blank">
+                        <p class="equation-title">Cohen's d*</p>
+                        <div class="equation-content">
+                            \[d^* = \frac{\mu_2 - \mu_1}{\sqrt{\frac{\sigma_1^2 + \sigma_2^2}{2}}}\]
+                        </div>
+                    </a>
+                </div>
+
+                <!-- r to rank-biserial r -->
+                <div class="equation-box">
+                    <a href="https://journals.sagepub.com/doi/abs/10.1177/001316446602600307" class="index-equation-link" target="_blank">
+                        <p class="equation-title">Rank-biserial correlation</p>
+                        <div class="equation-content">
+                            \[r_{rb} = \frac{2(\bar{Y}_1 - \bar{Y}_0)}{n}\]
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Glass's delta -->
+                <div class="equation-box">
+                    <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" class="index-equation-link" target="_blank">
+                        <p class="equation-title">Glass's Δ</p>
+                        <div class="equation-content">
+                            \[\Delta = \frac{\mu_2 - \mu_1}{\sigma_1}\]
+                        </div>
+                    </a>
+                </div>
             </div>
-            
-            <!-- Glass's delta -->
-            <div class="equation-box">
-                <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189x005010003" class="index-equation-link" target="_blank">
-                    <p class="equation-title">Glass's Δ</p>
-                    <div class="equation-content">
-                        \[\Delta = \frac{\mu_2 - \mu_1}{\sigma_1}\]
-                    </div>
-                </a>
-            </div>
-        </div>
+        </details>
         </div><!-- /.workbench -->
 
         <!-- Multiple R² Calculator -->
@@ -1205,6 +1241,7 @@
 
     <!-- Footer Scripts -->
     <!-- Load shared plugins -->
+    <script src="js/responsive-details.js"></script>
     <script src="js/shared-plugins.js"></script>
     <!-- Load our module scripts -->
     <script src="js/utils.js"></script>
