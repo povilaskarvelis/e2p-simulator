@@ -360,7 +360,6 @@ input[type="range"].threshold-pt-slider::-moz-range-thumb {
    the padding under the line. */
 #binary-container .dashboard.is-expanded .dashboard-metrics-extra:not([hidden]),
 #continuous-container .dashboard.is-expanded .dashboard-metrics-extra:not([hidden]) {
-    display: flex;
     margin-top: 8px;
     padding-top: 16px;
     border-top: 1px solid #e5e5e5;
@@ -749,6 +748,8 @@ html.is-exporting .modebar-container {
 
 .calib-plot-slot {
     position: relative;
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-height: 0;
 }
@@ -758,11 +759,26 @@ html.is-exporting .modebar-container {
 }
 
 .calib-plot-inner {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
+    flex: 1;
+    min-height: 0;
     width: 100%;
-    height: 100%;
+}
+
+.calib-plot-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 6px 8px 2px;
+    color: #333;
+}
+
+.calib-auc {
+    font-size: 0.85rem;
+    font-weight: bold;
+    white-space: pre-line;
 }
 
 .calib-metrics-grid {

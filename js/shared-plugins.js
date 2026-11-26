@@ -73,29 +73,24 @@ const customLegendPlugin = {
             const isDashed = dataset.borderDash && dataset.borderDash.length > 0;
             
             const legendItem = document.createElement('div');
-            legendItem.style.display = 'inline-flex';
-            legendItem.style.alignItems = 'center';
-            legendItem.style.marginRight = '20px';
+            legendItem.className = 'chart-legend-item';
             
             const marker = document.createElement('span');
+            marker.className = 'chart-legend-marker';
             
             if (isDashed) {
                 // Create dashed line marker
                 marker.style.display = 'inline-block';
-                marker.style.width = '40px';
                 marker.style.height = '3px';
                 marker.style.backgroundColor = 'transparent';
                 marker.style.borderBottom = `3px dashed ${color}`;
-                marker.style.marginRight = '10px';
             } else {
                 // Create line with solid circle marker in the middle
                 marker.style.display = 'inline-block';
-                marker.style.width = '40px';
                 marker.style.height = '3px';
                 marker.style.backgroundColor = 'transparent';
                 marker.style.borderBottom = `3px solid ${color}`;
                 marker.style.position = 'relative';
-                marker.style.marginRight = '10px';
                 
                 const circle = document.createElement('span');
                 circle.style.width = '12px';

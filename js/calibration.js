@@ -651,14 +651,6 @@ function plotTestDistributions() {
     ];
     
     const layout = {
-        title: {
-            text: 'Development Population',
-            font: { size: 16 },
-            xanchor: 'left',
-            yanchor: 'top',
-            x: 0.09,
-            y: 0.85
-        },
         xaxis: {
             title: '',
             zeroline: false,
@@ -679,7 +671,7 @@ function plotTestDistributions() {
         },
         showlegend: false,
         hovermode: 'closest',
-        margin: { t: 42, r: 30, b: 20, l: 60 },
+        margin: { t: 4, r: 30, b: 20, l: 60 },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white'
     };
@@ -690,48 +682,15 @@ function plotTestDistributions() {
         staticPlot: true
     };
     
-    Plotly.newPlot(plotDiv, traces, layout, config).then(() => {
-        const rocAuc = calculateROCAUC(testParams);
-        const prAuc = calculatePRAUC(testParams);
-        addAUCDisplay(plotDiv, rocAuc, prAuc);
-        drawThresholdOnTestPlot();
-    });
+    updateAUCDisplay(plotDiv, testParams);
+    Plotly.newPlot(plotDiv, traces, layout, config).then(drawThresholdOnTestPlot);
 }
 
-function addAUCDisplay(plotDiv, rocAuc, prAuc) {
-    // Remove any existing AUC overlay
-    d3.select(plotDiv).select('.auc-overlay').remove();
-    
-    const overlay = createPlotOverlay(plotDiv, 'auc-overlay');
-    if (!overlay) return;
-
-    const { svg, width } = overlay;
-    const compact = width < 420;
-    const textX = width - (compact ? 8 : 12);
-    const firstLineY = compact ? 18 : 22;
-    const lineHeight = compact ? 16 : 17;
-    
-    // Add ROC-AUC text in top right corner
-    svg.append('text')
-        .attr('class', 'roc-auc-text')
-        .attr('x', textX)
-        .attr('y', firstLineY)
-        .attr('text-anchor', 'end')
-        .style('font-size', compact ? '12px' : '14px')
-        .style('font-weight', 'bold')
-        .style('fill', '#333')
-        .text(`ROC-AUC: ${rocAuc.toFixed(3)}`);
-    
-    // Add PR-AUC text underneath ROC-AUC
-    svg.append('text')
-        .attr('class', 'pr-auc-text')
-        .attr('x', textX)
-        .attr('y', firstLineY + lineHeight)
-        .attr('text-anchor', 'end')
-        .style('font-size', compact ? '12px' : '14px')
-        .style('font-weight', 'bold')
-        .style('fill', '#333')
-        .text(`PR-AUC: ${prAuc.toFixed(3)}`);
+function updateAUCDisplay(plotDiv, params) {
+    const rocAuc = calculateROCAUC(params);
+    const prAuc = calculatePRAUC(params);
+    const metrics = plotDiv.parentElement.querySelector('.calib-auc');
+    metrics.textContent = `ROC-AUC: ${rocAuc.toFixed(3)}\nPR-AUC: ${prAuc.toFixed(3)}`;
 }
 
 function createPlotOverlay(plotDiv, className) {
@@ -803,14 +762,6 @@ function plotDeploymentDistributions() {
     ];
     
     const layout = {
-        title: {
-            text: 'Target Population',
-            font: { size: 16 },
-            xanchor: 'left',
-            yanchor: 'top',
-            x: 0.09,
-            y: 0.85
-        },
         xaxis: {
             title: '',
             zeroline: false,
@@ -831,7 +782,7 @@ function plotDeploymentDistributions() {
         },
         showlegend: false,
         hovermode: 'closest',
-        margin: { t: 42, r: 30, b: 20, l: 60 },
+        margin: { t: 4, r: 30, b: 20, l: 60 },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white'
     };
@@ -842,12 +793,8 @@ function plotDeploymentDistributions() {
         staticPlot: true
     };
     
-    Plotly.newPlot(plotDiv, traces, layout, config).then(() => {
-        const rocAuc = calculateROCAUC(deployParams);
-        const prAuc = calculatePRAUC(deployParams);
-        addAUCDisplay(plotDiv, rocAuc, prAuc);
-        drawThresholdOnDeploymentPlot();
-    });
+    updateAUCDisplay(plotDiv, deployParams);
+    Plotly.newPlot(plotDiv, traces, layout, config).then(drawThresholdOnDeploymentPlot);
 }
 
 function plotCalibration() {
@@ -901,13 +848,13 @@ function plotCalibration() {
     
     const layout = {
         xaxis: {
-            title: 'Predicted Probability (development model)',
+            title: 'Predicted Probability<br>(development model)',
             range: [0, 1],
             zeroline: true,
             showgrid: false
         },
         yaxis: {
-            title: 'Observed Frequency (target population)',
+            title: 'Observed Frequency<br>(target population)',
             range: [0, 1],
             zeroline: true,
             showgrid: false
@@ -921,7 +868,7 @@ function plotCalibration() {
             borderwidth: 1
         },
         hovermode: 'closest',
-        margin: { t: 24, r: 30, b: 50, l: 60 },
+        margin: { t: 24, r: 30, b: 62, l: 68 },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white'
     };
@@ -1291,20 +1238,8 @@ function init() {
 }
 
 function redrawCalibrationOverlays() {
-    const testPlot = document.getElementById('calibration-test-plot');
-    const deployPlot = document.getElementById('calibration-deploy-plot');
-
-    if (testPlot?._fullLayout && state.testData?.distParams) {
-        const testParams = state.testData.distParams;
-        addAUCDisplay(testPlot, calculateROCAUC(testParams), calculatePRAUC(testParams));
-        drawThresholdOnTestPlot();
-    }
-
-    if (deployPlot?._fullLayout && state.deploymentData?.distParams) {
-        const deployParams = state.deploymentData.distParams;
-        addAUCDisplay(deployPlot, calculateROCAUC(deployParams), calculatePRAUC(deployParams));
-        drawThresholdOnDeploymentPlot();
-    }
+    drawThresholdOnTestPlot();
+    drawThresholdOnDeploymentPlot();
 }
 
 function scheduleCalibrationResize() {
@@ -1314,7 +1249,8 @@ function scheduleCalibrationResize() {
             document.getElementById('calibration-test-plot'),
             document.getElementById('calibration-deploy-plot'),
             document.getElementById('calibration-plot')
-        ].filter(plot => plot?._fullLayout);
+        ].filter(plot => plot?._fullLayout && plot.clientWidth > 0);
+        if (!plots.length) return;
 
         if (Plotly?.Plots?.resize) {
             await Promise.all(plots.map(plot => Promise.resolve(Plotly.Plots.resize(plot))));

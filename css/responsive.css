@@ -206,24 +206,21 @@ body.get-started-page {
     #binary-container .main-container,
     #continuous-container .main-container {
         grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.6fr);
-        grid-template-rows: 600px 420px;
+        grid-template-rows: minmax(600px, auto) 420px;
         height: auto;
         min-height: 0;
         align-items: stretch;
     }
 
     #continuous-container .main-container {
-        grid-template-rows: 720px 420px;
+        grid-template-rows: minmax(720px, auto) 420px;
     }
 
     .slider-section,
-    .main-plot-section {
-        height: 600px;
-    }
-
     #continuous-container .slider-section,
+    .main-plot-section,
     #continuous-container .main-plot-section {
-        height: 720px;
+        height: auto;
     }
 
     .results-container,
@@ -264,18 +261,13 @@ body.get-started-page {
     .calib-metrics-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-}
 
-/* The binary controls wrap onto additional lines at the narrow end of the
-   two-column layout, so give that row enough room before the phone stack. */
-@media (min-width: 761px) and (max-width: 920px) {
-    #binary-container .main-container {
-        grid-template-rows: 680px 420px;
+    .section .equation-box.flat {
+        container-type: inline-size;
     }
 
-    #binary-container .slider-section,
-    #binary-container .main-plot-section {
-        height: 680px;
+    .section .equation-box.flat .equation-content {
+        font-size: clamp(0.78rem, 4.5cqi, 1rem);
     }
 }
 
@@ -303,16 +295,36 @@ body.get-started-page {
         max-width: none;
     }
 
-    .mahalanobis-container > .section:not(.sliders),
-    .r-squared-container > .section:not(.sliders),
-    .dca-container > .section:not(.sliders),
-    .ss-binary-container > .section:not(.sliders),
-    .ss-cont-container > .section:not(.sliders) {
+    .container > .section:last-child {
+        min-width: 0;
+    }
+
+    .dca-container > .section:not(.sliders) {
         min-height: 560px;
     }
 
-    .calibration-container > .section:last-child {
-        min-height: 760px;
+    /* Each canvas needs its own height. Wrapped legends and result rows
+       then grow the card instead of consuming the chart's drawing area. */
+    #ssbPlotContainer,
+    #sscPlotContainer,
+    #chartContainer,
+    #r2PlotContainer,
+    .calib-plot-column {
+        height: auto;
+    }
+
+    .index-chart-wrap {
+        flex: none;
+        height: clamp(260px, 65vw, 360px);
+    }
+
+    .calib-plot-slot {
+        flex: none;
+        height: 180px;
+    }
+
+    .calib-plot-slot--wide {
+        height: clamp(330px, 75vw, 440px);
     }
 
     .dashboard-metrics,
@@ -320,6 +332,13 @@ body.get-started-page {
     #continuous-container .dashboard-metrics {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard .dashboard-metrics > p[data-tooltip]::before {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        max-width: 100%;
     }
 
     .slider-label[data-tooltip]:before,
@@ -442,6 +461,11 @@ body.get-started-page {
         padding: 18px 16px;
     }
 
+    #continuous-container .slider-section .index-hr-spaced {
+        width: auto;
+        margin-inline: -16px;
+    }
+
     .main-plot-section,
     #binary-container .main-plot-section {
         height: clamp(380px, 110vw, 500px);
@@ -470,6 +494,7 @@ body.get-started-page {
     #continuous-container .results-container {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
         height: auto;
     }
 
@@ -496,7 +521,7 @@ body.get-started-page {
     .half-plot,
     #binary-container .results-container .half-plot,
     #continuous-container .results-container .half-plot {
-        min-height: 270px;
+        min-height: 0;
     }
 
     .dashboard,
@@ -577,11 +602,57 @@ body.get-started-page {
 
     .calib-metric-cell {
         gap: 12px;
+        position: relative;
+    }
+
+    .calib-metric-label[data-tooltip] {
+        position: static;
+    }
+
+    .calib-metric-label[data-tooltip]::before {
+        max-width: 100%;
     }
 
     .summary-detail-row {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .summary-item {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .summary-item .item-value {
+        margin: 0;
+    }
+
+    #sample-size .chart-legend {
+        display: grid;
+        justify-content: start;
+        gap: 8px;
+        margin-bottom: 16px;
+        text-align: left;
+    }
+
+    #sample-size .chart-legend-item {
+        margin: 0;
+    }
+
+    #sample-size .chart-legend-marker {
+        width: 26px;
+    }
+
+    .ssb-slider-limit-message {
+        position: static;
+        max-width: none;
+    }
+
+    .ssb-slider-limit-message::after {
+        display: none;
     }
 
     .index-button-row {

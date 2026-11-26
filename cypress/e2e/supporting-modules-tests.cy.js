@@ -117,6 +117,37 @@ describe('E2P Simulator - Supporting modules', () => {
     cy.get('#calibration').should('be.visible');
   });
 
+  it('keeps both sample-size charts inside their cards on a narrow phone', () => {
+    cy.viewport(320, 667);
+
+    function checkChart(id) {
+      cy.get(id).should(($canvas) => {
+        const canvas = $canvas[0];
+        const plot = canvas.getBoundingClientRect();
+        const bubble = canvas.closest('.plot-bubble');
+        const card = bubble.getBoundingClientRect();
+        const legend = bubble.querySelector('.chart-legend').getBoundingClientRect();
+        expect(plot.left).to.be.at.least(card.left - 1);
+        expect(plot.right).to.be.at.most(card.right + 1);
+        expect(plot.top).to.be.at.least(legend.bottom - 1);
+        expect(plot.bottom).to.be.at.most(card.bottom + 1);
+        expect(canvas._chart.chartArea.height).to.be.greaterThan(150);
+      });
+    }
+
+    checkChart('#ssbPlot');
+    cy.get('#ssb-p').clear().type('31');
+    cy.get('#ssb-results-table').should('contain.text', 'MAPE applies only through 30');
+    checkChart('#ssbPlot');
+
+    cy.get('#continuous-button').click();
+    checkChart('#sscPlot');
+    cy.viewport(844, 390);
+    checkChart('#sscPlot');
+    cy.get('#binary-button').click();
+    checkChart('#ssbPlot');
+  });
+
   it('loads binary multivariable controls from an example URL', () => {
     cy.visit(
       'index.html?mode=binary&baseRate=0.08&multiTargetRocAuc=0.965&multiEffectSize=0.8&multiCollinearity=0.05&multiPredictors=20'
